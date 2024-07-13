@@ -1,20 +1,19 @@
 """Settings for a GridWorks Persister, readable from environment and/or from env files."""
 
-from typing import Optional
 
-import pendulum
-from gridworks.enums import GNodeRole
-from gridworks.gw_config import GNodeSettings
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings
+
+from gwbase.config.rabbit_settings import RabbitBrokerClient 
+#from gwbase.config import RabbitBrokerClient
 
 
-class Settings(GNodeSettings):
-    g_node_alias: str = "d1.persister"
-    g_node_role_value: str = "Persister"
-    my_super_alias: str = "d1.super1"
-    g_node_id: str = "8d494cfe-2a45-4279-affb-d54f1b240e7a"
-    g_node_instance_id: str = "00000000-0000-0000-0000-000000000000"
+DEFAULT_ENV_FILE = ".env"
+
+class Settings(BaseSettings):
+    rabbit: RabbitBrokerClient = RabbitBrokerClient()
+    db_url: SecretStr = SecretStr("postgresql+asyncpg://persister:PASSWD@journaldb.electricity.works/journaldb")
 
     class Config:
-        env_prefix = "PER_"
+        env_prefix = "GWP_"
         env_nested_delimiter = "__"

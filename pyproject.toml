@@ -24,11 +24,11 @@ click = ">=8.0.1"
 boto3 = "^1.26.3"
 paho-mqtt = "^1.6.1"
 
-psycopg2-binary = "^2.9.5"
 gridworks-base = "^0.1.0"
 sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"
+asyncpg = "^0.29.0"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
