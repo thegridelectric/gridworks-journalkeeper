@@ -1,18 +1,12 @@
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
 from sqlalchemy import String
-from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.declarative import declarative_base
-
-
-# Defining the sqlalchemy table format
+from sqlalchemy.orm import declarative_base
 
 # Define the base class
 Base = declarative_base()
 
-
-# Define the ORM class
 class MessageSql(Base):
     __tablename__ = "messages"
     message_id = Column(String, primary_key=True)

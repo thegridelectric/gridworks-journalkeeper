@@ -3,7 +3,7 @@ import uuid
 from gwp.types import Message
 from typing import List
 from sqlalchemy import inspect
-from gwp.message_sql import MessageSql
+from gwp.models import MessageSql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
