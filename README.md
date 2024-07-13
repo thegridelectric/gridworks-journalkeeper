@@ -21,6 +21,35 @@
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
+This is a repository for managing GridWorks storage of GridWorks time series data beyond the initial persistence mechanism. It is a major work in progress
+
+Right now it is focused on setting up the simplest usable form of storing the 2023-2024 Millinocket S3 data in a postgres database.
+
+## journaldb
+
+### EC2 instance
+Elastic IP 3.221.195.180, key gridworks-hybrid
+
+Accessing locally: 
+
+```
+ssh ubuntu@journaldb.electricity.works
+psql -U journaldb
+```
+
+Password is in 1password, look up journaldb
+
+Accessing remotely:
+
+assuming you have psql on your local machine:
+
+```
+psql -h journaldb.electricity.works -U journaldb -d journaldb
+```
+and then enter password
+
+
+
 ## Features
 
 - TODO
