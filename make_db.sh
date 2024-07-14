@@ -23,7 +23,7 @@ alembic upgrade head
 # Generate the SQL command to create the view if it does not exist
 SQL_COMMAND="CREATE OR REPLACE VIEW msg_pretty AS 
 SELECT 
-    payload, 
+    payload, from_alias, type_name,
     to_timestamp(message_persisted_ms / 1000) AT TIME ZONE 'America/New_York' AS message_persisted, 
     CASE 
         WHEN message_created_ms IS NOT NULL THEN to_timestamp(message_created_ms / 1000) AT TIME ZONE 'America/New_York' 
