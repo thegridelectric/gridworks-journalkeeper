@@ -9,11 +9,11 @@ from typing import Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
+from gw.utils import pascal_to_snake
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake
 
 from gwp.types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
 from gwp.types.gt_sh_booleanactuator_cmd_status import (
@@ -73,7 +73,7 @@ class GtShStatus(BaseModel):
 
     class Config:
         populate_by_name = True
-        alias_generator = to_pascal
+        alias_generator = snake_to_pascal
 
     @field_validator("from_g_node_alias")
     def _check_from_g_node_alias(cls, v: str) -> str:
@@ -142,7 +142,7 @@ class GtShStatus(BaseModel):
         It also applies these changes recursively to sub-types.
         """
         d = {
-            to_pascal(key): value
+            snake_to_pascal(key): value
             for key, value in self.model_dump().items()
             if value is not None
         }
@@ -309,7 +309,7 @@ class GtShStatus_Maker:
                 f"Attempting to interpret gt.sh.status version {d2['Version']} as version 110"
             )
             d2["Version"] = "110"
-        d3 = {to_snake(key): value for key, value in d2.items()}
+        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GtShStatus(**d3)
 
 

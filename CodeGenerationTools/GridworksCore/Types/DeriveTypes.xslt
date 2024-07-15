@@ -75,6 +75,8 @@ from typing import Optional</xsl:text>
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
+from gw.utils import pascal_to_snake
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel</xsl:text>
 <xsl:text>
 from pydantic import Field</xsl:text>
@@ -86,9 +88,6 @@ from pydantic import model_validator</xsl:text>
 <xsl:text>
 from pydantic import field_validator</xsl:text>
 </xsl:if>
-<xsl:text>
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake</xsl:text>
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
 <xsl:text>
 from typing_extensions import Self</xsl:text>
@@ -407,13 +406,13 @@ class </xsl:text>
     class Config:
         extra = 'allow'
         populate_by_name = True
-        alias_generator = to_pascal</xsl:text>
+        alias_generator = snake_to_pascal</xsl:text>
 </xsl:if>
 <xsl:if test="not(ExtraAllowed='true')"><xsl:text>
 
     class Config:
         populate_by_name = True
-        alias_generator = to_pascal</xsl:text>
+        alias_generator = snake_to_pascal</xsl:text>
 </xsl:if>
 
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
@@ -738,7 +737,7 @@ class </xsl:text>
         It also applies these changes recursively to sub-types.
         """
         d = {
-            to_pascal(key): value
+            snake_to_pascal(key): value
             for key, value in self.model_dump().items()
             if value is not None
         }</xsl:text>
@@ -1304,7 +1303,7 @@ class </xsl:text>
             <xsl:value-of select="Version"/> <xsl:text>"
             )
             d2["Version"] = "</xsl:text><xsl:value-of select="Version"/><xsl:text>"
-        d3 = {to_snake(key): value for key, value in d2.items()}
+        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>(**d3)</xsl:text>
     <xsl:if test="(MakeDataClass='true')">
     <xsl:text>

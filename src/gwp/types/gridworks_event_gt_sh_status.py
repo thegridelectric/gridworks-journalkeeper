@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
+from gwp.enums import TelemetryName
 from gwp.types.gt_sh_status import GtShStatus
 from gwp.types.gt_sh_status import GtShStatus_Maker
 
@@ -216,7 +217,7 @@ class GridworksEventGtShStatus_Maker:
         if "Status" in d.keys():
             return d
 
-        d2 = copy.deepcopy(d)  # Create a deep copy of the dictionary
+        d2 = copy.deepcopy(d)
         if "status" not in d2.keys():
             raise GwTypeError(f"dict missing Status: <{d2}>")
 
@@ -246,6 +247,7 @@ class GridworksEventGtShStatus_Maker:
 
         d2["Status"] = status
         del d2["status"]
+        d2["Version"] = "000"
         return d2
 
 

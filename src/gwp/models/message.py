@@ -9,9 +9,9 @@ from typing import Dict
 from typing import Optional
 
 import pendulum
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import field_validator
-from pydantic.alias_generators import to_pascal
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
 from sqlalchemy import String
@@ -53,7 +53,7 @@ class Message(BaseModel):
 
     class Config:
         populate_by_name = True
-        alias_generator = to_pascal
+        alias_generator = snake_to_pascal
 
     @field_validator("message_id")
     def _check_message_id(cls, v: str) -> str:

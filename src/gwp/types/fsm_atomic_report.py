@@ -9,12 +9,12 @@ from typing import Optional
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
+from gw.utils import pascal_to_snake
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 from pydantic import model_validator
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake
 from typing_extensions import Self
 
 from gwp.enums import FsmActionType
@@ -106,7 +106,7 @@ class FsmAtomicReport(BaseModel):
     class Config:
         extra = "allow"
         populate_by_name = True
-        alias_generator = to_pascal
+        alias_generator = snake_to_pascal
 
     @field_validator("from_handle")
     def _check_from_handle(cls, v: str) -> str:
@@ -180,7 +180,7 @@ class FsmAtomicReport(BaseModel):
         It also applies these changes recursively to sub-types.
         """
         d = {
-            to_pascal(key): value
+            snake_to_pascal(key): value
             for key, value in self.model_dump().items()
             if value is not None
         }
@@ -309,7 +309,7 @@ class FsmAtomicReport_Maker:
                 f"Attempting to interpret fsm.atomic.report version {d2['Version']} as version 000"
             )
             d2["Version"] = "000"
-        d3 = {to_snake(key): value for key, value in d2.items()}
+        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return FsmAtomicReport(**d3)
 
 

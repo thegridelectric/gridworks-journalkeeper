@@ -1,5 +1,6 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
+import copy
 import json
 import logging
 from typing import Any
@@ -14,6 +15,7 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
+from gwp.enums import TelemetryName
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
 
@@ -60,7 +62,7 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
 
     class Config:
         populate_by_name = True
-        alias_generator = to_pascal
+        alias_generator = snake_to_pascal
 
     @field_validator("message_id")
     def _check_message_id(cls, v: str) -> str:
@@ -97,7 +99,7 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
         It also applies these changes recursively to sub-types.
         """
         d = {
-            to_pascal(key): value
+            snake_to_pascal(key): value
             for key, value in self.model_dump().items()
             if value is not None
         }
@@ -207,3 +209,93 @@ class GridworksEventSnapshotSpaceheat_Maker:
             d2["Version"] = "000"
         d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GridworksEventSnapshotSpaceheat(**d3)
+
+    @classmethod
+    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
+        """
+        Makes key "status" -> "Status", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+        if "Snap" in d.keys():
+            return d
+        d2 = copy.deepcopy(d)
+        if "snap" not in d2.keys():
+            raise GwTypeError(f"dict missing Snap: <{d2}>")
+
+        snap = d2["snap"]
+        tn_list = snap["Snapshot"]["TelemetryNameList"]
+        new_list = []
+        for tn in tn_list:
+            new_list.append(TelemetryName.value_to_symbol(tn))
+
+        snap["Snapshot"]["TelemetryNameList"] = new_list
+        d2["Snap"] = snap
+        del d2["snap"]
+        d2["Version"] = "000"
+        return d2
+
+
+def check_is_left_right_dot(v: str) -> None:
+    """Checks LeftRightDot Format
+
+    LeftRightDot format: Lowercase alphanumeric words separated by periods, with
+    the most significant word (on the left) starting with an alphabet character.
+
+    Args:
+        v (str): the candidate
+
+    Raises:
+        ValueError: if v is not LeftRightDot format
+    """
+    from typing import List
+
+    try:
+        x: List[str] = v.split(".")
+    except:
+        raise ValueError(f"Failed to seperate <{v}> into words with split'.'")
+    first_word = x[0]
+    first_char = first_word[0]
+    if not first_char.isalpha():
+        raise ValueError(
+            f"Most significant word of <{v}> must start with alphabet char."
+        )
+    for word in x:
+        if not word.isalnum():
+            raise ValueError(f"words of <{v}> split by by '.' must be alphanumeric.")
+    if not v.islower():
+        raise ValueError(f"All characters of <{v}> must be lowercase.")
+
+
+def check_is_uuid_canonical_textual(v: str) -> None:
+    """Checks UuidCanonicalTextual format
+
+    UuidCanonicalTextual format:  A string of hex words separated by hyphens
+    of length 8-4-4-4-12.
+
+    Args:
+        v (str): the candidate
+
+    Raises:
+        ValueError: if v is not UuidCanonicalTextual format
+    """
+    try:
+        x = v.split("-")
+    except AttributeError as e:
+        raise ValueError(f"Failed to split on -: {e}")
+    if len(x) != 5:
+        raise ValueError(f"<{v}> split by '-' did not have 5 words")
+    for hex_word in x:
+        try:
+            int(hex_word, 16)
+        except ValueError:
+            raise ValueError(f"Words of <{v}> are not all hex")
+    if len(x[0]) != 8:
+        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+    if len(x[1]) != 4:
+        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+    if len(x[2]) != 4:
+        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+    if len(x[3]) != 4:
+        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+    if len(x[4]) != 12:
+        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")

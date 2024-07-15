@@ -80,20 +80,20 @@ def status_by_versioned_type_name() -> Dict[str, str]:
     """
 
     v: Dict[str, str] = {
-        "batched.readings.000": "Active",
-        "channel.readings.000": "Active",
-        "data.channel.gt.000": "Active",
-        "fsm.atomic.report.000": "Active",
-        "fsm.full.report.000": "Active",
+        "batched.readings.000": "Pending",
+        "channel.readings.000": "Pending",
+        "data.channel.gt.000": "Pending",
+        "fsm.atomic.report.000": "Pending",
+        "fsm.full.report.000": "Pending",
         "gridworks.event.gt.sh.status.000": "Active",
         "gridworks.event.snapshot.spaceheat.000": "Pending",
-        "gt.sh.booleanactuator.cmd.status.101": "Active",
-        "gt.sh.multipurpose.telemetry.status.100": "Active",
-        "gt.sh.simple.telemetry.status.100": "Active",
-        "gt.sh.status.110": "Active",
+        "gt.sh.booleanactuator.cmd.status.101": "Pending",
+        "gt.sh.multipurpose.telemetry.status.100": "Pending",
+        "gt.sh.simple.telemetry.status.100": "Pending",
+        "gt.sh.status.110": "Pending",
         "heartbeat.a.001": "Active",
-        "snapshot.spaceheat.000": "Active",
-        "telemetry.snapshot.spaceheat.000": "Active",
+        "snapshot.spaceheat.000": "Pending",
+        "telemetry.snapshot.spaceheat.000": "Pending",
     }
 
     return v
