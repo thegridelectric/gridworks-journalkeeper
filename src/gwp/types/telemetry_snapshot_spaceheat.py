@@ -1,4 +1,4 @@
-"""Type channel.readings, version 000"""
+"""Type telemetry.snapshot.spaceheat, version 000"""
 
 import json
 import logging
@@ -17,6 +17,8 @@ from pydantic.alias_generators import to_pascal
 from pydantic.alias_generators import to_snake
 from typing_extensions import Self
 
+from gwp.enums import TelemetryName
+
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
@@ -25,58 +27,63 @@ LOG_FORMAT = (
 LOGGER = logging.getLogger(__name__)
 
 
-class ChannelReadings(BaseModel):
+class TelemetrySnapshotSpaceheat(BaseModel):
     """
-    A list of timestamped readings (values) for a data channel. This is meant to be reported
-    for non-local consumption (AtomicTNode, other) by a SCADA. Therefore, the data channel is
-    referenced by its globally unique identifier. The receiver needs to reference this idea
-    against a list of the data channels used by the SCADA for accurate parsing. Replaces both
-    GtShSimpleTelemetryStatus and GtShMultipurposeTelemetryStatus
+    Snapshot of Telemetry Data from a SpaceHeat SCADA.
+
+    A snapshot of all current sensed states, sent from a spaceheat SCADA to its AtomicTNode.
+    The nth element of each of the three lists refer to the same reading (i.e., what is getting
+    read, what the value is, what the TelemetryNames are.)
+
+    [More info](https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html)
     """
 
-    channel_id: str = Field(
-        title="Channel Od",
+    report_time_unix_ms: int = Field(
+        title="ReportTimeUnixMs",
         description=(
-            "The globally unique identifier of the Data Channel for this batch of timestamped "
-            "values."
+            "The time, in unix ms, that the SCADA creates this type. It may not be when the SCADA "
+            "sends the type to the atn (for example if Internet is down)."
+        ),
+    )
+    about_node_alias_list: List[str] = Field(
+        title="AboutNodeAliases",
+        description=(
+            "The list of Spaceheat nodes in the snapshot."
             "[More info](https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html)"
         ),
     )
     value_list: List[int] = Field(
-        title="List of Values",
-        description=(
-            "Refer to the associated DataChannel to understand the meaning of the these readings."
-        ),
+        title="ValueList",
     )
-    scada_read_time_unix_ms_list: List[int] = Field(
-        title="List of Read Times",
-        description="The times that the MultipurposeSensor took the readings, in unix milliseconds",
+    telemetry_name_list: List[TelemetryName] = Field(
+        title="TelemetryNameList",
+        description="[More info](https://gridworks-protocol.readthedocs.io/en/latest/telemetry-name.html)",
     )
-    type_name: Literal["channel.readings"] = "channel.readings"
+    type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
     version: Literal["000"] = "000"
 
     class Config:
         populate_by_name = True
         alias_generator = to_pascal
 
-    @field_validator("channel_id")
-    def _check_channel_id(cls, v: str) -> str:
+    @field_validator("report_time_unix_ms")
+    def _check_report_time_unix_ms(cls, v: int) -> int:
         try:
-            check_is_uuid_canonical_textual(v)
+            check_is_reasonable_unix_time_ms(v)
         except ValueError as e:
             raise ValueError(
-                f"ChannelId failed UuidCanonicalTextual format validation: {e}"
+                f"ReportTimeUnixMs failed ReasonableUnixTimeMs format validation: {e}"
             )
         return v
 
-    @field_validator("scada_read_time_unix_ms_list")
-    def _check_scada_read_time_unix_ms_list(cls, v: List[int]) -> List[int]:
+    @field_validator("about_node_alias_list")
+    def _check_about_node_alias_list(cls, v: List[str]) -> List[str]:
         for elt in v:
             try:
-                check_is_reasonable_unix_time_ms(elt)
+                check_is_left_right_dot(elt)
             except ValueError as e:
                 raise ValueError(
-                    f"ScadaReadTimeUnixMsList element {elt} failed ReasonableUnixTimeMs format validation: {e}"
+                    f"AboutNodeAliasList element {elt} failed LeftRightDot format validation: {e}"
                 )
         return v
 
@@ -84,7 +91,7 @@ class ChannelReadings(BaseModel):
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: ListLengthConsistency.
-        ValueList and ScadaReadTimeUnixMsList must have the same length.
+        AboutNodeAliastList, ValueList and TelemetryNameList must all have the same length.
         """
         # TODO: Implement check for axiom 1"
         return self
@@ -92,11 +99,11 @@ class ChannelReadings(BaseModel):
     def as_dict(self) -> Dict[str, Any]:
         """
         Translate the object into a dictionary representation that can be serialized into a
-        channel.readings.000 object.
+        telemetry.snapshot.spaceheat.000 object.
 
         This method prepares the object for serialization by the as_type method, creating a
         dictionary with key-value pairs that follow the requirements for an instance of the
-        channel.readings.000 type. Unlike the standard python dict method,
+        telemetry.snapshot.spaceheat.000 type. Unlike the standard python dict method,
         it makes the following substantive changes:
         - Enum Values: Translates between the values used locally by the actor to the symbol
         sent in messages.
@@ -110,14 +117,19 @@ class ChannelReadings(BaseModel):
             for key, value in self.model_dump().items()
             if value is not None
         }
+        del d["TelemetryNameList"]
+        telemetry_name_list = []
+        for elt in self.TelemetryNameList:
+            telemetry_name_list.append(TelemetryName.value_to_symbol(elt.value))
+        d["TelemetryNameList"] = telemetry_name_list
         return d
 
     def as_type(self) -> bytes:
         """
-        Serialize to the channel.readings.000 representation.
+        Serialize to the telemetry.snapshot.spaceheat.000 representation.
 
-        Instances in the class are python-native representations of channel.readings.000
-        objects, while the actual channel.readings.000 object is the serialized UTF-8 byte
+        Instances in the class are python-native representations of telemetry.snapshot.spaceheat.000
+        objects, while the actual telemetry.snapshot.spaceheat.000 object is the serialized UTF-8 byte
         string designed for sending in a message.
 
         This method calls the as_dict() method, which differs from the native python dict()
@@ -129,7 +141,7 @@ class ChannelReadings(BaseModel):
 
         It also applies these changes recursively to sub-types.
 
-        Its near-inverse is ChannelReadings.type_to_tuple(). If the type (or any sub-types)
+        Its near-inverse is TelemetrySnapshotSpaceheat.type_to_tuple(). If the type (or any sub-types)
         includes an enum, then the type_to_tuple will map an unrecognized symbol to the
         default enum value. This is why these two methods are only 'near' inverses.
         """
@@ -140,19 +152,19 @@ class ChannelReadings(BaseModel):
         return hash((type(self),) + tuple(self.__dict__.values()))  # noqa
 
 
-class ChannelReadings_Maker:
-    type_name = "channel.readings"
+class TelemetrySnapshotSpaceheat_Maker:
+    type_name = "telemetry.snapshot.spaceheat"
     version = "000"
 
     @classmethod
-    def tuple_to_type(cls, tuple: ChannelReadings) -> bytes:
+    def tuple_to_type(cls, tuple: TelemetrySnapshotSpaceheat) -> bytes:
         """
         Given a Python class object, returns the serialized JSON type object.
         """
         return tuple.as_type()
 
     @classmethod
-    def type_to_tuple(cls, t: bytes) -> ChannelReadings:
+    def type_to_tuple(cls, t: bytes) -> TelemetrySnapshotSpaceheat:
         """
         Given a serialized JSON type object, returns the Python class object.
         """
@@ -165,12 +177,12 @@ class ChannelReadings_Maker:
         return cls.dict_to_tuple(d)
 
     @classmethod
-    def dict_to_tuple(cls, d: dict[str, Any]) -> ChannelReadings:
+    def dict_to_tuple(cls, d: dict[str, Any]) -> TelemetrySnapshotSpaceheat:
         """
-        Deserialize a dictionary representation of a channel.readings.000 message object
-        into a ChannelReadings python object for internal use.
+        Deserialize a dictionary representation of a telemetry.snapshot.spaceheat.000 message object
+        into a TelemetrySnapshotSpaceheat python object for internal use.
 
-        This is the near-inverse of the ChannelReadings.as_dict() method:
+        This is the near-inverse of the TelemetrySnapshotSpaceheat.as_dict() method:
           - Enums: translates between the symbols sent in messages between actors and
         the values used by the actors internally once they've deserialized the messages.
           - Types: recursively validates and deserializes sub-types.
@@ -183,32 +195,72 @@ class ChannelReadings_Maker:
             d (dict): the dictionary resulting from json.loads(t) for a serialized JSON type object t.
 
         Raises:
-           GwTypeError: if the dict cannot be turned into a ChannelReadings object.
+           GwTypeError: if the dict cannot be turned into a TelemetrySnapshotSpaceheat object.
 
         Returns:
-            ChannelReadings
+            TelemetrySnapshotSpaceheat
         """
         for key in d.keys():
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
         d2 = dict(d)
-        if "ChannelId" not in d2.keys():
-            raise GwTypeError(f"dict missing ChannelId: <{d2}>")
+        if "ReportTimeUnixMs" not in d2.keys():
+            raise GwTypeError(f"dict missing ReportTimeUnixMs: <{d2}>")
+        if "AboutNodeAliasList" not in d2.keys():
+            raise GwTypeError(f"dict missing AboutNodeAliasList: <{d2}>")
         if "ValueList" not in d2.keys():
             raise GwTypeError(f"dict missing ValueList: <{d2}>")
-        if "ScadaReadTimeUnixMsList" not in d2.keys():
-            raise GwTypeError(f"dict missing ScadaReadTimeUnixMsList: <{d2}>")
+        if "TelemetryNameList" not in d2.keys():
+            raise GwTypeError(f"dict <{d2}> missing TelemetryNameList")
+        if not isinstance(d2["TelemetryNameList"], List):
+            raise GwTypeError("TelemetryNameList must be a List!")
+        telemetry_name_list = []
+        for elt in d2["TelemetryNameList"]:
+            value = TelemetryName.symbol_to_value(elt)
+            telemetry_name_list.append(TelemetryName(value))
+        d2["TelemetryNameList"] = telemetry_name_list
         if "TypeName" not in d2.keys():
             raise GwTypeError(f"TypeName missing from dict <{d2}>")
         if "Version" not in d2.keys():
             raise GwTypeError(f"Version missing from dict <{d2}>")
         if d2["Version"] != "000":
             LOGGER.debug(
-                f"Attempting to interpret channel.readings version {d2['Version']} as version 000"
+                f"Attempting to interpret telemetry.snapshot.spaceheat version {d2['Version']} as version 000"
             )
             d2["Version"] = "000"
         d3 = {to_snake(key): value for key, value in d2.items()}
-        return ChannelReadings(**d3)
+        return TelemetrySnapshotSpaceheat(**d3)
+
+
+def check_is_left_right_dot(v: str) -> None:
+    """Checks LeftRightDot Format
+
+    LeftRightDot format: Lowercase alphanumeric words separated by periods, with
+    the most significant word (on the left) starting with an alphabet character.
+
+    Args:
+        v (str): the candidate
+
+    Raises:
+        ValueError: if v is not LeftRightDot format
+    """
+    from typing import List
+
+    try:
+        x: List[str] = v.split(".")
+    except:
+        raise ValueError(f"Failed to seperate <{v}> into words with split'.'")
+    first_word = x[0]
+    first_char = first_word[0]
+    if not first_char.isalpha():
+        raise ValueError(
+            f"Most significant word of <{v}> must start with alphabet char."
+        )
+    for word in x:
+        if not word.isalnum():
+            raise ValueError(f"words of <{v}> split by by '.' must be alphanumeric.")
+    if not v.islower():
+        raise ValueError(f"All characters of <{v}> must be lowercase.")
 
 
 def check_is_reasonable_unix_time_ms(v: int) -> None:
@@ -235,38 +287,3 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
         raise ValueError(f"{v} must be after Jan 1 2000")
     if v > end_timestamp_ms:
         raise ValueError(f"{v} must be before Jan 1 3000")
-
-
-def check_is_uuid_canonical_textual(v: str) -> None:
-    """Checks UuidCanonicalTextual format
-
-    UuidCanonicalTextual format:  A string of hex words separated by hyphens
-    of length 8-4-4-4-12.
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not UuidCanonicalTextual format
-    """
-    try:
-        x = v.split("-")
-    except AttributeError as e:
-        raise ValueError(f"Failed to split on -: {e}")
-    if len(x) != 5:
-        raise ValueError(f"<{v}> split by '-' did not have 5 words")
-    for hex_word in x:
-        try:
-            int(hex_word, 16)
-        except ValueError:
-            raise ValueError(f"Words of <{v}> are not all hex")
-    if len(x[0]) != 8:
-        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[1]) != 4:
-        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[2]) != 4:
-        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[3]) != 4:
-        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[4]) != 12:
-        raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")

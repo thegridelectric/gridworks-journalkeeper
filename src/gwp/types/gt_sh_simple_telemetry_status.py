@@ -15,6 +15,7 @@ from pydantic import field_validator
 from pydantic import model_validator
 from pydantic.alias_generators import to_pascal
 from pydantic.alias_generators import to_snake
+from typing_extensions import Self
 
 from gwp.enums import TelemetryName as EnumTelemetryName
 
@@ -88,14 +89,14 @@ class GtShSimpleTelemetryStatus(BaseModel):
                 )
         return v
 
-    @model_validator
-    def check_axiom_1(cls, v: dict) -> dict:
+    @model_validator(mode="after")
+    def check_axiom_1(self) -> Self:
         """
         Axiom 1: ListLengthConsistency.
         ValueList and ReadTimeUnixMsList must have the same length.
         """
         # TODO: Implement check for axiom 1"
-        return v
+        return self
 
     def as_dict(self) -> Dict[str, Any]:
         """

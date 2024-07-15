@@ -50,3 +50,11 @@ heartbeat.a.001
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/heartbeat-a.json
 
+snapshot.spaceheat.000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/snapshot-spaceheat.json
+
+telemetry.snapshot.spaceheat.000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/telemetry-snapshot-spaceheat.json
+

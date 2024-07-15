@@ -15,6 +15,7 @@ from pydantic import field_validator
 from pydantic import model_validator
 from pydantic.alias_generators import to_pascal
 from pydantic.alias_generators import to_snake
+from typing_extensions import Self
 
 from gwp.enums import FsmActionType
 from gwp.enums import FsmEventType
@@ -135,32 +136,32 @@ class FsmAtomicReport(BaseModel):
             )
         return v
 
-    @model_validator
-    def check_axiom_1(cls, v: dict) -> dict:
+    @model_validator(mode="after")
+    def check_axiom_1(self) -> Self:
         """
         Axiom 1: Action and ActionType exist iff  ReportType is Action.
         The Optional Attributes ActionType and Action exist if and only if IsAction is true.
         """
         # TODO: Implement check for axiom 1"
-        return v
+        return self
 
-    @model_validator
-    def check_axiom_2(cls, v: dict) -> dict:
+    @model_validator(mode="after")
+    def check_axiom_2(self) -> Self:
         """
         Axiom 2: If Action exists, then it belongs to the un-versioned enum selected in the ActionType.
 
         """
         # TODO: Implement check for axiom 2"
-        return v
+        return self
 
-    @model_validator
-    def check_axiom_3(cls, v: dict) -> dict:
+    @model_validator(mode="after")
+    def check_axiom_3(self) -> Self:
         """
         Axiom 3: EventType, Event, FromState, ToState exist iff ReportType is Event.
 
         """
         # TODO: Implement check for axiom 3"
-        return v
+        return self
 
     def as_dict(self) -> Dict[str, Any]:
         """

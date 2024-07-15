@@ -6,14 +6,14 @@ Python pydantic class corresponding to json type `gridworks.event.gt.sh.status`,
     :members:
 
 **MessageId**:
-    - Description: 
+    - Description: MessageId.This is a unique immutable id assigned to the status payload when created by the SCADA. If the original message is not acked by the AtomicTNode, the entire gridworks.event is stored locally and re-sent later when AtomicTNode comms are re-established. (with this same MessageId) 
     - Format: UuidCanonicalTextual
 
 **TimeNS**:
-    - Description: 
+    - Description: The time in epoch nanoseconds that the SCADA created the status.
 
 **Src**:
-    - Description: 
+    - Description: The GNodeAlias of the SCADA sending the status.
     - Format: LeftRightDot
 
 **Status**:

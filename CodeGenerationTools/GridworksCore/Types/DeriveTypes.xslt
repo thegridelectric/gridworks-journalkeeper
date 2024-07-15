@@ -86,6 +86,13 @@ from pydantic import model_validator</xsl:text>
 <xsl:text>
 from pydantic import field_validator</xsl:text>
 </xsl:if>
+<xsl:text>
+from pydantic.alias_generators import to_pascal
+from pydantic.alias_generators import to_snake</xsl:text>
+<xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
+<xsl:text>
+from typing_extensions import Self</xsl:text>
+</xsl:if>
 
 <xsl:if test="count(PropertyFormatsUsed)>0">
 <xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='MarketSlotNameLrdFormat')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
@@ -171,9 +178,7 @@ from gwp.enums import </xsl:text>
 </xsl:if>
 
 </xsl:for-each>
-<xsl:text>
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake</xsl:text>
+
 
 <xsl:text>
 
@@ -678,8 +683,11 @@ class </xsl:text>
     <xsl:if test="CheckFirst='true'">
      <xsl:text>(mode='before')</xsl:text>
     </xsl:if>
+    <xsl:if test="not(CheckFirst='true')">
+     <xsl:text>(mode='after')</xsl:text>
+    </xsl:if>
     <xsl:text>
-    def check_axiom_</xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>(cls, v: dict) -> dict:
+    def check_axiom_</xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>(self) -> Self:
         """
         Axiom </xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>: </xsl:text>
         <xsl:value-of select="Title"/>
@@ -695,7 +703,7 @@ class </xsl:text>
         <xsl:text>
         """
         # TODO: Implement check for axiom </xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>"
-        return v</xsl:text>
+        return self</xsl:text>
 
     </xsl:for-each>
     </xsl:if>
@@ -1719,7 +1727,9 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
     Raises:
         ValueError: if v is not ReasonableUnixTimeMs format
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
+    from datetime import timezone
+
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
 
@@ -1749,7 +1759,9 @@ def check_is_reasonable_unix_time_s(v: int) -> None:
     Raises:
         ValueError: if v is not ReasonableUnixTimeS format
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
+    from datetime import timezone
+    
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
 

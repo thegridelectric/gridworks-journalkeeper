@@ -26,16 +26,29 @@ LOGGER = logging.getLogger(__name__)
 
 
 class GridworksEventGtShStatus(BaseModel):
-    """ """
+    """
+    This is a gwproto wrapper around a gt.sh.status message that includes the src (which should
+    always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once
+    the gt.sh.status message is created, and does not change if the SCADA re-sends the message
+    due to no ack from AtomicTNode) and a timestamp for when the message was created.
+    """
 
     message_id: str = Field(
         title="MessageId",
+        description=(
+            "This is a unique immutable id assigned to the status payload when created by the "
+            "SCADA. If the original message is not acked by the AtomicTNode, the entire gridworks.event "
+            "is stored locally and re-sent later when AtomicTNode comms are re-established. (with "
+            "this same MessageId)"
+        ),
     )
     time_n_s: int = Field(
         title="TimeNS",
+        description="The time in epoch nanoseconds that the SCADA created the status.",
     )
     src: str = Field(
         title="Src",
+        description="The GNodeAlias of the SCADA sending the status.",
     )
     status: GtShStatus = Field(
         title="Status",

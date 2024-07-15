@@ -32,6 +32,10 @@ from gwp.types.gt_sh_status import GtShStatus
 from gwp.types.gt_sh_status import GtShStatus_Maker
 from gwp.types.heartbeat_a import HeartbeatA
 from gwp.types.heartbeat_a import HeartbeatA_Maker
+from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
+from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
+from gwp.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
+from gwp.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat_Maker
 
 
 __all__ = [
@@ -59,4 +63,8 @@ __all__ = [
     "GtShStatus_Maker",
     "HeartbeatA",
     "HeartbeatA_Maker",
+    "SnapshotSpaceheat",
+    "SnapshotSpaceheat_Maker",
+    "TelemetrySnapshotSpaceheat",
+    "TelemetrySnapshotSpaceheat_Maker",
 ]

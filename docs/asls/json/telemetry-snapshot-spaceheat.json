@@ -1,0 +1,72 @@
+{
+  "gtr_asl": "001",
+  "type_name": "telemetry.snapshot.spaceheat",
+  "version": "000",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "Snapshot of Telemetry Data from a SpaceHeat SCADA. A snapshot of all current sensed states, sent from a spaceheat SCADA to its AtomicTNode. The nth element of each of the three lists refer to the same reading (i.e., what is getting read, what the value is, what the TelemetryNames are.)",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html",
+  "properties": {
+    "ReportTimeUnixMs": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeMs",
+      "title": "ReportTimeUnixMs",
+      "description": "The time, in unix ms, that the SCADA creates this type. It may not be when the SCADA sends the type to the atn (for example if Internet is down).",
+      "required": true
+    },
+    "AboutNodeAliasList": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "LeftRightDot",
+      "title": "AboutNodeAliases",
+      "description": "The list of Spaceheat nodes in the snapshot.",
+      "required": true
+    },
+    "ValueList": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "required": true
+    },
+    "TelemetryNameList": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "format": "spaceheat.telemetry.name",
+      "title": "",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "telemetry.snapshot.spaceheat",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "000",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom1": {
+      "title": "ListLengthConsistency",
+      "description": "AboutNodeAliastList, ValueList and TelemetryNameList must all have the same length."
+    }
+  },
+  "formats": {
+    "LeftRightDot": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by periods, with the most significant word (on the left) starting with an alphabet character.",
+      "example": "dw1.isone.me.freedom.apple"
+    },
+    "ReasonableUnixTimeMs": {
+      "type": "string",
+      "description": "An integer reflecting unix time in MILLISECONDS between midnight Jan 1 2000 and midnight Jan 1 3000 UTC",
+      "example": "1702327940710"
+    }
+  }
+}

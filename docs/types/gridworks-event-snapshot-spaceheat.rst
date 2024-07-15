@@ -6,14 +6,14 @@ Python pydantic class corresponding to json type `gridworks.event.snapshot.space
     :members:
 
 **MessageId**:
-    - Description: 
+    - Description: This is a unique immutable id assigned to the snapshot payload when created by the SCADA. If the original message is not acked by the AtomicTNode, the entire gridworks.event is stored locally and re-sent later when AtomicTNode comms are re-established. (with this same MessageId) 
     - Format: UuidCanonicalTextual
 
 **TimeNS**:
-    - Description: 
+    - Description: The time in epoch nanoseconds that the SCADA created the snapshot.
 
 **Src**:
-    - Description: 
+    - Description: The GNodeAlias of the SCADA sending the snapshot.
     - Format: LeftRightDot
 
 **Snap**:
