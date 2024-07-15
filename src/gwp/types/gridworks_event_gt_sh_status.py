@@ -1,5 +1,6 @@
 """Type gridworks.event.gt.sh.status, version 000"""
 
+import copy
 import json
 import logging
 from typing import Any
@@ -8,11 +9,11 @@ from typing import Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
+from gw.utils import pascal_to_snake
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake
 
 from gwp.types.gt_sh_status import GtShStatus
 from gwp.types.gt_sh_status import GtShStatus_Maker
@@ -58,7 +59,7 @@ class GridworksEventGtShStatus(BaseModel):
 
     class Config:
         populate_by_name = True
-        alias_generator = to_pascal
+        alias_generator = snake_to_pascal
 
     @field_validator("message_id")
     def _check_message_id(cls, v: str) -> str:
@@ -95,7 +96,7 @@ class GridworksEventGtShStatus(BaseModel):
         It also applies these changes recursively to sub-types.
         """
         d = {
-            to_pascal(key): value
+            snake_to_pascal(key): value
             for key, value in self.model_dump().items()
             if value is not None
         }
@@ -203,8 +204,49 @@ class GridworksEventGtShStatus_Maker:
                 f"Attempting to interpret gridworks.event.gt.sh.status version {d2['Version']} as version 000"
             )
             d2["Version"] = "000"
-        d3 = {to_snake(key): value for key, value in d2.items()}
+        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GridworksEventGtShStatus(**d3)
+
+    @classmethod
+    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
+        """
+        Makes key "status" -> "Status", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+        if "Status" in d.keys():
+            return d
+
+        d2 = copy.deepcopy(d)  # Create a deep copy of the dictionary
+        if "status" not in d2.keys():
+            raise GwTypeError(f"dict missing Status: <{d2}>")
+
+        status = d2["status"]
+
+        # replace values with symbols for TelemetryName in SimpleTelemetryList
+        simple_list = status["SimpleTelemetryList"]
+        for simple in simple_list:
+            if "TelemetryName" not in simple.keys():
+                raise Exception(
+                    f"simple does not have TelemetryName in keys! simple.key()): <{simple.keys()}>"
+                )
+            simple["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                simple["TelemetryName"]
+            )
+            del simple["TelemetryName"]
+        status["SimpleTelemetryList"] = simple_list
+
+        # replace values with symbols for TelemetryName in MultipurposeTelemetryList
+        multi_list = status["MultipurposeTelemetryList"]
+        for multi in multi_list:
+            multi["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                multi["TelemetryName"]
+            )
+            del multi["TelemetryName"]
+        status["MultipurposeTelemetryList"] = multi_list
+
+        d2["Status"] = status
+        del d2["status"]
+        return d2
 
 
 def check_is_left_right_dot(v: str) -> None:

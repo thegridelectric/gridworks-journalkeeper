@@ -8,11 +8,11 @@ from typing import Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
+from gw.utils import pascal_to_snake
+from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
-from pydantic.alias_generators import to_pascal
-from pydantic.alias_generators import to_snake
 
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
@@ -205,5 +205,5 @@ class GridworksEventSnapshotSpaceheat_Maker:
                 f"Attempting to interpret gridworks.event.snapshot.spaceheat version {d2['Version']} as version 000"
             )
             d2["Version"] = "000"
-        d3 = {to_snake(key): value for key, value in d2.items()}
+        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GridworksEventSnapshotSpaceheat(**d3)

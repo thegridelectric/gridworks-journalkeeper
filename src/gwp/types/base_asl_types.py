@@ -85,7 +85,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
         "data.channel.gt.000": "Active",
         "fsm.atomic.report.000": "Active",
         "fsm.full.report.000": "Active",
-        "gridworks.event.gt.sh.status.000": "Pending",
+        "gridworks.event.gt.sh.status.000": "Active",
         "gridworks.event.snapshot.spaceheat.000": "Pending",
         "gt.sh.booleanactuator.cmd.status.101": "Active",
         "gt.sh.multipurpose.telemetry.status.100": "Active",
