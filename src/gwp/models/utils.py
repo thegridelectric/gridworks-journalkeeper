@@ -1,5 +1,6 @@
 import pendulum
 
+
 def check_is_uuid_canonical_textual(v: str) -> None:
     """Checks UuidCanonicalTextual format
 

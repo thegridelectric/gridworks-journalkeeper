@@ -1,0 +1,40 @@
+{
+  "gtr_asl": "001",
+  "type_name": "gridworks.event.snapshot.spaceheat",
+  "version": "000",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "",
+  "properties": {
+    "MessageId": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "",
+      "required": true
+    },
+    "TimeNS": {
+      "type": "integer",
+      "required": true
+    },
+    "Src": {
+      "type": "string",
+      "format": "LeftRightDot",
+      "title": "",
+      "required": true
+    },
+    "Snap": {
+      "type": "snapshot.spaceheat.000",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "gridworks.event.snapshot.spaceheat",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "000",
+      "required": true
+    }
+  }
+}

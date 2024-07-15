@@ -3,14 +3,17 @@ import typing
 from typing import Any
 from typing import List
 from typing import Optional
-from pydantic import BaseModel
-from gwp.models import Message
 
 import boto3
 import pendulum
+from pydantic import BaseModel
 
-start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz='America/New_York')
+from gwp.models import Message
+
+
+start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
 start_s = int(start_time.timestamp())
+
 
 class FileNameMeta(BaseModel):
     from_alias: str
@@ -18,38 +21,37 @@ class FileNameMeta(BaseModel):
     message_persisted_ms: int
     file_name: str
 
+
 class PersisterHack:
     def __init__(self):
         self.s3 = boto3.client("s3")
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
-        
-    def get_date_folder_list(
-            self, start_s: int, duration_hrs: int
-        ) -> List[str]:
-            folder_list: List[str] = []
-            found_latest_earlier: bool = False
-            i = 0
-            while (not found_latest_earlier) and i < 5:
-                t = start_s - 3600 * 24 * (i + 1)
-                if self.has_this_days_folder(t):
-                    folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
-                    found_latest_earlier = True
-                i += 1
 
-            if self.has_this_days_folder(int(start_s)):
-                folder_list.append(pendulum.from_timestamp(start_s).strftime("%Y%m%d"))
+    def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
+        folder_list: List[str] = []
+        found_latest_earlier: bool = False
+        i = 0
+        while (not found_latest_earlier) and i < 5:
+            t = start_s - 3600 * 24 * (i + 1)
+            if self.has_this_days_folder(t):
+                folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
+                found_latest_earlier = True
+            i += 1
 
-            add_hrs = 0
-            while add_hrs < duration_hrs:
-                add_hrs += 24
-                add_hrs = min(add_hrs, duration_hrs)
-                t = start_s + add_hrs * 3600
-                if self.has_this_days_folder(t):
-                    folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
+        if self.has_this_days_folder(int(start_s)):
+            folder_list.append(pendulum.from_timestamp(start_s).strftime("%Y%m%d"))
 
-            return list(set(folder_list))
-    
+        add_hrs = 0
+        while add_hrs < duration_hrs:
+            add_hrs += 24
+            add_hrs = min(add_hrs, duration_hrs)
+            t = start_s + add_hrs * 3600
+            if self.has_this_days_folder(t):
+                folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
+
+        return list(set(folder_list))
+
     def has_this_days_folder(self, time_s: int) -> bool:
         d = pendulum.from_timestamp(time_s)
         this_days_folder_name = d.strftime("%Y%m%d")
@@ -59,7 +61,7 @@ class PersisterHack:
         if "Contents" in r.keys():
             return True
         return False
-    
+
     def get_file_name_meta_list(
         self,
         date_folder_list: List[str],
@@ -82,13 +84,13 @@ class PersisterHack:
                 except:
                     raise Exception(f"Failed file name parsing with {file_name}")
                 fn_list.append(
-                        FileNameMeta(
-                            from_alias=from_alias,
-                            type_name=type_name,
-                            message_persisted_ms=message_persisted_ms,
-                            file_name=file_name,
-                        )
+                    FileNameMeta(
+                        from_alias=from_alias,
+                        type_name=type_name,
+                        message_persisted_ms=message_persisted_ms,
+                        file_name=file_name,
                     )
+                )
 
         return fn_list
 
@@ -112,9 +114,9 @@ class PersisterHack:
         for i in range(len(fn_list)):
             fn = fn_list[i]
             message_bytes = self.get_message_bytes(fn)
-            
+
         return readings
-    
+
     def get_message_bytes(self, file_name_meta: FileNameMeta) -> bytes:
         s3_object = self.s3.get_object(
             Bucket=self.aws_bucket_name, Key=file_name_meta.file_name

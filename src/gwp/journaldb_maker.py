@@ -1,11 +1,14 @@
 import json
 import uuid
-from gwp.types import Message
 from typing import List
-from sqlalchemy import inspect
-from gwp.models import MessageSql
+
 from sqlalchemy import create_engine
+from sqlalchemy import inspect
 from sqlalchemy.orm import sessionmaker
+
+from gwp.models import MessageSql
+from gwp.types import Message
+
 
 file_name = "hw1.isone.me.versant.keene.beech.scada-power.watts-1715904078460-100.26.91.172.json"
 msg_file = f"tests/sample_messages/{file_name}"
@@ -14,12 +17,12 @@ from_alias = file_name.split("-")[0]
 type_name = file_name.split("-")[1]
 message_persisted_ms = int(file_name.split("-")[2])
 
-with open(msg_file, 'r') as file:
+with open(msg_file, "r") as file:
     content = json.load(file)
 
 payload = content.get("Payload", {})
 message_id = content.get("Header", {}).get("MessageId", None)
-message_created_ms = content.get("Header",{}).get("MessageCreatedMs", None)
+message_created_ms = content.get("Header", {}).get("MessageCreatedMs", None)
 
 # Generate a new UUID if message_id is None or blank
 if not message_id:
@@ -45,18 +48,18 @@ messages = [msg]
 
 
 # Database credentials
-DATABASE_URI = 'postgresql://persister:star5fish@journaldb.electricity.works/journaldb'
+DATABASE_URI = "postgresql://persister:star5fish@journaldb.electricity.works/journaldb"
 
 # Create an engine and session
 engine = create_engine(DATABASE_URI)
 inspector = inspect(engine)
 
 for table in [MessageSql]:
-   if table.__tablename__ not in inspector.get_table_names():
-      table.__table__.create(engine)
-   else:
-      print(f"Table '{table.__tablename__ }' already exists.")
-   
+    if table.__tablename__ not in inspector.get_table_names():
+        table.__table__.create(engine)
+    else:
+        print(f"Table '{table.__tablename__ }' already exists.")
+
 
 def add_messages(messages: List[Message]):
     # Create a session
@@ -71,11 +74,3 @@ def add_messages(messages: List[Message]):
         raise
     finally:
         session.close()
-
-
-
-
-
-
-
-

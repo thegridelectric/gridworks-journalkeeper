@@ -1,5 +1,3 @@
 """Gridworks Persister."""
 
-
-__all__ = [
-    ]
+__all__ = []

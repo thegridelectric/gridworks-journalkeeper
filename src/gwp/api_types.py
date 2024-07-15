@@ -1,4 +1,5 @@
 """ List of all the types used"""
+
 from typing import Dict
 from typing import List
 from typing import no_type_check

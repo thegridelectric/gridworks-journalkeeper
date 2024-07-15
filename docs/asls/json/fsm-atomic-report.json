@@ -1,0 +1,118 @@
+{
+  "gtr_asl": "001",
+  "type_name": "fsm.atomic.report",
+  "version": "000",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": ". Reports of single Fsm Actions and Transitions. The actions is any side-effect, which is the way the StateMachine is supposed to cause things happen to the outside world (This could include, for example, actuating a relay.) Transitions are intended to be captured by changing the handle of the Spaceheat Node whose actor maintains that finite state machine.",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html",
+  "properties": {
+    "FromHandle": {
+      "type": "string",
+      "format": "SpaceheatName",
+      "title": "From Handle",
+      "description": "The Name (as opposed to the handle) of the Spaceheat Node actor issuing the Finite State Machine report. The actor is meant to realize and be the authority on the FSM in question. Its handle reflects the state it is in.",
+      "required": true
+    },
+    "AboutFsm": {
+      "type": "string",
+      "format": "sh.fsm.name",
+      "title": "About Fsm",
+      "description": "The finite state machine this message is about.",
+      "required": true
+    },
+    "ReportType": {
+      "type": "string",
+      "format": "fsm.report.type",
+      "title": "Report Type",
+      "description": "Is this reporting an event, an action, or some other thing related to a finite state machine?",
+      "required": true
+    },
+    "ActionType": {
+      "type": "string",
+      "format": "sh.fsm.action.type",
+      "title": "Action Type",
+      "description": "The FiniteState Machine Action taken",
+      "required": false
+    },
+    "Action": {
+      "type": "integer",
+      "description": "Will typically be a number, usually an integer. For example, if ActionType is RelayPinSet, then RelayPinSet.DeEnergized = 0 and RelayPinSet.Energized = 1.",
+      "required": false
+    },
+    "EventType": {
+      "type": "string",
+      "format": "sh.fsm.event.type",
+      "title": "Event Type",
+      "required": false
+    },
+    "Event": {
+      "type": "string",
+      "required": false
+    },
+    "FromState": {
+      "type": "string",
+      "description": "The state of the FSM prior to triggering event.",
+      "required": false
+    },
+    "ToState": {
+      "type": "string",
+      "description": "The state of the FSM after the triggering event.",
+      "required": false
+    },
+    "UnixTimeMs": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeMs",
+      "title": "Unix Time in Milliseconds",
+      "required": true
+    },
+    "TriggerId": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "TriggerId",
+      "description": "Reference uuid for the triggering event that started a cascade of transitions, events and side-effect actions - of which this report is one.",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "fsm.atomic.report",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "000",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom1": {
+      "title": "Action and ActionType exist iff  ReportType is Action",
+      "description": "The Optional Attributes ActionType and Action exist if and only if IsAction is true."
+    },
+    "Axiom2": {
+      "title": "If Action exists, then it belongs to the un-versioned enum selected in the ActionType",
+      "description": ""
+    },
+    "Axiom3": {
+      "title": "EventType, Event, FromState, ToState exist iff ReportType is Event",
+      "description": ""
+    }
+  },
+  "formats": {
+    "UuidCanonicalTextual": {
+      "type": "string",
+      "description": "A string of hex words separated by hyphens of length 8-4-4-4-12.",
+      "example": "652ba6b0-c3bf-4f06-8a80-6b9832d60a25"
+    },
+    "SpaceheatName": {
+      "type": "string",
+      "description": "Lowercase words separated by periods, where the word characters can be alphanumeric or a hyphen and the first word starts with an alphabet character.",
+      "example": "store-hot-pipe"
+    },
+    "ReasonableUnixTimeMs": {
+      "type": "string",
+      "description": "An integer reflecting unix time in MILLISECONDS between midnight Jan 1 2000 and midnight Jan 1 3000 UTC",
+      "example": "1702327940710"
+    }
+  }
+}

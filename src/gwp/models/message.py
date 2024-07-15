@@ -95,7 +95,7 @@ class Message(BaseModel):
             )
         return v
 
-    @field_validator("message_craeted_ms")
+    @field_validator("message_created_ms")
     def _check_message_created_ms(cls, v: int) -> int:
         try:
             check_is_reasonable_unix_time_ms(v)

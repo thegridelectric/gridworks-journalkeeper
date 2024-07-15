@@ -1,0 +1,25 @@
+{
+  "gtr_asl": "001",
+  "enum_name": "fsm.report.type",
+  "enum_version": "000",
+  "description": "",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html",
+  "ssot": "https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#fsmreporttype",
+  "values": ["Other", "Event", "Action"],
+  "value_to_symbol": {
+    "Other": "00000000",
+    "Event": "6fe49bc1",
+    "Action": "490d4e1d"
+  },
+  "value_to_version": {
+    "Other": "000",
+    "Event": "000",
+    "Action": "000"
+  },
+  "value_descriptions": {
+    "Other": "",
+    "Event": "",
+    "Action": ""
+  },
+  "default_value": "Other"
+}

@@ -1,0 +1,76 @@
+{
+  "gtr_asl": "001",
+  "type_name": "gt.sh.multipurpose.telemetry.status",
+  "version": "100",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "Data read from a MultipurposeSensor run by a Spaceheat SCADA. A list of readings about a specific SpaceheatNode made by a MultipurposeSensor node, for a Spaceheat SCADA. Designed as part of a status message sent from the SCADA to its AtomicTNode typically once every 5 minutes. The nth element of each of its two lists refer to the same reading (i.e. what the value is, when it was read).",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/multipurpose-sensor.html",
+  "properties": {
+    "AboutNodeAlias": {
+      "type": "string",
+      "format": "LeftRightDot",
+      "title": "AboutNodeAlias",
+      "description": "The SpaceheatNode representing the physical object that the sensor reading is collecting data about. For example, a multipurpose temp sensor that reads 12 temperatures would have data for 12 different AboutNodeAliases, including say `a.tank1.temp1` for a temp sensor at the top of a water tank.",
+      "required": true
+    },
+    "SensorNodeAlias": {
+      "type": "string",
+      "description": "The alias of the SpaceheatNode representing the telemetry device",
+      "required": true
+    },
+    "TelemetryName": {
+      "type": "string",
+      "format": "spaceheat.telemetry.name",
+      "title": "TelemetryName",
+      "description": "The TelemetryName of the readings. This is used to interpet the meaning of the reading values. For example, WaterTempCTimes1000 means the reading is measuring the a reading of 37 deg C.",
+      "required": true
+    },
+    "ValueList": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "The values of the readings.",
+      "required": true
+    },
+    "ReadTimeUnixMsList": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "format": "ReasonableUnixTimeMs",
+      "title": "List of Read Times",
+      "description": "The times that the MultipurposeSensor took the readings, in unix milliseconds",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "gt.sh.multipurpose.telemetry.status",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "100",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom1": {
+      "title": "ListLengthConsistency",
+      "description": "ValueList and ReadTimeUnixMsList must have the same length."
+    }
+  },
+  "formats": {
+    "LeftRightDot": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by periods, with the most significant word (on the left) starting with an alphabet character.",
+      "example": "dw1.isone.me.freedom.apple"
+    },
+    "ReasonableUnixTimeMs": {
+      "type": "string",
+      "description": "An integer reflecting unix time in MILLISECONDS between midnight Jan 1 2000 and midnight Jan 1 3000 UTC",
+      "example": "1702327940710"
+    }
+  }
+}
