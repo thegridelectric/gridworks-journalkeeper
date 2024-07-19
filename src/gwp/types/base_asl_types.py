@@ -17,7 +17,6 @@ from gwp.types import GtShSimpleTelemetryStatus_Maker
 from gwp.types import GtShStatus_Maker
 from gwp.types import HeartbeatA_Maker
 from gwp.types import SnapshotSpaceheat_Maker
-from gwp.types import SpaceheatNodeGt_Maker
 from gwp.types import TelemetrySnapshotSpaceheat_Maker
 
 
@@ -40,7 +39,6 @@ def type_makers() -> List[HeartbeatA_Maker]:
         GtShStatus_Maker,
         HeartbeatA_Maker,
         SnapshotSpaceheat_Maker,
-        SpaceheatNodeGt_Maker,
         TelemetrySnapshotSpaceheat_Maker,
     ]
 
@@ -69,7 +67,6 @@ def version_by_type_name() -> Dict[str, str]:
         "gt.sh.status": "110",
         "heartbeat.a": "001",
         "snapshot.spaceheat": "000",
-        "spaceheat.node.gt": "200",
         "telemetry.snapshot.spaceheat": "000",
     }
 
@@ -85,7 +82,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
     v: Dict[str, str] = {
         "batched.readings.000": "Pending",
         "channel.readings.000": "Pending",
-        "data.channel.gt.000": "Active",
+        "data.channel.gt.000": "Pending",
         "fsm.atomic.report.000": "Pending",
         "fsm.full.report.000": "Pending",
         "gridworks.event.gt.sh.status.000": "Active",
@@ -96,7 +93,6 @@ def status_by_versioned_type_name() -> Dict[str, str]:
         "gt.sh.status.110": "Pending",
         "heartbeat.a.001": "Active",
         "snapshot.spaceheat.000": "Pending",
-        "spaceheat.node.gt.200": "Active",
         "telemetry.snapshot.spaceheat.000": "Pending",
     }
 

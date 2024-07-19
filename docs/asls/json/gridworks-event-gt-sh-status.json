@@ -40,6 +40,16 @@
       "required": true
     }
   },
+  "axioms": {
+    "Axiom1": {
+      "title": "SCADA time consistency",
+      "description": "SlotStartS + ReportingPeriodS < MessageCreatedS (which is TimeNS / 10**9)"
+    },
+    "Axiom2": {
+      "title": "Src is Status.FromGNodeAlias and MessageId matches Status.StatusUid",
+      "description": "Src == Status.FromGNodeAlias"
+    }
+  },
   "formats": {
     "UuidCanonicalTextual": {
       "type": "string",

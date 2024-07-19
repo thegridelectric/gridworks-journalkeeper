@@ -45,6 +45,13 @@
       "description": "Meant to be an immutable identifier that is globally unique (i.e., across terminal assets).",
       "required": true
     },
+    "StartS": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeS",
+      "title": "Start Seconds Epoch Time",
+      "description": "The epoch time of the first data record associated to a channel. If this value is None it means no known data yet.",
+      "required": false
+    },
     "TypeName": {
       "type": "string",
       "value": "data.channel.gt",

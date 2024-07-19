@@ -5,6 +5,7 @@ import logging
 from typing import Any
 from typing import Dict
 from typing import Literal
+from typing import Optional
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case
@@ -14,8 +15,8 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
+from gwp.data_classes.data_channel import DataChannel
 from gwp.enums import TelemetryName as EnumTelemetryName
-from gwp.models import DataChannelSql
 
 
 LOG_FORMAT = (
@@ -72,6 +73,14 @@ class DataChannelGt(BaseModel):
             "assets)."
         ),
     )
+    start_s: Optional[int] = Field(
+        title="Start Seconds Epoch Time",
+        description=(
+            "The epoch time of the first data record associated to a channel. If this value is "
+            "None it means no known data yet."
+        ),
+        default=None,
+    )
     type_name: Literal["data.channel.gt"] = "data.channel.gt"
     version: Literal["000"] = "000"
 
@@ -113,6 +122,18 @@ class DataChannelGt(BaseModel):
             check_is_uuid_canonical_textual(v)
         except ValueError as e:
             raise ValueError(f"Id failed UuidCanonicalTextual format validation: {e}")
+        return v
+
+    @field_validator("start_s")
+    def _check_start_s(cls, v: Optional[int]) -> Optional[int]:
+        if v is None:
+            return v
+        try:
+            check_is_reasonable_unix_time_s(v)
+        except ValueError as e:
+            raise ValueError(
+                f"StartS failed ReasonableUnixTimeS format validation: {e}"
+            )
         return v
 
     def as_dict(self) -> Dict[str, Any]:
@@ -165,13 +186,6 @@ class DataChannelGt(BaseModel):
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
-
-    def as_sql(self) -> DataChannelSql:
-        d = self.model_dump()
-        d.pop("type_name", None)
-        d.pop("version", None)
-        d["telemetry_name"] = self.telemetry_name.value
-        return DataChannelSql(**d)
 
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))  # noqa
@@ -255,6 +269,46 @@ class DataChannelGt_Maker:
             d2["Version"] = "000"
         d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return DataChannelGt(**d3)
+
+    @classmethod
+    def tuple_to_dc(cls, t: DataChannelGt) -> DataChannel:
+        if t.id in DataChannel.by_id.keys():
+            dc = DataChannel.by_id[t.id]
+        else:
+            dc = DataChannel(
+                name=t.name,
+                display_name=t.display_name,
+                about_node_name=t.about_node_name,
+                captured_by_node_name=t.captured_by_node_name,
+                telemetry_name=t.telemetry_name,
+                id=t.id,
+                start_s=t.start_s,
+            )
+        return dc
+
+    @classmethod
+    def dc_to_tuple(cls, dc: DataChannel) -> DataChannelGt:
+        return DataChannelGt(
+            name=dc.name,
+            display_name=dc.display_name,
+            about_node_name=dc.about_node_name,
+            captured_by_node_name=dc.captured_by_node_name,
+            telemetry_name=dc.telemetry_name,
+            id=dc.id,
+            start_s=dc.start_s,
+        )
+
+    @classmethod
+    def type_to_dc(cls, t: str) -> DataChannel:
+        return cls.tuple_to_dc(cls.type_to_tuple(t))
+
+    @classmethod
+    def dc_to_type(cls, dc: DataChannel) -> str:
+        return cls.dc_to_tuple(dc).as_type()
+
+    @classmethod
+    def dict_to_dc(cls, d: dict[Any, str]) -> DataChannel:
+        return cls.tuple_to_dc(cls.dict_to_tuple(d))
 
 
 def check_is_spaceheat_name(v: str) -> None:

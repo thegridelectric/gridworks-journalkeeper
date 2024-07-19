@@ -19,6 +19,7 @@ def test_data_channel_gt_generated() -> None:
         captured_by_node_name="s.pwr-meter",
         telemetry_name="af39eec9",
         id="50cf426b-ff3f-4a30-8415-8d3fba5e0ab7",
+        start_s=1721405699,
     )
 
     d = {
@@ -28,6 +29,7 @@ def test_data_channel_gt_generated() -> None:
         "CapturedByNodeName": "s.pwr-meter",
         "TelemetryNameGtEnumSymbol": "af39eec9",
         "Id": "50cf426b-ff3f-4a30-8415-8d3fba5e0ab7",
+        "StartS": 1721405699,
         "TypeName": "data.channel.gt",
         "Version": "000",
     }
@@ -96,11 +98,24 @@ def test_data_channel_gt_generated() -> None:
         Maker.dict_to_tuple(d2)
 
     ######################################
+    # Optional attributes can be removed from type
+    ######################################
+
+    d2 = dict(d)
+    if "StartS" in d2.keys():
+        del d2["StartS"]
+    Maker.dict_to_tuple(d2)
+
+    ######################################
     # Behavior on incorrect types
     ######################################
 
     d2 = dict(d, TelemetryNameGtEnumSymbol="unknown_symbol")
     Maker.dict_to_tuple(d2).telemetry_name == TelemetryName.default()
+
+    d2 = dict(d, StartS="1721405699.1")
+    with pytest.raises(ValidationError):
+        Maker.dict_to_tuple(d2)
 
     ######################################
     # ValidationError raised if TypeName is incorrect
@@ -127,5 +142,9 @@ def test_data_channel_gt_generated() -> None:
         Maker.dict_to_tuple(d2)
 
     d2 = dict(d, Id="d4be12d5-33ba-4f1f-b9e5")
+    with pytest.raises(ValidationError):
+        Maker.dict_to_tuple(d2)
+
+    d2 = dict(d, StartS=32503683600)
     with pytest.raises(ValidationError):
         Maker.dict_to_tuple(d2)

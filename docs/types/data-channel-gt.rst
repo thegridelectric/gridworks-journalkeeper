@@ -27,6 +27,10 @@ Python pydantic class corresponding to json type `data.channel.gt`, version `000
     - Description: Id.Meant to be an immutable identifier that is globally unique (i.e., across terminal assets).
     - Format: UuidCanonicalTextual
 
+**StartS**:
+    - Description: Start Seconds Epoch Time.The epoch time of the first data record associated to a channel. If this value is None it means no known data yet.
+    - Format: ReasonableUnixTimeS
+
 **TypeName**:
     - Description: All GridWorks Versioned Types have a fixed TypeName, which is a string of lowercase alphanumeric words separated by periods, most significant word (on the left) starting with an alphabet character, and final word NOT all Hindu-Arabic numerals.
 
