@@ -6,12 +6,12 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import Snapshot
-from gwp.types import Snapshot_Maker as Maker
+from gwp.types import SnapshotSpaceheat
+from gwp.types import SnapshotSpaceheat_Maker as Maker
 
 
 def test_snapshot_spaceheat_generated() -> None:
-    t = Snapshot(
+    t = SnapshotSpaceheat(
         from_g_node_alias="dwtest.isone.ct.newhaven.orange1.ta.scada",
         from_g_node_instance_id="0384ef21-648b-4455-b917-58a1172d7fc1",
         snapshot={"TelemetryNameList": ["5a71d4b3"], "AboutNodeAliasList": ["a.elt1.relay"], "ReportTimeUnixMs": 1656363448000, "ValueList": [1], "TypeName": "telemetry.snapshot.spaceheat", "Version": "000"},

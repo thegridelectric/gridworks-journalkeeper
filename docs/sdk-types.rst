@@ -31,4 +31,5 @@ forth between type instances and Python objects.
     GtShStatus  <types/gt-sh-status>
     HeartbeatA  <types/heartbeat-a>
     SnapshotSpaceheat  <types/snapshot-spaceheat>
+    SpaceheatNodeGt  <types/spaceheat-node-gt>
     TelemetrySnapshotSpaceheat  <types/telemetry-snapshot-spaceheat>

@@ -27,6 +27,14 @@ Python pydantic class corresponding to json type `gridworks.event.snapshot.space
 
 
 
+.. autoclass:: gwp.types.gridworks_event_snapshot_spaceheat.check_is_uuid_canonical_textual
+    :members:
+
+
+.. autoclass:: gwp.types.gridworks_event_snapshot_spaceheat.check_is_left_right_dot
+    :members:
+
+
 .. autoclass:: gwp.types.GridworksEventSnapshotSpaceheat_Maker
     :members:
 

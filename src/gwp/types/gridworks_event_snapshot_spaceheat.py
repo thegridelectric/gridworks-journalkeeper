@@ -1,6 +1,5 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
-import copy
 import json
 import logging
 from typing import Any
@@ -15,7 +14,6 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
-from gwp.enums import TelemetryName
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
 
@@ -209,30 +207,6 @@ class GridworksEventSnapshotSpaceheat_Maker:
             d2["Version"] = "000"
         d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GridworksEventSnapshotSpaceheat(**d3)
-
-    @classmethod
-    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
-        """
-        Makes key "status" -> "Status", following the rule that
-        all GridWorks types must have PascalCase keys
-        """
-        if "Snap" in d.keys():
-            return d
-        d2 = copy.deepcopy(d)
-        if "snap" not in d2.keys():
-            raise GwTypeError(f"dict missing Snap: <{d2}>")
-
-        snap = d2["snap"]
-        tn_list = snap["Snapshot"]["TelemetryNameList"]
-        new_list = []
-        for tn in tn_list:
-            new_list.append(TelemetryName.value_to_symbol(tn))
-
-        snap["Snapshot"]["TelemetryNameList"] = new_list
-        d2["Snap"] = snap
-        del d2["snap"]
-        d2["Version"] = "000"
-        return d2
 
 
 def check_is_left_right_dot(v: str) -> None:

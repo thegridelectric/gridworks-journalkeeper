@@ -1,0 +1,89 @@
+{
+  "gtr_asl": "001",
+  "type_name": "spaceheat.node.gt",
+  "version": "200",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "Spaceheat Node. A SpaceheatNode, or ShNode, is an organizing principal for the SCADA software. ShNodes can represent both underlying physical objects (water tank), measurements of these objects (temperature sensing at the top of a water tank), and actors within the code (an actor measuring multiple temperatures, or an actor responsible for filtering/smoothing temperature data for the purposes of thermostatic control).",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html",
+  "properties": {
+    "Name": {
+      "type": "string",
+      "format": "SpaceheatName",
+      "title": "Name",
+      "description": "Human readable immutable identifier. alpha-numeric words, first wording starting with an alphabet character, separated by hyphens. No dots.",
+      "required": true
+    },
+    "ActorHierarchyName": {
+      "type": "string",
+      "format": "HandleName",
+      "title": "ActorHierarchy",
+      "description": "This shows the parent-child chain of responsibility for ShNodes that are actors. For example, if h.aquastat-ctrl-relay is the ActorHierarchy, then the actor whose ActorHierarchyName is `h` is responsible for spawning, monitoring, killing and restarting this actor.",
+      "required": false
+    },
+    "Handle": {
+      "type": "string",
+      "format": "HandleName",
+      "title": "Handle",
+      "description": "Word structure shows Terminal Asset Finite State Machine hierarchy. Locally unique, but mutable. If there is a dot, then the predecessor handle (handle with the final word removed) is the handle for the 'boss' node. Only nodes with actors that can take actions that change the state of the Terminal Asset have dots in their handles. For example, the analog temperature sensor in the LocalName description above does NOT take actions and its handle would likely be analog-temp. If a node's actor CAN take actions that change the state of the TerminalAsset, it only takes commands from its boss node. For example, a relay actor will only agree to energize or de-energize its relay as a result of a command from its (current) boss.",
+      "required": false
+    },
+    "ActorClass": {
+      "type": "string",
+      "format": "sh.actor.class",
+      "title": "Actor Class",
+      "description": "Used to select the actor's code.",
+      "required": true
+    },
+    "DisplayName": {
+      "type": "string",
+      "description": "For user interfaces that don't want to show the local name or handle.",
+      "required": false
+    },
+    "ComponentId": {
+      "type": "string",
+      "description": "Used if a Spaceheat Node is associated with a physical device.",
+      "required": false
+    },
+    "InPowerMetering": {
+      "type": "boolean",
+      "description": "This exists and is True if the SpaceheatNode is part of the power metering that is used for market participation. Small loads like circulator pumps and fans may be metered to determine their behavior but are are likely NOT part of the power metering used for market participation.",
+      "required": false
+    },
+    "ShNodeId": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "Id",
+      "description": "Immutable identifier for one of the Spaceheat Nodes of a Terminal Asset. Globally unique - i.e. across all Space Heat Nodes for all Terminal Assets.",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "spaceheat.node.gt",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "200",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom1": {
+      "title": "InPowerMetering requirements",
+      "description": "If InPowerMetering exists and is true, then NameplatePowerW and RatedVoltageV must both exist"
+    }
+  },
+  "formats": {
+    "UuidCanonicalTextual": {
+      "type": "string",
+      "description": "A string of hex words separated by hyphens of length 8-4-4-4-12.",
+      "example": "652ba6b0-c3bf-4f06-8a80-6b9832d60a25"
+    },
+    "SpaceheatName": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by hypens, where first word starts with an alphabet character.",
+      "example": "store-hot-pipe"
+    }
+  }
+}

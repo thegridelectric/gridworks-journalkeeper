@@ -1,0 +1,32 @@
+{
+    "Header": {
+        "Src": "hw1.isone.me.versant.keene.beech.scada",
+        "Dst": "",
+        "MessageType": "gridworks.event.gt.sh.status",
+        "MessageId": "2952731d-a415-44de-b37c-f5f865dee77b",
+        "AckRequired": true,
+        "TypeName": "gridworks.header"
+    },
+    "Payload": {
+        "MessageId": "2952731d-a415-44de-b37c-f5f865dee77b",
+        "TimeNS": 1699886100019488593,
+        "Src": "hw1.isone.me.versant.keene.beech.scada",
+        "TypeName": "gridworks.event.gt.sh.status",
+        "status": {
+            "FromGNodeAlias": "hw1.isone.me.versant.keene.beech.scada",
+            "FromGNodeId": "b98eadcf-aeff-4ef6-96f0-c8641bae6909",
+            "AboutGNodeAlias": "dummy.ta",
+            "SlotStartUnixS": 1699885800,
+            "ReportingPeriodS": 300,
+            "SimpleTelemetryList": [
+            ],
+            "MultipurposeTelemetryList": [
+            ],
+            "BooleanactuatorCmdList": [],
+            "StatusUid": "55faec9b-7ce6-4a64-9d5d-e07e20cf6e15",
+            "TypeName": "gt.sh.status",
+            "Version": "110"
+        }
+    },
+    "TypeName": "gw"
+}

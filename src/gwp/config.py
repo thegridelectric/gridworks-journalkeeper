@@ -3,7 +3,7 @@
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
-from gwp.config.rabbit_settings import RabbitBrokerClient
+from gwbase.config.rabbit_settings import RabbitBrokerClient
 
 
 # from gwp.config import RabbitBrokerClient

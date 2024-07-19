@@ -48,7 +48,7 @@
     },
     "SpaceheatName": {
       "type": "string",
-      "description": "Lowercase words separated by periods, where the word characters can be alphanumeric or a hyphen and the first word starts with an alphabet character.",
+      "description": "Lowercase alphanumeric words separated by hypens, where first word starts with an alphabet character.",
       "example": "store-hot-pipe"
     }
   }

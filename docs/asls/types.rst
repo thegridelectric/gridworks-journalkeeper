@@ -54,6 +54,10 @@ snapshot.spaceheat.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/snapshot-spaceheat.json
 
+spaceheat.node.gt.200
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/spaceheat-node-gt.json
+
 telemetry.snapshot.spaceheat.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/telemetry-snapshot-spaceheat.json

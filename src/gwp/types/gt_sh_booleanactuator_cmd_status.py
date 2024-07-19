@@ -269,34 +269,3 @@ def check_is_spaceheat_name(v: str) -> None:
                 )
     if not v.islower():
         raise ValueError(f"<{v}> must be lowercase.")
-
-
-def check_is_left_right_dot(v: str) -> None:
-    """Checks LeftRightDot Format
-
-    LeftRightDot format: Lowercase alphanumeric words separated by periods, with
-    the most significant word (on the left) starting with an alphabet character.
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not LeftRightDot format
-    """
-    from typing import List
-
-    try:
-        x: List[str] = v.split(".")
-    except:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'.'")
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
-        raise ValueError(
-            f"Most significant word of <{v}> must start with alphabet char."
-        )
-    for word in x:
-        if not word.isalnum():
-            raise ValueError(f"words of <{v}> split by by '.' must be alphanumeric.")
-    if not v.islower():
-        raise ValueError(f"All characters of <{v}> must be lowercase.")
