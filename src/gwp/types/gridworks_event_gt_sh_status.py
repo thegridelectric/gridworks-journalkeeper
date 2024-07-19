@@ -14,6 +14,8 @@ from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
+from pydantic import model_validator
+from typing_extensions import Self
 
 from gwp.enums import TelemetryName
 from gwp.types.gt_sh_status import GtShStatus
@@ -79,6 +81,40 @@ class GridworksEventGtShStatus(BaseModel):
         except ValueError as e:
             raise ValueError(f"Src failed LeftRightDot format validation: {e}")
         return v
+
+    @model_validator(mode="after")
+    def check_axiom_1(self) -> Self:
+        """
+        Axiom 1: SCADA time consistency
+        slot_start_unix_s + reporting_period_s < message created_s
+
+        """
+        a = self.status.slot_start_unix_s + self.status.reporting_period_s
+        b = self.time_n_s / 10**9
+        if a > b:
+            raise ValueError(
+                f"slot_start + reporting_period was larger than message created time!: {self.message_id}"
+            )
+
+        return self
+
+    @model_validator(mode="after")
+    def check_axiom_2(self) -> Self:
+        """
+        Axiom 2: Src is Status.FromGNodeAlias and MessageId matches Status.StatusUid
+
+        """
+        if self.src != self.status.from_g_node_alias:
+            raise ValueError(
+                f"self.src <{self.src}> must be status.from_g_node_alias <{self.status.from_g_node_alias}>"
+            )
+
+        if self.message_id != self.status.status_uid:
+            raise ValueError(
+                f"message_id <{self.message_id}> must be status.status_uid <{self.status.status_uid}>"
+            )
+
+        return self
 
     def as_dict(self) -> Dict[str, Any]:
         """
@@ -244,6 +280,10 @@ class GridworksEventGtShStatus_Maker:
             )
             del multi["TelemetryName"]
         status["MultipurposeTelemetryList"] = multi_list
+
+        orig_message_id = d2["MessageId"]
+        if orig_message_id != status["StatusUid"]:
+            d2["MessageId"] = status["StatusUid"]
 
         d2["Status"] = status
         del d2["status"]
