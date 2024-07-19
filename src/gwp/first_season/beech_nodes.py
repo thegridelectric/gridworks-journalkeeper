@@ -55,6 +55,7 @@ class BeechNodes:
     OIL_BOILER = "oil-boiler"
     PRIMARY_PUMP = "primary-pump"
     STORE_PUMP = "store-pump"
+    ELT_1 = "elt1"
 
     # Thermostat Zones
     DOWN_ZONE = "down-zone"
@@ -67,7 +68,7 @@ class BeechNodes:
     # Reading nodes
     ANALOG_TEMP = "analog-temp"
     BUFFER_TANK_READER = "buffer-tank-reader"
-    TANK1_READER = "tank1_reader"
-    TANK2_READER = "tank1_reader"
-    TANK3_READER = "tank1_reader"
-    TANK4_READER = "tank1_reader"
+    TANK1_READER = "tank1-reader"
+    TANK2_READER = "tank1-reader"
+    TANK3_READER = "tank1-reader"
+    TANK4_READER = "tank1-reader"

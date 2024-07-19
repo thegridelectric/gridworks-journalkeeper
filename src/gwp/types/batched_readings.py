@@ -2,6 +2,7 @@
 
 import json
 import logging
+from itertools import chain
 from typing import Any
 from typing import Dict
 from typing import List
@@ -154,7 +155,12 @@ class BatchedReadings(BaseModel):
         Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e. IsAction = true).
         """
         ...
-        # TODO: Implement Axiom(s)
+        for elt in v:
+            if not elt.action:
+                raise ValueError(
+                    f"Violates Axiom 1: Each elt of FsmActionList must have an action"
+                )
+        return v
 
     @field_validator("id")
     def _check_id(cls, v: str) -> str:
@@ -170,7 +176,21 @@ class BatchedReadings(BaseModel):
         Axiom 2: DataChannel Consistency.
         There is a bijection between the DataChannelLists and ChannelReadingLists via the ChannelId.
         """
-        # TODO: Implement check for axiom 2"
+        channel_list_ids = list(map(lambda x: x.id, self.data_channel_list))
+        reading_list_ids = list(map(lambda x: x.channel_id, self.channel_reading_list))
+        if len(set(channel_list_ids)) != len(channel_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in DataChannelList:\n <{v}>"
+            )
+        if len(set(reading_list_ids)) != len(reading_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in ChannelReadingList:\n <{v}>"
+            )
+        if set(channel_list_ids) != set(reading_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated: must be a bijection between DataChannelList "
+                "and ChannelReadingList:\n <{v}>"
+            )
         return self
 
     @model_validator(mode="after")
@@ -179,7 +199,30 @@ class BatchedReadings(BaseModel):
         Axiom 3: Time Consistency.
         For every ScadaReadTimeUnixMs   let read_s = read_ms / 1000.  Let start_s be SlotStartUnixS.  Then read_s >= start_s and start_s + BatchedTransmissionPeriodS + 1 + start_s > read_s.
         """
-        # TODO: Implement check for axiom 3"
+        start_s = self.slot_start_unix_s
+        delta_s = self.batched_transmission_period_s
+        read_ms_list = list(
+            chain(
+                *list(
+                    map(
+                        lambda x: x.scada_read_time_unix_ms_list,
+                        self.channel_reading_list,
+                    )
+                )
+            )
+        )
+        read_s_set = set(map(lambda x: x / 1000, read_ms_list))
+        for read_s in read_s_set:
+            if read_s < start_s:
+                raise ValueError(
+                    f"A ScadaReadTime <{read_s}> came before SlotStartUnixS <{start_s}>"
+                )
+            if read_s > start_s + delta_s + 1:
+                raise ValueError(
+                    f"A ScadaReadTime {read_s} came AFTER SlotStartUnixS  plus "
+                    f"BatchedTransmissionPeriodS <{start_s + delta_s}>"
+                )
+
         return self
 
     def as_dict(self) -> Dict[str, Any]:

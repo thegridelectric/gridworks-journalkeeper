@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
-from gwp.data_classes.data_channel import DataChannel
+from gwp.models import DataChannelSql
 from gwp.enums import TelemetryName as EnumTelemetryName
 
 
@@ -186,6 +186,13 @@ class DataChannelGt(BaseModel):
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
+    
+    def as_sql(self) -> DataChannelSql:
+        d = self.model_dump()
+        d.pop("type_name", None)
+        d.pop("version", None)
+        d["telemetry_name"] = self.telemetry_name.value
+        return DataChannelSql(**d)
 
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))  # noqa
@@ -270,46 +277,6 @@ class DataChannelGt_Maker:
         d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return DataChannelGt(**d3)
 
-    @classmethod
-    def tuple_to_dc(cls, t: DataChannelGt) -> DataChannel:
-        if t.id in DataChannel.by_id.keys():
-            dc = DataChannel.by_id[t.id]
-        else:
-            dc = DataChannel(
-                name=t.name,
-                display_name=t.display_name,
-                about_node_name=t.about_node_name,
-                captured_by_node_name=t.captured_by_node_name,
-                telemetry_name=t.telemetry_name,
-                id=t.id,
-                start_s=t.start_s,
-            )
-        return dc
-
-    @classmethod
-    def dc_to_tuple(cls, dc: DataChannel) -> DataChannelGt:
-        return DataChannelGt(
-            name=dc.name,
-            display_name=dc.display_name,
-            about_node_name=dc.about_node_name,
-            captured_by_node_name=dc.captured_by_node_name,
-            telemetry_name=dc.telemetry_name,
-            id=dc.id,
-            start_s=dc.start_s,
-        )
-
-    @classmethod
-    def type_to_dc(cls, t: str) -> DataChannel:
-        return cls.tuple_to_dc(cls.type_to_tuple(t))
-
-    @classmethod
-    def dc_to_type(cls, dc: DataChannel) -> str:
-        return cls.dc_to_tuple(dc).as_type()
-
-    @classmethod
-    def dict_to_dc(cls, d: dict[Any, str]) -> DataChannel:
-        return cls.tuple_to_dc(cls.dict_to_tuple(d))
-
 
 def check_is_spaceheat_name(v: str) -> None:
     """Check SpaceheatName Format.
@@ -379,3 +346,21 @@ def check_is_uuid_canonical_textual(v: str) -> None:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
     if len(x[4]) != 12:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+
+
+def check_is_reasonable_unix_time_s(v: int) -> None:
+    """Checks ReasonableUnixTimeS format
+
+    ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
+
+    Args:
+        v (int): the candidate
+
+    Raises:
+        ValueError: if v is not ReasonableUnixTimeS format
+    """
+    from datetime import datetime
+    from datetime import timezone
+
+    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)

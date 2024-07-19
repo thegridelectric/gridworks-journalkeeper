@@ -8,6 +8,7 @@ import logging
 
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
+from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -39,3 +40,4 @@ class DataChannelSql(Base):
     about_node_name = Column(String, nullable=False)
     captured_by_node_name = Column(String, nullable=False)
     telemetry_name = Column(String, nullable=False)
+    start_s = Column(Integer)

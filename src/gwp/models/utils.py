@@ -8,7 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 
-def bulk_insert_dempotent(session: Session, data_channels: List):
+def bulk_insert_idempotent(session: Session, orm_object_list: List):
     """
     Idempotently bulk inserts SQLAlchemy objects into the database, inserting only those whose
     primary keys do not already exist.
@@ -21,16 +21,16 @@ def bulk_insert_dempotent(session: Session, data_channels: List):
     Returns:
         None
     """
-    if not data_channels:
+    if not orm_object_list:
         return
 
     try:
         # Extract the primary key names
-        pk_keys = inspect(data_channels[0]).mapper.primary_key
+        pk_keys = inspect(orm_object_list[0]).mapper.primary_key
 
         # Build a query to check for existing primary keys
         pk_tuples = [
-            tuple(getattr(obj, key.name) for key in pk_keys) for obj in data_channels
+            tuple(getattr(obj, key.name) for key in pk_keys) for obj in orm_object_list
         ]
 
         # Build the filter condition & query existing primary keys, convert
@@ -42,7 +42,7 @@ def bulk_insert_dempotent(session: Session, data_channels: List):
         # Filter out objects that already have primary keys in the database
         new_objects = [
             obj
-            for obj in data_channels
+            for obj in orm_object_list
             if tuple(getattr(obj, key.name) for key in pk_keys) not in existing_pks_set
         ]
         session.bulk_save_objects(new_objects)
