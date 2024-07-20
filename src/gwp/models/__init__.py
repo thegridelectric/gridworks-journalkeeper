@@ -1,11 +1,11 @@
 """ List of all the models """
 
-from src.gwp.models.data_channel import DataChannelSql
-from src.gwp.models.message import Message
-from src.gwp.models.message import MessageSql
-from src.gwp.models.scada import Scada
-from src.gwp.models.scada import ScadaSql
-from src.gwp.models.utils import bulk_insert_idempotent
+from gwp.models.data_channel import DataChannelSql
+from gwp.models.message import Message
+from gwp.models.message import MessageSql
+from gwp.models.scada import Scada
+from gwp.models.scada import ScadaSql
+from gwp.models.utils import bulk_insert_idempotent
 
 
 __all__ = [

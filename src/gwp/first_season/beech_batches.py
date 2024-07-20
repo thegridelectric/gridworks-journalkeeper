@@ -1,4 +1,5 @@
 import json
+import math
 from typing import List
 
 import dotenv
@@ -10,10 +11,10 @@ from gwp.back_office_hack import gni_from_alias
 from gwp.back_office_hack import ta_from_alias
 from gwp.config import Settings
 from gwp.enums import TelemetryName
-from gwp.first_season.beech_batches import batched_reading_from_status
 from gwp.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
 from gwp.first_season.beech_channels import BcName
 from gwp.first_season.beech_channels import BeechAliasMapper
+from gwp.first_season.utils import str_from_ms
 from gwp.models import Message
 from gwp.models import MessageSql
 from gwp.models import bulk_insert_idempotent
@@ -29,7 +30,9 @@ BEECH_IGNORED_ALIASES = ["a.elt1"]
 TN_GOOFS = [[BcName.OAT, TelemetryName.WaterTempCTimes1000]]
 
 
-def batched_reading_from_status(status: GtShStatus) -> BatchedReadings:
+def batched_reading_from_status(
+    status: GtShStatus, fn: FileNameMeta
+) -> BatchedReadings:
     channel_list = []
     channel_reading_list = []
 
@@ -70,7 +73,8 @@ def batched_reading_from_status(status: GtShStatus) -> BatchedReadings:
                 )
             except ValueError as e:
                 raise Exception(
-                    f"No mapping to channel for {multi.about_node_alias} at {status.slot_start_unix_s}"
+                    f"No mapping to channel for {multi.about_node_alias} at {status.slot_start_unix_s}. "
+                    f"FileName {fn.file_name}. Specific problem: <{multi.as_dict()}>"
                 )
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
             try:
@@ -104,21 +108,33 @@ def batched_reading_from_status(status: GtShStatus) -> BatchedReadings:
 
 def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
     date_list = p.get_date_folder_list(start_s, duration_hrs)
+    print(f"Loading filenames from folders {date_list}")
     fn_list: List[FileNameMeta] = p.get_file_name_meta_list(date_list)
     # 1 hr ~ 8 seconds
 
-    blist = [
+    start_ms = start_s * 1000
+    end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
+    blist: List[FileNameMeta] = [
         fn
         for fn in fn_list
-        if ("status" in fn.type_name) and ("beech" in fn.from_alias)
+        if ("status" in fn.type_name)
+        and ("beech" in fn.from_alias)
+        and (start_ms <= fn.message_persisted_ms < end_ms)
     ]
 
+    print(f"total filenames: {len(blist)}")
+    print(
+        f"First file persisted {str_from_ms(blist[0].message_persisted_ms)} America/NY"
+    )
+    print(
+        f"Last file persisted at {str_from_ms(blist[-1].message_persisted_ms)} America/NY"
+    )
     settings = Settings(_env_file=dotenv.find_dotenv())
     engine = create_engine(settings.db_url.get_secret_value())
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    for i in range(blist / 100):
+    for i in range(math.ceil(len(blist) / 100)):
         print(f"loading messages {i*100} - {i*100+100}")
         messages: List[MessageSql] = []
         blanks = []
@@ -126,7 +142,7 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
             content = json.loads(p.get_message_bytes(fn).decode("utf-8"))
             d = content["Payload"]
             event = Maker.dict_to_tuple(Maker.first_season_fix(d))
-            br = batched_reading_from_status(event.status)
+            br = batched_reading_from_status(event.status, fn)
 
             if br.data_channel_list == []:
                 blanks.append(br)

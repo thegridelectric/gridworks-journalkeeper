@@ -30,26 +30,18 @@ class PersisterHack:
 
     def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
         folder_list: List[str] = []
-        found_latest_earlier: bool = False
-        i = 0
-        while (not found_latest_earlier) and i < 5:
-            t = start_s - 3600 * 24 * (i + 1)
-            if self.has_this_days_folder(t):
-                folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
-                found_latest_earlier = True
-            i += 1
 
         if self.has_this_days_folder(int(start_s)):
             folder_list.append(pendulum.from_timestamp(start_s).strftime("%Y%m%d"))
-
-        add_hrs = 0
+        if duration_hrs < 1:
+            return folder_list
+        add_hrs = 1
         while add_hrs < duration_hrs:
-            add_hrs += 24
-            add_hrs = min(add_hrs, duration_hrs)
             t = start_s + add_hrs * 3600
-            if self.has_this_days_folder(t):
-                folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
-
+            if not(pendulum.from_timestamp(t).strftime("%Y%m%d") in folder_list):
+                if self.has_this_days_folder(t):
+                    folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
+            add_hrs += 1
         return list(set(folder_list))
 
     def has_this_days_folder(self, time_s: int) -> bool:

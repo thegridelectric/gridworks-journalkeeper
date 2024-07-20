@@ -389,6 +389,7 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.OAT: [
         (1699885800, "a.outdoor.air.temp"),  # 2023-11-13 09:35 America/NY
+        (1700002650, "oat"),  # 2023-11-14 17:57:30.000 America/NY
     ],
     BcName.STORE_COLD_PIPE: [
         (1699885800, "a.store.cold.pipe.temp"),  # 2023-11-13 09:35 America/NY

@@ -12,7 +12,7 @@ from gwbase.config.rabbit_settings import RabbitBrokerClient
 DEFAULT_ENV_FILE = ".env"
 
 
-class Settings(BaseSettings)
+class Settings(BaseSettings):
     rabbit: RabbitBrokerClient = RabbitBrokerClient()
     db_url: SecretStr = SecretStr(
         "postgresql://persister:PASSWD@journaldb.electricity.works/journaldb"
