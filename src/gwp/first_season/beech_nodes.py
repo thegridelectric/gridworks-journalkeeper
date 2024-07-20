@@ -72,3 +72,4 @@ class BeechNodes:
     TANK2_READER = "tank1-reader"
     TANK3_READER = "tank1-reader"
     TANK4_READER = "tank1-reader"
+    POWER_METER = "primary-pwr-meter"

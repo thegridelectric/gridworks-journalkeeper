@@ -50,6 +50,10 @@ class BcName:
     TANK3_DEPTH2 = "tank3-depth2"
     TANK3_DEPTH3 = "tank3-depth3"
     TANK3_DEPTH4 = "tank3-depth4"
+    DOWN_ZONE_TEMP = "down-zone-temp"
+    DOWN_ZONE_SET = "down-zone-set"
+    UP_ZONE_TEMP = "up-zone-temp"
+    UP_ZONE_SET = "up-zone-set"
 
     # Relay Energization Channels
     AQUASTAT_CTRL_RELAY_ENERGIZATION = "aquastat-ctrl-relay-energization"
@@ -94,6 +98,51 @@ def load_channels():
 
 
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
+    BcName.DOWN_ZONE_SET: DataChannelGt(
+        id="dd4c0d78-d2e0-490c-b064-2f33b85ec431",
+        name=BcName.DOWN_ZONE_SET,
+        display_name="Down Zone Honeywell Setpoint",
+        about_node_name=BN.DOWN_ZONE,
+        captured_by_node_name=BN.DOWN_ZONE,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
+    ),
+    BcName.DOWN_ZONE_TEMP: DataChannelGt(
+        id="0334a75a-48ee-4da1-8b77-96fe05b0c3db",
+        name=BcName.DOWN_ZONE_TEMP,
+        display_name="Down Zone Honeywell Temp",
+        about_node_name=BN.DOWN_ZONE,
+        captured_by_node_name=BN.DOWN_ZONE,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
+    ),
+    BcName.UP_ZONE_SET: DataChannelGt(
+        id="581f758b-632f-426a-aebc-7432c416a99e",
+        name=BcName.UP_ZONE_SET,
+        display_name="Up Zone Honeywell Setpoint",
+        about_node_name=BN.UP_ZONE,
+        captured_by_node_name=BN.UP_ZONE,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
+    ),
+    BcName.UP_ZONE_TEMP: DataChannelGt(
+        id="2196a6b7-90d1-42d0-b3f0-748f393bb35a",
+        name=BcName.UP_ZONE_TEMP,
+        display_name="Up Zone Honeywell Temp",
+        about_node_name=BN.UP_ZONE,
+        captured_by_node_name=BN.UP_ZONE,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
+    ),
+    BcName.OIL_BOILER_PWR: DataChannelGt(
+        id="83fe770f-e022-4ad6-a471-cfb83e1b64be",
+        name=BcName.OIL_BOILER_PWR,
+        display_name="Oil Boiler pump power",
+        about_node_name=BN.OIL_BOILER,
+        captured_by_node_name=BN.POWER_METER,
+        telemetry_name=TelemetryName.PowerW,
+        start_s=1700590500,  # 2023-11-21 13:15:00.000 America/NY
+    ),
     BcName.BUFFER_COLD_PIPE: DataChannelGt(
         id="a47abb1a-06fc-4d9b-a548-8531c482d3f2",
         name=BcName.BUFFER_COLD_PIPE,
@@ -169,6 +218,15 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
+    ),
+    BcName.DOWN_ZONE_GW_TEMP: DataChannelGt(
+        id="01af1b8d-d22a-47c6-8e25-421be9df09b6",
+        name=BcName.DOWN_ZONE_GW_TEMP,
+        display_name="Downstairs Zone Temp (C x 1000)",
+        about_node_name=BN.DOWN_ZONE,
+        captured_by_node_name=BN.DOWN_ZONE,
+        telemetry_name=TelemetryName.AirTempCTimes1000,
+        start_s=1700006400,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.HP_EWT: DataChannelGt(
         id="cecc9b94-9b4b-45ce-a8e9-4c63d24530aa",
@@ -390,6 +448,8 @@ BeechAliasMapper.channel_mappings = {
     BcName.OAT: [
         (1699885800, "a.outdoor.air.temp"),  # 2023-11-13 09:35 America/NY
         (1700002650, "oat"),  # 2023-11-14 17:57:30.000 America/NY
+        (1700020500, "a.outdoor.air.temp"),  # 2023-11-14 22:55:00.000 America/NY
+        (1700092500, "a.outdoor.air.temp"),  # 2023-11-15 18:55:00.000 America/NY
     ],
     BcName.STORE_COLD_PIPE: [
         (1699885800, "a.store.cold.pipe.temp"),  # 2023-11-13 09:35 America/NY
@@ -411,5 +471,23 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.TANK1_DEPTH4: [
         (1699885800, "a.tank1.temp.depth4"),  # 2023-11-13 09:35 America/NY
+    ],
+    BcName.DOWN_ZONE_GW_TEMP: [
+        (1700006400, "statcheck"),  # 2023-11-13 09:35 America/NY
+    ],
+    BcName.OIL_BOILER_PWR: [
+        (1700590500, "oilboiler"),  # 2023-11-21 13:15 America/NY
+    ],
+    BcName.DOWN_ZONE_TEMP: [
+        (1700683960, "a.thermostat.downstairs.temp"),  # 2023-11-22 15:12:40 America/NY
+    ],
+    BcName.DOWN_ZONE_SET: [
+        (1700683960, "a.thermostat.downstairs.set"),  # 2023-11-22 15:12:40 America/NY
+    ],
+    BcName.UP_ZONE_TEMP: [
+        (1700683960, "a.thermostat.upstairs.temp"),  # 2023-11-22 15:12:40 America/NY
+    ],
+    BcName.UP_ZONE_SET: [
+        (1700683960, "a.thermostat.upstairs.set"),  # 2023-11-22 15:12:40 America/NY
     ],
 }

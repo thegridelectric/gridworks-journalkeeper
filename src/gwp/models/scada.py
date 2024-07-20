@@ -47,7 +47,7 @@ class ScadaSql(Base):
     validated against the GNodeRegistry
     """
 
-    __tablename__ = "scada"
+    __tablename__ = "scadas"
     g_node_id = Column(String, primary_key=True)
     g_node_alias = Column(String, nullable=False)
     short_alias = Column(String, nullable=False)

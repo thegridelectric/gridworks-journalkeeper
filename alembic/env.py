@@ -35,6 +35,10 @@ from gwp.models import ScadaSql
 from gwp.models.message import Base
 
 
+# from gwp.models import ReadingSql
+
+
+
 target_metadata = Base.metadata
 
 

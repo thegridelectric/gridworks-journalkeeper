@@ -27,7 +27,14 @@ from gwp.types import GtShStatus
 
 
 BEECH_IGNORED_ALIASES = ["a.elt1"]
-TN_GOOFS = [[BcName.OAT, TelemetryName.WaterTempCTimes1000]]
+TN_GOOFS = [
+    [BcName.OAT, TelemetryName.WaterTempCTimes1000],
+    [BcName.DOWN_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.DOWN_ZONE_SET, TelemetryName.WaterTempCTimes1000],
+    [BcName.UP_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.UP_ZONE_SET, TelemetryName.WaterTempCTimes1000],
+]
 
 
 def batched_reading_from_status(
@@ -45,7 +52,7 @@ def batched_reading_from_status(
                 )
             except ValueError as e:
                 raise Exception(
-                    f"No mapping to channel for {simple.sh_node_alias} at {status.slot_start_unix_s}"
+                    f'NEW ALIAS. Add ({status.slot_start_unix_s}, "{simple.sh_node_alias}") to appropriate BeechAliasMapper.channel_mappings'
                 )
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
             try:
@@ -53,7 +60,7 @@ def batched_reading_from_status(
             except:
                 if [channel_name, simple.telemetry_name] not in TN_GOOFS:
                     raise Exception(
-                        f"{simple.sh_node_alias} had mislabled {simple.telemetry_name} ... change to {channel.telemetry_name}"
+                        f"{simple.sh_node_alias} had mislabeled {simple.telemetry_name} ... change to {channel.telemetry_name}"
                     )
             channel_list.append(channel)
             channel_reading_list.append(
@@ -73,7 +80,7 @@ def batched_reading_from_status(
                 )
             except ValueError as e:
                 raise Exception(
-                    f"No mapping to channel for {multi.about_node_alias} at {status.slot_start_unix_s}. "
+                    f'NEW ALIAS. Add ({status.slot_start_unix_s}, "{multi.about_node_alias}") to appropriate BeechAliasMapper.channel_mappings'
                     f"FileName {fn.file_name}. Specific problem: <{multi.as_dict()}>"
                 )
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
@@ -82,7 +89,8 @@ def batched_reading_from_status(
             except:
                 if [channel_name, multi.telemetry_name] not in TN_GOOFS:
                     raise Exception(
-                        f"{multi.about_node_alias} had mislabled {multi.telemetry_name} ... change to {channel.telemetry_name}"
+                        f"{channel_name} had mislabeled {multi.telemetry_name} ... add  [{channel_name}, {multi.telemetry_name}] to  TN_GOOFS"
+                        f"time {str_from_ms(status.slot_start_unix_s * 1000)} America/NY"
                     )
             channel_list.append(channel)
             channel_reading_list.append(
@@ -122,6 +130,7 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
         and (start_ms <= fn.message_persisted_ms < end_ms)
     ]
 
+    blist.sort(key=lambda x: x.message_persisted_ms)
     print(f"total filenames: {len(blist)}")
     print(
         f"First file persisted {str_from_ms(blist[0].message_persisted_ms)} America/NY"
@@ -129,6 +138,7 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
     print(
         f"Last file persisted at {str_from_ms(blist[-1].message_persisted_ms)} America/NY"
     )
+
     settings = Settings(_env_file=dotenv.find_dotenv())
     engine = create_engine(settings.db_url.get_secret_value())
     Session = sessionmaker(bind=engine)

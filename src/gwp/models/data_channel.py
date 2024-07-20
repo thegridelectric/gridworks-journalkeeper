@@ -6,11 +6,10 @@ e.g. ch = DataChannelGt(...).as_sql()
 
 import logging
 
-from sqlalchemy import BigInteger
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 
 from gwp.models.message import Base
 
@@ -33,7 +32,7 @@ class DataChannelSql(Base):
     other than time.
     """
 
-    __tablename__ = "data_channel"
+    __tablename__ = "data_channels"
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     display_name = Column(String, nullable=False)
@@ -41,3 +40,6 @@ class DataChannelSql(Base):
     captured_by_node_name = Column(String, nullable=False)
     telemetry_name = Column(String, nullable=False)
     start_s = Column(Integer)
+
+    # Define the relationship to the ReadingSql table
+    readings = relationship("ReadingSql", back_populates="data_channel")
