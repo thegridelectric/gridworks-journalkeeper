@@ -16,6 +16,7 @@ from gwp.types import GtShMultipurposeTelemetryStatus_Maker
 from gwp.types import GtShSimpleTelemetryStatus_Maker
 from gwp.types import GtShStatus_Maker
 from gwp.types import HeartbeatA_Maker
+from gwp.types import PowerWatts_Maker
 from gwp.types import SnapshotSpaceheat_Maker
 from gwp.types import TelemetrySnapshotSpaceheat_Maker
 
@@ -38,6 +39,7 @@ def type_makers() -> List[HeartbeatA_Maker]:
         GtShSimpleTelemetryStatus_Maker,
         GtShStatus_Maker,
         HeartbeatA_Maker,
+        PowerWatts_Maker,
         SnapshotSpaceheat_Maker,
         TelemetrySnapshotSpaceheat_Maker,
     ]
@@ -66,6 +68,7 @@ def version_by_type_name() -> Dict[str, str]:
         "gt.sh.simple.telemetry.status": "100",
         "gt.sh.status": "110",
         "heartbeat.a": "001",
+        "power.watts": "000",
         "snapshot.spaceheat": "000",
         "telemetry.snapshot.spaceheat": "000",
     }
@@ -82,16 +85,17 @@ def status_by_versioned_type_name() -> Dict[str, str]:
     v: Dict[str, str] = {
         "batched.readings.000": "Pending",
         "channel.readings.000": "Pending",
-        "data.channel.gt.000": "Pending",
+        "data.channel.gt.000": "Active",
         "fsm.atomic.report.000": "Pending",
         "fsm.full.report.000": "Pending",
         "gridworks.event.gt.sh.status.000": "Active",
-        "gridworks.event.snapshot.spaceheat.000": "Pending",
+        "gridworks.event.snapshot.spaceheat.000": "Active",
         "gt.sh.booleanactuator.cmd.status.101": "Pending",
         "gt.sh.multipurpose.telemetry.status.100": "Pending",
         "gt.sh.simple.telemetry.status.100": "Pending",
         "gt.sh.status.110": "Pending",
         "heartbeat.a.001": "Active",
+        "power.watts.000": "Active",
         "snapshot.spaceheat.000": "Pending",
         "telemetry.snapshot.spaceheat.000": "Pending",
     }

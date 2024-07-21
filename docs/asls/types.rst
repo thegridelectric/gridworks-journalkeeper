@@ -50,6 +50,10 @@ heartbeat.a.001
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/heartbeat-a.json
 
+power.watts.000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/power-watts.json
+
 snapshot.spaceheat.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/snapshot-spaceheat.json

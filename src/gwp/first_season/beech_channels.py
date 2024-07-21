@@ -80,6 +80,10 @@ class BcName:
     DOWN_ZONE_GW_TEMP = "down-zone-gw-temp"
     UP_ZONE_GW_TEMP = "up-zone-gw-temp"
     HP_FOSSIL_LWT = "hp-fossil-lwt"
+    OIL_BOILER_FLOW_INTEGRATED = "oil-boiler-flow"
+    BUFFER_WELL_TEMP = "buffer-well-temp"
+    AMPHA_DIST_SWT = "ampha-dist-swt"
+    AMPHB_DIST_SWT = "amphb-dist-swt"
 
 
 # def hyph_to_upper(word: str) -> str:
@@ -98,6 +102,60 @@ def load_channels():
 
 
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
+    BcName.AMPHA_DIST_SWT: DataChannelGt(
+        id="38e95a83-270c-4520-af1a-b85a07a3c02f",
+        name=BcName.AMPHA_DIST_SWT,
+        display_name="Dist SWT measured with an AmphA",
+        about_node_name=BN.AMPHA_DIST_SWT,
+        captured_by_node_name=BN.ANALOG_TEMP,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+        start_s=1704862800,  # 2024-01-10
+    ),
+    BcName.AMPHB_DIST_SWT: DataChannelGt(
+        id="934c04d3-2a06-475d-a708-5129979ceedf",
+        name=BcName.AMPHB_DIST_SWT,
+        display_name="Dist SWT measured with an Amphb",
+        about_node_name=BN.AMPHB_DIST_SWT,
+        captured_by_node_name=BN.ANALOG_TEMP,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+        start_s=1704862800,  # 2024-01-10
+    ),
+    BcName.HP_ODU_PWR: DataChannelGt(
+        id="498da855-bac5-47e9-b83a-a11e56a50e67",
+        name=BcName.HP_ODU_PWR,
+        display_name="HP ODU Power",
+        about_node_name=BN.HP_ODU,
+        captured_by_node_name=BN.POWER_METER,
+        telemetry_name=TelemetryName.PowerW,
+        start_s=1704862800,  # 2024-01-10
+    ),
+    BcName.HP_IDU_PWR: DataChannelGt(
+        id="beabac86-7caa-4ab4-a50b-af1ad54ed165",
+        name=BcName.HP_IDU_PWR,
+        display_name="HP IDU Power",
+        about_node_name=BN.HP_IDU,
+        captured_by_node_name=BN.POWER_METER,
+        telemetry_name=TelemetryName.PowerW,
+        start_s=1704862800,  # 2024-01-10
+    ),
+    BcName.BUFFER_WELL_TEMP: DataChannelGt(
+        id="8120ae8d-0029-4c85-bca1-9a70235bf423",
+        name=BcName.BUFFER_WELL_TEMP,
+        display_name="Buffer Well Temp",
+        about_node_name=BN.BUFFER_WELL,
+        captured_by_node_name=BN.ANALOG_TEMP,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+        start_s=1706763600,  # 2024-02-01
+    ),
+    BcName.OIL_BOILER_FLOW_INTEGRATED: DataChannelGt(
+        id="251871dd-6dc8-40d9-a811-f62319461435",
+        name=BcName.OIL_BOILER_FLOW_INTEGRATED,
+        display_name="Oil Boiler Integrated Flow",
+        about_node_name=BN.OIL_BOILER_FLOW,
+        captured_by_node_name=BN.OIL_BOILER_FLOW,
+        telemetry_name=TelemetryName.GallonsTimes100,
+        start_s=1706763600,  # 2024-02-01
+    ),
     BcName.DOWN_ZONE_SET: DataChannelGt(
         id="dd4c0d78-d2e0-490c-b064-2f33b85ec431",
         name=BcName.DOWN_ZONE_SET,
@@ -426,6 +484,7 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.DIST_FLOW_INTEGRATED: [
         (1699885800, "a.dist.flow"),  # 2023-11-13 09:35 America/NY
+        (1706763570, "dist.flow"),  # 2024-02-01
     ],
     BcName.DIST_SWT: [
         (1699885800, "a.dist.swt.temp"),  # 2023-11-13 09:35 America/NY
@@ -444,12 +503,12 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.PRIMARY_FLOW_INTEGRATED: [
         (1699885800, "a.primary.flow"),  # 2023-11-13 09:35 America/NY
+        (1706763570, "heatpump.flow"),  # 2024-02-1
     ],
     BcName.OAT: [
         (1699885800, "a.outdoor.air.temp"),  # 2023-11-13 09:35 America/NY
         (1700002650, "oat"),  # 2023-11-14 17:57:30.000 America/NY
         (1700020500, "a.outdoor.air.temp"),  # 2023-11-14 22:55:00.000 America/NY
-        (1700092500, "a.outdoor.air.temp"),  # 2023-11-15 18:55:00.000 America/NY
     ],
     BcName.STORE_COLD_PIPE: [
         (1699885800, "a.store.cold.pipe.temp"),  # 2023-11-13 09:35 America/NY
@@ -474,6 +533,7 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.DOWN_ZONE_GW_TEMP: [
         (1700006400, "statcheck"),  # 2023-11-13 09:35 America/NY
+        (1706763570, "stat1check"),  # 2024-02-01 America/NY
     ],
     BcName.OIL_BOILER_PWR: [
         (1700590500, "oilboiler"),  # 2023-11-21 13:15 America/NY
@@ -489,5 +549,35 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.UP_ZONE_SET: [
         (1700683960, "a.thermostat.upstairs.set"),  # 2023-11-22 15:12:40 America/NY
+    ],
+    BcName.OIL_BOILER_FLOW_INTEGRATED: [
+        (1706759970, "oilboiler.flow"),  # 2024-02-01 America/NY
+    ],
+    BcName.BUFFER_WELL_TEMP: [
+        (1706759970, "buffer.well.temp"),  # 2024-02-01 America/NY
+    ],
+    BcName.BUFFER_DEPTH1_TEMP: [
+        (1706759970, "buffer.temp.depth1"),  # 2024-02-01 America/NY
+    ],
+    BcName.BUFFER_DEPTH2_TEMP: [
+        (1706759970, "buffer.temp.depth2"),  # 2024-02-01 America/NY
+    ],
+    BcName.BUFFER_DEPTH3_TEMP: [
+        (1706759970, "buffer.temp.depth3"),  # 2024-02-01 America/NY
+    ],
+    BcName.BUFFER_DEPTH4_TEMP: [
+        (1706759970, "buffer.temp.depth4"),  # 2024-02-01 America/NY
+    ],
+    BcName.HP_ODU_PWR: [
+        (1706763630, "a.m.hp.outdoor.power"),  # 2024-02-01 America/NY
+    ],
+    BcName.HP_IDU_PWR: [
+        (1706763630, "a.m.hp.indoor.power"),  # 2024-02-01 America/NY
+    ],
+    BcName.AMPHA_DIST_SWT: [
+        (1704862770, "ampha.distfwt"),  # 2024-02-01 America/NY
+    ],
+    BcName.AMPHB_DIST_SWT: [
+        (1704862770, "amphb.distfwt"),  # 2024-02-01 America/NY
     ],
 }

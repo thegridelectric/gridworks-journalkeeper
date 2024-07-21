@@ -4,7 +4,7 @@ SELECT
     r.value AS value,
     dc.telemetry_name AS telemetry_name,
     to_char(
-        to_timestamp(r.time_ms / 1000.0),
+        (to_timestamp(r.time_ms / 1000.0) AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York',
         'YYYY-MM-DD HH24:MI:SS.MS'
     ) AS time
 FROM
@@ -13,8 +13,6 @@ JOIN
     data_channels dc
 ON
     r.data_channel_id = dc.id;
-
-
 
 
 

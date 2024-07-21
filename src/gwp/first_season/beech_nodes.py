@@ -47,6 +47,7 @@ class BeechNodes:
     DIST_FLOW = "dist-flow"
     PRIMARY_FLOW = "primary-flow"
     STORE_FLOW = "store-flow"
+    OIL_BOILER_FLOW = "oil-boiler-flow"
 
     # Power/Current Nodes
     DIST_PUMP = "dist-pump"
@@ -64,6 +65,8 @@ class BeechNodes:
     # Misc
     ELT1_PWR = "elt1-pwr"
     HP_FOSSIL_LWT = "hp-fossil-lwt"
+    AMPHA_DIST_SWT = "ampha-dist-swt"
+    AMPHB_DIST_SWT = "amphb-dist-swt"
 
     # Reading nodes
     ANALOG_TEMP = "analog-temp"

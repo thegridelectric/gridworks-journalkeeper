@@ -26,14 +26,26 @@ from gwp.types import GridworksEventGtShStatus_Maker as Maker
 from gwp.types import GtShStatus
 
 
-BEECH_IGNORED_ALIASES = ["a.elt1"]
+BEECH_IGNORED_ALIASES = [
+    "a.elt1",
+    "george.special.temp.depth1",
+    "george.special.temp.depth2",
+    "george.special.temp.depth3",
+    "george.special.temp.depth4",
+    "a.m.tank1.power",
+]
+
 TN_GOOFS = [
     [BcName.OAT, TelemetryName.WaterTempCTimes1000],
     [BcName.DOWN_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
     [BcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
     [BcName.DOWN_ZONE_SET, TelemetryName.WaterTempCTimes1000],
+    [BcName.DOWN_ZONE_SET, TelemetryName.WaterTempFTimes1000],
     [BcName.UP_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.UP_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
     [BcName.UP_ZONE_SET, TelemetryName.WaterTempCTimes1000],
+    [BcName.UP_ZONE_SET, TelemetryName.WaterTempFTimes1000],
 ]
 
 
@@ -125,7 +137,7 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
     blist: List[FileNameMeta] = [
         fn
         for fn in fn_list
-        if ("status" in fn.type_name)
+        if (("status" in fn.type_name) or ("power" in fn.type_name))
         and ("beech" in fn.from_alias)
         and (start_ms <= fn.message_persisted_ms < end_ms)
     ]
@@ -145,7 +157,11 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
     session = Session()
 
     for i in range(math.ceil(len(blist) / 100)):
-        print(f"loading messages {i*100} - {i*100+100}")
+        first = blist[i * 100]
+        print(
+            f"loading messages {i*100} - {i*100+100} [{str_from_ms(first.message_persisted_ms)} America/NY]"
+        )
+
         messages: List[MessageSql] = []
         blanks = []
         for fn in blist[i * 100 : i * 100 + 100]:
@@ -167,7 +183,7 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
                         message_created_ms=int(event.time_n_s / 10**6),
                     )
                 )
-        print(f"For messages  messages {i*100} - {i*100+100}: {len(blanks)} blanks")
+        print(f"For messages {i*100} - {i*100+100}: {len(blanks)} blanks")
         msg_sql_list = list(map(lambda x: x.as_sql(), messages))
         bulk_insert_idempotent(session, msg_sql_list)
         session.commit()
