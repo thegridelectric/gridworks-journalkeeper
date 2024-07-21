@@ -34,6 +34,7 @@ from gwp.enums.fsm_action_type import FsmActionType
 from gwp.enums.fsm_event_type import FsmEventType
 from gwp.enums.fsm_name import FsmName
 from gwp.enums.fsm_report_type import FsmReportType
+from gwp.enums.kind_of_param import KindOfParam
 from gwp.enums.telemetry_name import TelemetryName
 
 
@@ -42,5 +43,6 @@ __all__ = [
     "FsmEventType",  # [sh.fsm.event.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmeventtype)
     "FsmName",  # [sh.fsm.name.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmname)
     "FsmReportType",  # [fsm.report.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#fsmreporttype)
+    "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
 ]

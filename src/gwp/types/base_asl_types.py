@@ -86,7 +86,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
     """
 
     v: Dict[str, str] = {
-        "batched.readings.000": "Pending",
+        "batched.readings.000": "Active",
         "channel.readings.000": "Pending",
         "data.channel.gt.000": "Active",
         "fsm.atomic.report.000": "Pending",

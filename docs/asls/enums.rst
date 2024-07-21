@@ -6,6 +6,10 @@ sh.fsm.action.type.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/sh-fsm-action-type.json
 
+spaceheat.kind.of.param.000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/spaceheat-kind-of-param.json
+
 sh.fsm.name.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/sh-fsm-name.json
