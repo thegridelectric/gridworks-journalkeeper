@@ -15,8 +15,8 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
-from gwp.models import DataChannelSql
 from gwp.enums import TelemetryName as EnumTelemetryName
+from gwp.models import DataChannelSql
 
 
 LOG_FORMAT = (
@@ -186,7 +186,7 @@ class DataChannelGt(BaseModel):
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
-    
+
     def as_sql(self) -> DataChannelSql:
         d = self.model_dump()
         d.pop("type_name", None)

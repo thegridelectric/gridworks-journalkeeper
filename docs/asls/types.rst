@@ -50,6 +50,10 @@ heartbeat.a.001
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/heartbeat-a.json
 
+keyparam.change.log.000
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/keyparam-change-log.json
+
 power.watts.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/power-watts.json

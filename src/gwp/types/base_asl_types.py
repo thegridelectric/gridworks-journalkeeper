@@ -16,6 +16,7 @@ from gwp.types import GtShMultipurposeTelemetryStatus_Maker
 from gwp.types import GtShSimpleTelemetryStatus_Maker
 from gwp.types import GtShStatus_Maker
 from gwp.types import HeartbeatA_Maker
+from gwp.types import KeyparamChangeLog_Maker
 from gwp.types import PowerWatts_Maker
 from gwp.types import SnapshotSpaceheat_Maker
 from gwp.types import TelemetrySnapshotSpaceheat_Maker
@@ -39,6 +40,7 @@ def type_makers() -> List[HeartbeatA_Maker]:
         GtShSimpleTelemetryStatus_Maker,
         GtShStatus_Maker,
         HeartbeatA_Maker,
+        KeyparamChangeLog_Maker,
         PowerWatts_Maker,
         SnapshotSpaceheat_Maker,
         TelemetrySnapshotSpaceheat_Maker,
@@ -68,6 +70,7 @@ def version_by_type_name() -> Dict[str, str]:
         "gt.sh.simple.telemetry.status": "100",
         "gt.sh.status": "110",
         "heartbeat.a": "001",
+        "keyparam.change.log": "000",
         "power.watts": "000",
         "snapshot.spaceheat": "000",
         "telemetry.snapshot.spaceheat": "000",
@@ -95,6 +98,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
         "gt.sh.simple.telemetry.status.100": "Pending",
         "gt.sh.status.110": "Pending",
         "heartbeat.a.001": "Active",
+        "keyparam.change.log.000": "Active",
         "power.watts.000": "Active",
         "snapshot.spaceheat.000": "Pending",
         "telemetry.snapshot.spaceheat.000": "Pending",

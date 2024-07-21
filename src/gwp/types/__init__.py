@@ -32,6 +32,8 @@ from gwp.types.gt_sh_status import GtShStatus
 from gwp.types.gt_sh_status import GtShStatus_Maker
 from gwp.types.heartbeat_a import HeartbeatA
 from gwp.types.heartbeat_a import HeartbeatA_Maker
+from gwp.types.keyparam_change_log import KeyparamChangeLog
+from gwp.types.keyparam_change_log import KeyparamChangeLog_Maker
 from gwp.types.power_watts import PowerWatts
 from gwp.types.power_watts import PowerWatts_Maker
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
@@ -65,6 +67,8 @@ __all__ = [
     "GtShStatus_Maker",
     "HeartbeatA",
     "HeartbeatA_Maker",
+    "KeyparamChangeLog",
+    "KeyparamChangeLog_Maker",
     "PowerWatts",
     "PowerWatts_Maker",
     "SnapshotSpaceheat",

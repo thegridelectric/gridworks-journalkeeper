@@ -30,6 +30,7 @@ forth between type instances and Python objects.
     GtShSimpleTelemetryStatus  <types/gt-sh-simple-telemetry-status>
     GtShStatus  <types/gt-sh-status>
     HeartbeatA  <types/heartbeat-a>
+    KeyparamChangeLog  <types/keyparam-change-log>
     PowerWatts  <types/power-watts>
     SnapshotSpaceheat  <types/snapshot-spaceheat>
     TelemetrySnapshotSpaceheat  <types/telemetry-snapshot-spaceheat>
