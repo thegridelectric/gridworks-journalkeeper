@@ -2,7 +2,7 @@ GtShStatus
 ==========================
 Python pydantic class corresponding to json type `gt.sh.status`, version `110`.
 
-.. autoclass:: gwp.types.GtShStatus
+.. autoclass:: gjk.types.GtShStatus
     :members:
 
 **FromGNodeAlias**:
@@ -45,18 +45,18 @@ Python pydantic class corresponding to json type `gt.sh.status`, version `110`.
 
 
 
-.. autoclass:: gwp.types.gt_sh_status.check_is_reasonable_unix_time_s
+.. autoclass:: gjk.types.gt_sh_status.check_is_reasonable_unix_time_s
     :members:
 
 
-.. autoclass:: gwp.types.gt_sh_status.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.gt_sh_status.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.gt_sh_status.check_is_left_right_dot
+.. autoclass:: gjk.types.gt_sh_status.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.GtShStatus_Maker
+.. autoclass:: gjk.types.GtShStatus_Maker
     :members:
 

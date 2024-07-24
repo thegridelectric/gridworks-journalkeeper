@@ -38,13 +38,13 @@ The Python classes below also come with methods for translating back and
 forth between type instances and Python objects.
 
 
-.. automodule:: gwp.types
+.. automodule:: gjk.types
 
 .. toctree::
    :maxdepth: 1
    :caption: TYPE SDKS
 </xsl:text>
-<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
 <xsl:variable name="versioned-type-id" select="VersionedType"/>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">

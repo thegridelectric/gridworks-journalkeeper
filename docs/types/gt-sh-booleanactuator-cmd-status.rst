@@ -2,7 +2,7 @@ GtShBooleanactuatorCmdStatus
 ==========================
 Python pydantic class corresponding to json type `gt.sh.booleanactuator.cmd.status`, version `101`.
 
-.. autoclass:: gwp.types.GtShBooleanactuatorCmdStatus
+.. autoclass:: gjk.types.GtShBooleanactuatorCmdStatus
     :members:
 
 **ShNodeName**:
@@ -24,14 +24,14 @@ Python pydantic class corresponding to json type `gt.sh.booleanactuator.cmd.stat
 
 
 
-.. autoclass:: gwp.types.gt_sh_booleanactuator_cmd_status.check_is_spaceheat_name
+.. autoclass:: gjk.types.gt_sh_booleanactuator_cmd_status.check_is_spaceheat_name
     :members:
 
 
-.. autoclass:: gwp.types.gt_sh_booleanactuator_cmd_status.check_is_reasonable_unix_time_ms
+.. autoclass:: gjk.types.gt_sh_booleanactuator_cmd_status.check_is_reasonable_unix_time_ms
     :members:
 
 
-.. autoclass:: gwp.types.GtShBooleanactuatorCmdStatus_Maker
+.. autoclass:: gjk.types.GtShBooleanactuatorCmdStatus_Maker
     :members:
 

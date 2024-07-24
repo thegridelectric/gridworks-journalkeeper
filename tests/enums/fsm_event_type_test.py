@@ -2,7 +2,7 @@
 Tests for enum sh.fsm.event.type.000 from the GridWorks Type Registry.
 """
 
-from gwp.enums import FsmEventType
+from gjk.enums import FsmEventType
 
 
 def test_fsm_event_type() -> None:

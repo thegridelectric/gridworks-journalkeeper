@@ -6,9 +6,9 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.enums import TelemetryName
-from gwp.types import TelemetrySnapshotSpaceheat
-from gwp.types import TelemetrySnapshotSpaceheat_Maker as Maker
+from gjk.enums import TelemetryName
+from gjk.types import TelemetrySnapshotSpaceheat
+from gjk.types import TelemetrySnapshotSpaceheat_Maker as Maker
 
 
 def test_telemetry_snapshot_spaceheat_generated() -> None:

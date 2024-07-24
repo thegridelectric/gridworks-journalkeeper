@@ -2,7 +2,7 @@
 Tests for enum spaceheat.telemetry.name.001 from the GridWorks Type Registry.
 """
 
-from gwp.enums import TelemetryName
+from gjk.enums import TelemetryName
 
 
 def test_telemetry_name() -> None:

@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import FsmFullReport
-from gwp.types import FsmFullReport_Maker as Maker
+from gjk.types import FsmFullReport
+from gjk.types import FsmFullReport_Maker as Maker
 
 
 def test_fsm_full_report_generated() -> None:

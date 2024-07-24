@@ -6,9 +6,9 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.enums import TelemetryName
-from gwp.types import GtShMultipurposeTelemetryStatus
-from gwp.types import GtShMultipurposeTelemetryStatus_Maker as Maker
+from gjk.enums import TelemetryName
+from gjk.types import GtShMultipurposeTelemetryStatus
+from gjk.types import GtShMultipurposeTelemetryStatus_Maker as Maker
 
 
 def test_gt_sh_multipurpose_telemetry_status_generated() -> None:

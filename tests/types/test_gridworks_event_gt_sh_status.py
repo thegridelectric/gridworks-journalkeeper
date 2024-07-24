@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import GridworksEventGtShStatus
-from gwp.types import GridworksEventGtShStatus_Maker as Maker
+from gjk.types import GridworksEventGtShStatus
+from gjk.types import GridworksEventGtShStatus_Maker as Maker
 
 
 def test_gridworks_event_gt_sh_status_generated() -> None:

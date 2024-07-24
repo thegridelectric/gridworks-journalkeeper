@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import GtShBooleanactuatorCmdStatus
-from gwp.types import GtShBooleanactuatorCmdStatus_Maker as Maker
+from gjk.types import GtShBooleanactuatorCmdStatus
+from gjk.types import GtShBooleanactuatorCmdStatus_Maker as Maker
 
 
 def test_gt_sh_booleanactuator_cmd_status_generated() -> None:

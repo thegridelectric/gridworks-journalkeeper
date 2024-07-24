@@ -20,12 +20,12 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gwp/enums/__init__.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/enums/__init__.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
 <xsl:text>"""
-GridWorks Enums used in gwp, the Application Shared Language (ASL) used by SCADA
+GridWorks Enums used in gjk, the Application Shared Language (ASL) used by SCADA
 devices and AtomicTNodes to communicate with each other. These enums play a specific structural
 role as semantic "glue" within ASLs.
 
@@ -35,7 +35,7 @@ Key attributes:
   - Each Enum has a unique name in the type registry (like spaceheat.telemetry.name), along
   with a version (like 001).
   - That name are interpretted locally in the SDK and do not necessarily carry the larger
-  context of the unique type registry name (for example gwp uses TelemetryName, since
+  context of the unique type registry name (for example gjk uses TelemetryName, since
   the `spaceheat` context goes without saying).
   - Each Value/Symbol pair also has a version. Value/Symbol pairs cannot be changed or removed.
   The only adjustments that can be made to an enum are adding more Value/Symbols. This is to
@@ -56,10 +56,10 @@ on these ideas:
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
  """
 </xsl:text>
-<xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gwp') and not(normalize-space(EnumName)='')]">
+<xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gjk') and not(normalize-space(EnumName)='')]">
 <xsl:sort select="LocalEnumName" data-type="text"/>
 <xsl:text>
-from gwp.enums.</xsl:text>
+from gjk.enums.</xsl:text>
 <xsl:value-of select="translate(LocalEnumName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:call-template name="nt-case">
@@ -72,7 +72,7 @@ from gwp.enums.</xsl:text>
 
 
 __all__ = [</xsl:text>
-<xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gwp')]">
+<xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="LocalEnumName" data-type="text"/>
 <xsl:variable name="gt-enum-id" select="GtEnumId"/>
 

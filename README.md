@@ -1,23 +1,23 @@
-# Gridworks Persister
+# Gridworks Journal Keeper
 
-[![PyPI](https://img.shields.io/pypi/v/gridworks-persister.svg)][pypi_]
-[![Status](https://img.shields.io/pypi/status/gridworks-persister.svg)][status]
-[![Python Version](https://img.shields.io/pypi/pyversions/gridworks-persister)][python version]
-[![License](https://img.shields.io/pypi/l/gridworks-persister)][license]
+[![PyPI](https://img.shields.io/pypi/v/gridworks-journalkeeper.svg)][pypi_]
+[![Status](https://img.shields.io/pypi/status/gridworks-journalkeeper.svg)][status]
+[![Python Version](https://img.shields.io/pypi/pyversions/gridworks-journalkeeper)][python version]
+[![License](https://img.shields.io/pypi/l/gridworks-journalkeeper)][license]
 
-[![Read the documentation at https://gridworks-persister.readthedocs.io/](https://img.shields.io/readthedocs/gridworks-persister/latest.svg?label=Read%20the%20Docs)][read the docs]
-[![Tests](https://github.com/thegridelectric/gridworks-persister/workflows/Tests/badge.svg)][tests]
-[![Codecov](https://codecov.io/gh/thegridelectric/gridworks-persister/branch/main/graph/badge.svg)][codecov]
+[![Read the documentation at https://gridworks-journalkeeper.readthedocs.io/](https://img.shields.io/readthedocs/gridworks-journalkeeper/latest.svg?label=Read%20the%20Docs)][read the docs]
+[![Tests](https://github.com/thegridelectric/gridworks-journalkeeper/workflows/Tests/badge.svg)][tests]
+[![Codecov](https://codecov.io/gh/thegridelectric/gridworks-journalkeeper/branch/main/graph/badge.svg)][codecov]
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)][pre-commit]
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)][black]
 
-[pypi_]: https://pypi.org/project/gridworks-persister/
-[status]: https://pypi.org/project/gridworks-persister/
-[python version]: https://pypi.org/project/gridworks-persister
-[read the docs]: https://gridworks-persister.readthedocs.io/
-[tests]: https://github.com/thegridelectric/gridworks-persister/actions?workflow=Tests
-[codecov]: https://app.codecov.io/gh/thegridelectric/gridworks-persister
+[pypi_]: https://pypi.org/project/gridworks-journalkeeper/
+[status]: https://pypi.org/project/gridworks-journalkeeper/
+[python version]: https://pypi.org/project/gridworks-journalkeeper
+[read the docs]: https://gridworks-journalkeeper.readthedocs.io/
+[tests]: https://github.com/thegridelectric/gridworks-journalkeeper/actions?workflow=Tests
+[codecov]: https://app.codecov.io/gh/thegridelectric/gridworks-journalkeeper
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
@@ -60,10 +60,10 @@ and then enter password
 
 ## Installation
 
-You can install _Gridworks Persister_ via [pip] from [PyPI]:
+You can install _Gridworks Journal Keeper_ via [pip] from [PyPI]:
 
 ```console
-$ pip install gridworks-persister
+$ pip install gridworks-journalkeeper
 ```
 
 ## Usage
@@ -78,7 +78,7 @@ To learn more, see the [Contributor Guide].
 ## License
 
 Distributed under the terms of the [MIT license][license],
-_Gridworks Persister_ is free and open source software.
+_Gridworks Journal Keeper_ is free and open source software.
 
 ## Issues
 
@@ -92,10 +92,10 @@ This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter]
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-[file an issue]: https://github.com/thegridelectric/gridworks-persister/issues
+[file an issue]: https://github.com/thegridelectric/gridworks-journalkeeper/issues
 [pip]: https://pip.pypa.io/
 
 <!-- github-only -->
 
-[license]: https://github.com/thegridelectric/gridworks-persister/blob/main/LICENSE
-[contributor guide]: https://github.com/thegridelectric/gridworks-persister/blob/main/CONTRIBUTING.md
+[license]: https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/LICENSE
+[contributor guide]: https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/CONTRIBUTING.md

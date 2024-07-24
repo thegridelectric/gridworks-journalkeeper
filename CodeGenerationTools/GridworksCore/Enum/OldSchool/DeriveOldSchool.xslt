@@ -19,7 +19,7 @@
     <xsl:template match="/">
         <FileSet>
             <FileSetFiles>
-                <xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gwp') and (EnumType = 'OldSchool')]">
+                <xsl:for-each select="$airtable//ProtocolEnums/ProtocolEnum[(normalize-space(ProtocolName) ='gjk') and (EnumType = 'OldSchool')]">
                 <xsl:variable name="enum-id" select="GtEnumId"/>
                 <xsl:variable name="enum-version" select="EnumVersion"/>
                 <xsl:variable name="enum-name" select="EnumName"/>
@@ -31,7 +31,7 @@
                         </xsl:call-template>
                     </xsl:variable>
                     <FileSetFile>
-                                <xsl:element name="RelativePath"><xsl:text>../../../../src/gwp/enums/</xsl:text>
+                                <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/enums/</xsl:text>
                                 <xsl:value-of select="translate(LocalName,'.','_')"/><xsl:text>.py</xsl:text></xsl:element>
 
                         <OverwriteMode>Always</OverwriteMode>

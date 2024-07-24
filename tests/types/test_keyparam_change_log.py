@@ -6,9 +6,9 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.enums import KindOfParam
-from gwp.types import KeyparamChangeLog
-from gwp.types import KeyparamChangeLog_Maker as Maker
+from gjk.enums import KindOfParam
+from gjk.types import KeyparamChangeLog
+from gjk.types import KeyparamChangeLog_Maker as Maker
 
 
 def test_keyparam_change_log_generated() -> None:

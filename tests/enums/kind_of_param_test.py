@@ -2,7 +2,7 @@
 Tests for enum spaceheat.kind.of.param.000 from the GridWorks Type Registry.
 """
 
-from gwp.enums import KindOfParam
+from gjk.enums import KindOfParam
 
 
 def test_kind_of_param() -> None:

@@ -2,7 +2,7 @@ PowerWatts
 ==========================
 Python pydantic class corresponding to json type `power.watts`, version `000`.
 
-.. autoclass:: gwp.types.PowerWatts
+.. autoclass:: gjk.types.PowerWatts
     :members:
 
 **Watts**:
@@ -16,6 +16,6 @@ Python pydantic class corresponding to json type `power.watts`, version `000`.
 
 
 
-.. autoclass:: gwp.types.PowerWatts_Maker
+.. autoclass:: gjk.types.PowerWatts_Maker
     :members:
 

@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import HeartbeatA
-from gwp.types import HeartbeatA_Maker as Maker
+from gjk.types import HeartbeatA
+from gjk.types import HeartbeatA_Maker as Maker
 
 
 def test_heartbeat_a_generated() -> None:

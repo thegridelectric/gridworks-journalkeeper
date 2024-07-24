@@ -2,7 +2,7 @@ FsmFullReport
 ==========================
 Python pydantic class corresponding to json type `fsm.full.report`, version `000`.
 
-.. autoclass:: gwp.types.FsmFullReport
+.. autoclass:: gjk.types.FsmFullReport
     :members:
 
 **FromName**:
@@ -24,14 +24,14 @@ Python pydantic class corresponding to json type `fsm.full.report`, version `000
 
 
 
-.. autoclass:: gwp.types.fsm_full_report.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.fsm_full_report.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.fsm_full_report.check_is_spaceheat_name
+.. autoclass:: gjk.types.fsm_full_report.check_is_spaceheat_name
     :members:
 
 
-.. autoclass:: gwp.types.FsmFullReport_Maker
+.. autoclass:: gjk.types.FsmFullReport_Maker
     :members:
 

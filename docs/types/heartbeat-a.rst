@@ -2,7 +2,7 @@ HeartbeatA
 ==========================
 Python pydantic class corresponding to json type `heartbeat.a`, version `001`.
 
-.. autoclass:: gwp.types.HeartbeatA
+.. autoclass:: gjk.types.HeartbeatA
     :members:
 
 **TypeName**:
@@ -13,10 +13,10 @@ Python pydantic class corresponding to json type `heartbeat.a`, version `001`.
 
 
 
-.. autoclass:: gwp.types.heartbeat_a.check_is_hex_char
+.. autoclass:: gjk.types.heartbeat_a.check_is_hex_char
     :members:
 
 
-.. autoclass:: gwp.types.HeartbeatA_Maker
+.. autoclass:: gjk.types.HeartbeatA_Maker
     :members:
 

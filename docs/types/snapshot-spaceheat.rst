@@ -2,7 +2,7 @@ SnapshotSpaceheat
 ==========================
 Python pydantic class corresponding to json type `snapshot.spaceheat`, version `000`.
 
-.. autoclass:: gwp.types.SnapshotSpaceheat
+.. autoclass:: gjk.types.SnapshotSpaceheat
     :members:
 
 **FromGNodeAlias**:
@@ -24,14 +24,14 @@ Python pydantic class corresponding to json type `snapshot.spaceheat`, version `
 
 
 
-.. autoclass:: gwp.types.snapshot_spaceheat.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.snapshot_spaceheat.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.snapshot_spaceheat.check_is_left_right_dot
+.. autoclass:: gjk.types.snapshot_spaceheat.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.SnapshotSpaceheat_Maker
+.. autoclass:: gjk.types.SnapshotSpaceheat_Maker
     :members:
 

@@ -2,7 +2,7 @@ DataChannelGt
 ==========================
 Python pydantic class corresponding to json type `data.channel.gt`, version `000`.
 
-.. autoclass:: gwp.types.DataChannelGt
+.. autoclass:: gjk.types.DataChannelGt
     :members:
 
 **Name**:
@@ -39,14 +39,14 @@ Python pydantic class corresponding to json type `data.channel.gt`, version `000
 
 
 
-.. autoclass:: gwp.types.data_channel_gt.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.data_channel_gt.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.data_channel_gt.check_is_spaceheat_name
+.. autoclass:: gjk.types.data_channel_gt.check_is_spaceheat_name
     :members:
 
 
-.. autoclass:: gwp.types.DataChannelGt_Maker
+.. autoclass:: gjk.types.DataChannelGt_Maker
     :members:
 

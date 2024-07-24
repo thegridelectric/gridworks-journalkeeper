@@ -2,7 +2,7 @@ GtShSimpleTelemetryStatus
 ==========================
 Python pydantic class corresponding to json type `gt.sh.simple.telemetry.status`, version `100`.
 
-.. autoclass:: gwp.types.GtShSimpleTelemetryStatus
+.. autoclass:: gjk.types.GtShSimpleTelemetryStatus
     :members:
 
 **ShNodeAlias**:
@@ -30,14 +30,14 @@ Python pydantic class corresponding to json type `gt.sh.simple.telemetry.status`
 
 
 
-.. autoclass:: gwp.types.gt_sh_simple_telemetry_status.check_is_left_right_dot
+.. autoclass:: gjk.types.gt_sh_simple_telemetry_status.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.gt_sh_simple_telemetry_status.check_is_reasonable_unix_time_ms
+.. autoclass:: gjk.types.gt_sh_simple_telemetry_status.check_is_reasonable_unix_time_ms
     :members:
 
 
-.. autoclass:: gwp.types.GtShSimpleTelemetryStatus_Maker
+.. autoclass:: gjk.types.GtShSimpleTelemetryStatus_Maker
     :members:
 

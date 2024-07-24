@@ -12,7 +12,7 @@ The Python classes below also come with methods for translating back and
 forth between type instances and Python objects.
 
 
-.. automodule:: gwp.types
+.. automodule:: gjk.types
 
 .. toctree::
    :maxdepth: 1

@@ -13,7 +13,7 @@ config = context.config
 # Add the URL
 import dotenv
 
-from gwp.config import Settings
+from gjk.config import Settings
 
 
 settings = Settings(_env_file=dotenv.find_dotenv())
@@ -24,18 +24,18 @@ config.set_main_option("sqlalchemy.url", settings.db_url.get_secret_value())
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from gwp.models import DataChannelSql
-from gwp.models import MessageSql
-from gwp.models import ScadaSql
+from gjk.models import DataChannelSql
+from gjk.models import MessageSql
+from gjk.models import ScadaSql
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-from gwp.models.message import Base
+from gjk.models.message import Base
 
 
-# from gwp.models import ReadingSql
+# from gjk.models import ReadingSql
 
 
 

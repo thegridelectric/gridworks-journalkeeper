@@ -2,7 +2,7 @@ ChannelReadings
 ==========================
 Python pydantic class corresponding to json type `channel.readings`, version `000`.
 
-.. autoclass:: gwp.types.ChannelReadings
+.. autoclass:: gjk.types.ChannelReadings
     :members:
 
 **ChannelId**:
@@ -24,14 +24,14 @@ Python pydantic class corresponding to json type `channel.readings`, version `00
 
 
 
-.. autoclass:: gwp.types.channel_readings.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.channel_readings.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.channel_readings.check_is_reasonable_unix_time_ms
+.. autoclass:: gjk.types.channel_readings.check_is_reasonable_unix_time_ms
     :members:
 
 
-.. autoclass:: gwp.types.ChannelReadings_Maker
+.. autoclass:: gjk.types.ChannelReadings_Maker
     :members:
 

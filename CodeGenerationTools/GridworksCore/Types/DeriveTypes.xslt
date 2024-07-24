@@ -19,7 +19,7 @@
     <xsl:template match="/">
         <FileSet>
             <FileSetFiles>
-                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
                 <xsl:variable name="versioned-type-id" select="VersionedType"/>
                 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory= 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
                 <xsl:variable name="type-name" select="TypeName" />
@@ -46,7 +46,7 @@
                     </xsl:variable>
 
                     <FileSetFile>
-                                <xsl:element name="RelativePath"><xsl:text>../../../src/gwp/types/</xsl:text>
+                                <xsl:element name="RelativePath"><xsl:text>../../../src/gjk/types/</xsl:text>
                                 <xsl:value-of select="translate($type-name,'.','_')"/><xsl:text>.py</xsl:text></xsl:element>
 
                         <OverwriteMode><xsl:value-of select="$overwrite-mode"/></OverwriteMode>
@@ -103,7 +103,7 @@ from gw import check_is_market_slot_name_lrd_format</xsl:text>
 <xsl:if test="MakeDataClass='true'">
 <xsl:if test="not(IsComponent = 'true') and not(IsCac = 'true')">
 <xsl:text>
-from gwp.data_classes.</xsl:text>
+from gjk.data_classes.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(DataClass,'.','_')"  />
 </xsl:call-template>
@@ -113,7 +113,7 @@ from gwp.data_classes.</xsl:text>
 </xsl:if>
 <xsl:if test="IsComponent = 'true'">
 <xsl:text>
-from gwp.data_classes.components.</xsl:text>
+from gjk.data_classes.components.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(DataClass,'.','_')"  />
 </xsl:call-template>
@@ -123,7 +123,7 @@ from gwp.data_classes.components.</xsl:text>
 
 <xsl:if test="IsCac = 'true'">
 <xsl:text>
-from gwp.data_classes.cacs.</xsl:text>
+from gjk.data_classes.cacs.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(DataClass,'.','_')"  />
 </xsl:call-template>
@@ -135,7 +135,7 @@ from gwp.data_classes.cacs.</xsl:text>
 
 <xsl:if test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '' or IsList = 'true')">
 <xsl:text>
-from gwp.types.</xsl:text>
+from gjk.types.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(SubTypeName,'.','_')"  />
 </xsl:call-template>
@@ -144,7 +144,7 @@ from gwp.types.</xsl:text>
     <xsl:with-param name="type-name-text" select="SubTypeName" />
 </xsl:call-template>
 <xsl:text>
-from gwp.types.</xsl:text>
+from gjk.types.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(SubTypeName,'.','_')"  />
 </xsl:call-template>
@@ -167,7 +167,7 @@ from gwp.types.</xsl:text>
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (EnumLocalName[text() = $base-name])])>0">
 
 <xsl:text>
-from gwp.enums import </xsl:text>
+from gjk.enums import </xsl:text>
 <xsl:value-of select="$enum-local-name"/>
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (UseEnumAlias= 'true') and (EnumLocalName[text()=$base-name])])>0">
 <xsl:text> as Enum</xsl:text>

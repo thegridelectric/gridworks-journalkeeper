@@ -2,7 +2,7 @@
 Tests for enum sh.fsm.action.type.000 from the GridWorks Type Registry.
 """
 
-from gwp.enums import FsmActionType
+from gjk.enums import FsmActionType
 
 
 def test_fsm_action_type() -> None:

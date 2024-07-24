@@ -19,7 +19,7 @@
     <xsl:template match="/">
         <FileSet>
             <FileSetFiles>
-                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
                 <xsl:variable name="versioned-type-id" select="VersionedType"/>
                 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
                 <xsl:variable name="versioned-type-name" select="VersionedTypeName"/>
@@ -52,7 +52,7 @@ Python pydantic class corresponding to json type `</xsl:text>
 <xsl:value-of select="$type-name"/><xsl:text>`, version `</xsl:text>
 <xsl:value-of select="Version"/><xsl:text>`.
 
-.. autoclass:: gwp.types.</xsl:text><xsl:value-of select="$class-name"/><xsl:text>
+.. autoclass:: gjk.types.</xsl:text><xsl:value-of select="$class-name"/><xsl:text>
     :members:</xsl:text>
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
  <xsl:sort select="Idx" data-type="number"/>
@@ -99,7 +99,7 @@ Python pydantic class corresponding to json type `</xsl:text>
 
 <xsl:text>
 
-.. autoclass:: gwp.types.</xsl:text>
+.. autoclass:: gjk.types.</xsl:text>
 <xsl:value-of select="translate($type-name,'.','_')"/>
 <xsl:text>.check_is_</xsl:text>
 <xsl:call-template name="python-case">
@@ -112,7 +112,7 @@ Python pydantic class corresponding to json type `</xsl:text>
 
 <xsl:text>
 
-.. autoclass:: gwp.types.</xsl:text>
+.. autoclass:: gjk.types.</xsl:text>
 <xsl:value-of select="$class-name"/><xsl:text>_Maker
     :members:
 

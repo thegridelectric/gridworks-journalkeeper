@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import SnapshotSpaceheat
-from gwp.types import SnapshotSpaceheat_Maker as Maker
+from gjk.types import SnapshotSpaceheat
+from gjk.types import SnapshotSpaceheat_Maker as Maker
 
 
 def test_snapshot_spaceheat_generated() -> None:

@@ -2,7 +2,7 @@ GridworksEventSnapshotSpaceheat
 ==========================
 Python pydantic class corresponding to json type `gridworks.event.snapshot.spaceheat`, version `000`.
 
-.. autoclass:: gwp.types.GridworksEventSnapshotSpaceheat
+.. autoclass:: gjk.types.GridworksEventSnapshotSpaceheat
     :members:
 
 **MessageId**:
@@ -27,14 +27,14 @@ Python pydantic class corresponding to json type `gridworks.event.snapshot.space
 
 
 
-.. autoclass:: gwp.types.gridworks_event_snapshot_spaceheat.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.gridworks_event_snapshot_spaceheat.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.gridworks_event_snapshot_spaceheat.check_is_left_right_dot
+.. autoclass:: gjk.types.gridworks_event_snapshot_spaceheat.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.GridworksEventSnapshotSpaceheat_Maker
+.. autoclass:: gjk.types.GridworksEventSnapshotSpaceheat_Maker
     :members:
 

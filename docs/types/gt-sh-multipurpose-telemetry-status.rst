@@ -2,7 +2,7 @@ GtShMultipurposeTelemetryStatus
 ==========================
 Python pydantic class corresponding to json type `gt.sh.multipurpose.telemetry.status`, version `100`.
 
-.. autoclass:: gwp.types.GtShMultipurposeTelemetryStatus
+.. autoclass:: gjk.types.GtShMultipurposeTelemetryStatus
     :members:
 
 **AboutNodeAlias**:
@@ -30,14 +30,14 @@ Python pydantic class corresponding to json type `gt.sh.multipurpose.telemetry.s
 
 
 
-.. autoclass:: gwp.types.gt_sh_multipurpose_telemetry_status.check_is_left_right_dot
+.. autoclass:: gjk.types.gt_sh_multipurpose_telemetry_status.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.gt_sh_multipurpose_telemetry_status.check_is_reasonable_unix_time_ms
+.. autoclass:: gjk.types.gt_sh_multipurpose_telemetry_status.check_is_reasonable_unix_time_ms
     :members:
 
 
-.. autoclass:: gwp.types.GtShMultipurposeTelemetryStatus_Maker
+.. autoclass:: gjk.types.GtShMultipurposeTelemetryStatus_Maker
     :members:
 

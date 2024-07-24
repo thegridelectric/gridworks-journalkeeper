@@ -2,7 +2,7 @@
 Tests for enum fsm.report.type.000 from the GridWorks Type Registry.
 """
 
-from gwp.enums import FsmReportType
+from gjk.enums import FsmReportType
 
 
 def test_fsm_report_type() -> None:

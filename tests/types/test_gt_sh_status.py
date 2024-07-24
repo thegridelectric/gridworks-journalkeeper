@@ -6,8 +6,8 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.types import GtShStatus
-from gwp.types import GtShStatus_Maker as Maker
+from gjk.types import GtShStatus
+from gjk.types import GtShStatus_Maker as Maker
 
 
 def test_gt_sh_status_generated() -> None:

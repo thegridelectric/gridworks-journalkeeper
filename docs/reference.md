@@ -1,8 +1,8 @@
 # Reference
 
-## gwp
+## gjk
 
 ```{eval-rst}
-.. automodule:: gwp
+.. automodule:: gjk
    :members:
 ```

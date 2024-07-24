@@ -20,17 +20,17 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gwp/types/__init__.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/__init__.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
 <xsl:text>""" List of all the types """
 
-from gwp.types.codec import get_tuple_from_type
-from gwp.types.base_asl_types import TypeMakerByName
+from gjk.types.codec import get_tuple_from_type
+from gjk.types.base_asl_types import TypeMakerByName
 </xsl:text>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
-  count(Protocols[text()='gwp']) > 0 and
+  count(Protocols[text()='gjk']) > 0 and
   (Status = 'Active' or Status = 'Pending') and
   (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial') and
   not (NotInInit='true')
@@ -49,12 +49,12 @@ from gwp.types.base_asl_types import TypeMakerByName
 </xsl:variable>
 
 <xsl:text>
-from gwp.types.</xsl:text>
+from gjk.types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:value-of select="$python-class-name"/>
 <xsl:text>
-from gwp.types.</xsl:text>
+from gjk.types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text><xsl:value-of select="$python-class-name"/>
 <xsl:text>_Maker</xsl:text>
@@ -69,7 +69,7 @@ __all__ = [
 
 
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
-  count(Protocols[text()='gwp']) > 0 and
+  count(Protocols[text()='gjk']) > 0 and
   (Status = 'Active' or Status = 'Pending') and
   (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')
 ]">

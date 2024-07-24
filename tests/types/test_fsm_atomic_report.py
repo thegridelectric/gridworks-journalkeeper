@@ -6,9 +6,9 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.enums import FsmEventType
-from gwp.types import FsmAtomicReport
-from gwp.types import FsmAtomicReport_Maker as Maker
+from gjk.enums import FsmEventType
+from gjk.types import FsmAtomicReport
+from gjk.types import FsmAtomicReport_Maker as Maker
 
 
 def test_fsm_atomic_report_generated() -> None:

@@ -2,7 +2,7 @@ GridworksEventGtShStatus
 ==========================
 Python pydantic class corresponding to json type `gridworks.event.gt.sh.status`, version `000`.
 
-.. autoclass:: gwp.types.GridworksEventGtShStatus
+.. autoclass:: gjk.types.GridworksEventGtShStatus
     :members:
 
 **MessageId**:
@@ -27,14 +27,14 @@ Python pydantic class corresponding to json type `gridworks.event.gt.sh.status`,
 
 
 
-.. autoclass:: gwp.types.gridworks_event_gt_sh_status.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.gridworks_event_gt_sh_status.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.gridworks_event_gt_sh_status.check_is_left_right_dot
+.. autoclass:: gjk.types.gridworks_event_gt_sh_status.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.GridworksEventGtShStatus_Maker
+.. autoclass:: gjk.types.GridworksEventGtShStatus_Maker
     :members:
 

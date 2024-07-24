@@ -2,7 +2,7 @@ TelemetrySnapshotSpaceheat
 ==========================
 Python pydantic class corresponding to json type `telemetry.snapshot.spaceheat`, version `000`.
 
-.. autoclass:: gwp.types.TelemetrySnapshotSpaceheat
+.. autoclass:: gjk.types.TelemetrySnapshotSpaceheat
     :members:
 
 **ReportTimeUnixMs**:
@@ -27,14 +27,14 @@ Python pydantic class corresponding to json type `telemetry.snapshot.spaceheat`,
 
 
 
-.. autoclass:: gwp.types.telemetry_snapshot_spaceheat.check_is_left_right_dot
+.. autoclass:: gjk.types.telemetry_snapshot_spaceheat.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.telemetry_snapshot_spaceheat.check_is_reasonable_unix_time_ms
+.. autoclass:: gjk.types.telemetry_snapshot_spaceheat.check_is_reasonable_unix_time_ms
     :members:
 
 
-.. autoclass:: gwp.types.TelemetrySnapshotSpaceheat_Maker
+.. autoclass:: gjk.types.TelemetrySnapshotSpaceheat_Maker
     :members:
 

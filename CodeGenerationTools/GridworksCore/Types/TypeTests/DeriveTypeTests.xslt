@@ -19,7 +19,7 @@
     <xsl:template match="/">
         <FileSet>
             <FileSetFiles>
-                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+                <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
                 <xsl:variable name="versioned-type-id" select="VersionedType"/>
                 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
                 <xsl:variable name="type-name" select="TypeName"/>
@@ -64,7 +64,7 @@ from pydantic import ValidationError
 </xsl:text>
 <xsl:for-each select="$airtable//GtEnums/GtEnum[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
 <xsl:text>
-from gwp.enums import </xsl:text>
+from gjk.enums import </xsl:text>
 <xsl:call-template name="nt-case">
     <xsl:with-param name="type-name-text" select="LocalName" />
 </xsl:call-template>
@@ -72,17 +72,17 @@ from gwp.enums import </xsl:text>
 <xsl:choose>
 <xsl:when test="(NotInInit='true')">
 <xsl:text>
-from gwp.types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
+from gjk.types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
 <xsl:text> import </xsl:text><xsl:value-of select="$class-name"/><xsl:text>
-from gwp.types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
+from gjk.types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:value-of select="$class-name"/><xsl:text>_Maker as Maker</xsl:text>
 </xsl:when>
 
 <xsl:otherwise>
 <xsl:text>
-from gwp.types import </xsl:text><xsl:value-of select="$class-name"/><xsl:text>
-from gwp.types import </xsl:text>
+from gjk.types import </xsl:text><xsl:value-of select="$class-name"/><xsl:text>
+from gjk.types import </xsl:text>
 <xsl:value-of select="$class-name"/><xsl:text>_Maker as Maker</xsl:text>
 </xsl:otherwise>
 

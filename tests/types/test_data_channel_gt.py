@@ -6,9 +6,9 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gwp.enums import TelemetryName
-from gwp.types import DataChannelGt
-from gwp.types import DataChannelGt_Maker as Maker
+from gjk.enums import TelemetryName
+from gjk.types import DataChannelGt
+from gjk.types import DataChannelGt_Maker as Maker
 
 
 def test_data_channel_gt_generated() -> None:

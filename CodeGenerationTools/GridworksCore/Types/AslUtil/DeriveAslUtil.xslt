@@ -20,7 +20,7 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gwp/types/base_asl_types.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/base_asl_types.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
@@ -30,13 +30,13 @@ from typing import Dict
 from typing import List
 from typing import no_type_check
 </xsl:text>
-<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
 <xsl:variable name="versioned-type-id" select="VersionedType"/>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
 
 <xsl:text>
-from gwp.types.</xsl:text>
+from gjk.types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:call-template name="nt-case">
@@ -55,7 +55,7 @@ TypeMakerByName: Dict[str, HeartbeatA_Maker] = {}
 def type_makers() -> List[HeartbeatA_Maker]:
     return [
         </xsl:text>
-<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp') and (normalize-space(VersionedTypeName)!='')]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk') and (normalize-space(VersionedTypeName)!='')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
 <xsl:variable name="versioned-type-id" select="VersionedType"/>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending')  and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
@@ -67,7 +67,7 @@ def type_makers() -> List[HeartbeatA_Maker]:
 
 
 <xsl:choose>
- <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')])">
+ <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')])">
 <xsl:text>,
         </xsl:text>
 </xsl:when>
@@ -92,7 +92,7 @@ def version_by_type_name() -> Dict[str, str]:
 
     v: Dict[str, str] = {
         </xsl:text>
-    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
     <xsl:sort select="VersionedTypeName" data-type="text"/>
     <xsl:variable name="versioned-type-id" select="VersionedType"/>
     <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
@@ -104,7 +104,7 @@ def version_by_type_name() -> Dict[str, str]:
     <xsl:text>"</xsl:text>
     </xsl:for-each>
     <xsl:choose>
- <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')])">
+ <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')])">
     <xsl:text>,
         </xsl:text>
     </xsl:when>
@@ -127,7 +127,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
 
     v: Dict[str, str] = {
         </xsl:text>
-    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')]">
+    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
     <xsl:sort select="VersionedTypeName" data-type="text"/>
     <xsl:variable name="versioned-type-id" select="VersionedType"/>
     <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
@@ -138,7 +138,7 @@ def status_by_versioned_type_name() -> Dict[str, str]:
     <xsl:text>"</xsl:text>
     </xsl:for-each>
         <xsl:choose>
- <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gwp')])">
+ <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')])">
     <xsl:text>,
         </xsl:text>
     </xsl:when>

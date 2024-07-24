@@ -2,7 +2,7 @@
 Tests for enum sh.fsm.name.000 from the GridWorks Type Registry.
 """
 
-from gwp.enums import FsmName
+from gjk.enums import FsmName
 
 
 def test_fsm_name() -> None:

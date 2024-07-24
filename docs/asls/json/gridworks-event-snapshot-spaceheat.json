@@ -3,7 +3,7 @@
   "type_name": "gridworks.event.snapshot.spaceheat",
   "version": "000",
   "owner": "gridworks@gridworks-consulting.com",
-  "description": ". This is a gwproto wrapper around a gt.sh.status message that includes the src (which should always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once the gt.sh.status message is created, and does not change if the SCADA re-sends the message due to no ack from AtomicTNode) and a timestamp for when the message was created.",
+  "description": ". This is a gjkroto wrapper around a gt.sh.status message that includes the src (which should always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once the gt.sh.status message is created, and does not change if the SCADA re-sends the message due to no ack from AtomicTNode) and a timestamp for when the message was created.",
   "properties": {
     "MessageId": {
       "type": "string",

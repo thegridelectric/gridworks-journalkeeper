@@ -1,22 +1,22 @@
 [tool.poetry]
-name = "gridworks-persister"
+name = "gridworks-journalkeeper"
 version = "0.0.0"
-description = "Gridworks Persister"
+description = "Gridworks Journal Keeper"
 authors = ["GridWorks <gridworks@gridworks-consulting.com>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/thegridelectric/gridworks-persister"
-repository = "https://github.com/thegridelectric/gridworks-persister"
-documentation = "https://gridworks-persister.readthedocs.io"
+homepage = "https://github.com/thegridelectric/gridworks-journalkeeper"
+repository = "https://github.com/thegridelectric/gridworks-journalkeeper"
+documentation = "https://gridworks-journalkeeper.readthedocs.io"
 packages = [
-    { include = "gwp", from = "src" },
+    { include = "gjk", from = "src" },
 ]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
 ]
 
 [tool.poetry.urls]
-Changelog = "https://github.com/thegridelectric/gridworks-persister/releases"
+Changelog = "https://github.com/thegridelectric/gridworks-journalkeeper/releases"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
@@ -57,7 +57,7 @@ xdoctest = {extras = ["colors"], version = ">=0.15.10"}
 myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.scripts]
-gridworks-persister = "gwp.__main__:main"
+gridworks-journalkeeper = "gjk.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -65,7 +65,7 @@ tests = ["tests", "*/tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["gwp", "tests"]
+source = ["gjk", "tests"]
 
 [tool.coverage.report]
 show_missing = true

@@ -2,7 +2,7 @@ BatchedReadings
 ==========================
 Python pydantic class corresponding to json type `batched.readings`, version `000`.
 
-.. autoclass:: gwp.types.BatchedReadings
+.. autoclass:: gjk.types.BatchedReadings
     :members:
 
 **FromGNodeAlias**:
@@ -53,22 +53,22 @@ Python pydantic class corresponding to json type `batched.readings`, version `00
 
 
 
-.. autoclass:: gwp.types.batched_readings.check_is_reasonable_unix_time_s
+.. autoclass:: gjk.types.batched_readings.check_is_reasonable_unix_time_s
     :members:
 
 
-.. autoclass:: gwp.types.batched_readings.check_is_uuid_canonical_textual
+.. autoclass:: gjk.types.batched_readings.check_is_uuid_canonical_textual
     :members:
 
 
-.. autoclass:: gwp.types.batched_readings.check_is_positive_integer
+.. autoclass:: gjk.types.batched_readings.check_is_positive_integer
     :members:
 
 
-.. autoclass:: gwp.types.batched_readings.check_is_left_right_dot
+.. autoclass:: gjk.types.batched_readings.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.BatchedReadings_Maker
+.. autoclass:: gjk.types.BatchedReadings_Maker
     :members:
 

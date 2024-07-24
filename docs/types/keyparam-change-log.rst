@@ -2,7 +2,7 @@ KeyparamChangeLog
 ==========================
 Python pydantic class corresponding to json type `keyparam.change.log`, version `000`.
 
-.. autoclass:: gwp.types.KeyparamChangeLog
+.. autoclass:: gjk.types.KeyparamChangeLog
     :members:
 
 **AboutNodeAlias**:
@@ -33,14 +33,14 @@ Python pydantic class corresponding to json type `keyparam.change.log`, version 
 
 
 
-.. autoclass:: gwp.types.keyparam_change_log.check_is_left_right_dot
+.. autoclass:: gjk.types.keyparam_change_log.check_is_left_right_dot
     :members:
 
 
-.. autoclass:: gwp.types.keyparam_change_log.check_is_log_style_date_with_millis
+.. autoclass:: gjk.types.keyparam_change_log.check_is_log_style_date_with_millis
     :members:
 
 
-.. autoclass:: gwp.types.KeyparamChangeLog_Maker
+.. autoclass:: gjk.types.KeyparamChangeLog_Maker
     :members:
 
