@@ -35,6 +35,13 @@
       "title": "",
       "required": true
     },
+    "MessageCreatedMs": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeMs",
+      "title": "MessageCreatedMs",
+      "description": "The SCADA timestamp for when this message was created. If the message is not acked by the AtomicTNode, the message is stored and sent again later - so the MessageCreatedMs may occur significantly before the timestamp for when the message is put into the persistent store.",
+      "required": true
+    },
     "DataChannelList": {
       "type": "array",
       "items": {

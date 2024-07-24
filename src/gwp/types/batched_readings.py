@@ -60,6 +60,15 @@ class BatchedReadings(BaseModel):
     batched_transmission_period_s: int = Field(
         title="BatchedTransmissionPeriodS",
     )
+    message_created_ms: int = Field(
+        title="MessageCreatedMs",
+        description=(
+            "The SCADA timestamp for when this message was created. If the message is not acked "
+            "by the AtomicTNode, the message is stored and sent again later - so the MessageCreatedMs "
+            "may occur significantly before the timestamp for when the message is put into the "
+            "persistent store."
+        ),
+    )
     data_channel_list: List[DataChannelGt] = Field(
         title="DataChannel List",
         description=(
@@ -149,6 +158,16 @@ class BatchedReadings(BaseModel):
             )
         return v
 
+    @field_validator("message_created_ms")
+    def _check_message_created_ms(cls, v: int) -> int:
+        try:
+            check_is_reasonable_unix_time_ms(v)
+        except ValueError as e:
+            raise ValueError(
+                f"MessageCreatedMs failed ReasonableUnixTimeMs format validation: {e}"
+            )
+        return v
+
     @field_validator("fsm_action_list")
     def check_fsm_action_list(cls, v: List[FsmAtomicReport]) -> List[FsmAtomicReport]:
         """
@@ -198,6 +217,7 @@ class BatchedReadings(BaseModel):
         """
         Axiom 3: Time Consistency.
         For every ScadaReadTimeUnixMs   let read_s = read_ms / 1000.  Let start_s be SlotStartUnixS.  Then read_s >= start_s and start_s + BatchedTransmissionPeriodS + 1 + start_s > read_s.
+        Also message_created_ms >
         """
         start_s = self.slot_start_unix_s
         delta_s = self.batched_transmission_period_s
@@ -223,6 +243,10 @@ class BatchedReadings(BaseModel):
                     f"BatchedTransmissionPeriodS <{start_s + delta_s}>"
                 )
 
+        if self.message_created_ms < (start_s + delta_s) * 1000:
+            raise ValueError(
+                f"MessageCreatedMs <{self.message_created_ms}> came before SlotStartUnixS + TransmissionPeriodS"
+            )
         return self
 
     def as_dict(self) -> Dict[str, Any]:
@@ -358,6 +382,8 @@ class BatchedReadings_Maker:
             raise GwTypeError(f"dict missing SlotStartUnixS: <{d2}>")
         if "BatchedTransmissionPeriodS" not in d2.keys():
             raise GwTypeError(f"dict missing BatchedTransmissionPeriodS: <{d2}>")
+        if "MessageCreatedMs" not in d2.keys():
+            raise GwTypeError(f"dict missing MessageCreatedMs: <{d2}>")
         if "DataChannelList" not in d2.keys():
             raise GwTypeError(f"dict missing DataChannelList: <{d2}>")
         if not isinstance(d2["DataChannelList"], List):
@@ -537,3 +563,29 @@ def check_is_uuid_canonical_textual(v: str) -> None:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
     if len(x[4]) != 12:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
+
+
+def check_is_reasonable_unix_time_ms(v: int) -> None:
+    """Checks ReasonableUnixTimeMs format
+
+    ReasonableUnixTimeMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
+
+    Args:
+        v (int): the candidate
+
+    Raises:
+        ValueError: if v is not ReasonableUnixTimeMs format
+    """
+    from datetime import datetime
+    from datetime import timezone
+
+    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
+
+    start_timestamp_ms = int(start_date.timestamp() * 1000)
+    end_timestamp_ms = int(end_date.timestamp() * 1000)
+
+    if v < start_timestamp_ms:
+        raise ValueError(f"{v} must be after Jan 1 2000")
+    if v > end_timestamp_ms:
+        raise ValueError(f"{v} must be before Jan 1 3000")

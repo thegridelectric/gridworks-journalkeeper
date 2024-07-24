@@ -25,6 +25,10 @@ Python pydantic class corresponding to json type `batched.readings`, version `00
     - Description: 
     - Format: PositiveInteger
 
+**MessageCreatedMs**:
+    - Description: MessageCreatedMs.The SCADA timestamp for when this message was created. If the message is not acked by the AtomicTNode, the message is stored and sent again later - so the MessageCreatedMs may occur significantly before the timestamp for when the message is put into the persistent store.
+    - Format: ReasonableUnixTimeMs
+
 **DataChannelList**:
     - Description: DataChannel List.The list of data channels for which there is data getting reported in this batched reading. It is a subset of all the data channels for the SCADA - may not be all of them.
 

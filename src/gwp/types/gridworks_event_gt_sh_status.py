@@ -216,10 +216,11 @@ class GridworksEventGtShStatus_Maker:
         Returns:
             GridworksEventGtShStatus
         """
-        for key in d.keys():
+        e = cls.first_season_fix(d)
+        for key in e.keys():
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
-        d2 = dict(d)
+        d2 = dict(e)
         if "MessageId" not in d2.keys():
             raise GwTypeError(f"dict missing MessageId: <{d2}>")
         if "TimeNS" not in d2.keys():
@@ -250,14 +251,17 @@ class GridworksEventGtShStatus_Maker:
         Makes key "status" -> "Status", following the rule that
         all GridWorks types must have PascalCase keys
         """
-        if "Status" in d.keys():
-            return d
 
         d2 = copy.deepcopy(d)
-        if "status" not in d2.keys():
+
+        if "status" in d2.keys():
+            d2["Status"] = d2["status"]
+            del d2["status"]
+
+        if "Status" not in d2.keys():
             raise GwTypeError(f"dict missing Status: <{d2}>")
 
-        status = d2["status"]
+        status = d2["Status"]
 
         # replace values with symbols for TelemetryName in SimpleTelemetryList
         simple_list = status["SimpleTelemetryList"]
@@ -286,7 +290,6 @@ class GridworksEventGtShStatus_Maker:
             d2["MessageId"] = status["StatusUid"]
 
         d2["Status"] = status
-        del d2["status"]
         d2["Version"] = "000"
         return d2
 

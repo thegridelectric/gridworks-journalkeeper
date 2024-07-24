@@ -17,6 +17,7 @@ def test_batched_readings_generated() -> None:
         about_g_node_alias="dwtest.isone.ct.newhaven.orange1.ta",
         slot_start_unix_s=1656945300,
         batched_transmission_period_s=300,
+        message_created_ms=1656945600044,
         data_channel_list=,
         channel_reading_list=[],
         fsm_action_list=[],
@@ -30,6 +31,7 @@ def test_batched_readings_generated() -> None:
         "AboutGNodeAlias": "dwtest.isone.ct.newhaven.orange1.ta",
         "SlotStartUnixS": 1656945300,
         "BatchedTransmissionPeriodS": 300,
+        "MessageCreatedMs": 1656945600044,
         "DataChannelList": ,
         "ChannelReadingList": [],
         "FsmActionList": [],
@@ -90,6 +92,11 @@ def test_batched_readings_generated() -> None:
         Maker.dict_to_tuple(d2)
 
     d2 = dict(d)
+    del d2["MessageCreatedMs"]
+    with pytest.raises(GwTypeError):
+        Maker.dict_to_tuple(d2)
+
+    d2 = dict(d)
     del d2["DataChannelList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
@@ -123,6 +130,10 @@ def test_batched_readings_generated() -> None:
         Maker.dict_to_tuple(d2)
 
     d2 = dict(d, BatchedTransmissionPeriodS="300.1")
+    with pytest.raises(ValidationError):
+        Maker.dict_to_tuple(d2)
+
+    d2 = dict(d, MessageCreatedMs="1656945600044.1")
     with pytest.raises(ValidationError):
         Maker.dict_to_tuple(d2)
 
@@ -203,6 +214,10 @@ def test_batched_readings_generated() -> None:
         Maker.dict_to_tuple(d2)
 
     d2 = dict(d, BatchedTransmissionPeriodS=0)
+    with pytest.raises(ValidationError):
+        Maker.dict_to_tuple(d2)
+
+    d2 = dict(d, MessageCreatedMs=1656245000)
     with pytest.raises(ValidationError):
         Maker.dict_to_tuple(d2)
 

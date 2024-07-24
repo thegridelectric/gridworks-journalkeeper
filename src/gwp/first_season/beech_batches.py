@@ -4,6 +4,7 @@ from typing import List
 
 import dotenv
 import pendulum
+from gw.errors import GwTypeError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -22,8 +23,12 @@ from gwp.persister_hack import FileNameMeta
 from gwp.persister_hack import PersisterHack
 from gwp.types import BatchedReadings
 from gwp.types import ChannelReadings
-from gwp.types import GridworksEventGtShStatus_Maker as Maker
-from gwp.types import GtShStatus
+from gwp.types import GridworksEventGtShStatus
+from gwp.types import GtShStatus_Maker
+from gwp.types import KeyparamChangeLog_Maker
+from gwp.types import PowerWatts_Maker
+from gwp.types import get_tuple_from_type
+from gwp.types.base_asl_types import TypeMakerByName
 
 
 BEECH_IGNORED_ALIASES = [
@@ -49,11 +54,27 @@ TN_GOOFS = [
 ]
 
 
-def batched_reading_from_status(
-    status: GtShStatus, fn: FileNameMeta
+def beech_br_from_status(
+    status_event: GridworksEventGtShStatus, fn: FileNameMeta
 ) -> BatchedReadings:
+    """
+    Given a GridWorksEventGtShStatus reported by the beech scada,
+    returns the equivalent BatchedReading that uses the correct
+    beech data channels
+
+    Raises an error if the status doesn't come from beech
+
+    Also raises errors when the new and unknown aliases show up
+    for ShNodes
+
+    """
     channel_list = []
     channel_reading_list = []
+    status = status_event.status
+    if "beech" not in status.from_g_node_alias:
+        raise Exception(
+            f"supposed to be a beech status. But msg is from {status.about_g_node_alias}"
+        )
 
     simple_list = status.simple_telemetry_list
     for simple in simple_list:
@@ -118,6 +139,7 @@ def batched_reading_from_status(
         about_g_node_alias=ta_from_alias(status.from_g_node_alias),
         slot_start_unix_s=status.slot_start_unix_s,
         batched_transmission_period_s=status.reporting_period_s,
+        message_created_ms=int(status_event.time_n_s / 10**6),
         data_channel_list=channel_list,
         channel_reading_list=channel_reading_list,
         fsm_action_list=[],
@@ -130,14 +152,17 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
     date_list = p.get_date_folder_list(start_s, duration_hrs)
     print(f"Loading filenames from folders {date_list}")
     fn_list: List[FileNameMeta] = p.get_file_name_meta_list(date_list)
-    # 1 hr ~ 8 seconds
 
     start_ms = start_s * 1000
     end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
     blist: List[FileNameMeta] = [
         fn
         for fn in fn_list
-        if (("status" in fn.type_name) or ("power" in fn.type_name))
+        if (
+            ("status" in fn.type_name)
+            or ("power.watts" in fn.type_name)
+            or ("keyparam.change.log" in fn.type_name)
+        )
         and ("beech" in fn.from_alias)
         and (start_ms <= fn.message_persisted_ms < end_ms)
     ]
@@ -162,28 +187,27 @@ def load_beech_batches(p: PersisterHack, start_s: int, duration_hrs: int):
             f"loading messages {i*100} - {i*100+100} [{str_from_ms(first.message_persisted_ms)} America/NY]"
         )
 
-        messages: List[MessageSql] = []
-        blanks = []
+        messages: List[Message] = []
+        blank_statuses = 0
         for fn in blist[i * 100 : i * 100 + 100]:
-            content = json.loads(p.get_message_bytes(fn).decode("utf-8"))
-            d = content["Payload"]
-            event = Maker.dict_to_tuple(Maker.first_season_fix(d))
-            br = batched_reading_from_status(event.status, fn)
+            # get the serialized byte string
+            msg_bytes = p.get_message_bytes(fn)
+            t = get_tuple_from_type(msg_bytes)
 
-            if br.data_channel_list == []:
-                blanks.append(br)
+            # Transform status messages into BatchedReadings
+            if isinstance(t, GridworksEventGtShStatus):
+                t = beech_br_from_status(t, fn)
+
+            # msg may be None if not something we are tracking (comms stuff), or
+            # if it is a status message with no data readings
+            msg = p.tuple_to_msg(t, fn)
+            if msg:
+                messages.append(msg)
             else:
-                messages.append(
-                    Message(
-                        message_id=br.id,
-                        from_alias=br.from_g_node_alias,
-                        message_persisted_ms=fn.message_persisted_ms,
-                        payload=br.as_dict(),
-                        type_name=br.type_name,
-                        message_created_ms=int(event.time_n_s / 10**6),
-                    )
-                )
-        print(f"For messages {i*100} - {i*100+100}: {len(blanks)} blanks")
+                if t.type_name == "batched.readings":
+                    blank_statuses += 1
+
+        print(f"For messages {i*100} - {i*100+100}: {blank_statuses} blanks")
         msg_sql_list = list(map(lambda x: x.as_sql(), messages))
         bulk_insert_idempotent(session, msg_sql_list)
         session.commit()

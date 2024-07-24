@@ -1,5 +1,6 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
+import copy
 import json
 import logging
 from typing import Any
@@ -14,6 +15,7 @@ from pydantic import BaseModel
 from pydantic import Field
 from pydantic import field_validator
 
+from gwp.enums import TelemetryName
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat
 from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
 
@@ -180,10 +182,11 @@ class GridworksEventSnapshotSpaceheat_Maker:
         Returns:
             GridworksEventSnapshotSpaceheat
         """
-        for key in d.keys():
+        e = cls.first_season_fix(d)
+        for key in e.keys():
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
-        d2 = dict(d)
+        d2 = dict(e)
         if "MessageId" not in d2.keys():
             raise GwTypeError(f"dict missing MessageId: <{d2}>")
         if "TimeNS" not in d2.keys():
@@ -207,6 +210,41 @@ class GridworksEventSnapshotSpaceheat_Maker:
             d2["Version"] = "000"
         d3 = {pascal_to_snake(key): value for key, value in d2.items()}
         return GridworksEventSnapshotSpaceheat(**d3)
+
+    @classmethod
+    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
+        """
+        Makes key "snap" -> "Snap", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+
+        d2 = copy.deepcopy(d)
+
+        if "snap" in d2.keys():
+            d2["Snap"] = d2["snap"]
+            del d2["snap"]
+
+        if "Snap" not in d2.keys():
+            raise GwTypeError(f"dict missing Snap: <{d2.keys()}>")
+
+        if "Snapshot" not in d2["Snap"].keys():
+            raise GwTypeError(f"dict['Snap'] missing Snapshot: <{d2["Snap"].keys()}>")
+
+        snapshot = d2["Snap"]["Snapshot"]
+        # replace values with symbols for TelemetryName in SimpleTelemetryList
+        if "TelemetryNameList" not in snapshot.keys():
+            raise Exception(
+                f"Snapshot does not have TelemetryNameList in keys! simple.key()): <{snapshot.keys()}>"
+            )
+        telemetry_name_list = snapshot["TelemetryNameList"]
+        new_list = []
+        for tn in telemetry_name_list:
+            new_list.append(TelemetryName.value_to_symbol(tn))
+        snapshot["TelemetryNameList"] = new_list
+
+        d2["Snap"]["Snapshot"] = snapshot
+        d2["Version"] = "000"
+        return d2
 
 
 def check_is_left_right_dot(v: str) -> None:

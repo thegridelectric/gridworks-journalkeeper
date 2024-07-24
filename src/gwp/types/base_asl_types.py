@@ -4,22 +4,28 @@ from typing import Dict
 from typing import List
 from typing import no_type_check
 
-from gwp.types import BatchedReadings_Maker
-from gwp.types import ChannelReadings_Maker
-from gwp.types import DataChannelGt_Maker
-from gwp.types import FsmAtomicReport_Maker
-from gwp.types import FsmFullReport_Maker
-from gwp.types import GridworksEventGtShStatus_Maker
-from gwp.types import GridworksEventSnapshotSpaceheat_Maker
-from gwp.types import GtShBooleanactuatorCmdStatus_Maker
-from gwp.types import GtShMultipurposeTelemetryStatus_Maker
-from gwp.types import GtShSimpleTelemetryStatus_Maker
-from gwp.types import GtShStatus_Maker
-from gwp.types import HeartbeatA_Maker
-from gwp.types import KeyparamChangeLog_Maker
-from gwp.types import PowerWatts_Maker
-from gwp.types import SnapshotSpaceheat_Maker
-from gwp.types import TelemetrySnapshotSpaceheat_Maker
+from gwp.types.batched_readings import BatchedReadings_Maker
+from gwp.types.channel_readings import ChannelReadings_Maker
+from gwp.types.data_channel_gt import DataChannelGt_Maker
+from gwp.types.fsm_atomic_report import FsmAtomicReport_Maker
+from gwp.types.fsm_full_report import FsmFullReport_Maker
+from gwp.types.gridworks_event_gt_sh_status import GridworksEventGtShStatus_Maker
+from gwp.types.gridworks_event_snapshot_spaceheat import (
+    GridworksEventSnapshotSpaceheat_Maker,
+)
+from gwp.types.gt_sh_booleanactuator_cmd_status import (
+    GtShBooleanactuatorCmdStatus_Maker,
+)
+from gwp.types.gt_sh_multipurpose_telemetry_status import (
+    GtShMultipurposeTelemetryStatus_Maker,
+)
+from gwp.types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus_Maker
+from gwp.types.gt_sh_status import GtShStatus_Maker
+from gwp.types.heartbeat_a import HeartbeatA_Maker
+from gwp.types.keyparam_change_log import KeyparamChangeLog_Maker
+from gwp.types.power_watts import PowerWatts_Maker
+from gwp.types.snapshot_spaceheat import SnapshotSpaceheat_Maker
+from gwp.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat_Maker
 
 
 TypeMakerByName: Dict[str, HeartbeatA_Maker] = {}

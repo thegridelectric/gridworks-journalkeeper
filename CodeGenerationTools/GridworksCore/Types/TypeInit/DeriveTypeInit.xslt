@@ -25,6 +25,9 @@
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
 <xsl:text>""" List of all the types """
+
+from gwp.types.codec import get_tuple_from_type
+from gwp.types.base_asl_types import TypeMakerByName
 </xsl:text>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
   count(Protocols[text()='gwp']) > 0 and
@@ -60,7 +63,9 @@ from gwp.types.</xsl:text>
 <xsl:text>
 
 
-__all__ = [</xsl:text>
+__all__ = [
+    "get_tuple_from_type",
+    "TypeMakerByName",</xsl:text>
 
 
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[

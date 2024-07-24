@@ -1,5 +1,6 @@
 import json
 import typing
+import uuid
 from typing import Any
 from typing import List
 from typing import Optional
@@ -9,6 +10,12 @@ import pendulum
 from pydantic import BaseModel
 
 from gwp.models import Message
+from gwp.types import BatchedReadings
+from gwp.types import GridworksEventSnapshotSpaceheat
+from gwp.types import HeartbeatA
+from gwp.types import KeyparamChangeLog
+from gwp.types import PowerWatts
+from gwp.types import get_tuple_from_type
 
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
@@ -38,7 +45,7 @@ class PersisterHack:
         add_hrs = 1
         while add_hrs < duration_hrs:
             t = start_s + add_hrs * 3600
-            if not(pendulum.from_timestamp(t).strftime("%Y%m%d") in folder_list):
+            if not (pendulum.from_timestamp(t).strftime("%Y%m%d") in folder_list):
                 if self.has_this_days_folder(t):
                     folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
             add_hrs += 1
@@ -115,3 +122,48 @@ class PersisterHack:
         )
         msg_as_bytes = s3_object["Body"].read()
         return msg_as_bytes
+
+    def tuple_to_msg(self, t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
+        """
+        Take serialized content in bytes, along with the meta data from the filename
+        in the persistent store and return the Message to be put in the messages table
+        of the journaldb.
+
+        If the tuple is a BatchedReadings message with no actual readings, returns None
+        If the tuple is not in the list of messages we are tracking in journaldb, also
+        returns None
+        """
+
+        if isinstance(t, BatchedReadings):
+            return self.batchedreading_to_msg(t, fn)
+        elif isinstance(t, PowerWatts):
+            self.basic_to_msg(t, fn)
+        elif isinstance(t, KeyparamChangeLog):
+            self.basic_to_msg(t, fn)
+        else:
+            return None
+
+    def batchedreading_to_msg(
+        self, t: BatchedReadings, fn: FileNameMeta
+    ) -> Optional[Message]:
+        if t.data_channel_list == []:
+            return None
+        else:
+            return Message(
+                message_id=t.id,
+                from_alias=t.from_g_node_alias,
+                message_persisted_ms=fn.message_persisted_ms,
+                payload=t.as_dict(),
+                type_name=t.type_name,
+                message_created_ms=t.message_created_ms,
+            )
+
+    def basic_to_msg(self, t: HeartbeatA, fn: FileNameMeta) -> Message:
+        return Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=fn.from_alias,
+            type_name=t.type_name,
+            message_persisted_ms=fn.message_persisted_ms,
+            payload=t.as_dict(),
+            message_created_ms=None,
+        )
