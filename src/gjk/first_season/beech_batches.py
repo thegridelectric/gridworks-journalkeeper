@@ -16,19 +16,14 @@ from gjk.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
 from gjk.first_season.beech_channels import BcName
 from gjk.first_season.beech_channels import BeechAliasMapper
 from gjk.first_season.utils import str_from_ms
-from gjk.models import Message
-from gjk.models import MessageSql
-from gjk.models import bulk_insert_idempotent
 from gjk.journal_keeper_hack import FileNameMeta
 from gjk.journal_keeper_hack import JournalKeeperHack
+from gjk.models import Message
+from gjk.models import bulk_insert_idempotent
 from gjk.types import BatchedReadings
 from gjk.types import ChannelReadings
 from gjk.types import GridworksEventGtShStatus
-from gjk.types import GtShStatus_Maker
-from gjk.types import KeyparamChangeLog_Maker
-from gjk.types import PowerWatts_Maker
 from gjk.types import get_tuple_from_type
-from gjk.types.base_asl_types import TypeMakerByName
 
 
 BEECH_IGNORED_ALIASES = [
@@ -38,6 +33,12 @@ BEECH_IGNORED_ALIASES = [
     "george.special.temp.depth3",
     "george.special.temp.depth4",
     "a.m.tank1.power",
+    "a.m.tank2.power",
+    "a.m.tank3.power",
+    "calibrate.1009.temp.depth1",
+    "calibrate.1009.temp.depth2",
+    "calibrate.1009.temp.depth3",
+    "calibrate.1009.temp.depth4"
 ]
 
 TN_GOOFS = [
@@ -66,6 +67,8 @@ def beech_br_from_status(
 
     Also raises errors when the new and unknown aliases show up
     for ShNodes
+
+    If there is an error in making BatchedReadings it returns the original status_event
 
     """
     channel_list = []
@@ -133,7 +136,9 @@ def beech_br_from_status(
                     scada_read_time_unix_ms_list=multi.read_time_unix_ms_list,
                 )
             )
-    return BatchedReadings(
+
+    try:
+        return_tuple = BatchedReadings(
         from_g_node_alias=status.from_g_node_alias,
         from_g_node_instance_id=gni_from_alias(status.from_g_node_alias),
         about_g_node_alias=ta_from_alias(status.from_g_node_alias),
@@ -146,6 +151,11 @@ def beech_br_from_status(
         fsm_report_list=[],
         id=status.status_uid,
     )
+    except Exception as e:
+        print("STORING AS GridworksEventGtShStatus")
+        print(f"Examine {fn.file_name} for error: \n: <{e}>.")
+        return_tuple = status_event
+    return return_tuple
 
 
 def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
@@ -192,7 +202,19 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
         for fn in blist[i * 100 : i * 100 + 100]:
             # get the serialized byte string
             msg_bytes = p.get_message_bytes(fn)
-            t = get_tuple_from_type(msg_bytes)
+            if fn.type_name == 'keyparam.change.log':
+                # Something hinky in the coding of these messages, which
+                # I sent via mosquitto_pub. 
+                # It had an extra b: 
+                # b'b{"AboutNodeAlias": "beech"}'
+                print(f"Got {fn.file_name}!")
+                json_str = msg_bytes.decode('utf-8')[1:]
+                msg_bytes = json_str.encode('utf-8')
+
+            try:
+                t = get_tuple_from_type(msg_bytes)
+            except:
+                raise Exception(f"Problem with {fn.file_name}")
 
             # Transform status messages into BatchedReadings
             if isinstance(t, GridworksEventGtShStatus):
@@ -200,7 +222,10 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
 
             # msg may be None if not something we are tracking (comms stuff), or
             # if it is a status message with no data readings
-            msg = p.tuple_to_msg(t, fn)
+            try:
+                msg = p.tuple_to_msg(t, fn)
+            except Exception as e:
+                print(f"Problem with {fn.file_name}: {e}")
             if msg:
                 messages.append(msg)
             else:

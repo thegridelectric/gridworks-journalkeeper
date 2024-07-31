@@ -1,6 +1,7 @@
 from typing import List
 
 import pendulum
+from sqlalchemy import UniqueConstraint
 from sqlalchemy import inspect
 from sqlalchemy import tuple_
 from sqlalchemy.exc import NoSuchTableError
@@ -10,8 +11,8 @@ from sqlalchemy.orm import Session
 
 def bulk_insert_idempotent(session: Session, orm_object_list: List):
     """
-    Idempotently bulk inserts SQLAlchemy objects into the database, inserting only those whose
-    primary keys do not already exist.
+    Idempotently bulk inserts SQLAlchemy objects of the same type into the database, 
+    inserting only those that would not violate a uniqueness constraint
 
     Args:
         session (Session): An active SQLAlchemy session used for database operations.
@@ -23,30 +24,64 @@ def bulk_insert_idempotent(session: Session, orm_object_list: List):
     """
     if not orm_object_list:
         return
+    
+    first_type = type(orm_object_list[0])
+    if not all(isinstance(obj, first_type) for obj in orm_object_list):
+        raise ValueError("All objects in orm_object_list must be of the same type.")
 
     try:
         # Extract the primary key names
         pk_keys = inspect(orm_object_list[0]).mapper.primary_key
-
-        # Build a query to check for existing primary keys
-        pk_tuples = [
-            tuple(getattr(obj, key.name) for key in pk_keys) for obj in orm_object_list
+        
+        # Extract all unique constraints
+        unique_constraints = [
+            constraint for constraint in inspect(orm_object_list[0]).mapper.tables[0].constraints
+            if isinstance(constraint, UniqueConstraint)
         ]
 
-        # Build the filter condition & query existing primary keys, convert
-        # to a set for faster lookup
-        condition = tuple_(*pk_keys).in_(pk_tuples)
-        existing_pks = session.query(*pk_keys).filter(condition).all()
+        # Build a set to store unique values
+        unique_values_set = set()
+
+        # Add primary keys to this set
+        for obj in orm_object_list:
+            pk_values = tuple(getattr(obj, key.name) for key in pk_keys)
+            unique_values_set.add(pk_values)
+
+        # Add unique constraints to this set
+        for constraint in unique_constraints:
+            columns = constraint.columns.keys()
+            for obj in orm_object_list:
+                unique_values = tuple(getattr(obj, col) for col in columns)
+                unique_values_set.add(unique_values)
+
+        # Build a filter condition for primary keys
+        pk_condition = tuple_(*pk_keys).in_(unique_values_set)
+        existing_pks = session.query(*pk_keys).filter(pk_condition).all()
         existing_pks_set = {pk for pk in existing_pks}
+        
+        # Filter out objects that already exist by primary keys or unique constraints
+        new_objects = []
+        for obj in orm_object_list:
+            pk_values = tuple(getattr(obj, key.name) for key in pk_keys)
+            if pk_values in existing_pks_set:
+                continue
 
-        # Filter out objects that already have primary keys in the database
-        new_objects = [
-            obj
-            for obj in orm_object_list
-            if tuple(getattr(obj, key.name) for key in pk_keys) not in existing_pks_set
-        ]
+            unique_conflict = False
+            for constraint in unique_constraints:
+                columns = constraint.columns.keys()
+                unique_values = tuple(getattr(obj, col) for col in columns)
+                if session.query(*columns).filter(
+                    tuple_(*columns).in_([unique_values])
+                ).first():
+                    unique_conflict = True
+                    break
+
+            if not unique_conflict:
+                new_objects.append(obj)
+
         session.bulk_save_objects(new_objects)
         session.commit()
+
     except NoSuchTableError as e:
         print(f"Error: The table does not exist. {e}")
         session.rollback()

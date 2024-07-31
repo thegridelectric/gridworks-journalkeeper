@@ -6,13 +6,10 @@ import time
 from typing import no_type_check
 
 import pendulum
-from gwbase.actor_base import ActorBase
-from gw.enums import GNodeRole
 from gw.enums import MessageCategorySymbol
+from gwbase.actor_base import ActorBase
+from gwbase.enums import GNodeRole
 from gwbase.enums import UniverseType
-from gridworks.message import as_enum
-from gwatn.types import SimTimestep
-from gwatn.types import SimTimestep_Maker
 
 from gjk.config import Settings
 from gjk.types import HeartbeatA
@@ -29,9 +26,6 @@ class JournalKeeper(ActorBase):
     def __init__(self, settings: Settings):
         super().__init__(settings=settings)
         self.settings: Settings = settings
-        self.universe_type = as_enum(
-            self.settings.universe_type_value, UniverseType, UniverseType.default()
-        )
         self._sim_time: float = self.get_initial_time_s()
 
     def local_rabbit_startup(self) -> None:
@@ -84,31 +78,4 @@ class JournalKeeper(ActorBase):
             except:
                 LOGGER.exception("Error in timestep_from_timecoordinator")
 
-    def timestep_from_timecoordinator(self, payload: SimTimestep):
-        if self._sim_time == 0:
-            self._sim_time = payload.TimeUnixS
-            self.new_timestep(payload)
-            LOGGER.info(f"TIME STARTED: {self.time_str()}")
-        elif self._sim_time < payload.TimeUnixS:
-            self._sim_time = payload.TimeUnixS
-            self.new_timestep(payload)
-            LOGGER.debug(f"Time is now {self.time_str()}")
-        elif self._sim_time == payload.TimeUnixS:
-            self.repeat_timestep(payload)
 
-    def new_timestep(self, payload: SimTimestep) -> None:
-        # LOGGER.info("New timestep in atn_actor_base")
-        self._sim_time = payload.TimeUnixS
-
-    def repeat_timestep(self, payload: SimTimestep) -> None:
-        # LOGGER.info("Timestep received again in atn_actor_base")
-        pass
-
-    def time(self) -> float:
-        if self.universe_type == UniverseType.Dev:
-            return self._sim_time
-        else:
-            return time.time()
-
-    def time_str(self) -> str:
-        return pendulum.from_timestamp(self.time()).strftime("%m/%d/%Y, %H:%M")

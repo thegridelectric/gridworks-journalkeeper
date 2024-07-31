@@ -10,7 +10,6 @@ from gjk.models.scada import ScadaSql
 from gjk.models.utils import bulk_insert_idempotent
 
 
-
 __all__ = [
     "DataChannelSql",
     "Message",

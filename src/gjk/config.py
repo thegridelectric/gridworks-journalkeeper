@@ -1,9 +1,8 @@
 """Settings for a GridWorks JournalKeeper, readable from environment and/or from env files."""
 
+from gwbase.config.rabbit_settings import RabbitBrokerClient
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
-
-from gwbase.config.rabbit_settings import RabbitBrokerClient
 
 
 # from gjk.config import RabbitBrokerClient

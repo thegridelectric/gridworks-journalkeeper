@@ -5,19 +5,22 @@ e.g. reading = Reading(...).as_sql()
 """
 
 import logging
+
 from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import field_validator
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
+from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
-from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
+
+from gjk.models.message import Base
 from gjk.models.utils import check_is_reasonable_unix_time_ms
 from gjk.models.utils import check_is_uuid_canonical_textual
 
-from gjk.models.message import Base
+
 # Define the base class
 
 

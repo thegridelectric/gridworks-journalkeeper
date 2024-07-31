@@ -33,3 +33,9 @@ FROM messages;
 SELECT MIN(message_created) AS earliest, MAX(message_created) AS latest FROM  msg_pretty;
 
 SELECT COUNT(*) from messages;
+
+SELECT COUNT(*) FROM messages WHERE type_name = 'power.watts';
+
+SELECT from_alias, type_name, message_created FROM msg_pretty WHERE type_name LIKE '%status%' LIMIT 5;
+
+SELECT pg_size_pretty(pg_database_size('journaldb')) AS size;

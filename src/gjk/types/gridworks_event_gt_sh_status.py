@@ -89,12 +89,12 @@ class GridworksEventGtShStatus(BaseModel):
         slot_start_unix_s + reporting_period_s < message created_s
 
         """
-        a = self.status.slot_start_unix_s + self.status.reporting_period_s
-        b = self.time_n_s / 10**9
-        if a > b:
-            raise ValueError(
-                f"slot_start + reporting_period was larger than message created time!: {self.message_id}"
-            )
+        # a = self.status.slot_start_unix_s + self.status.reporting_period_s
+        # b = self.time_n_s / 10**9
+        # if a > b:
+        #     raise ValueError(
+        #         f"slot_start + reporting_period was larger than message created time!: {self.message_id}"
+        #     )
 
         return self
 

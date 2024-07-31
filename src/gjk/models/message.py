@@ -15,6 +15,7 @@ from pydantic import field_validator
 from sqlalchemy import BigInteger
 from sqlalchemy import Column
 from sqlalchemy import String
+from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import declarative_base
 
@@ -41,6 +42,10 @@ class MessageSql(Base):
     message_persisted_ms = Column(BigInteger, nullable=False)
     payload = Column(JSONB, nullable=False)
     message_created_ms = Column(BigInteger)
+
+    __table_args__ = (
+        UniqueConstraint('from_alias', 'type_name', 'message_persisted_ms', name='uq_from_type_message'),
+    )
 
 
 class Message(BaseModel):
@@ -97,12 +102,13 @@ class Message(BaseModel):
 
     @field_validator("message_created_ms")
     def _check_message_created_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"message_created_ms failed ReasonableUnixTimeMs format validation: {e}"
-            )
+        if v:
+            try:
+                check_is_reasonable_unix_time_ms(v)
+            except ValueError as e:
+                raise ValueError(
+                    f"message_created_ms failed ReasonableUnixTimeMs format validation: {e}"
+                )
         return v
 
     def as_sql(self) -> MessageSql:

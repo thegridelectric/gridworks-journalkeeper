@@ -4,19 +4,6 @@ from typing import Dict
 from typing import List
 from typing import no_type_check
 
-from gridworks.types import GNodeGt_Maker
-from gridworks.types import GNodeInstanceGt_Maker
-from gridworks.types import GwCertId_Maker
-from gridworks.types import HeartbeatA_Maker
-from gridworks.types import InitialTadeedAlgoCreate_Maker
-from gridworks.types import InitialTadeedAlgoOptin_Maker
-from gridworks.types import InitialTadeedAlgoTransfer_Maker
-from gridworks.types import Ready_Maker
-from gridworks.types import SimTimestep_Maker
-from gridworks.types import SuperStarter_Maker
-from gridworks.types import SupervisorContainerGt_Maker
-from gridworks.types import TavalidatorcertAlgoCreate_Maker
-from gridworks.types import TavalidatorcertAlgoTransfer_Maker
 from gjkroto.messages import GtDispatchBoolean_Maker
 from gjkroto.messages import GtDispatchBooleanLocal_Maker
 from gjkroto.messages import GtDriverBooleanactuatorCmd_Maker
@@ -30,6 +17,19 @@ from gjkroto.messages import GtTelemetry_Maker
 from gjkroto.messages import SnapshotSpaceheat_Maker
 from gjkroto.messages import TelemetrySnapshotSpaceheat_Maker
 from gjkroto.messages import *
+from gridworks.types import GNodeGt_Maker
+from gridworks.types import GNodeInstanceGt_Maker
+from gridworks.types import GwCertId_Maker
+from gridworks.types import HeartbeatA_Maker
+from gridworks.types import InitialTadeedAlgoCreate_Maker
+from gridworks.types import InitialTadeedAlgoOptin_Maker
+from gridworks.types import InitialTadeedAlgoTransfer_Maker
+from gridworks.types import Ready_Maker
+from gridworks.types import SimTimestep_Maker
+from gridworks.types import SuperStarter_Maker
+from gridworks.types import SupervisorContainerGt_Maker
+from gridworks.types import TavalidatorcertAlgoCreate_Maker
+from gridworks.types import TavalidatorcertAlgoTransfer_Maker
 
 
 TypeMakerByName: Dict[str, HeartbeatA_Maker] = {}

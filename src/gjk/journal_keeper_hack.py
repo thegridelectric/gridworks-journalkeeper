@@ -11,11 +11,10 @@ from pydantic import BaseModel
 
 from gjk.models import Message
 from gjk.types import BatchedReadings
-from gjk.types import GridworksEventSnapshotSpaceheat
+from gjk.types import GridworksEventGtShStatus
 from gjk.types import HeartbeatA
 from gjk.types import KeyparamChangeLog
 from gjk.types import PowerWatts
-from gjk.types import get_tuple_from_type
 
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
@@ -125,7 +124,7 @@ class JournalKeeperHack:
 
     def tuple_to_msg(self, t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
         """
-        Take serialized content in bytes, along with the meta data from the filename
+        Take a tuple along with the meta data from the filename
         in the persistent store and return the Message to be put in the messages table
         of the journaldb.
 
@@ -137,9 +136,12 @@ class JournalKeeperHack:
         if isinstance(t, BatchedReadings):
             return self.batchedreading_to_msg(t, fn)
         elif isinstance(t, PowerWatts):
-            self.basic_to_msg(t, fn)
+            return self.basic_to_msg(t, fn)
         elif isinstance(t, KeyparamChangeLog):
-            self.basic_to_msg(t, fn)
+            return self.basic_to_msg(t, fn)
+        elif isinstance(t, GridworksEventGtShStatus):
+            print("Storing GridworksEventGtShStatus")
+            return self.gridworkseventgtshstatus_to_msg(t, fn)
         else:
             return None
 
@@ -157,6 +159,18 @@ class JournalKeeperHack:
                 type_name=t.type_name,
                 message_created_ms=t.message_created_ms,
             )
+        
+    def gridworkseventgtshstatus_to_msg(
+        self, t: GridworksEventGtShStatus, fn: FileNameMeta
+    ) -> Optional[Message]:
+        return Message(
+            message_id=t.status.status_uid,
+            from_alias=t.status.from_g_node_alias,
+            message_persisted_ms=fn.message_persisted_ms,
+            payload=t.as_dict(),
+            type_name=t.type_name,
+            message_created_ms=int(t.time_n_s / 10**6),
+        )
 
     def basic_to_msg(self, t: HeartbeatA, fn: FileNameMeta) -> Message:
         return Message(
