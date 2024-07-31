@@ -5,6 +5,7 @@ e.g. reading = Reading(...).as_sql()
 """
 
 import logging
+from typing import List
 
 from gw.utils import snake_to_pascal
 from pydantic import BaseModel
@@ -14,6 +15,10 @@ from sqlalchemy import Column
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import tuple_
+from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import relationship
 
 from gjk.models.message import Base
@@ -99,3 +104,63 @@ class Reading(BaseModel):
 
     def as_sql(self) -> ReadingSql:
         return ReadingSql(**self.model_dump())
+
+
+def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
+    """
+    Idempotently bulk inserts ReadingSql into the journaldb messages table,
+    inserting only those whose primary keys do not already exist AND that
+    don't violate the from_alias, type_name, message_persisted_ms uniqueness
+    constraint.
+
+    Args:
+        session (Session): An active SQLAlchemy session used for database operations.
+        reading_list (List[ReadingSql]): A list of ReadingSql objects to be conditionally
+        inserted into the messages table of the journaldb database
+
+    Returns:
+        None
+    """
+    if not all(isinstance(obj, ReadingSql) for obj in reading_list):
+        raise ValueError("All objects in reading_list must be ReadingSql objects")
+
+    try:
+        pk_column = ReadingSql.id
+        unique_columns = [
+            ReadingSql.time_ms,
+            ReadingSql.data_channel_id,
+            ReadingSql.message_id,
+        ]
+
+        pk_set = set()
+        unique_set = set()
+
+        for reading in reading_list:
+            pk_set.add(getattr(reading, "id"))
+            unique_set.add(tuple(getattr(reading, col.name) for col in unique_columns))
+
+        existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
+
+        existing_uniques = set(
+            session.query(*unique_columns)
+            .filter(tuple_(*unique_columns).in_(unique_set))
+            .all()
+        )
+
+        new_readings = [
+            msg
+            for msg in reading_list
+            if getattr(msg, "id") not in existing_pks
+            and tuple(getattr(msg, col.name) for col in unique_columns)
+            not in existing_uniques
+        ]
+        print(f"Inserting {len(new_readings)} out of {len(reading_list)}")
+        session.bulk_save_objects(new_readings)
+        session.commit()
+
+    except NoSuchTableError as e:
+        print(f"Error: The table does not exist. {e}")
+        session.rollback()
+    except SQLAlchemyError as e:
+        print(f"An error occurred: {e}")
+        session.rollback()

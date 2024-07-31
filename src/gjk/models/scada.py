@@ -147,6 +147,7 @@ class Scada(BaseModel):
             raise ValueError(
                 f"Axiom 1: short_alias <{self.short_alias}> must be the second to last word in g_node_alias <{self.g_node_alias}>!"
             )
+        return self
 
     def as_sql(self) -> ScadaSql:
         return ScadaSql(**self.model_dump())

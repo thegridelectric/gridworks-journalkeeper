@@ -19,7 +19,7 @@ from gjk.first_season.utils import str_from_ms
 from gjk.journal_keeper_hack import FileNameMeta
 from gjk.journal_keeper_hack import JournalKeeperHack
 from gjk.models import Message
-from gjk.models import bulk_insert_idempotent
+from gjk.models import bulk_insert_messages
 from gjk.types import BatchedReadings
 from gjk.types import ChannelReadings
 from gjk.types import GridworksEventGtShStatus
@@ -234,5 +234,5 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
 
         print(f"For messages {i*100} - {i*100+100}: {blank_statuses} blanks")
         msg_sql_list = list(map(lambda x: x.as_sql(), messages))
-        bulk_insert_idempotent(session, msg_sql_list)
+        bulk_insert_messages(session, msg_sql_list)
         session.commit()

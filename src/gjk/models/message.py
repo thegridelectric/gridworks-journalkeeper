@@ -173,7 +173,7 @@ def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
             and tuple(getattr(msg, col.name) for col in unique_columns)
             not in existing_uniques
         ]
-
+        print(f"Inserting {len(new_messages)} out of {len(message_list)}")
         session.bulk_save_objects(new_messages)
         session.commit()
 
