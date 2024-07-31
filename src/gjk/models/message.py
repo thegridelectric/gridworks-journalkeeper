@@ -6,6 +6,7 @@ e.g. msg = Message(...).as_sql()
 
 import logging
 from typing import Dict
+from typing import List
 from typing import Optional
 
 import pendulum
@@ -16,7 +17,11 @@ from sqlalchemy import BigInteger
 from sqlalchemy import Column
 from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
+from sqlalchemy import tuple_
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import declarative_base
 
 from gjk.models.utils import check_is_left_right_dot
@@ -44,7 +49,12 @@ class MessageSql(Base):
     message_created_ms = Column(BigInteger)
 
     __table_args__ = (
-        UniqueConstraint('from_alias', 'type_name', 'message_persisted_ms', name='uq_from_type_message'),
+        UniqueConstraint(
+            "from_alias",
+            "type_name",
+            "message_persisted_ms",
+            name="uq_from_type_message",
+        ),
     )
 
 
@@ -113,3 +123,63 @@ class Message(BaseModel):
 
     def as_sql(self) -> MessageSql:
         return MessageSql(**self.model_dump())
+
+
+def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
+    """
+    Idempotently bulk inserts MessageSql into the journaldb messages table,
+    inserting only those whose primary keys do not already exist AND that
+    don't violate the from_alias, type_name, message_persisted_ms uniqueness
+    constraint.
+
+    Args:
+        session (Session): An active SQLAlchemy session used for database operations.
+        message_list (List[MessageSql]): A list of MessageSql objects to be conditionally
+        inserted into the messages table of the journaldb database
+
+    Returns:
+        None
+    """
+    if not all(isinstance(obj, MessageSql) for obj in message_list):
+        raise ValueError("All objects in message_list must be MessageSql objects")
+
+    try:
+        pk_column = MessageSql.message_id
+        unique_columns = [
+            MessageSql.from_alias,
+            MessageSql.type_name,
+            MessageSql.message_persisted_ms,
+        ]
+
+        pk_set = set()
+        unique_set = set()
+
+        for message in message_list:
+            pk_set.add(getattr(message, "message_id"))
+            unique_set.add(tuple(getattr(message, col.name) for col in unique_columns))
+
+        existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
+
+        existing_uniques = set(
+            session.query(*unique_columns)
+            .filter(tuple_(*unique_columns).in_(unique_set))
+            .all()
+        )
+
+        new_messages = [
+            msg
+            for msg in message_list
+            if getattr(msg, "message_id") not in existing_pks
+            and tuple(getattr(msg, col.name) for col in unique_columns)
+            not in existing_uniques
+        ]
+
+        session.bulk_save_objects(new_messages)
+        session.commit()
+
+    except NoSuchTableError as e:
+        print(f"Error: The table does not exist. {e}")
+        session.rollback()
+    except SQLAlchemyError as e:
+        print(f"An error occurred: {e}")
+        session.rollback()
