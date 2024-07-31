@@ -39,3 +39,8 @@ SELECT COUNT(*) FROM messages WHERE type_name = 'power.watts';
 SELECT from_alias, type_name, message_created FROM msg_pretty WHERE type_name LIKE '%status%' LIMIT 5;
 
 SELECT pg_size_pretty(pg_database_size('journaldb')) AS size;
+SELECT * FROM msg_pretty WHERE type_name LIKE '%param%';
+
+SELECT message_id, from_alias, type_name, message_persisted_ms FROM messages WHERE type_name LIKE '%param%';
+
+DELETE FROM messages WHERE message_id = 'bf06df07-36a5-4e54-ae64-37dea6041ea8';
