@@ -17,10 +17,12 @@ from sqlalchemy import String
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import tuple_
 from sqlalchemy.exc import NoSuchTableError
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import relationship
 
+from gjk.first_season.utils import str_from_ms
 from gjk.models.message import Base
 from gjk.models.utils import check_is_reasonable_unix_time_ms
 from gjk.models.utils import check_is_uuid_canonical_textual
@@ -124,43 +126,52 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
     if not all(isinstance(obj, ReadingSql) for obj in reading_list):
         raise ValueError("All objects in reading_list must be ReadingSql objects")
 
-    try:
-        pk_column = ReadingSql.id
-        unique_columns = [
-            ReadingSql.time_ms,
-            ReadingSql.data_channel_id,
-            ReadingSql.message_id,
-        ]
+    batch_size = 1000
 
-        pk_set = set()
-        unique_set = set()
+    for i in range(0, len(reading_list), batch_size):
+        try:
+            batch = reading_list[i:i+batch_size]
+            pk_column = ReadingSql.id
+            unique_columns = [
+                ReadingSql.time_ms,
+                ReadingSql.data_channel_id,
+                ReadingSql.message_id,
+            ]
 
-        for reading in reading_list:
-            pk_set.add(getattr(reading, "id"))
-            unique_set.add(tuple(getattr(reading, col.name) for col in unique_columns))
+            pk_set = set()
+            unique_set = set()
 
-        existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
+            for reading in batch:
+                pk_set.add(getattr(reading, "id"))
+                unique_set.add(tuple(getattr(reading, col.name) for col in unique_columns))
 
-        existing_uniques = set(
-            session.query(*unique_columns)
-            .filter(tuple_(*unique_columns).in_(unique_set))
-            .all()
-        )
+            existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
 
-        new_readings = [
-            msg
-            for msg in reading_list
-            if getattr(msg, "id") not in existing_pks
-            and tuple(getattr(msg, col.name) for col in unique_columns)
-            not in existing_uniques
-        ]
-        print(f"Inserting {len(new_readings)} out of {len(reading_list)}")
-        session.bulk_save_objects(new_readings)
-        session.commit()
+            existing_uniques = set(
+                session.query(*unique_columns)
+                .filter(tuple_(*unique_columns).in_(unique_set))
+                .all()
+            )
 
-    except NoSuchTableError as e:
-        print(f"Error: The table does not exist. {e}")
-        session.rollback()
-    except SQLAlchemyError as e:
-        print(f"An error occurred: {e}")
-        session.rollback()
+            new_readings = [
+                reading
+                for reading in batch
+                if getattr(reading, "id") not in existing_pks
+                and tuple(getattr(reading, col.name) for col in unique_columns)
+                not in existing_uniques
+            ]
+            print(f"[{str_from_ms(batch[0].time_ms)}] Inserting {len(new_readings)} out of {len(batch)}")
+            
+            session.bulk_save_objects(new_readings)
+            session.commit()
+
+        except NoSuchTableError as e:
+            print(f"Error: The table does not exist. {e}")
+            session.rollback()
+        except OperationalError as e:
+            print(f"Operational Error! {e}")
+            session.rollback()
+        except SQLAlchemyError as e:
+            print(f"An error occurred: {e}")
+            session.rollback()
+    

@@ -43,15 +43,22 @@ BEECH_IGNORED_ALIASES = [
 
 TN_GOOFS = [
     [BcName.OAT, TelemetryName.WaterTempCTimes1000],
+    [BcName.OAT, TelemetryName.AirTempFTimes1000],
     [BcName.DOWN_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
     [BcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
     [BcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
+    [BcName.DOWN_ZONE_TEMP, TelemetryName.AirTempCTimes1000],
     [BcName.DOWN_ZONE_SET, TelemetryName.WaterTempCTimes1000],
     [BcName.DOWN_ZONE_SET, TelemetryName.WaterTempFTimes1000],
+    [BcName.DOWN_ZONE_SET, TelemetryName.AirTempCTimes1000],
     [BcName.UP_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
     [BcName.UP_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
+    [BcName.UP_ZONE_TEMP, TelemetryName.AirTempCTimes1000],
     [BcName.UP_ZONE_SET, TelemetryName.WaterTempCTimes1000],
     [BcName.UP_ZONE_SET, TelemetryName.WaterTempFTimes1000],
+    [BcName.UP_ZONE_SET, TelemetryName.AirTempCTimes1000],
+    [BcName.UP_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
+    [BcName.UP_ZONE_GW_TEMP, TelemetryName.AirTempFTimes1000]
 ]
 
 
@@ -122,9 +129,10 @@ def beech_br_from_status(
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
             try:
                 assert channel.telemetry_name == multi.telemetry_name
-            except:
+            except:       
                 if [channel_name, multi.telemetry_name] not in TN_GOOFS:
                     raise Exception(
+                        f"{fn.file_name}: "
                         f"{channel_name} had mislabeled {multi.telemetry_name} ... add  [{channel_name}, {multi.telemetry_name}] to  TN_GOOFS"
                         f"time {str_from_ms(status.slot_start_unix_s * 1000)} America/NY"
                     )

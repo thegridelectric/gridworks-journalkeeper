@@ -304,12 +304,21 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
+    BcName.UP_ZONE_GW_TEMP: DataChannelGt(
+        id="0d9c3cac-5813-4881-a0f7-35d90ac4bd49",
+        name=BcName.UP_ZONE_GW_TEMP,
+        display_name="Upstairs Zone Temp (C x 1000)",
+        about_node_name=BN.UP_ZONE,
+        captured_by_node_name=BN.ANALOG_TEMP,
+        telemetry_name=TelemetryName.AirTempCTimes1000,
+        start_s=1708221240,  # 2024-02-17 20:54:00 America/NY
+    ),
     BcName.DOWN_ZONE_GW_TEMP: DataChannelGt(
         id="01af1b8d-d22a-47c6-8e25-421be9df09b6",
         name=BcName.DOWN_ZONE_GW_TEMP,
         display_name="Downstairs Zone Temp (C x 1000)",
         about_node_name=BN.DOWN_ZONE,
-        captured_by_node_name=BN.DOWN_ZONE,
+        captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.AirTempCTimes1000,
         start_s=1700006400,  # 2023 Nov 13, 09:35 America/NY
     ),
@@ -563,10 +572,6 @@ BeechAliasMapper.channel_mappings = {
         (1699885800, "a.tank1.temp.depth4"),  # 2023-11-13 09:35 America/NY
         (1707343260, "tank1.temp.depth4"),  # 2024-02-07 17:01:00 America/NY
     ],
-    BcName.DOWN_ZONE_GW_TEMP: [
-        (1700006400, "statcheck"),  # 2023-11-13 09:35 America/NY
-        (1706194440, "stat1check"),  # 2024-01-25 09:54:00 America/NY
-    ],
     BcName.OIL_BOILER_PWR: [
         (1700590500, "oilboiler"),  # 2023-11-21 13:15 America/NY,
         (1701293980, "a.m.oil.boiler.power") # 2023-11-29 16:39:40 America/New_York
@@ -646,6 +651,15 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.TANK3_DEPTH4: [
         (1707494220, "tank3.temp.depth4"), # 2024-02-09 10:57:00 America/NY
+    ],
+    BcName.DOWN_ZONE_GW_TEMP: [
+        (1700006400, "statcheck"),  # 2023-11-13 09:35 America/NY
+        (1706194440, "stat1check"),  # 2024-01-25 09:54:00 America/NY
+        (1708265130, "stat1.temp"), # 2024-02-18 09:05:30 America/NY
+    ],
+    BcName.UP_ZONE_GW_TEMP: [
+        (1708221240, "stat.up.check"), # 2024-02-17 20:54:00 America/NY
+         (1708265130, "stat2.temp"), # 2024-02-18 09:05:30 America/NY
     ],
 }
 

@@ -1,12 +1,9 @@
-CREATE VIEW preadings AS
+CREATE VIEW readings_pretty AS
 SELECT
     dc.name AS name,
     r.value AS value,
     dc.telemetry_name AS telemetry_name,
-    to_char(
-        (to_timestamp(r.time_ms / 1000.0) AT TIME ZONE 'UTC') AT TIME ZONE 'America/New_York',
-        'YYYY-MM-DD HH24:MI:SS.MS'
-    ) AS time
+    to_timestamp(time_ms / 1000.0) AT TIME ZONE 'America/New_York' AS time
 FROM
     readings r
 JOIN
@@ -44,3 +41,5 @@ SELECT * FROM msg_pretty WHERE type_name LIKE '%param%';
 SELECT message_id, from_alias, type_name, message_persisted_ms FROM messages WHERE type_name LIKE '%param%';
 
 DELETE FROM messages WHERE message_id = 'bf06df07-36a5-4e54-ae64-37dea6041ea8';
+
+SELECT MIN(time) AS earliest, MAX(time) AS latest FROM  readings_pretty;
