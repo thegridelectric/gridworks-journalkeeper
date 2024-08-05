@@ -524,6 +524,8 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.DIST_SWT: [
         (1699885800, "a.dist.swt.temp"),  # 2023-11-13 09:35 America/NY
+        (1711906740, "a.dist.fwt.temp"), # 2024-03-31 13:39 America/NY
+
     ],
     BcName.DIST_RWT: [
         (1699885800, "a.dist.rwt.temp"),  # 2023-11-13 09:35 America/NY
@@ -540,11 +542,13 @@ BeechAliasMapper.channel_mappings = {
     BcName.PRIMARY_FLOW_INTEGRATED: [
         (1699885800, "a.primary.flow"),  # 2023-11-13 09:35 America/NY
         (1706388600, "heatpump.flow"),  # 2024-01-27 15:50 America/NY
+        (1712552670, "primary.flow"), # 2024-04-08 01:04:30 America/NY
     ],
     BcName.OAT: [
         (1699885800, "a.outdoor.air.temp"),  # 2023-11-13 09:35 America/NY
         (1700002650, "oat"),  # 2023-11-14 17:57:30.000 America/NY
         (1700020500, "a.outdoor.air.temp"),  # 2023-11-14 22:55:00.000 America/NY
+        (1711906740, "oat"), # 2024-03-31 13:39:00 America/NY
     ],
     BcName.STORE_COLD_PIPE: [
         (1699885800, "a.store.cold.pipe.temp"),  # 2023-11-13 09:35 America/NY
@@ -574,7 +578,8 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.OIL_BOILER_PWR: [
         (1700590500, "oilboiler"),  # 2023-11-21 13:15 America/NY,
-        (1701293980, "a.m.oil.boiler.power") # 2023-11-29 16:39:40 America/New_York
+        (1701293980, "a.m.oil.boiler.power"), # 2023-11-29 16:39:40 America/New_York
+        (1712553030, "oil.boiler.power"), # 2024-04-08 01:10:30 America/NY
     ],
     BcName.DOWN_ZONE_TEMP: [
         (1700683960, "a.thermostat.downstairs.temp"),  # 2023-11-22 15:12:40 America/NY
@@ -608,9 +613,11 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.HP_ODU_PWR: [
         (1701293980, "a.m.hp.outdoor.power"),  # 2023-11-29 16:39:40 America/New_York
+        (1712553030, "hp.outdoor.power"), # 2024-04-08 01:10:30 America/NY
     ],
     BcName.HP_IDU_PWR: [
         (1701293980, "a.m.hp.indoor.power"),  # 2024-02-01 America/NY
+        (1712553030, "hp.indoor.power"),  # 2024-04-08 01:10:30 America/NY
     ],
     BcName.AMPHA_DIST_SWT: [
         (1704117000, "ampha.distfwt"),  #  2024-01-01 08:50:00.000 America/New_York
@@ -620,13 +627,15 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.DIST_PUMP_PWR: [
         (1701293980, "a.m.dist.pump.power"),  # 2023-11-29 16:39:40 America/New_York
-    ],
+        (1712553030, "dist.pump.power"), # 2024-04-08 01:10:30 America/NY
+    ],  
     BcName.PRIMARY_PUMP_PWR: [
         (1701293980, "a.m.primary.pump.power"),  # 2023-11-29 16:39:40 America/New_York
         (1707430530, "primary.pump.power"),  # 2024-02-08 17:15:30 America/NY
     ],
     BcName.STORE_PUMP_PWR: [
         (1701293980, "a.m.store.pump.power"),  # 2023-11-29 16:39:40 America/New_York
+        (1712553030, "store.pump.power"),  # 2024-04-08 01:10:30 America/NY
     ],
     BcName.TANK2_DEPTH1: [
         (1707480930, "tank2.temp.depth1"), # 2024-02-09 07:15:30 America/NY
