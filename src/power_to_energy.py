@@ -1,19 +1,12 @@
-from typing import List
-from sqlalchemy import func
-from sqlalchemy.orm import Session
-from gjk.models import MessageSql, ReadingSql
-import pendulum
-import dotenv
-from gjk.models import MessageSql, ReadingSql
+from gjk.models import ReadingSql
 from gjk.models import DataChannelSql
 from gjk.config import Settings
-from sqlalchemy import asc
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, Column, BigInteger, Integer, String, Float
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import asc, create_engine
+from sqlalchemy import Column, BigInteger, Integer, String, Float
 from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import Session, sessionmaker, declarative_base
+import pendulum
+import dotenv
 from datetime import datetime
 import pandas as pd
 
@@ -38,7 +31,7 @@ saved_sql_channels = session.query(DataChannelSql).all()
 saved_channel_ids = [channel.id for channel in saved_sql_channels]
 
 # Convert to Unix timestamp in milliseconds
-start_ms = int(start.timestamp() * 1000)
+start_ms = int(start.add(hours=-1).timestamp() * 1000)
 end_ms = int(end.timestamp() * 1000)
 
 readings = session.query(ReadingSql).filter(
@@ -70,7 +63,7 @@ for p in power_channels:
 
 energy_results = {}
 
-first_hour = start.in_tz('UTC').naive()
+first_hour = start.add(hours=1).in_tz('UTC').naive()
 last_hour = end.in_tz('UTC').naive()
 num_hours = int((last_hour-first_hour).total_hours())
 hour_data = [first_hour.add(hours=x) for x in range(num_hours)]
@@ -78,8 +71,14 @@ hour_data = [first_hour.add(hours=x) for x in range(num_hours)]
 for p in power_channels:
     
     energy_results[f'{p}'] = []
-    last_power_before_current_hour = 0
     time_data_hours = [datetime.fromtimestamp(x/1000).replace(minute=0, second=0, microsecond=0) for x in time_data[f'{p}']]
+
+    # Find the last power value recorded before the requested start time
+    power_before_current_hour = [power_data[f'{p}'][i] for i in range(len(power_data[f'{p}'])) if time_data_hours[i]==start.in_tz('UTC').naive()]
+    if power_before_current_hour:
+        last_power_before_current_hour = power_before_current_hour[-1]
+    else:
+        last_power_before_current_hour = 0
 
     for hour in range(num_hours):
         
@@ -120,7 +119,6 @@ for p in power_channels:
 df = df.sort_values(by='g_node_alias')
 print(df)
 df.to_csv('thomas.csv')
-# pas de 0!
 
 df = pd.read_csv('/Users/thomas/Desktop/thomas.csv')
 df.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
