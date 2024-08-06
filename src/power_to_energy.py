@@ -29,7 +29,7 @@ saved_channel_ids = [channel.id for channel in saved_sql_channels]
 
 timezone = 'America/New_York'
 start= pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
-end = pendulum.datetime(2024, 2, 1, 20, 0, tz=timezone)
+end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
 # Convert to Unix timestamp in milliseconds
 start_ms = int(start.timestamp() * 1000)
@@ -104,9 +104,9 @@ for p in power_channels:
 
         g_node = 'beech'
         channel = p+'-energy'
-        hour_start = hour_data[h].timestamp()
+        hour_start = int(hour_data[h].timestamp())
         value = energy_results[f'{p}'][h]
-        id = f"{g_node}-{channel}-{hour_start}"
+        id = f"{g_node}.{channel}.{hour_start}"
 
         row = [id, hour_start, channel, value, g_node]
         df.loc[len(df)] = row
