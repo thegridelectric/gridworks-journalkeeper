@@ -1,10 +1,12 @@
 from gjk.models import ReadingSql
 from gjk.models import DataChannelSql
 from gjk.config import Settings
-from sqlalchemy import asc, create_engine
+from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy import asc 
 from sqlalchemy import Column, BigInteger, Integer, String, Float
 from sqlalchemy import UniqueConstraint
-from sqlalchemy.orm import Session, sessionmaker, declarative_base
 import pendulum
 import dotenv
 from datetime import datetime
@@ -116,15 +118,16 @@ for p in power_channels:
         row = [id, hour_start, channel, value, g_node]
         df.loc[len(df)] = row
 
-df = df.sort_values(by='g_node_alias')
+df.sort_values(by='id', inplace=True)
+df.reset_index(drop=True, inplace=True)
 print(df)
-df.to_csv('thomas.csv')
 
-df = pd.read_csv('/Users/thomas/Desktop/thomas.csv')
-df.drop(columns=['Unnamed: 0'], axis=1, inplace=True)
+# When running on two different computers
+# df.to_csv('thomas.csv', index=False)
+# df = pd.read_csv('/Users/thomas/Desktop/thomas.csv')
 
 # ------------------------------------------
-# Add to the database
+# Add the table to the database
 # ------------------------------------------
 
 def add_row(row_data):
@@ -154,6 +157,7 @@ class GWPowerSQLAlchemy(Base):
     )
 
 engine = create_engine('postgresql://thomas@localhost/thomas')
+# REMOVE THESE TWO LINES BEFORE RUNNING WITH JOURNAL DB
 Base.metadata.drop_all(engine) # remove existing table
 Base.metadata.create_all(engine) # add new table
 
