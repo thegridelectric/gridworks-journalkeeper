@@ -98,10 +98,17 @@ for p in power_channels:
 # Convert the results to a dataframe
 # ------------------------------
 
-df = pd.DataFrame({'id':[], 'hour_start_s':[], 'channel_name':[], 'value_Wh':[], 'g_node_alias':[]})
+df = pd.DataFrame({'id':[], 'hour_start_s':[], 'channel_name':[], 'watt_hours':[], 'g_node_alias':[]})
 for p in power_channels:
     for h in range(len(hour_data)):
-        row = ['id_to_be_defined', hour_data[h].timestamp(), p+'-energy', energy_results[f'{p}'][h], 'beech']
+
+        g_node = 'beech'
+        channel = p+'-energy'
+        hour_start = hour_data[h].timestamp()
+        value = energy_results[f'{p}'][h]
+        id = f"{g_node}-{channel}-{hour_start}"
+
+        row = [id, hour_start, channel, value, g_node]
         df.loc[len(df)] = row
 
 print(df)
