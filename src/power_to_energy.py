@@ -11,6 +11,7 @@ import pendulum
 import dotenv
 from datetime import datetime
 import pandas as pd
+import os
 
 # ------------------------------------------
 # User inputs
@@ -27,8 +28,8 @@ record_zeros = False
 # Import readings data
 # ------------------------------------------
 
-settings = Settings(_env_file=dotenv.find_dotenv())
-engine = create_engine(settings.db_url.get_secret_value())
+dotenv.load_dotenv()
+engine = create_engine(os.getenv('GJK_DB_URL'))
 Session = sessionmaker(bind=engine)
 session = Session()
 
