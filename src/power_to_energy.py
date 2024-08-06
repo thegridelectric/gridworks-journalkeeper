@@ -20,6 +20,9 @@ timezone = 'America/New_York'
 start= pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
 end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
+# Record 0 Wh values in the energy table
+record_zeros = False
+
 # ------------------------------------------
 # Import readings data
 # ------------------------------------------
@@ -116,7 +119,8 @@ for p in power_channels:
         id = f"{g_node}_{hour_start}_{channel}"
 
         row = [id, hour_start, channel, value, g_node]
-        df.loc[len(df)] = row
+        if value>0 or record_zeros:
+            df.loc[len(df)] = row
 
 df.sort_values(by='id', inplace=True)
 df.reset_index(drop=True, inplace=True)
