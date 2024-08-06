@@ -26,8 +26,8 @@
                 <xsl:element name="FileContents">
 <xsl:text>""" List of all the types """
 
-from gjk.types.codec import get_tuple_from_type
-from gjk.types.base_asl_types import TypeMakerByName
+from gjk.types.codec import gw_deserializer
+from gjk.types.codec import gw_serializer
 </xsl:text>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
   count(Protocols[text()='gjk']) > 0 and
@@ -64,8 +64,8 @@ from gjk.types.</xsl:text>
 
 
 __all__ = [
-    "get_tuple_from_type",
-    "TypeMakerByName",</xsl:text>
+    "gw_deserializer",
+    "gw_serializer",</xsl:text>
 
 
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[

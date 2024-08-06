@@ -20,7 +20,7 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/base_asl_types.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/asl_types.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
@@ -82,75 +82,6 @@ def type_makers() -> List[HeartbeatA_Maker]:
 
 for maker in type_makers():
     TypeMakerByName[maker.type_name] = maker
-
-
-def version_by_type_name() -> Dict[str, str]:
-    """
-    Returns:
-        Dict[str, str]: Keys are TypeNames, values are versions
-    """
-
-    v: Dict[str, str] = {
-        </xsl:text>
-    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
-    <xsl:sort select="VersionedTypeName" data-type="text"/>
-    <xsl:variable name="versioned-type-id" select="VersionedType"/>
-    <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
-
-    <xsl:text>"</xsl:text>
-    <xsl:value-of select="TypeName"/>
-    <xsl:text>": "</xsl:text>
-    <xsl:value-of select="Version"/>
-    <xsl:text>"</xsl:text>
-    </xsl:for-each>
-    <xsl:choose>
- <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')])">
-    <xsl:text>,
-        </xsl:text>
-    </xsl:when>
-    <xsl:otherwise>
-    <xsl:text>,
-    </xsl:text>
-    </xsl:otherwise>
-    </xsl:choose>
-    </xsl:for-each>
-    <xsl:text>}
-
-    return v
-
-
-def status_by_versioned_type_name() -> Dict[str, str]:
-    """
-    Returns:
-        Dict[str, str]: Keys are versioned TypeNames, values are type status
-    """
-
-    v: Dict[str, str] = {
-        </xsl:text>
-    <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
-    <xsl:sort select="VersionedTypeName" data-type="text"/>
-    <xsl:variable name="versioned-type-id" select="VersionedType"/>
-    <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
-    <xsl:text>"</xsl:text>
-    <xsl:value-of select="VersionedTypeName"/>
-    <xsl:text>": "</xsl:text>
-    <xsl:value-of select="Status"/>
-    <xsl:text>"</xsl:text>
-    </xsl:for-each>
-        <xsl:choose>
- <xsl:when test="position() != count($airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')])">
-    <xsl:text>,
-        </xsl:text>
-    </xsl:when>
-    <xsl:otherwise>
-    <xsl:text>,
-    </xsl:text>
-    </xsl:otherwise>
-    </xsl:choose>
-    </xsl:for-each>
-    <xsl:text>}
-
-    return v
 </xsl:text>
 
 
