@@ -65,19 +65,15 @@ for channel in power_channels:
     past_hours = 1
     past_power_readings: List[ReadingSql] = []
     while past_power_readings == []:
-        try:
-            past_power_readings = session.query(ReadingSql).filter(
-                ReadingSql.time_ms >= int(start.add(hours=-past_hours).timestamp() * 1000),
-                ReadingSql.time_ms < start_ms,
-                ReadingSql.data_channel_id == channel.id
-                ).order_by(asc(ReadingSql.time_ms)).all()
-            if past_hours > 60*24:
-                last_power_before_current_hour = 0
-                print('No previous power data has been found within the 60 days before start datetime. Assuming no power just before the start datetime.')
-                break
-        except Exception as e:
-            print(f"Could not retrieve data {past_hours} hours before start datetime. Assuming no power just before the start datetime.\n{e}")
+        past_power_readings = session.query(ReadingSql).filter(
+            ReadingSql.time_ms >= int(start.add(hours=-past_hours).timestamp() * 1000),
+            ReadingSql.time_ms < start_ms,
+            ReadingSql.data_channel_id == channel.id
+            ).order_by(asc(ReadingSql.time_ms)).all()
+        if past_hours > 60*24:
             last_power_before_current_hour = 0
+            print(f'No data for {channel.name} has been found within the 60 days before start datetime. Assuming no power just before the start datetime.')
+            break
         past_hours += 1
     if past_power_readings:
         last_power_before_current_hour = [r.value for r in past_power_readings][-1]
