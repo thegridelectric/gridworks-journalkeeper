@@ -10,15 +10,14 @@ from typing import List, Dict
 import pendulum
 import dotenv
 import os
-#REMOVED PANDAS
 
 # ------------------------------------------
 # User inputs
 # ------------------------------------------
 
 timezone = 'America/New_York'
-start = pendulum.datetime(2024, 2, 3, 0, 0, tz=timezone)
-end = pendulum.datetime(2024, 2, 6, 20, 0, tz=timezone)
+start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
+end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
 # Record 0 Wh values in the energy table
 record_zeros = False
@@ -77,12 +76,12 @@ for channel in power_channels:
                 ReadingSql.time_ms < start_ms,
                 ReadingSql.data_channel_id == channel.id
                 ).order_by(asc(ReadingSql.time_ms)).all()
-            if past_hours > 30:
+            if past_hours > 30*24:
                 last_power_before_current_hour = 0
-                print('over 30 hours')
+                print('No previous power data has been found within the 30 days before start date.\nAssuming the power was 0 W just before the start date.')
                 break
         except Exception as e:
-            print(f"Could not retrieve data {past_hours} hours before start date, defaulting to 0 W: {e}")
+            print(f"Could not retrieve data {past_hours} hours before start date.\nAssuming the power was 0 W just before the start date.\n{e}")
             last_power_before_current_hour = 0
         past_hours += 1
     if past_power_readings:
