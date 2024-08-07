@@ -39,11 +39,8 @@ saved_channel_ids = [channel.id for channel in saved_sql_channels]
 start_ms = int(start.timestamp() * 1000)
 end_ms = int(end.timestamp() * 1000)
 
-# Find the power channels
-power_channels = [BEECH_CHANNELS_BY_NAME[channel] for channel in BEECH_CHANNELS_BY_NAME 
-                  if BEECH_CHANNELS_BY_NAME[channel].telemetry_name == TelemetryName.PowerW.value]
-
 # Store the readings by channel in a dictionnary 
+power_channels = [channel for channel in BEECH_CHANNELS_BY_NAME.values() if channel.telemetry_name == TelemetryName.PowerW.value]
 power_readings: Dict[DataChannelSql, List[ReadingSql]] = {}
 for channel in power_channels:
     power_readings[channel] = session.query(ReadingSql).filter(
