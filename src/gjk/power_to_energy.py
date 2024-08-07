@@ -76,12 +76,12 @@ for channel in power_channels:
                 ReadingSql.time_ms < start_ms,
                 ReadingSql.data_channel_id == channel.id
                 ).order_by(asc(ReadingSql.time_ms)).all()
-            if past_hours > 30*24:
+            if past_hours > 60*24:
                 last_power_before_current_hour = 0
-                print('No previous power data has been found within the 30 days before start date.\nAssuming the power was 0 W just before the start date.')
+                print('No previous power data has been found within the 60 days before start datetime. Assuming no power just before the start datetime.')
                 break
         except Exception as e:
-            print(f"Could not retrieve data {past_hours} hours before start date.\nAssuming the power was 0 W just before the start date.\n{e}")
+            print(f"Could not retrieve data {past_hours} hours before start datetime. Assuming no power just before the start datetime.\n{e}")
             last_power_before_current_hour = 0
         past_hours += 1
     if past_power_readings:
@@ -120,7 +120,7 @@ for h in range(num_hours):
     for channel in power_channels:
 
         g_node = 'd1.isone.ver.keene.beech'
-        channel_name_energy = channel.name+'-energy' # check with Jessica what channel name we want
+        channel_name_energy = channel.name.replace('pwr','hourly-energy') # check with Jessica what channel name we want
         hour_start = int(start.add(hours=h).timestamp())
         value = int(energy_results[channel][h])
         id = f"{g_node}_{hour_start}_{channel_name_energy}"
@@ -138,7 +138,7 @@ for h in range(num_hours):
             hourly_energy_list.append(hourly_energy)
 
 # Add the list to the database
-engine = create_engine('postgresql://thomas@localhost/thomas')
-Session = sessionmaker(bind=engine)
-session = Session()
-bulk_insert_hourly_energy(session, hourly_energy_list)
+# engine = create_engine('postgresql://thomas@localhost/thomas')
+# Session = sessionmaker(bind=engine)
+# session = Session()
+# bulk_insert_hourly_energy(session, hourly_energy_list)
