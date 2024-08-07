@@ -6,7 +6,7 @@ e.g. reading = Reading(...).as_sql()
 
 import logging
 from typing import List
-
+import pendulum
 from gw.utils import snake_to_pascal
 from pydantic import BaseModel
 from pydantic import field_validator
@@ -51,6 +51,12 @@ class ReadingSql(Base):
     )
 
     data_channel = relationship("DataChannelSql", back_populates="readings")
+
+    def __repr__(self):
+        return f"<ReadingSql({self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms/1000)})>"
+
+    def __str__(self):
+        return f"{self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms/1000)}>"
 
 
 class Reading(BaseModel):
