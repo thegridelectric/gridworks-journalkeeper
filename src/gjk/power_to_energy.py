@@ -138,7 +138,7 @@ for h in range(num_hours):
             hourly_energy_list.append(hourly_energy)
 
 # Add the list to the database
-# engine = create_engine('postgresql://thomas@localhost/thomas')
-# Session = sessionmaker(bind=engine)
-# session = Session()
-# bulk_insert_hourly_energy(session, hourly_energy_list)
+engine = create_engine('postgresql://thomas@localhost/thomas')
+Session = sessionmaker(bind=engine)
+session = Session()
+bulk_insert_hourly_energy(session, hourly_energy_list)
