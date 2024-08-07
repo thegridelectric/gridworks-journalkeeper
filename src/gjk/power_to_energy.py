@@ -21,7 +21,7 @@ start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
 end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
 # Record 0 Wh values in the energy table
-record_zeros = False
+record_zeros = True
 
 # ------------------------------------------
 # Import power readings by channel
