@@ -3,6 +3,7 @@ from gjk.models import DataChannelSql
 from gjk.models import HourlyEnergySql
 from gjk.models import bulk_insert_hourly_energy
 from gjk.enums import TelemetryName
+from gjk.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy import asc
@@ -39,11 +40,8 @@ start_ms = int(start.timestamp() * 1000)
 end_ms = int(end.timestamp() * 1000)
 
 # Find the power channels
-from gjk.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
-power_channels = []
-for channel in BEECH_CHANNELS_BY_NAME:
-    if BEECH_CHANNELS_BY_NAME[channel].telemetry_name == TelemetryName.PowerW.value:
-        power_channels.append(BEECH_CHANNELS_BY_NAME[channel])
+power_channels = [BEECH_CHANNELS_BY_NAME[channel] for channel in BEECH_CHANNELS_BY_NAME 
+                  if BEECH_CHANNELS_BY_NAME[channel].telemetry_name == TelemetryName.PowerW.value]
 
 # Store the readings by channel in a dictionnary 
 power_readings: Dict[DataChannelSql, List[ReadingSql]] = {}
