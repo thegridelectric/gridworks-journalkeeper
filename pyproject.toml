@@ -29,7 +29,6 @@ sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"
 psycopg2-binary = "^2.9.9"
-pandas = "^2.2.2"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
