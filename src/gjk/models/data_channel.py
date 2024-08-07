@@ -5,7 +5,7 @@ e.g. ch = DataChannelGt(...).as_sql()
 """
 
 import logging
-
+import datetime
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -43,3 +43,14 @@ class DataChannelSql(Base):
 
     # Define the relationship to the ReadingSql table
     readings = relationship("ReadingSql", back_populates="data_channel")
+
+    def __repr__(self):
+        start_time_utc = datetime.datetime.fromtimestamp(self.start_s).strftime('%Y-%m-%d %H:%M:%S') if self.start_s else 'None'
+        return (f"<DataChannelSql(name='{self.name}', "
+                f"about_node_name='{self.about_node_name}', captured_by_node_name='{self.captured_by_node_name}', "
+                f"telemetry_name='{self.telemetry_name}'")
+
+    def __str__(self):
+        return (f"DataChannel(name={self.name},"
+                f"about_node_name={self.about_node_name}, captured_by_node_name={self.captured_by_node_name}, "
+                f"telemetry_name={self.telemetry_name}, start_s={self.start_s})")
