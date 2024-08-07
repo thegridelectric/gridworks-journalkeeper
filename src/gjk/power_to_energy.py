@@ -12,7 +12,7 @@ import pendulum
 import dotenv
 import os
 
-def generate_hourly_energy_table(session, start:pendulum.DateTime=pendulum.now(), end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
+def add_to_hourly_energy_table(session, start:pendulum.DateTime=pendulum.now(), end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
 
     # If there is no specified start time, use the time_delta
     start = start if start.replace(microsecond=0)<end.replace(microsecond=0) else end.add(hours=-time_delta)
@@ -143,4 +143,4 @@ if __name__ == "__main__":
     start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
     end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
-    generate_hourly_energy_table(session, start, end)
+    add_to_hourly_energy_table(session, start, end)
