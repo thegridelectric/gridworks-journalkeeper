@@ -18,20 +18,20 @@ import pendulum
 
 class HourlyEnergySql(Base):
     """
-    Energy consumption of a device specified in channel_name 
+    Energy consumption of a device specified in power_channel 
     over the hour starting at hour_start_s
     """
     __tablename__ = 'hourly_device_energy'
 
     id = Column(String, primary_key=True)
     hour_start_s = Column(BigInteger)
-    channel_name = Column(String)
+    power_channel = Column(String)
     watt_hours = Column(Integer)
     g_node_alias = Column(String)
 
     # Rows must have a unique combination of start time, channel name, and GNode alias
     __table_args__ = (
-        UniqueConstraint('hour_start_s', 'channel_name', 'g_node_alias', name='unique_time_channel_gnode'),
+        UniqueConstraint('hour_start_s', 'power_channel', 'g_node_alias', name='unique_time_channel_gnode'),
     )
 
 
@@ -39,7 +39,7 @@ def bulk_insert_hourly_energy(session: Session, hourly_energy_list: List[HourlyE
     """
     Idempotently bulk inserts HourlyEnergySql into the journaldb hourly_device_energy table,
     inserting only those whose primary keys do not already exist AND that don't violate the 
-    hour_start_s, channel_name, g_node_alias uniqueness constraint.
+    hour_start_s, power_channel, g_node_alias uniqueness constraint.
 
     Args:
         session (Session): An active SQLAlchemy session used for database operations.
@@ -60,7 +60,7 @@ def bulk_insert_hourly_energy(session: Session, hourly_energy_list: List[HourlyE
             pk_column = HourlyEnergySql.id
             unique_columns = [
                 HourlyEnergySql.hour_start_s,
-                HourlyEnergySql.channel_name,
+                HourlyEnergySql.power_channel,
                 HourlyEnergySql.g_node_alias,
             ]
 
