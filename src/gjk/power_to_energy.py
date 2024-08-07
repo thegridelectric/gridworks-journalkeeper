@@ -74,7 +74,7 @@ for channel in power_channels:
             last_power_before_current_hour = 0
             print(f'No data for {channel.name} has been found within the 60 days before start datetime. Assuming no power just before the start datetime.')
             break
-        past_hours += 1
+        past_hours += 48
     if past_power_readings:
         last_power_before_current_hour = [r.value for r in past_power_readings][-1]
 
