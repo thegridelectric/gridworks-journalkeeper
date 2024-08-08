@@ -1,7 +1,7 @@
 from gjk.models import ReadingSql
 from gjk.models import DataChannelSql
-from gjk.models import HourlyEnergySql
-from gjk.models import bulk_insert_hourly_energy
+from gjk.models import NodalHourlyEnergySql
+from gjk.models import bulk_insert_nodal_hourly_energy
 from gjk.enums import TelemetryName
 from gjk.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
 from sqlalchemy.orm import Session, sessionmaker
@@ -12,7 +12,7 @@ import pendulum
 import dotenv
 import os
 
-def add_to_hourly_energy_table(session, start:pendulum.DateTime=None, end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
+def add_to_hourly_device_energy_table(session, start:pendulum.DateTime=None, end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
     """
     Computes hourly energy consumption within the specified timeframe from power data in the specified session.
     Inserts the results into an `hourly_device_energy` table in the specified session.
@@ -125,8 +125,8 @@ def add_to_hourly_energy_table(session, start:pendulum.DateTime=None, end:pendul
     # Add the results to the database
     # ------------------------------------------
 
-    # Create a list of HourlyEnergySql objects to insert
-    hourly_energy_list = []
+    # Create a list of NodalHourlyEnergySql objects to insert
+    nodal_hourly_energy_list = []
 
     for h in range(num_hours):
         for channel in power_channels:
@@ -139,21 +139,21 @@ def add_to_hourly_energy_table(session, start:pendulum.DateTime=None, end:pendul
 
             if value > 0 or record_zeros:
 
-                hourly_energy = HourlyEnergySql(
+                nodal_hourly_energy = NodalHourlyEnergySql(
                         id = id,
                         hour_start_s = hour_start, 
                         power_channel = channel_name,
                         watt_hours = value,
                         g_node_alias = g_node)
                 
-                hourly_energy_list.append(hourly_energy)
-    print(f"\nSuccessfully created a list of {len(hourly_energy_list)} HourlyEnergySql objects to add to the database.\n")
+                nodal_hourly_energy_list.append(nodal_hourly_energy)
+    print(f"\nSuccessfully created a list of {len(nodal_hourly_energy_list)} NodalHourlyEnergySql objects to add to the database.\n")
 
     # Add the list to the database
     engine = create_engine('postgresql://thomas@localhost/thomas')
     Session = sessionmaker(bind=engine)
     session = Session()
-    bulk_insert_hourly_energy(session, hourly_energy_list)
+    bulk_insert_nodal_hourly_energy(session, nodal_hourly_energy_list)
 
 
 if __name__ == "__main__":
@@ -167,4 +167,4 @@ if __name__ == "__main__":
     start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
     end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
-    add_to_hourly_energy_table(session=session, start=start, end=end)
+    add_to_hourly_device_energy_table(session=session, start=start, end=end)

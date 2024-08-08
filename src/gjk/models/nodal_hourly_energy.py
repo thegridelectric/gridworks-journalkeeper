@@ -1,5 +1,5 @@
 """
-The HourlyEnergySql ORM object should be made via associated pydantic
+The NodalHourlyEnergySql ORM object should be made via associated pydantic
 class HourlyEnergyGt, which includes class validators, using the as_sql method
 e.g. ch = HourlyEnergyGt(...).as_sql()
 """
@@ -16,7 +16,7 @@ from typing import List, Dict
 import pendulum
 
 
-class HourlyEnergySql(Base):
+class NodalHourlyEnergySql(Base):
     """
     Energy consumption of a device specified in power_channel 
     over the hour starting at hour_start_s
@@ -35,33 +35,33 @@ class HourlyEnergySql(Base):
     )
 
 
-def bulk_insert_hourly_energy(session: Session, hourly_energy_list: List[HourlyEnergySql]):
+def bulk_insert_nodal_hourly_energy(session: Session, hourly_energy_list: List[NodalHourlyEnergySql]):
     """
-    Idempotently bulk inserts HourlyEnergySql into the journaldb hourly_device_energy table,
+    Idempotently bulk inserts NodalHourlyEnergySql into the journaldb hourly_device_energy table,
     inserting only those whose primary keys do not already exist AND that don't violate the 
     hour_start_s, power_channel, g_node_alias uniqueness constraint.
 
     Args:
         session (Session): An active SQLAlchemy session used for database operations.
-        hourly_energy_list (List[HourlyEnergySql]): A list of HourlyEnergySql objects to be 
+        hourly_energy_list (List[NodalHourlyEnergySql]): A list of NodalHourlyEnergySql objects to be 
         conditionally inserted into the hourly_device_energy table of the journaldb database
 
     Returns:
         None
     """
-    if not all(isinstance(obj, HourlyEnergySql) for obj in hourly_energy_list):
-        raise ValueError("All objects in hourly_energy_list must be HourlyEnergySql objects")
+    if not all(isinstance(obj, NodalHourlyEnergySql) for obj in hourly_energy_list):
+        raise ValueError("All objects in hourly_energy_list must be NodalHourlyEnergySql objects")
 
     batch_size = 1000
 
     for i in range(0, len(hourly_energy_list), batch_size):
         try:
             batch = hourly_energy_list[i:i+batch_size]
-            pk_column = HourlyEnergySql.id
+            pk_column = NodalHourlyEnergySql.id
             unique_columns = [
-                HourlyEnergySql.hour_start_s,
-                HourlyEnergySql.power_channel,
-                HourlyEnergySql.g_node_alias,
+                NodalHourlyEnergySql.hour_start_s,
+                NodalHourlyEnergySql.power_channel,
+                NodalHourlyEnergySql.g_node_alias,
             ]
 
             pk_set = set()
