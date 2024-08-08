@@ -1,0 +1,434 @@
+[
+    {
+        "Id": "a47abb1a-06fc-4d9b-a548-8531c482d3f2",
+        "Name": "buffer-cold-pipe",
+        "DisplayName": "Buffer Cold (C x 1000)",
+        "AboutNodeName": "buffer-cold-pipe",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "cb542708-ba47-4c8b-9261-029dae126d6f",
+        "Name": "buffer-hot-pipe",
+        "DisplayName": "Buffer Hot (C x 1000)",
+        "AboutNodeName": "buffer-hot-pipe",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "17c338be-f09f-40c0-b99b-3a8d11076a1e",
+        "Name": "buffer-depth1",
+        "DisplayName": "Buffer Depth 1 (C x 1000)",
+        "AboutNodeName": "buffer-depth1",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "064e5051-f724-4c65-b28f-d890afd7b3e4",
+        "Name": "buffer-depth2",
+        "DisplayName": "Buffer Depth 2 (C x 1000)",
+        "AboutNodeName": "buffer-depth2",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "15ef5472-9530-4e91-b8c6-6434101fc113",
+        "Name": "buffer-depth3",
+        "DisplayName": "Buffer Depth 3 (C x 1000)",
+        "AboutNodeName": "buffer-depth3",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "44a834d9-8052-4f21-9512-3b2579ba8491",
+        "Name": "buffer-depth4",
+        "DisplayName": "Buffer Depth 4 (C x 1000)",
+        "AboutNodeName": "buffer-depth4",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "f908be82-f8ac-42e7-8203-7057eeef79a8",
+        "Name": "buffer-well",
+        "DisplayName": "Buffer Well (C x 1000)",
+        "AboutNodeName": "buffer-well",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "2fe25fbf-400a-418e-b2dc-35e3b62f8250",
+        "Name": "dist-rwt",
+        "DisplayName": "Dist RWT (C x 1000)",
+        "AboutNodeName": "dist-rwt",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "5dae9382-a2b1-4f11-9259-3f3f026944ab",
+        "Name": "dist-swt",
+        "DisplayName": "Dist SWT (C x 1000)",
+        "AboutNodeName": "dist-swt",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "cecc9b94-9b4b-45ce-a8e9-4c63d24530aa",
+        "Name": "hp-ewt",
+        "DisplayName": "HP EWT (C x 1000)",
+        "AboutNodeName": "hp-ewt",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "a49db047-e38f-44a4-b773-29102c2fc526",
+        "Name": "hp-lwt",
+        "DisplayName": "HP EWT (C x 1000)",
+        "AboutNodeName": "hp-lwt",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "16a5738a-ce84-4f1e-9163-2afed31d866a",
+        "Name": "store-cold-pipe",
+        "DisplayName": "Store Cold Pipe (C x 1000)",
+        "AboutNodeName": "store-cold-pipe",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "8626fc06-72a4-4add-a782-0857ed569c8f",
+        "Name": "store-hot-pipe",
+        "DisplayName": "Store Hot Pipe (C x 1000)",
+        "AboutNodeName": "store-hot-pipe",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "0f9d342c-510c-416a-9b35-336d76bfa100",
+        "Name": "tank1-depth1",
+        "DisplayName": "Tank 1 Depth 1 (C x 1000)",
+        "AboutNodeName": "tank1-depth1",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "b93ce968-a3cb-4ff9-b14d-d8ebc7ca84b1",
+        "Name": "tank1-depth2",
+        "DisplayName": "Tank 1 Depth 2 (C x 1000)",
+        "AboutNodeName": "tank1-depth2",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "a6d8e6af-85ff-4b6a-a50e-b2c6ed9225a2",
+        "Name": "tank1-depth3",
+        "DisplayName": "Tank 1 Depth 3 (C x 1000)",
+        "AboutNodeName": "tank1-depth3",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "c75ff5fd-67a2-45e3-a385-d3a7177e52ef",
+        "Name": "tank1-depth4",
+        "DisplayName": "Tank 1 Depth 4 (C x 1000)",
+        "AboutNodeName": "tank1-depth4",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "6b47a99a-270f-4138-b789-d327c020a005",
+        "Name": "tank2-depth1",
+        "DisplayName": "Tank 2 Depth 1 (C x 1000)",
+        "AboutNodeName": "tank2-depth1",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "cf7fbae5-3925-4fc4-a9f0-a214e13f4a78",
+        "Name": "tank2-depth2",
+        "DisplayName": "Tank 2 Depth 2 (C x 1000)",
+        "AboutNodeName": "tank2-depth2",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "4c74cbe0-376f-4eb8-a9f8-10f867cc9ddc",
+        "Name": "tank2-depth3",
+        "DisplayName": "Tank 2 Depth 3 (C x 1000)",
+        "AboutNodeName": "tank2-depth3",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "5ae83637-89be-4277-b751-370d980f3420",
+        "Name": "tank2-depth4",
+        "DisplayName": "Tank 2 Depth 4 (C x 1000)",
+        "AboutNodeName": "tank2-depth4",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "181d2d1b-8295-43cb-bc5e-8311fdfbcead",
+        "Name": "tank3-depth1",
+        "DisplayName": "Tank 3 Depth 1 (C x 1000)",
+        "AboutNodeName": "tank3-depth1",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "37bd0b6b-0369-4c6a-be3e-eb707bf1ecc2",
+        "Name": "tank3-depth2",
+        "DisplayName": "Tank 3 Depth 2 (C x 1000)",
+        "AboutNodeName": "tank3-depth2",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "653aaaa1-d351-4ab6-8b12-05bc6892c7ad",
+        "Name": "tank3-depth3",
+        "DisplayName": "Tank 3 Depth 3 (C x 1000)",
+        "AboutNodeName": "tank3-depth3",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "89765322-2847-4e47-8c3c-216edac77897",
+        "Name": "tank3-depth4",
+        "DisplayName": "Tank 3 Depth 4 (C x 1000)",
+        "AboutNodeName": "tank3-depth4",
+        "CapturedByNodeName": "tank1-reader",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": null,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "49db0f92-1c25-46c0-b154-4f71923ce969",
+        "Name": "oat",
+        "DisplayName": "Outside Air Temp (C x 1000)",
+        "AboutNodeName": "oat",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "AirTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "87f1e9f5-8959-4780-9195-0f1267822e22",
+        "Name": "hp-fossil-lwt",
+        "DisplayName": "HeatPump Fossil LWT(C x 1000)",
+        "AboutNodeName": "hp-fossil-lwt",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "WaterTempCTimes1000",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "f28b814a-0579-4c9f-b08e-5e81e077dd1d",
+        "Name": "dist-flow-integrated",
+        "DisplayName": "Distribution Gallons x 100",
+        "AboutNodeName": "dist-flow",
+        "CapturedByNodeName": "dist-flow",
+        "TelemetryName": "GallonsTimes100",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "94c3ab5c-7dd1-43c5-9870-733930251396",
+        "Name": "primary-flow-integrated",
+        "DisplayName": "Primary Gallons x 100",
+        "AboutNodeName": "primary-flow",
+        "CapturedByNodeName": "primary-flow",
+        "TelemetryName": "GallonsTimes100",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "10fbb233-9987-4b5f-8b13-0f38fcff73b4",
+        "Name": "store-flow-integrated",
+        "DisplayName": "Store Gallons x 100",
+        "AboutNodeName": "store-flow",
+        "CapturedByNodeName": "store-flow",
+        "TelemetryName": "GallonsTimes100",
+        "StartS": 1699885800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "0334a75a-48ee-4da1-8b77-96fe05b0c3db",
+        "Name": "down-zone-temp",
+        "DisplayName": "Down Zone Honeywell Temp",
+        "AboutNodeName": "down-zone",
+        "CapturedByNodeName": "down-zone",
+        "TelemetryName": "AirTempFTimes1000",
+        "StartS": 1700683960,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "83fe770f-e022-4ad6-a471-cfb83e1b64be",
+        "Name": "oil-boiler-pwr",
+        "DisplayName": "Oil Boiler pump power",
+        "AboutNodeName": "oil-boiler",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1700590500,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "dd4c0d78-d2e0-490c-b064-2f33b85ec431",
+        "Name": "down-zone-set",
+        "DisplayName": "Down Zone Honeywell Setpoint",
+        "AboutNodeName": "down-zone",
+        "CapturedByNodeName": "down-zone",
+        "TelemetryName": "AirTempFTimes1000",
+        "StartS": 1700683960,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "581f758b-632f-426a-aebc-7432c416a99e",
+        "Name": "up-zone-set",
+        "DisplayName": "Up Zone Honeywell Setpoint",
+        "AboutNodeName": "up-zone",
+        "CapturedByNodeName": "up-zone",
+        "TelemetryName": "AirTempFTimes1000",
+        "StartS": 1700683960,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "2196a6b7-90d1-42d0-b3f0-748f393bb35a",
+        "Name": "up-zone-temp",
+        "DisplayName": "Up Zone Honeywell Temp",
+        "AboutNodeName": "up-zone",
+        "CapturedByNodeName": "up-zone",
+        "TelemetryName": "AirTempFTimes1000",
+        "StartS": 1700683960,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "251871dd-6dc8-40d9-a811-f62319461435",
+        "Name": "oil-boiler-flow",
+        "DisplayName": "Oil Boiler Integrated Flow",
+        "AboutNodeName": "oil-boiler-flow",
+        "CapturedByNodeName": "oil-boiler-flow",
+        "TelemetryName": "GallonsTimes100",
+        "StartS": 1706763600,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "01af1b8d-d22a-47c6-8e25-421be9df09b6",
+        "Name": "down-zone-gw-temp",
+        "DisplayName": "Downstairs Zone Temp (C x 1000)",
+        "AboutNodeName": "down-zone",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "AirTempCTimes1000",
+        "StartS": 1700006400,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "0d9c3cac-5813-4881-a0f7-35d90ac4bd49",
+        "Name": "up-zone-gw-temp",
+        "DisplayName": "Upstairs Zone Temp (C x 1000)",
+        "AboutNodeName": "up-zone",
+        "CapturedByNodeName": "analog-temp",
+        "TelemetryName": "AirTempCTimes1000",
+        "StartS": 1708221240,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "498da855-bac5-47e9-b83a-a11e56a50e67",
+        "Name": "hp-odu-pwr",
+        "DisplayName": "HP ODU Power",
+        "AboutNodeName": "hp-odu",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1704862800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
+        "InPowerMetering": true
+    },
+    {
+        "Id": "beabac86-7caa-4ab4-a50b-af1ad54ed165",
+        "Name": "hp-idu-pwr",
+        "DisplayName": "HP IDU Power",
+        "AboutNodeName": "hp-idu",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1704862800,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
+        "InPowerMetering": true
+    },
+    {
+        "Id": "a2ebe9fa-05ba-4665-a6ba-dbc85aee530c",
+        "Name": "dist-pump-pwr",
+        "DisplayName": "Distribution pump power",
+        "AboutNodeName": "dist-pump",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1701293980,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "1e3c34e3-1e83-4dae-bfe3-a698c4618b5a",
+        "Name": "primary-pump-pwr",
+        "DisplayName": "Primary pump power",
+        "AboutNodeName": "primary-pump",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1701293980,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    },
+    {
+        "Id": "ac35c2a9-e317-45e8-a036-52fa5cbd8380",
+        "Name": "store-pump-pwr",
+        "DisplayName": "Store pump power",
+        "AboutNodeName": "store-pump",
+        "CapturedByNodeName": "primary-pwr-meter",
+        "TelemetryName": "PowerW",
+        "StartS": 1701293980,
+        "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
+    }
+]

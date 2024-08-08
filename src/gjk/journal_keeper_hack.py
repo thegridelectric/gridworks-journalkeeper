@@ -1,21 +1,18 @@
-import json
-import typing
 import uuid
-from typing import Any
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
 import boto3
 import pendulum
 from pydantic import BaseModel
 
 from gjk.models import Message
-from gjk.types import BatchedReadings
-from gjk.types import GridworksEventGtShStatus
-from gjk.types import HeartbeatA
-from gjk.types import KeyparamChangeLog
-from gjk.types import PowerWatts
-
+from gjk.types import (
+    BatchedReadings,
+    GridworksEventGtShStatus,
+    HeartbeatA,
+    KeyparamChangeLog,
+    PowerWatts,
+)
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
 start_s = int(start_time.timestamp())
@@ -44,7 +41,7 @@ class JournalKeeperHack:
         add_hrs = 1
         while add_hrs < duration_hrs:
             t = start_s + add_hrs * 3600
-            if not (pendulum.from_timestamp(t).strftime("%Y%m%d") in folder_list):
+            if pendulum.from_timestamp(t).strftime("%Y%m%d") not in folder_list:
                 if self.has_this_days_folder(t):
                     folder_list.append(pendulum.from_timestamp(t).strftime("%Y%m%d"))
             add_hrs += 1
@@ -159,7 +156,7 @@ class JournalKeeperHack:
                 type_name=t.type_name,
                 message_created_ms=t.message_created_ms,
             )
-        
+
     def gridworkseventgtshstatus_to_msg(
         self, t: GridworksEventGtShStatus, fn: FileNameMeta
     ) -> Optional[Message]:

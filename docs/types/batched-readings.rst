@@ -6,23 +6,23 @@ Python pydantic class corresponding to json type `batched.readings`, version `00
     :members:
 
 **FromGNodeAlias**:
-    - Description: 
+    - Description:
     - Format: LeftRightDot
 
 **FromGNodeInstanceId**:
-    - Description: 
+    - Description:
     - Format: UuidCanonicalTextual
 
 **AboutGNodeAlias**:
-    - Description: 
+    - Description:
     - Format: LeftRightDot
 
 **SlotStartUnixS**:
-    - Description: 
+    - Description:
     - Format: ReasonableUnixTimeS
 
 **BatchedTransmissionPeriodS**:
-    - Description: 
+    - Description:
     - Format: PositiveInteger
 
 **MessageCreatedMs**:
@@ -33,13 +33,13 @@ Python pydantic class corresponding to json type `batched.readings`, version `00
     - Description: DataChannel List.The list of data channels for which there is data getting reported in this batched reading. It is a subset of all the data channels for the SCADA - may not be all of them.
 
 **ChannelReadingList**:
-    - Description: 
+    - Description:
 
 **FsmActionList**:
     - Description: Finite State Machine Action List.FSM Actions (that is, side-effects of state machine transitions with real-world changes to the underlying TerminalAsset).
 
 **FsmReportList**:
-    - Description: Finite State Machine Report List.FSM Reports are the cacading events, actions and transitions caused by a single high-level event. There is duplication with the action list. 
+    - Description: Finite State Machine Report List.FSM Reports are the cacading events, actions and transitions caused by a single high-level event. There is duplication with the action list.
 
 **Id**:
     - Description: Batched Reading Id.Globally Unique identifier for a BatchedReadings message
@@ -71,4 +71,3 @@ Python pydantic class corresponding to json type `batched.readings`, version `00
 
 .. autoclass:: gjk.types.BatchedReadings_Maker
     :members:
-

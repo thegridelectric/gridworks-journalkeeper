@@ -34,4 +34,3 @@ Python pydantic class corresponding to json type `channel.readings`, version `00
 
 .. autoclass:: gjk.types.ChannelReadings_Maker
     :members:
-

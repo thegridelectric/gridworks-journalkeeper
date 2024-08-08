@@ -1,6 +1,3 @@
-from gjk.first_season.house_0 import House0Names
-
-
 class BeechNodes:
     """
     This class provides the names of the Beech Spaceheat Nodes.

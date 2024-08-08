@@ -3,11 +3,10 @@
 import json
 
 import pytest
+from gjk.types import PowerWatts
+from gjk.types import PowerWattsMaker as Maker
 from gw.errors import GwTypeError
 from pydantic import ValidationError
-
-from gjk.types import PowerWatts
-from gjk.types import PowerWatts_Maker as Maker
 
 
 def test_power_watts_generated() -> None:
@@ -41,12 +40,12 @@ def test_power_watts_generated() -> None:
     # GwTypeError raised if missing a required attribute
     ######################################
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TypeName"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["Watts"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)

@@ -6,27 +6,14 @@ e.g. reading = Reading(...).as_sql()
 
 import logging
 from typing import List
+
 import pendulum
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel
-from pydantic import field_validator
-from sqlalchemy import BigInteger
-from sqlalchemy import Column
-from sqlalchemy import ForeignKey
-from sqlalchemy import String
-from sqlalchemy import UniqueConstraint
-from sqlalchemy import tuple_
-from sqlalchemy.exc import NoSuchTableError
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import relationship
+from sqlalchemy import BigInteger, Column, ForeignKey, String, UniqueConstraint, tuple_
+from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
+from sqlalchemy.orm import Session, relationship
 
 from gjk.first_season.utils import str_from_ms
 from gjk.models.message import Base
-from gjk.models.utils import check_is_reasonable_unix_time_ms
-from gjk.models.utils import check_is_uuid_canonical_textual
-
 
 # Define the base class
 
@@ -43,75 +30,25 @@ class ReadingSql(Base):
     id = Column(String, primary_key=True)
     value = Column(BigInteger, nullable=False)
     time_ms = Column(BigInteger, nullable=False)
-    data_channel_id = Column(String, ForeignKey('data_channels.id'), nullable=False)
+    data_channel_id = Column(String, ForeignKey("data_channels.id"), nullable=False)
     message_id = Column(String, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint('time_ms', 'data_channel_id', 'message_id', name='unique_time_data_channel_message'),
+        UniqueConstraint(
+            "time_ms",
+            "data_channel_id",
+            "message_id",
+            name="unique_time_data_channel_message",
+        ),
     )
 
     data_channel = relationship("DataChannelSql", back_populates="readings")
 
     def __repr__(self):
-        return f"<ReadingSql({self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms/1000)})>"
+        return f"<ReadingSql({self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms / 1000)})>"
 
     def __str__(self):
-        return f"{self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms/1000)}>"
-
-
-class Reading(BaseModel):
-    id: str
-    value: int
-    time_ms: int 
-    data_channel_id: str
-    message_id: str
-
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
-
-    @field_validator("id")
-    def _check_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"id failed UuidCanonicalTextual format validation: {e}"
-            )
-        return v
-    
-    @field_validator("data_channel_id")
-    def _check_data_channel_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"data_channel_id failed UuidCanonicalTextual format validation: {e}"
-            )
-        return v
-    
-    @field_validator("message_id")
-    def _check_message_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"message_id failed UuidCanonicalTextual format validation: {e}"
-            )
-        return v
-
-    @field_validator("time_ms")
-    def _check_time_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"time_ms failed ReasonableUnixTimeMs format validation: {e}"
-            )
-        return v
-
-    def as_sql(self) -> ReadingSql:
-        return ReadingSql(**self.model_dump())
+        return f"{self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms / 1000)}>"
 
 
 def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
@@ -136,7 +73,7 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
 
     for i in range(0, len(reading_list), batch_size):
         try:
-            batch = reading_list[i:i+batch_size]
+            batch = reading_list[i : i + batch_size]
             pk_column = ReadingSql.id
             unique_columns = [
                 ReadingSql.time_ms,
@@ -148,10 +85,14 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
             unique_set = set()
 
             for reading in batch:
-                pk_set.add(getattr(reading, "id"))
-                unique_set.add(tuple(getattr(reading, col.name) for col in unique_columns))
+                pk_set.add(reading.id)
+                unique_set.add(
+                    tuple(getattr(reading, col.name) for col in unique_columns)
+                )
 
-            existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
+            existing_pks = set(
+                session.query(pk_column).filter(pk_column.in_(pk_set)).all()
+            )
 
             existing_uniques = set(
                 session.query(*unique_columns)
@@ -162,12 +103,14 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
             new_readings = [
                 reading
                 for reading in batch
-                if getattr(reading, "id") not in existing_pks
+                if reading.id not in existing_pks
                 and tuple(getattr(reading, col.name) for col in unique_columns)
                 not in existing_uniques
             ]
-            print(f"[{str_from_ms(batch[0].time_ms)}] Inserting {len(new_readings)} out of {len(batch)}")
-            
+            print(
+                f"[{str_from_ms(batch[0].time_ms)}] Inserting {len(new_readings)} out of {len(batch)}"
+            )
+
             session.bulk_save_objects(new_readings)
             session.commit()
 
@@ -180,4 +123,3 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
         except SQLAlchemyError as e:
             print(f"An error occurred: {e}")
             session.rollback()
-    

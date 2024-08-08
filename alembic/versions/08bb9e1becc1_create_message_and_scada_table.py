@@ -1,19 +1,17 @@
 """create message and scada table
 
 Revision ID: 08bb9e1becc1
-Revises: 
+Revises:
 Create Date: 2024-07-14 13:15:58.792649
 
 """
 
-from typing import Sequence
-from typing import Union
+from typing import Sequence, Union
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 from alembic import op
-
 
 # revision identifiers, used by Alembic.
 revision: str = "08bb9e1becc1"

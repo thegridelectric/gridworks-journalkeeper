@@ -4,7 +4,6 @@ from gwbase.config.rabbit_settings import RabbitBrokerClient
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings
 
-
 # from gjk.config import RabbitBrokerClient
 
 
@@ -21,4 +20,4 @@ class Settings(BaseSettings):
     class Config:
         env_prefix = "gjk_"
         env_nested_delimiter = "__"
- 
+        extra = "ignore"

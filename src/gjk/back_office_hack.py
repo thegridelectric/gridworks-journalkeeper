@@ -1,10 +1,5 @@
 from typing import Dict
 
-import dotenv
-
-from gjk.config import Settings
-
-
 BEECH_G_NODE_ID = "19ee09df-80ba-437b-b6c1-1eebe9d34801"
 OAK_G_NODE_ID = "a61ede79-4efd-4dbc-af14-a99b002d5ce5"
 

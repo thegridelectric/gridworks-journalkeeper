@@ -34,4 +34,3 @@ Python pydantic class corresponding to json type `gt.sh.booleanactuator.cmd.stat
 
 .. autoclass:: gjk.types.GtShBooleanactuatorCmdStatus_Maker
     :members:
-

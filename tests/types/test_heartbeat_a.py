@@ -3,16 +3,14 @@
 import json
 
 import pytest
+from gjk.types import HeartbeatA
+from gjk.types import HeartbeatAMaker as Maker
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 
-from gjk.types import HeartbeatA
-from gjk.types import HeartbeatA_Maker as Maker
-
 
 def test_heartbeat_a_generated() -> None:
-    t = HeartbeatA(
-    )
+    t = HeartbeatA()
 
     d = {
         "TypeName": "heartbeat.a",
@@ -39,7 +37,7 @@ def test_heartbeat_a_generated() -> None:
     # GwTypeError raised if missing a required attribute
     ######################################
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TypeName"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)

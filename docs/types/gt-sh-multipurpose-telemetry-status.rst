@@ -16,7 +16,7 @@ Python pydantic class corresponding to json type `gt.sh.multipurpose.telemetry.s
     - Description: TelemetryName.The TelemetryName of the readings. This is used to interpet the meaning of the reading values. For example, WaterTempCTimes1000 means the reading is measuring the a reading of 37 deg C.
 
 **ValueList**:
-    - Description: List of Values.The values of the readings. 
+    - Description: List of Values.The values of the readings.
 
 **ReadTimeUnixMsList**:
     - Description: List of Read Times.The times that the MultipurposeSensor took the readings, in unix milliseconds
@@ -40,4 +40,3 @@ Python pydantic class corresponding to json type `gt.sh.multipurpose.telemetry.s
 
 .. autoclass:: gjk.types.GtShMultipurposeTelemetryStatus_Maker
     :members:
-

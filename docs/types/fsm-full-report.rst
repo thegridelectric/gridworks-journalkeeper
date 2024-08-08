@@ -10,7 +10,7 @@ Python pydantic class corresponding to json type `fsm.full.report`, version `000
     - Format: SpaceheatName
 
 **TriggerId**:
-    - Description: TriggerId.Reference uuid for the triggering event that started the cascade of side-effect actions, events and transitions captured in this report 
+    - Description: TriggerId.Reference uuid for the triggering event that started the cascade of side-effect actions, events and transitions captured in this report
     - Format: UuidCanonicalTextual
 
 **AtomicList**:
@@ -34,4 +34,3 @@ Python pydantic class corresponding to json type `fsm.full.report`, version `000
 
 .. autoclass:: gjk.types.FsmFullReport_Maker
     :members:
-

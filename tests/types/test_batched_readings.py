@@ -3,40 +3,124 @@
 import json
 
 import pytest
+from gjk.enums import TelemetryName
+from gjk.types import BatchedReadings, ChannelReadings, DataChannelGt
+from gjk.types import BatchedReadingsMaker as Maker
 from gw.errors import GwTypeError
 from pydantic import ValidationError
-
-from gjk.types import BatchedReadings
-from gjk.types import BatchedReadings_Maker as Maker
 
 
 def test_batched_readings_generated() -> None:
     t = BatchedReadings(
-        from_g_node_alias="dwtest.isone.ct.newhaven.orange1.ta.scada",
-        from_g_node_instance_id="0384ef21-648b-4455-b917-58a1172d7fc1",
-        about_g_node_alias="dwtest.isone.ct.newhaven.orange1.ta",
-        slot_start_unix_s=1656945300,
-        batched_transmission_period_s=300,
-        message_created_ms=1656945600044,
-        data_channel_list=,
-        channel_reading_list=[],
+        from_g_node_alias="hw1.isone.me.versant.keene.beech.scada",
+        from_g_node_instance_id="98542a17-3180-4f2a-a929-6023f0e7a106",
+        about_g_node_alias="hw1.isone.me.versant.keene.beech.ta",
+        slot_start_unix_s=1708518780,
+        batched_transmission_period_s=30,
+        message_created_ms=1708518810017,
+        data_channel_list=[
+            DataChannelGt(
+                name="hp-odu-pwr",
+                display_name="HP ODU Power",
+                about_node_name="hp-odu",
+                captured_by_node_name="primary-pwr-meter",
+                terminal_asset_alias="hw1.isone.me.versant.keene.beech.ta",
+                in_power_metering=True,
+                start_s=1704862800,
+                telemetry_name=TelemetryName.PowerW,
+                id="498da855-bac5-47e9-b83a-a11e56a50e67",
+            ),
+            DataChannelGt(
+                name="hp-idu-pwr",
+                display_name="HP IDU Power",
+                about_node_name="hp-idu",
+                captured_by_node_name="primary-pwr-meter",
+                terminal_asset_alias="hw1.isone.me.versant.keene.beech.ta",
+                in_power_metering=True,
+                start_s=1704862800,
+                telemetry_name=TelemetryName.PowerW,
+                id="beabac86-7caa-4ab4-a50b-af1ad54ed165",
+            ),
+        ],
+        channel_reading_list=[
+            ChannelReadings(
+                channel_id="498da855-bac5-47e9-b83a-a11e56a50e67",
+                value_list=[26, 96, 196],
+                scada_read_time_unix_ms_list=[
+                    1708518800235,
+                    1708518808236,
+                    1708518809232,
+                ],
+            ),
+            ChannelReadings(
+                channel_id="beabac86-7caa-4ab4-a50b-af1ad54ed165",
+                value_list=[14],
+                scada_read_time_unix_ms_list=[1708518800235],
+            ),
+        ],
         fsm_action_list=[],
         fsm_report_list=[],
-        id=,
+        id="4dab57dd-8b4e-4ea4-90a3-d63df9eeb061",
     )
 
     d = {
-        "FromGNodeAlias": "dwtest.isone.ct.newhaven.orange1.ta.scada",
-        "FromGNodeInstanceId": "0384ef21-648b-4455-b917-58a1172d7fc1",
-        "AboutGNodeAlias": "dwtest.isone.ct.newhaven.orange1.ta",
-        "SlotStartUnixS": 1656945300,
-        "BatchedTransmissionPeriodS": 300,
-        "MessageCreatedMs": 1656945600044,
-        "DataChannelList": ,
-        "ChannelReadingList": [],
+        "FromGNodeAlias": "hw1.isone.me.versant.keene.beech.scada",
+        "FromGNodeInstanceId": "98542a17-3180-4f2a-a929-6023f0e7a106",
+        "AboutGNodeAlias": "hw1.isone.me.versant.keene.beech.ta",
+        "SlotStartUnixS": 1708518780,
+        "BatchedTransmissionPeriodS": 30,
+        "MessageCreatedMs": 1708518810017,
+        "DataChannelList": [
+            {
+                "Name": "hp-odu-pwr",
+                "DisplayName": "HP ODU Power",
+                "AboutNodeName": "hp-odu",
+                "CapturedByNodeName": "primary-pwr-meter",
+                "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
+                "InPowerMetering": True,
+                "StartS": 1704862800,
+                "Id": "498da855-bac5-47e9-b83a-a11e56a50e67",
+                "TypeName": "data.channel.gt",
+                "Version": "001",
+                "TelemetryNameGtEnumSymbol": "af39eec9",
+            },
+            {
+                "Name": "hp-idu-pwr",
+                "DisplayName": "HP IDU Power",
+                "AboutNodeName": "hp-idu",
+                "CapturedByNodeName": "primary-pwr-meter",
+                "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
+                "InPowerMetering": True,
+                "StartS": 1704862800,
+                "Id": "beabac86-7caa-4ab4-a50b-af1ad54ed165",
+                "TypeName": "data.channel.gt",
+                "Version": "001",
+                "TelemetryNameGtEnumSymbol": "af39eec9",
+            },
+        ],
+        "ChannelReadingList": [
+            {
+                "ChannelId": "498da855-bac5-47e9-b83a-a11e56a50e67",
+                "ValueList": [26, 96, 196],
+                "ScadaReadTimeUnixMsList": [
+                    1708518800235,
+                    1708518808236,
+                    1708518809232,
+                ],
+                "TypeName": "channel.readings",
+                "Version": "000",
+            },
+            {
+                "ChannelId": "beabac86-7caa-4ab4-a50b-af1ad54ed165",
+                "ValueList": [14],
+                "ScadaReadTimeUnixMsList": [1708518800235],
+                "TypeName": "channel.readings",
+                "Version": "000",
+            },
+        ],
         "FsmActionList": [],
         "FsmReportList": [],
-        "Id": ,
+        "Id": "4dab57dd-8b4e-4ea4-90a3-d63df9eeb061",
         "TypeName": "batched.readings",
         "Version": "000",
     }
@@ -61,62 +145,62 @@ def test_batched_readings_generated() -> None:
     # GwTypeError raised if missing a required attribute
     ######################################
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TypeName"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["FromGNodeAlias"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["FromGNodeInstanceId"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["AboutGNodeAlias"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["SlotStartUnixS"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["BatchedTransmissionPeriodS"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["MessageCreatedMs"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["DataChannelList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ChannelReadingList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["FsmActionList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["FsmReportList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["Id"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
@@ -137,51 +221,51 @@ def test_batched_readings_generated() -> None:
     with pytest.raises(ValidationError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, DataChannelList="Not a list.")
+    d2 = dict(d, DataChannelList="Not a list.")
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, DataChannelList=["Not a list of dicts"])
+    d2 = dict(d, DataChannelList=["Not a list of dicts"])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, DataChannelList= [{"Failed": "Not a GtSimpleSingleStatus"}])
+    d2 = dict(d, DataChannelList=[{"Failed": "Not a GtSimpleSingleStatus"}])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, ChannelReadingList="Not a list.")
+    d2 = dict(d, ChannelReadingList="Not a list.")
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, ChannelReadingList=["Not a list of dicts"])
+    d2 = dict(d, ChannelReadingList=["Not a list of dicts"])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, ChannelReadingList= [{"Failed": "Not a GtSimpleSingleStatus"}])
+    d2 = dict(d, ChannelReadingList=[{"Failed": "Not a GtSimpleSingleStatus"}])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmActionList="Not a list.")
+    d2 = dict(d, FsmActionList="Not a list.")
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmActionList=["Not a list of dicts"])
+    d2 = dict(d, FsmActionList=["Not a list of dicts"])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmActionList= [{"Failed": "Not a GtSimpleSingleStatus"}])
+    d2 = dict(d, FsmActionList=[{"Failed": "Not a GtSimpleSingleStatus"}])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmReportList="Not a list.")
+    d2 = dict(d, FsmReportList="Not a list.")
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmReportList=["Not a list of dicts"])
+    d2 = dict(d, FsmReportList=["Not a list of dicts"])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2  = dict(d, FsmReportList= [{"Failed": "Not a GtSimpleSingleStatus"}])
+    d2 = dict(d, FsmReportList=[{"Failed": "Not a GtSimpleSingleStatus"}])
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 

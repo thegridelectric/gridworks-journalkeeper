@@ -6,35 +6,35 @@ Python pydantic class corresponding to json type `gt.sh.status`, version `110`.
     :members:
 
 **FromGNodeAlias**:
-    - Description: 
+    - Description:
     - Format: LeftRightDot
 
 **FromGNodeId**:
-    - Description: 
+    - Description:
     - Format: UuidCanonicalTextual
 
 **AboutGNodeAlias**:
-    - Description: 
+    - Description:
     - Format: LeftRightDot
 
 **SlotStartUnixS**:
-    - Description: 
+    - Description:
     - Format: ReasonableUnixTimeS
 
 **ReportingPeriodS**:
-    - Description: 
+    - Description:
 
 **SimpleTelemetryList**:
-    - Description: 
+    - Description:
 
 **MultipurposeTelemetryList**:
-    - Description: 
+    - Description:
 
 **BooleanactuatorCmdList**:
-    - Description: 
+    - Description:
 
 **StatusUid**:
-    - Description: 
+    - Description:
     - Format: UuidCanonicalTextual
 
 **TypeName**:
@@ -59,4 +59,3 @@ Python pydantic class corresponding to json type `gt.sh.status`, version `110`.
 
 .. autoclass:: gjk.types.GtShStatus_Maker
     :members:
-

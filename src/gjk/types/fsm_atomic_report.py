@@ -2,26 +2,20 @@
 
 import json
 import logging
-from typing import Any
-from typing import Dict
-from typing import Literal
-from typing import Optional
+import os
+from typing import Any, Dict, Literal, Optional
 
+import dotenv
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case
-from gw.utils import pascal_to_snake
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import field_validator
-from pydantic import model_validator
+from gw.utils import is_pascal_case, pascal_to_snake, snake_to_pascal
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing_extensions import Self
 
-from gjk.enums import FsmActionType
-from gjk.enums import FsmEventType
-from gjk.enums import FsmName
-from gjk.enums import FsmReportType
+from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 
+dotenv.load_dotenv()
+
+ENCODE_ENUMS = int(os.getenv("ENUM_ENCODE", "1"))
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
@@ -109,31 +103,36 @@ class FsmAtomicReport(BaseModel):
         alias_generator = snake_to_pascal
 
     @field_validator("from_handle")
+    @classmethod
     def _check_from_handle(cls, v: str) -> str:
         try:
             check_is_spaceheat_name(v)
         except ValueError as e:
-            raise ValueError(f"FromHandle failed SpaceheatName format validation: {e}")
+            raise ValueError(
+                f"FromHandle failed SpaceheatName format validation: {e}"
+            ) from e
         return v
 
     @field_validator("unix_time_ms")
+    @classmethod
     def _check_unix_time_ms(cls, v: int) -> int:
         try:
             check_is_reasonable_unix_time_ms(v)
         except ValueError as e:
             raise ValueError(
-                f"UnixTimeMs failed ReasonableUnixTimeMs format validation: {e}"
-            )
+                f"UnixTimeMs failed ReasonableUnixTimeMs format validation: {e}",
+            ) from e
         return v
 
     @field_validator("trigger_id")
+    @classmethod
     def _check_trigger_id(cls, v: str) -> str:
         try:
             check_is_uuid_canonical_textual(v)
         except ValueError as e:
             raise ValueError(
-                f"TriggerId failed UuidCanonicalTextual format validation: {e}"
-            )
+                f"TriggerId failed UuidCanonicalTextual format validation: {e}",
+            ) from e
         return v
 
     @model_validator(mode="after")
@@ -165,19 +164,34 @@ class FsmAtomicReport(BaseModel):
 
     def as_dict(self) -> Dict[str, Any]:
         """
-        Translate the object into a dictionary representation that can be serialized into a
-        fsm.atomic.report.000 object.
+        Main step in serializing the object. Encodes enums as their 8-digit random hex symbol if
+        settings.encode_enums = 1.
+        """
+        if ENCODE_ENUMS:
+            return self.enum_encoded_dict()
+        else:
+            return self.plain_enum_dict()
 
-        This method prepares the object for serialization by the as_type method, creating a
-        dictionary with key-value pairs that follow the requirements for an instance of the
-        fsm.atomic.report.000 type. Unlike the standard python dict method,
-        it makes the following substantive changes:
-        - Enum Values: Translates between the values used locally by the actor to the symbol
-        sent in messages.
-        - Removes any key-value pairs where the value is None for a clearer message, especially
-        in cases with many optional attributes.
+    def plain_enum_dict(self) -> Dict[str, Any]:
+        """
+        Returns enums as their values.
+        """
+        d = {
+            snake_to_pascal(key): value
+            for key, value in self.model_dump().items()
+            if value is not None
+        }
+        d["AboutFsm"] = d["AboutFsm"].value
+        d["ReportType"] = d["ReportType"].value
+        if "ActionType" in d.keys():
+            d["ActionType"] = d["ActionType"].value
+        if "EventType" in d.keys():
+            d["EventType"] = d["EventType"].value
+        return d
 
-        It also applies these changes recursively to sub-types.
+    def enum_encoded_dict(self) -> Dict[str, Any]:
+        """
+        Encodes enums as their 8-digit random hex symbol
         """
         d = {
             snake_to_pascal(key): value
@@ -190,32 +204,20 @@ class FsmAtomicReport(BaseModel):
         d["ReportTypeGtEnumSymbol"] = FsmReportType.value_to_symbol(self.report_type)
         if "ActionType" in d.keys():
             del d["ActionType"]
-            d["ActionTypeGtEnumSymbol"] = FsmActionType.value_to_symbol(self.ActionType)
+            d["ActionTypeGtEnumSymbol"] = FsmActionType.value_to_symbol(
+                self.action_type
+            )
         if "EventType" in d.keys():
             del d["EventType"]
-            d["EventTypeGtEnumSymbol"] = FsmEventType.value_to_symbol(self.EventType)
+            d["EventTypeGtEnumSymbol"] = FsmEventType.value_to_symbol(self.event_type)
         return d
 
     def as_type(self) -> bytes:
         """
-        Serialize to the fsm.atomic.report.000 representation.
+        Serialize to the fsm.atomic.report.000 representation designed to send in a message.
 
-        Instances in the class are python-native representations of fsm.atomic.report.000
-        objects, while the actual fsm.atomic.report.000 object is the serialized UTF-8 byte
-        string designed for sending in a message.
-
-        This method calls the as_dict() method, which differs from the native python dict()
-        in the following key ways:
-        - Enum Values: Translates between the values used locally by the actor to the symbol
-        sent in messages.
-        - - Removes any key-value pairs where the value is None for a clearer message, especially
-        in cases with many optional attributes.
-
-        It also applies these changes recursively to sub-types.
-
-        Its near-inverse is FsmAtomicReport.type_to_tuple(). If the type (or any sub-types)
-        includes an enum, then the type_to_tuple will map an unrecognized symbol to the
-        default enum value. This is why these two methods are only 'near' inverses.
+        Recursively encodes enums as hard-to-remember 8-digit random hex symbols
+        unless settings.encode_enums is set to 0.
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
@@ -224,7 +226,7 @@ class FsmAtomicReport(BaseModel):
         return hash((type(self),) + tuple(self.__dict__.values()))  # noqa
 
 
-class FsmAtomicReport_Maker:
+class FsmAtomicReportMaker:
     type_name = "fsm.atomic.report"
     version = "000"
 
@@ -236,41 +238,32 @@ class FsmAtomicReport_Maker:
         return tuple.as_type()
 
     @classmethod
-    def type_to_tuple(cls, t: bytes) -> FsmAtomicReport:
+    def type_to_tuple(cls, b: bytes) -> FsmAtomicReport:
         """
-        Given a serialized JSON type object, returns the Python class object.
+        Given the bytes in a message, returns the corresponding class object.
+
+        Args:
+            b (bytes): candidate type instance
+
+        Raises:
+           GwTypeError: if the bytes are not a fsm.atomic.report.000 type
+
+        Returns:
+            FsmAtomicReport instance
         """
         try:
-            d = json.loads(t)
-        except TypeError:
-            raise GwTypeError("Type must be string or bytes!")
+            d = json.loads(b)
+        except TypeError as e:
+            raise GwTypeError("Type must be string or bytes!") from e
         if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing <{t}> must result in dict!")
+            raise GwTypeError(f"Deserializing  must result in dict!\n <{b}>")
         return cls.dict_to_tuple(d)
 
     @classmethod
     def dict_to_tuple(cls, d: dict[str, Any]) -> FsmAtomicReport:
         """
-        Deserialize a dictionary representation of a fsm.atomic.report.000 message object
-        into a FsmAtomicReport python object for internal use.
-
-        This is the near-inverse of the FsmAtomicReport.as_dict() method:
-          - Enums: translates between the symbols sent in messages between actors and
-        the values used by the actors internally once they've deserialized the messages.
-          - Types: recursively validates and deserializes sub-types.
-
-        Note that if a required attribute with a default value is missing in a dict, this method will
-        raise a GwTypeError. This differs from the pydantic BaseModel practice of auto-completing
-        missing attributes with default values when they exist.
-
-        Args:
-            d (dict): the dictionary resulting from json.loads(t) for a serialized JSON type object t.
-
-        Raises:
-           GwTypeError: if the dict cannot be turned into a FsmAtomicReport object.
-
-        Returns:
-            FsmAtomicReport
+        Translates a dict representation of a fsm.atomic.report.000 message object
+        into the Python class object.
         """
         for key in d.keys():
             if not is_pascal_case(key):
@@ -278,20 +271,46 @@ class FsmAtomicReport_Maker:
         d2 = dict(d)
         if "FromHandle" not in d2.keys():
             raise GwTypeError(f"dict missing FromHandle: <{d2}>")
-        if "AboutFsmGtEnumSymbol" not in d2.keys():
-            raise GwTypeError(f"AboutFsmGtEnumSymbol missing from dict <{d2}>")
-        value = FsmName.symbol_to_value(d2["AboutFsmGtEnumSymbol"])
-        d2["AboutFsm"] = FsmName(value)
-        del d2["AboutFsmGtEnumSymbol"]
-        if "ReportTypeGtEnumSymbol" not in d2.keys():
-            raise GwTypeError(f"ReportTypeGtEnumSymbol missing from dict <{d2}>")
-        value = FsmReportType.symbol_to_value(d2["ReportTypeGtEnumSymbol"])
-        d2["ReportType"] = FsmReportType(value)
-        del d2["ReportTypeGtEnumSymbol"]
+        if "AboutFsmGtEnumSymbol" in d2.keys():
+            value = FsmName.symbol_to_value(d2["AboutFsmGtEnumSymbol"])
+            d2["AboutFsm"] = FsmName(value)
+            del d2["AboutFsmGtEnumSymbol"]
+        elif "AboutFsm" in d2.keys():
+            if d2["AboutFsm"] not in FsmName.values():
+                d2["AboutFsm"] = FsmName.default()
+            else:
+                d2["AboutFsm"] = FsmName(d2["AboutFsm"])
+        else:
+            raise GwTypeError(
+                f"both AboutFsmGtEnumSymbol and AboutFsm missing from dict <{d2}>",
+            )
+        if "ReportTypeGtEnumSymbol" in d2.keys():
+            value = FsmReportType.symbol_to_value(d2["ReportTypeGtEnumSymbol"])
+            d2["ReportType"] = FsmReportType(value)
+            del d2["ReportTypeGtEnumSymbol"]
+        elif "ReportType" in d2.keys():
+            if d2["ReportType"] not in FsmReportType.values():
+                d2["ReportType"] = FsmReportType.default()
+            else:
+                d2["ReportType"] = FsmReportType(d2["ReportType"])
+        else:
+            raise GwTypeError(
+                f"both ReportTypeGtEnumSymbol and ReportType missing from dict <{d2}>",
+            )
+        if "ActionType" in d2.keys():
+            if d2["ActionType"] not in FsmActionType.values():
+                d2["ActionType"] = FsmActionType.default()
+            else:
+                d2["ActionType"] = FsmActionType(d2["ActionType"])
         if "ActionTypeGtEnumSymbol" in d2.keys():
             value = FsmActionType.symbol_to_value(d2["ActionTypeGtEnumSymbol"])
             d2["ActionType"] = FsmActionType(value)
             del d2["ActionTypeGtEnumSymbol"]
+        if "EventType" in d2.keys():
+            if d2["EventType"] not in FsmEventType.values():
+                d2["EventType"] = FsmEventType.default()
+            else:
+                d2["EventType"] = FsmEventType(d2["EventType"])
         if "EventTypeGtEnumSymbol" in d2.keys():
             value = FsmEventType.symbol_to_value(d2["EventTypeGtEnumSymbol"])
             d2["EventType"] = FsmEventType(value)
@@ -324,8 +343,7 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
     Raises:
         ValueError: if v is not ReasonableUnixTimeMs format
     """
-    from datetime import datetime
-    from datetime import timezone
+    from datetime import datetime, timezone
 
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
@@ -343,8 +361,7 @@ def check_is_spaceheat_name(v: str) -> None:
     """Check SpaceheatName Format.
 
     Validates if the provided string adheres to the SpaceheatName format:
-    Lowercase words separated by periods, where word characters can be alphanumeric
-    or a hyphen, and the first word starts with an alphabet character.
+    Lowercase alphanumeric words separated by hypens
 
     Args:
         candidate (str): The string to be validated.
@@ -352,12 +369,10 @@ def check_is_spaceheat_name(v: str) -> None:
     Raises:
         ValueError: If the provided string is not in SpaceheatName format.
     """
-    from typing import List
-
     try:
-        x: List[str] = v.split(".")
-    except:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'.'")
+        x = v.split(".")
+    except Exception as e:
+        raise ValueError(f"Failed to seperate <{v}> into words with split'.'") from e
     first_word = x[0]
     first_char = first_word[0]
     if not first_char.isalpha():
@@ -389,14 +404,14 @@ def check_is_uuid_canonical_textual(v: str) -> None:
     try:
         x = v.split("-")
     except AttributeError as e:
-        raise ValueError(f"Failed to split on -: {e}")
+        raise ValueError(f"Failed to split on -: {e}") from e
     if len(x) != 5:
         raise ValueError(f"<{v}> split by '-' did not have 5 words")
     for hex_word in x:
         try:
             int(hex_word, 16)
-        except ValueError:
-            raise ValueError(f"Words of <{v}> are not all hex")
+        except ValueError as e:
+            raise ValueError(f"Words of <{v}> are not all hex") from e
     if len(x[0]) != 8:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
     if len(x[1]) != 4:

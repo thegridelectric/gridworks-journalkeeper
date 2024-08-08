@@ -43,4 +43,3 @@ Python pydantic class corresponding to json type `keyparam.change.log`, version 
 
 .. autoclass:: gjk.types.KeyparamChangeLog_Maker
     :members:
-

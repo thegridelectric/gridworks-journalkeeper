@@ -30,7 +30,7 @@ Right now it is focused on setting up the simplest usable form of storing the 20
 ### EC2 instance
 Elastic IP 3.221.195.180, key gridworks-hybrid
 
-Accessing locally: 
+Accessing locally:
 
 ```
 ssh ubuntu@journaldb.electricity.works

@@ -10,14 +10,14 @@ Python pydantic class corresponding to json type `telemetry.snapshot.spaceheat`,
     - Format: ReasonableUnixTimeMs
 
 **AboutNodeAliasList**:
-    - Description: AboutNodeAliases.The list of Spaceheat nodes in the snapshot. 
+    - Description: AboutNodeAliases.The list of Spaceheat nodes in the snapshot.
     - Format: LeftRightDot
 
 **ValueList**:
     - Description: ValueList.
 
 **TelemetryNameList**:
-    - Description: 
+    - Description:
 
 **TypeName**:
     - Description: All GridWorks Versioned Types have a fixed TypeName, which is a string of lowercase alphanumeric words separated by periods, most significant word (on the left) starting with an alphabet character, and final word NOT all Hindu-Arabic numerals.
@@ -37,4 +37,3 @@ Python pydantic class corresponding to json type `telemetry.snapshot.spaceheat`,
 
 .. autoclass:: gjk.types.TelemetrySnapshotSpaceheat_Maker
     :members:
-
