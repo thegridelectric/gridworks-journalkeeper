@@ -9,16 +9,19 @@ from gjk.models.reading import ReadingSql
 from gjk.models.scada import Scada
 from gjk.models.scada import ScadaSql
 from gjk.models.utils import bulk_insert_idempotent
-
+from gjk.models.nodal_hourly_energy import NodalHourlyEnergySql
+from gjk.models.nodal_hourly_energy import bulk_insert_nodal_hourly_energy
 
 __all__ = [
     "bulk_insert_idempotent",
     "bulk_insert_messages",
+    "bulk_insert_nodal_hourly_energy",
     "DataChannelSql",
     "Message",
     "MessageSql",
     "Scada",
     "ScadaSql",
     "Reading",
-    "ReadingSql"
+    "ReadingSql",
+    "NodalHourlyEnergySql",
 ]
