@@ -12,10 +12,34 @@ import pendulum
 import dotenv
 import os
 
-def add_to_hourly_energy_table(session, start:pendulum.DateTime=pendulum.now(), end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
+def add_to_hourly_energy_table(session, start:pendulum.DateTime=None, end:pendulum.DateTime=pendulum.now(), time_delta:int=10):
+    """
+    Computes hourly energy consumption within the specified timeframe from power data in the specified session.
+    Inserts the results into an `hourly_device_energy` table in the specified session.
 
+    Parameters:
+    - session: The database session from which the power data is read and to which the energy data will be inserted.
+    - start (pendulum.DateTime, optional): The start datetime for the period to compute energy. Defaults to None.
+    - end (pendulum.DateTime, optional): The end datetime for the period to compute energy. Defaults to the current time.
+    - time_delta (int, optional): If start is not specified, the number of hours prior to the end time to process. Defaults to 10 hours.
+
+    Returns:
+    - None: This function does not return any value. It performs an insert operation into the database.
+    """
+    
     # If there is no specified start time, use the time_delta
-    start = start if start.replace(microsecond=0)<end.replace(microsecond=0) else end.add(hours=-time_delta)
+    if start is None:
+        start = end.add(hours=-time_delta)   
+        if time_delta <=0:
+            raise ValueError("time_detla must be a positive integer")     
+
+    start = start.replace(minute=0, second=0, microsecond=0)
+    end = end.replace(minute=0, second=0, microsecond=0)
+
+    print(f"\nStart: {start}\nEnd: {end}\n")
+
+    if start >= end:
+        raise ValueError("The start time must be earlier than the end time.")
 
     # Record 0 Wh values in the energy table
     record_zeros = True
@@ -114,7 +138,6 @@ def add_to_hourly_energy_table(session, start:pendulum.DateTime=pendulum.now(), 
             id = f"{g_node}_{hour_start}_{channel_name}"
 
             if value > 0 or record_zeros:
-                print([id, hour_start, channel_name, value, g_node])
 
                 hourly_energy = HourlyEnergySql(
                         id = id,
@@ -124,6 +147,7 @@ def add_to_hourly_energy_table(session, start:pendulum.DateTime=pendulum.now(), 
                         g_node_alias = g_node)
                 
                 hourly_energy_list.append(hourly_energy)
+    print(f"\nSuccessfully created a list of {len(hourly_energy_list)} HourlyEnergySql objects to add to the database.\n")
 
     # Add the list to the database
     engine = create_engine('postgresql://thomas@localhost/thomas')
@@ -143,4 +167,4 @@ if __name__ == "__main__":
     start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
     end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
-    add_to_hourly_energy_table(session, start, end)
+    add_to_hourly_energy_table(session=session, start=start, end=end)
