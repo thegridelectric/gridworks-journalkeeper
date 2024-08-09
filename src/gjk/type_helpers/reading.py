@@ -1,4 +1,3 @@
-
 from gw.utils import snake_to_pascal
 from pydantic import BaseModel, field_validator
 

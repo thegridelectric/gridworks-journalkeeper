@@ -16,25 +16,32 @@ from gjk.models import (
 )
 
 
-def add_to_hourly_device_energy_table(
+def add_to_nodal_hourly_energy_table(
     session,
     start: pendulum.DateTime = None,
     end: pendulum.DateTime = pendulum.now(),
     time_delta: int = 10,
+    record_zeros: bool = True,
 ):
     """
     Computes hourly energy consumption within the specified timeframe from power data in the specified session.
-    Inserts the results into an `hourly_device_energy` table in the specified session.
+    Inserts the results into the `nodal_hourly_energy` table which tracks the device-by-device energy
+    use within a heat pump thermal storage terminal asset.
+
+    If the hour has negative energy, nothing is recorded
 
     Parameters:
     - session: The database session from which the power data is read and to which the energy data will be inserted.
     - start (pendulum.DateTime, optional): The start datetime for the period to compute energy. Defaults to None.
     - end (pendulum.DateTime, optional): The end datetime for the period to compute energy. Defaults to the current time.
     - time_delta (int, optional): If start is not specified, the number of hours prior to the end time to process. Defaults to 10 hours.
+    - record_zeros: if the hour has 0 energy, record this
 
     Returns:
     - None: This function does not return any value. It performs an insert operation into the database.
     """
+
+    floating_zero_power_watts = -2.5
 
     # If there is no specified start time, use the time_delta
     if start is None:
@@ -50,15 +57,9 @@ def add_to_hourly_device_energy_table(
     if start >= end:
         raise ValueError("The start time must be earlier than the end time.")
 
-    # Record 0 Wh values in the energy table
-    record_zeros = True
-
     # ------------------------------------------
     # Import power readings by channel
     # ------------------------------------------
-
-    saved_sql_channels = session.query(DataChannelSql).all()
-    saved_channel_ids = [channel.id for channel in saved_sql_channels]
 
     # Convert to Unix timestamp in milliseconds
     start_ms = int(start.timestamp() * 1000)
@@ -161,13 +162,15 @@ def add_to_hourly_device_energy_table(
             # Treat negative power values
             for i in range(len(powers_for_this_hour)):
                 if powers_for_this_hour[i] < 0:
-                    if powers_for_this_hour[i] > -2.5:
+                    if powers_for_this_hour[i] > floating_zero_power_watts:
                         powers_for_this_hour[i] = 0
                     else:
-                        # raise ValueError(f"The value for {channel.name} at time {times_for_this_hour[i]} is {powers_for_this_hour[i]} W")
                         print(
-                            f"The value for {channel.name} at time {times_for_this_hour[i]} is {powers_for_this_hour[i]} W"
+                            f"The value for {channel.name} at time {times_for_this_hour[i]} is "
+                            f" {powers_for_this_hour[i]} W. Assume the CT is backwards and making positive"
                         )
+                        powers_for_this_hour[i] = -powers_for_this_hour[i]
+                        # raise ValueError(f"The value for {channel.name} at time {times_for_this_hour[i]} is {powers_for_this_hour[i]} W")
 
             # Compute the energy for the given hour
             time_diff_hours = [
@@ -181,7 +184,7 @@ def add_to_hourly_device_energy_table(
                 ]),
                 2,
             )
-            energy_results[channel].append(0 if energy < 0 else energy)
+            energy_results[channel].append(energy)
 
     # ------------------------------------------
     # Add the results to the database
@@ -192,19 +195,17 @@ def add_to_hourly_device_energy_table(
 
     for h in range(num_hours):
         for channel in power_channels:
-            g_node = "d1.isone.ver.keene.beech"
-            channel_name = channel.name
+            ta_alias = channel.terminal_asset_alias
             hour_start = int(start.add(hours=h).timestamp())
             value = int(energy_results[channel][h])
-            id = f"{g_node}_{hour_start}_{channel_name}"
+            id = f"{channel.name}_{hour_start}_{ta_alias}"
 
             if value > 0 or record_zeros:
                 nodal_hourly_energy = NodalHourlyEnergySql(
                     id=id,
                     hour_start_s=hour_start,
-                    power_channel=channel_name,
+                    power_channel_id=channel.id,
                     watt_hours=value,
-                    g_node_alias=g_node,
                 )
 
                 nodal_hourly_energy_list.append(nodal_hourly_energy)
@@ -212,10 +213,6 @@ def add_to_hourly_device_energy_table(
         f"\nSuccessfully created a list of {len(nodal_hourly_energy_list)} NodalHourlyEnergySql objects to add to the database.\n"
     )
 
-    # Add the list to the database
-    engine = create_engine("postgresql://thomas@localhost/thomas")
-    Session = sessionmaker(bind=engine)
-    session = Session()
     bulk_insert_nodal_hourly_energy(session, nodal_hourly_energy_list)
 
 
@@ -229,4 +226,4 @@ if __name__ == "__main__":
     start = pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone)
     end = pendulum.datetime(2024, 2, 2, 20, 0, tz=timezone)
 
-    add_to_hourly_device_energy_table(session=session, start=start, end=end)
+    add_to_nodal_hourly_energy_table(session=session, start=start, end=end)

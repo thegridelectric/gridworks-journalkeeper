@@ -5,7 +5,6 @@ from gjk.enums import TelemetryName
 from gjk.models import NodalHourlyEnergySql
 from gjk.type_helpers.utils import (
     check_is_reasonable_unix_time_s,
-    check_is_uuid_canonical_textual,
 )
 from gjk.types.data_channel_gt import DataChannelGt
 
@@ -23,12 +22,8 @@ class NodalHourlyEnergy(BaseModel):
     @field_validator("id")
     @classmethod
     def _check_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"id failed UuidCanonicalTextual format validation: {e}"
-            ) from e
+        # To do: validate this format:
+        # f"{channel.name}_{hour_start}_{g_node}"
         return v
 
     @field_validator("hour_start_s")
