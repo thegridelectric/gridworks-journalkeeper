@@ -1,0 +1,136 @@
+{
+  "gtr_asl": "001",
+  "type_name": "batched.readings",
+  "version": "000",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "Batched Readings. A collection of telemetry readings sent up in periodic reports from a SCADA to an AtomicTNode. These are organized into data channels (a triple of TelemetryName, AboutNode, and CapturedByNode).",
+  "properties": {
+    "FromGNodeAlias": {
+      "type": "string",
+      "format": "LeftRightDot",
+      "title": "",
+      "required": true
+    },
+    "FromGNodeInstanceId": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "",
+      "required": true
+    },
+    "AboutGNodeAlias": {
+      "type": "string",
+      "format": "LeftRightDot",
+      "title": "",
+      "required": true
+    },
+    "SlotStartUnixS": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeS",
+      "title": "",
+      "required": true
+    },
+    "BatchedTransmissionPeriodS": {
+      "type": "integer",
+      "format": "PositiveInteger",
+      "title": "",
+      "required": true
+    },
+    "MessageCreatedMs": {
+      "type": "integer",
+      "format": "ReasonableUnixTimeMs",
+      "title": "MessageCreatedMs",
+      "description": "The SCADA timestamp for when this message was created. If the message is not acked by the AtomicTNode, the message is stored and sent again later - so the MessageCreatedMs may occur significantly before the timestamp for when the message is put into the persistent store.",
+      "required": true
+    },
+    "DataChannelList": {
+      "type": "array",
+      "items": {
+        "type": "data.channel.gt.000"
+      },
+      "description": "The list of data channels for which there is data getting reported in this batched reading. It is a subset of all the data channels for the SCADA - may not be all of them.",
+      "required": true
+    },
+    "ChannelReadingList": {
+      "type": "array",
+      "items": {
+        "type": "channel.readings.000"
+      },
+      "required": true
+    },
+    "FsmActionList": {
+      "type": "array",
+      "items": {
+        "type": "fsm.atomic.report.000"
+      },
+      "description": "FSM Actions (that is, side-effects of state machine transitions with real-world changes to the underlying TerminalAsset).",
+      "required": true
+    },
+    "FsmReportList": {
+      "type": "array",
+      "items": {
+        "type": "fsm.full.report.000"
+      },
+      "description": "FSM Reports are the cacading events, actions and transitions caused by a single high-level event. There is duplication with the action list.",
+      "required": true
+    },
+    "Id": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "Batched Reading Id",
+      "description": "Globally Unique identifier for a BatchedReadings message",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "batched.readings",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "000",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom1": {
+      "title": "Each of the fsm.atomic.reports in this list must be actions (i.e. IsAction = true).",
+      "description": ""
+    },
+    "Axiom2": {
+      "title": "DataChannel Consistency",
+      "description": "There is a bijection between the DataChannelLists and ChannelReadingLists via the ChannelId."
+    },
+    "Axiom3": {
+      "title": "Time Consistency",
+      "description": "For every ScadaReadTimeUnixMs let read_s = read_ms / 1000. Let start_s be SlotStartUnixS. Then read_s >= start_s and start_s + BatchedTransmissionPeriodS + 1 + start_s > read_s."
+    }
+  },
+  "formats": {
+    "ReasonableUnixTimeS": {
+      "type": "string",
+      "description": "Integer reflecting unix time seconds between 1970 and 3000",
+      "example": ""
+    },
+    "UuidCanonicalTextual": {
+      "type": "string",
+      "description": "A string of hex words separated by hyphens of length 8-4-4-4-12.",
+      "example": "652ba6b0-c3bf-4f06-8a80-6b9832d60a25"
+    },
+    "PositiveInteger": {
+      "type": "string",
+      "description": "Must be positive when interpreted as an integer. Interpretation as an integer follows the pydantic rules for this - which will round down rational numbers. So 1.7 will be interpreted as 1 and is also fine, while 0.5 is interpreted as 0 and will raise an exception.",
+      "example": ""
+    },
+    "LeftRightDot": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by periods, with the most significant word (on the left) starting with an alphabet character.",
+      "example": "dw1.isone.me.freedom.apple"
+    },
+    "ReasonableUnixTimeMs": {
+      "type": "string",
+      "description": "An integer reflecting unix time in MILLISECONDS between midnight Jan 1 2000 and midnight Jan 1 3000 UTC",
+      "example": "1702327940710"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "gtr_asl": "001",
+  "enum_name": "sh.fsm.action.type",
+  "enum_version": "000",
+  "description": "A list of the finite state machine Actions that a spaceheat node might take. An Action, in this context, is a side-effect of a state machine transition that impacts the real world (i.e., a relay is actuated).",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html",
+  "ssot": "https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmactiontype",
+  "values": ["RelayPinSet", "Analog010VSignalSet", "Analog420maSignalSet"],
+  "value_to_symbol": {
+    "RelayPinSet": "00000000",
+    "Analog010VSignalSet": "c487c5f8",
+    "Analog420maSignalSet": "11ad13a5"
+  },
+  "value_to_version": {
+    "RelayPinSet": "000",
+    "Analog010VSignalSet": "000",
+    "Analog420maSignalSet": "000"
+  },
+  "value_descriptions": {
+    "RelayPinSet": "",
+    "Analog010VSignalSet": "",
+    "Analog420maSignalSet": ""
+  },
+  "default_value": "RelayPinSet"
+}

@@ -1,0 +1,63 @@
+{
+  "gtr_asl": "001",
+  "type_name": "gt.sh.booleanactuator.cmd.status",
+  "version": "101",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": "Boolean  Actuator Driver Command Status Package. This is a subtype of the status message sent from a SCADA to its AtomicTNode. It contains a list of all the commands that a particular boolean actuator actor has reported as sending as actuation commands to its driver in the last transmission period (typically 5 minutes).",
+  "url": "https://gridworks.readthedocs.io/en/latest/relay-state.html",
+  "properties": {
+    "ShNodeName": {
+      "type": "string",
+      "format": "LeftRightDot",
+      "title": "SpaceheatNodeAlias",
+      "description": "The alias of the spaceheat node that is getting actuated. For example, `a.elt1.relay` would likely indicate the relay for a resistive element.",
+      "required": true
+    },
+    "RelayStateCommandList": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "This is only intended for use for relays where the two states are either closing a circuit so that power is on ( '1') or opening it ('0').",
+      "required": true
+    },
+    "CommandTimeUnixMsList": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "format": "ReasonableUnixTimeMs",
+      "title": "List of Command Times",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "gt.sh.booleanactuator.cmd.status",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "101",
+      "required": true
+    }
+  },
+  "axioms": {
+    "Axiom": {
+      "title": "RelayStateCommandLIst must be all 0s and 1s.",
+      "description": ""
+    }
+  },
+  "formats": {
+    "SpaceheatName": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by hypens, where first word starts with an alphabet character.",
+      "example": "store-hot-pipe"
+    },
+    "ReasonableUnixTimeMs": {
+      "type": "string",
+      "description": "An integer reflecting unix time in MILLISECONDS between midnight Jan 1 2000 and midnight Jan 1 3000 UTC",
+      "example": "1702327940710"
+    }
+  }
+}

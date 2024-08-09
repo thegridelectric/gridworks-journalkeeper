@@ -1,1 +1,1 @@
-"""Test suite for the gwp package."""
+"""Test suite for the gjk package."""

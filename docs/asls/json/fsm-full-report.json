@@ -1,0 +1,55 @@
+{
+  "gtr_asl": "001",
+  "type_name": "fsm.full.report",
+  "version": "000",
+  "owner": "gridworks@gridworks-consulting.com",
+  "description": ". There will be cascading events, actions and transitions that will naturally follow a single high-level event. This message is designed to encapsulate all of those.",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html",
+  "properties": {
+    "FromName": {
+      "type": "string",
+      "format": "SpaceheatName",
+      "title": "From Name",
+      "description": "The name (not the handle, so immutable) of the Node issuing the report. This will typically be the scada node itself.",
+      "required": true
+    },
+    "TriggerId": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "TriggerId",
+      "description": "Reference uuid for the triggering event that started the cascade of side-effect actions, events and transitions captured in this report",
+      "required": true
+    },
+    "AtomicList": {
+      "type": "array",
+      "items": {
+        "type": "fsm.atomic.report.000"
+      },
+      "description": "The list of cascading events, transitions and actions triggered by a single high-level event in a hierarchical finite state machine.",
+      "required": true
+    },
+    "TypeName": {
+      "type": "string",
+      "value": "fsm.full.report",
+      "title": "The type name"
+    },
+    "Version": {
+      "type": "string",
+      "title": "The type version",
+      "default": "000",
+      "required": true
+    }
+  },
+  "formats": {
+    "UuidCanonicalTextual": {
+      "type": "string",
+      "description": "A string of hex words separated by hyphens of length 8-4-4-4-12.",
+      "example": "652ba6b0-c3bf-4f06-8a80-6b9832d60a25"
+    },
+    "SpaceheatName": {
+      "type": "string",
+      "description": "Lowercase alphanumeric words separated by hypens, where first word starts with an alphabet character.",
+      "example": "store-hot-pipe"
+    }
+  }
+}

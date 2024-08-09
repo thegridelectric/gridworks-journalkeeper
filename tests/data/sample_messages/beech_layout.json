@@ -1,0 +1,1310 @@
+{
+  "Ads111xBasedCacs": [
+    {
+      "AdsI2cAddressList": [
+        "0x4b",
+        "0x49",
+        "0x48"
+      ],
+      "ComponentAttributeClassId": "432073b8-4d2b-4e36-9229-73893f33f846",
+      "DisplayName": "GridWorks 12-Channel Ads-1115 based I2c Temp Sensor",
+      "MakeModelGtEnumSymbol": "bb31d136",
+      "MinPollPeriodMs": 200,
+      "TelemetryNameList": [
+        "c89d0ba1",
+        "0f627faa"
+      ],
+      "TotalTerminalBlocks": 12,
+      "TypeName": "ads111x.based.cac.gt",
+      "Version": "000"
+    }
+  ],
+  "Ads111xBasedComponents": [
+    {
+      "ComponentAttributeClassId": "432073b8-4d2b-4e36-9229-73893f33f846",
+      "ComponentId": "dfbb257e-a851-437b-b9af-55f948f7d4af",
+      "ConfigList": [
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "dist-swt",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "dist-rwt",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "hp-lwt",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "hp-ewt",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "store-hot-pipe-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "store-cold-pipe-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "buffer-hot-pipe-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "buffer-cold-pipe-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 500,
+          "CapturePeriodS": 60,
+          "ChannelName": "oat",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": false,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 5,
+          "ChannelName": "zone2-upstairs-gw-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": false,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 5,
+          "ChannelName": "zone1-downstairs-gw-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 250,
+          "CapturePeriodS": 60,
+          "ChannelName": "buffer-well-temp",
+          "Exponent": 3,
+          "PollPeriodMs": 200,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec14bd47",
+          "Version": "000"
+        }
+      ],
+      "DisplayName": "GridWorks 12-Channel Ads-1115 based I2c Temp Sensor",
+      "OpenVoltageByAds": [
+        4.95,
+        4.95,
+        4.95
+      ],
+      "ThermistorConfigList": [
+        {
+          "ChannelName": "dist-swt",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 1,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "dist-rwt",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 2,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "hp-lwt",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 3,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "hp-ewt",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 4,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "store-hot-pipe-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 5,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "store-cold-pipe-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 6,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "buffer-hot-pipe-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 7,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "buffer-cold-pipe-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 8,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "oat",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 9,
+          "ThermistorMakeModelGtEnumSymbol": "46f21cd5",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "zone2-upstairs-gw-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 10,
+          "ThermistorMakeModelGtEnumSymbol": "46f21cd5",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "zone1-downstairs-gw-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 11,
+          "ThermistorMakeModelGtEnumSymbol": "46f21cd5",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        },
+        {
+          "ChannelName": "buffer-well-temp",
+          "DataProcessingDescription": "Using beta of 3977",
+          "DataProcessingMethodGtEnumSymbol": "00000000",
+          "TerminalBlockIdx": 12,
+          "ThermistorMakeModelGtEnumSymbol": "652abfd6",
+          "TypeName": "thermistor.data.processing.config",
+          "Version": "000"
+        }
+      ],
+      "TypeName": "ads111x.based.component.gt",
+      "Version": "000"
+    }
+  ],
+  "DataChannels": [
+    {
+      "AboutNodeName": "h.iso-valve-relay",
+      "CapturedByNodeName": "h.krida-multiplexer",
+      "DisplayName": "Iso Valve Relay",
+      "Id": "56834ea0-ea50-49c9-b61d-1f6ab7d0fc37",
+      "Name": "iso-valve-relay-energization",
+      "TelemetryNameGtEnumSymbol": "5a71d4b3",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "h.chg-dschg-valve-relay",
+      "CapturedByNodeName": "h.krida-multiplexer",
+      "DisplayName": "Charge DisCharge Relay",
+      "Id": "e40b2598-e5fe-4911-bfd6-0fc019b22008",
+      "Name": "chg-dschg-valve-relay-energization",
+      "TelemetryNameGtEnumSymbol": "5a71d4b3",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "h.hp-failsafe-relay",
+      "CapturedByNodeName": "h.krida-multiplexer",
+      "DisplayName": "HP Failsafe Relay",
+      "Id": "4796cfa1-552b-4101-a556-616048de87a3",
+      "Name": "hp-failsafe-relay-energization",
+      "TelemetryNameGtEnumSymbol": "5a71d4b3",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "h.hp-scada-ops-relay",
+      "CapturedByNodeName": "h.krida-multiplexer",
+      "DisplayName": "HP SCADA Ops Relay",
+      "Id": "8be2eff6-0cc7-4b79-9993-765075eede88",
+      "Name": "hp-scada-ops-relay-energization",
+      "TelemetryNameGtEnumSymbol": "5a71d4b3",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "h.aquastat-ctrl-relay",
+      "CapturedByNodeName": "h.krida-multiplexer",
+      "DisplayName": "HP Aquastat Control Relay",
+      "Id": "46964e67-26e9-470d-809a-2e21fdc35c01",
+      "Name": "aquastat-ctrl-relay-energization",
+      "TelemetryNameGtEnumSymbol": "5a71d4b3",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "hp-odu",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "HP ODU Power",
+      "Id": "be212973-ad16-49c3-87e3-677f1e028e34",
+      "Name": "hp-odu-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "hp-idu",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "HP IDU Power",
+      "Id": "598e0929-ec4e-4faf-a4c8-ee949897a567",
+      "Name": "hp-idu-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "primary-pump",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "Primary Pump Power",
+      "Id": "b2365476-8347-41da-8826-1e647d87fc8b",
+      "Name": "primary-pump-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "dist-pump",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "Dist Pump Power",
+      "Id": "9b8ee34c-d571-44ea-b80b-3cf089f9028b",
+      "Name": "dist-pump-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "store-pump",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "Store Pump Power",
+      "Id": "19af044a-4481-4493-b5ad-91c35e48f5f6",
+      "Name": "store-pump-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "oil-boiler",
+      "CapturedByNodeName": "s.power-meter",
+      "DisplayName": "oil-boiler Power",
+      "Id": "c23a17eb-19f1-40b6-adbe-fe22a74b8eb8",
+      "Name": "oil-boiler-pwr",
+      "TelemetryNameGtEnumSymbol": "af39eec9",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "dist-sw",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Dist Feed Water Temperature",
+      "Id": "6245cbb5-5587-4d91-871c-e673df76b3f0",
+      "Name": "dist-swt",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "dist-rw",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Dist Return Water Temperature",
+      "Id": "f0cbd8e2-5902-4535-98bd-6d01234cbd71",
+      "Name": "dist-rwt",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "hp-lw",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Heat Pump Leaving Water Temperature",
+      "Id": "1f4793fc-f147-4d6e-a506-fe494a375c37",
+      "Name": "hp-lwt",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "hp-ew",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Heat Pump Entering Water Temperature",
+      "Id": "8a902da6-f14e-49d7-8f93-f8114a5fbf22",
+      "Name": "hp-ewt",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "store-hot-pipe",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Store Hot Pipe Temperature",
+      "Id": "0c36ca0e-4261-4500-bbf6-8a91f0e4eaad",
+      "Name": "store-hot-pipe-temp",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "store-cold-pipe",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Store Cold Pipe Temperature",
+      "Id": "47c26e1c-db68-46fb-9eeb-69a9ca92bdb0",
+      "Name": "store-cold-pipe-temp",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "buffer-hot-pipe",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Buffer Hot Pipe Temperature",
+      "Id": "455a2511-1a4a-4ea0-bc16-232858c73eef",
+      "Name": "buffer-hot-pipe-temp",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "buffer-cold-pipe",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Buffer Cold Pipe Temperature",
+      "Id": "402b0479-8592-46e2-ae67-79942e070881",
+      "Name": "buffer-cold-pipe-temp",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "oat",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Outside Air Temp Temperature",
+      "Id": "0b3857ed-0ac7-4af1-844c-6ae8fcc3c873",
+      "Name": "oat",
+      "TelemetryNameGtEnumSymbol": "0f627faa",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "zone2-upstairs",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Zone 2 Gw Temp sensor Temperature",
+      "Id": "616767c0-185c-4882-9178-22176fa9475b",
+      "Name": "zone2-upstairs-gw-temp",
+      "TelemetryNameGtEnumSymbol": "0f627faa",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "zone1-downstairs",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Zone 1 Gw Temp Temperature",
+      "Id": "1a718363-c443-4b8a-b4da-f018f96aa8bc",
+      "Name": "zone1-downstairs-gw-temp",
+      "TelemetryNameGtEnumSymbol": "0f627faa",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "buffer-well-temp",
+      "CapturedByNodeName": "s.temp-sensor",
+      "DisplayName": "Buffer Well Temp Temperature",
+      "Id": "3d9527dd-747b-48c6-9495-2af9c9120af3",
+      "Name": "buffer-well-temp",
+      "TelemetryNameGtEnumSymbol": "c89d0ba1",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "store-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "store-flow",
+      "Id": "76c97481-26ff-4d45-9fae-aec9baf0721c",
+      "Name": "store-flow",
+      "TelemetryNameGtEnumSymbol": "d70cce28",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "dist-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "dist-flow",
+      "Id": "e9eecf5e-e8c0-480d-9f44-0aa84ff5f9c5",
+      "Name": "dist-flow",
+      "TelemetryNameGtEnumSymbol": "d70cce28",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "primary-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "primary-flow",
+      "Id": "d99db5ae-5730-477e-8805-3a575f1b3f9e",
+      "Name": "primary-flow",
+      "TelemetryNameGtEnumSymbol": "d70cce28",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "store-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "store-flow, totalized",
+      "Id": "4b72993e-a657-4142-b7c4-5e7d0df24ca7",
+      "Name": "store-flow-integrated",
+      "TelemetryNameGtEnumSymbol": "329a68c0",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "dist-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "dist-flow, totalized",
+      "Id": "dd131c3b-8fa1-429f-8658-ad7bce8ddd17",
+      "Name": "dist-flow-integrated",
+      "TelemetryNameGtEnumSymbol": "329a68c0",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    },
+    {
+      "AboutNodeName": "primary-flow",
+      "CapturedByNodeName": "s.flow-totalizer",
+      "DisplayName": "primary-flow, totalized",
+      "Id": "f3df9dff-6d50-4c9f-b8d8-32f5607b9a7c",
+      "Name": "primary-flow-integrated",
+      "TelemetryNameGtEnumSymbol": "329a68c0",
+      "TypeName": "data.channel.gt",
+      "Version": "000"
+    }
+  ],
+  "ElectricMeterCacs": [
+    {
+      "ComponentAttributeClassId": "739a6e32-bb9c-43bc-a28d-fb61be665522",
+      "DefaultBaud": 9600,
+      "DisplayName": "EGauge 4030",
+      "MakeModelGtEnumSymbol": "beb6d3fb",
+      "MinPollPeriodMs": 1000,
+      "PollPeriodMs": 1000,
+      "TelemetryNameList": [
+        "af39eec9",
+        "e0bb014b",
+        "bb6fdd59",
+        "ad19e79c",
+        "337b8659"
+      ],
+      "TypeName": "electric.meter.cac.gt",
+      "Version": "001"
+    }
+  ],
+  "ElectricMeterComponents": [
+    {
+      "ComponentAttributeClassId": "739a6e32-bb9c-43bc-a28d-fb61be665522",
+      "ComponentId": "dce5c63d-8a38-439e-88ac-dd5ad845e9ca",
+      "ConfigList": [
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 200,
+          "CapturePeriodS": 300,
+          "ChannelName": "hp-odu-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 50,
+          "CapturePeriodS": 300,
+          "ChannelName": "hp-idu-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 10,
+          "CapturePeriodS": 300,
+          "ChannelName": "primary-pump-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 10,
+          "CapturePeriodS": 300,
+          "ChannelName": "dist-pump-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 10,
+          "CapturePeriodS": 300,
+          "ChannelName": "store-pump-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 10,
+          "CapturePeriodS": 300,
+          "ChannelName": "oil-boiler-pwr",
+          "Exponent": 0,
+          "PollPeriodMs": 1000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "f459a9c3",
+          "Version": "000"
+        }
+      ],
+      "DisplayName": "eGauge6069.local",
+      "EgaugeIoList": [
+        {
+          "ChannelName": "hp-odu-pwr",
+          "InputConfig": {
+            "Address": 9006,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        },
+        {
+          "ChannelName": "hp-idu-pwr",
+          "InputConfig": {
+            "Address": 9000,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        },
+        {
+          "ChannelName": "primary-pump-pwr",
+          "InputConfig": {
+            "Address": 9012,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        },
+        {
+          "ChannelName": "dist-pump-pwr",
+          "InputConfig": {
+            "Address": 9010,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        },
+        {
+          "ChannelName": "store-pump-pwr",
+          "InputConfig": {
+            "Address": 9014,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        },
+        {
+          "ChannelName": "oil-boiler-pwr",
+          "InputConfig": {
+            "Address": 9016,
+            "Denominator": 1,
+            "Description": "change in value",
+            "Name": "",
+            "Type": "f32",
+            "TypeName": "egauge.register.config",
+            "Unit": "W",
+            "Version": "000"
+          },
+          "TypeName": "egauge.io",
+          "Version": "001"
+        }
+      ],
+      "HwUid": "BP01349",
+      "ModbusHost": "eGauge6069.local",
+      "ModbusPort": 502,
+      "TypeName": "electric.meter.component.gt",
+      "Version": "001"
+    }
+  ],
+  "I2cFlowTotalizerComponents": [
+    {
+      "ComponentAttributeClassId": "13d916dc-8764-4b16-b85d-b8ead3e2fc80",
+      "ComponentId": "b043bcdd-800c-471e-b681-105bf99b8db0",
+      "ConfigList": [
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 20,
+          "CapturePeriodS": 30,
+          "ChannelName": "store-flow",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "b4580361",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 5,
+          "CapturePeriodS": 30,
+          "ChannelName": "store-flow-integrated",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "8e123a26",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 20,
+          "CapturePeriodS": 30,
+          "ChannelName": "dist-flow",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "b4580361",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 5,
+          "CapturePeriodS": 30,
+          "ChannelName": "dist-flow-integrated",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "8e123a26",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 20,
+          "CapturePeriodS": 30,
+          "ChannelName": "primary-flow",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "b4580361",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 5,
+          "CapturePeriodS": 30,
+          "ChannelName": "primary-flow-integrated",
+          "Exponent": 2,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "8e123a26",
+          "Version": "000"
+        }
+      ],
+      "ConversionFactorList": [
+        1.34066,
+        1.34066,
+        1.34066
+      ],
+      "DisplayName": "GSCADA Atlas EZFLO I2c Pulse Counter Reader Component",
+      "I2cAddressList": [
+        100,
+        101,
+        102
+      ],
+      "PulseFlowMeterMakeModelList": [
+        "6a9541d9",
+        "39f97379",
+        "39f97379"
+      ],
+      "TypeName": "i2c.flow.totalizer.component.gt",
+      "Version": "000"
+    }
+  ],
+  "I2cMultichannelDtRelayComponents": [
+    {
+      "ComponentAttributeClassId": "29eab8b1-100f-4230-bb44-3a2fcba33cc3",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "ConfigList": [
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 1,
+          "CapturePeriodS": 300,
+          "ChannelName": "iso-valve-relay-energization",
+          "Exponent": 0,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec972387",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 1,
+          "CapturePeriodS": 300,
+          "ChannelName": "chg-dschg-valve-relay-energization",
+          "Exponent": 0,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec972387",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 1,
+          "CapturePeriodS": 300,
+          "ChannelName": "hp-failsafe-relay-energization",
+          "Exponent": 0,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec972387",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 1,
+          "CapturePeriodS": 300,
+          "ChannelName": "hp-scada-ops-relay-energization",
+          "Exponent": 0,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec972387",
+          "Version": "000"
+        },
+        {
+          "AsyncCapture": true,
+          "AsyncCaptureDelta": 1,
+          "CapturePeriodS": 300,
+          "ChannelName": "aquastat-ctrl-relay-energization",
+          "Exponent": 0,
+          "PollPeriodMs": 5000,
+          "TypeName": "channel.config",
+          "UnitGtEnumSymbol": "ec972387",
+          "Version": "000"
+        }
+      ],
+      "DisplayName": "GSCADA double 16-pin Krida I2c Relay boards, as component",
+      "I2cAddressList": [
+        32,
+        33
+      ],
+      "RelayConfigList": [
+        {
+          "ActorName": "h.iso-valve-relay",
+          "DeEnergizingEvent": "OpenValve",
+          "EventTypeGtEnumSymbol": "c234ee7a",
+          "RelayIdx": 3,
+          "TypeName": "relay.actor.config",
+          "Version": "000",
+          "WiringConfigGtEnumSymbol": "63f5da41"
+        },
+        {
+          "ActorName": "h.chg-dschg-valve-relay",
+          "DeEnergizingEvent": "Discharge",
+          "EventTypeGtEnumSymbol": "1efc9909",
+          "RelayIdx": 4,
+          "TypeName": "relay.actor.config",
+          "Version": "000",
+          "WiringConfigGtEnumSymbol": "63f5da41"
+        },
+        {
+          "ActorName": "h.hp-failsafe-relay",
+          "DeEnergizingEvent": "SwitchToTankAquastat",
+          "EventTypeGtEnumSymbol": "50ea0661",
+          "RelayIdx": 5,
+          "TypeName": "relay.actor.config",
+          "Version": "000",
+          "WiringConfigGtEnumSymbol": "8b15ff3f"
+        },
+        {
+          "ActorName": "h.hp-scada-ops-relay",
+          "DeEnergizingEvent": "CloseRelay",
+          "EventTypeGtEnumSymbol": "00000000",
+          "RelayIdx": 6,
+          "TypeName": "relay.actor.config",
+          "Version": "000",
+          "WiringConfigGtEnumSymbol": "00000000"
+        },
+        {
+          "ActorName": "h.aquastat-ctrl-relay",
+          "DeEnergizingEvent": "SwitchToBoiler",
+          "EventTypeGtEnumSymbol": "0066a412",
+          "RelayIdx": 6,
+          "TypeName": "relay.actor.config",
+          "Version": "000",
+          "WiringConfigGtEnumSymbol": "8b15ff3f"
+        }
+      ],
+      "TypeName": "i2c.multichannel.dt.relay.component.gt",
+      "Version": "000"
+    }
+  ],
+  "MyAtomicTNodeGNode": {
+    "Alias": "hw1.isone.me.versant.keene.beech",
+    "DisplayName": "ATN GNode",
+    "GNodeId": "1fe0bf92-b57f-43bb-a976-d253ace6b3c7",
+    "GNodeStatusValue": "Active",
+    "PrimaryGNodeRoleAlias": "AtomicTNode"
+  },
+  "MyScadaGNode": {
+    "Alias": "hw1.isone.me.versant.keene.beech.scada",
+    "DisplayName": "Scada GNode",
+    "GNodeId": "bb60ea06-c2e9-464e-ba8f-531d6bb2a747",
+    "GNodeStatusValue": "Active",
+    "PrimaryGNodeRoleAlias": "Scada"
+  },
+  "MyTerminalAssetGNode": {
+    "Alias": "dummy.ta",
+    "DisplayName": "Dummy TerminalAsset",
+    "GNodeId": "ed826be7-945d-4feb-8c51-6a0f8a673d77",
+    "GNodeStatusValue": "Active",
+    "PrimaryGNodeRoleAlias": "TerminalAsset"
+  },
+  "OtherCacs": [
+    {
+      "ComponentAttributeClassId": "29eab8b1-100f-4230-bb44-3a2fcba33cc3",
+      "DisplayName": "GSCADA double 16-pin Krida I2c Relay boards",
+      "MakeModelGtEnumSymbol": "ff529d69",
+      "MinPollPeriodMs": 200,
+      "TypeName": "component.attribute.class.gt",
+      "Version": "001"
+    },
+    {
+      "ComponentAttributeClassId": "13d916dc-8764-4b16-b85d-b8ead3e2fc80",
+      "DisplayName": "GSCADA Atlas EZFLO I2c Pulse Counter Reader Component",
+      "MakeModelGtEnumSymbol": "d0b0e375",
+      "MinPollPeriodMs": 300,
+      "TypeName": "component.attribute.class.gt",
+      "Version": "001"
+    }
+  ],
+  "OtherComponents": [],
+  "ShNodes": [
+    {
+      "ActorClassGtEnumSymbol": "6d37aa41",
+      "DisplayName": "Keene Beech Scada",
+      "Handle": "h.s",
+      "Name": "s",
+      "ShNodeId": "a9346f14-36dc-4373-a2f0-a834e2a9e1dc",
+      "Strategy": "House0",
+      "TotalStoreTanks": 3,
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200",
+      "ZoneList": [
+        "Downstairs",
+        "Upstairs"
+      ]
+    },
+    {
+      "ActorClassGtEnumSymbol": "32d3d19f",
+      "DisplayName": "HomeAlone",
+      "Handle": "h",
+      "Name": "h",
+      "ShNodeId": "497f7e48-1837-47f8-9c81-710599c6509f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "2abcea3d",
+      "DisplayName": "George Special Home Alone Strategy",
+      "Handle": "h.gs",
+      "Name": "h.gs",
+      "ShNodeId": "93d61b28-a533-4b08-8911-f0501dd0f5e2",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "cdf7df88",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "Krida Board Multiplexer",
+      "Handle": "h.krida-multiplexer",
+      "Name": "h.krida-multiplexer",
+      "ShNodeId": "548ad8bc-8abe-4edb-ac49-2c7a6c8c5237",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "4d5f791b",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "Admin GNode",
+      "Handle": "h.admin",
+      "Name": "h.admin",
+      "ShNodeId": "fb5e28ca-c7a1-4ee5-9ebf-023fb93f368f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "49951f59",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "Iso Valve Relay",
+      "Handle": "h.admin.iso-valve-relay",
+      "Name": "h.iso-valve-relay",
+      "ShNodeId": "d16a2f40-c615-409a-a3a8-5e887de9c012",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "49951f59",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "Charge DisCharge Relay",
+      "Handle": "h.admin.chg-dschg-valve-relay",
+      "Name": "h.chg-dschg-valve-relay",
+      "ShNodeId": "2063d2eb-25a8-44f3-b19c-004809844952",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "49951f59",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "HP Failsafe Relay",
+      "Handle": "h.admin.hp-failsafe-relay",
+      "Name": "h.hp-failsafe-relay",
+      "ShNodeId": "7479f2dc-0473-4c41-9d5f-a23d7701c695",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "49951f59",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "HP SCADA Ops Relay",
+      "Handle": "h.admin.hp-scada-ops-relay",
+      "Name": "h.hp-scada-ops-relay",
+      "ShNodeId": "232f01cc-b615-4339-aaaf-0ad4b2a901c0",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "49951f59",
+      "ComponentId": "cadd18d8-29f4-4909-9fe6-143380093fd0",
+      "DisplayName": "HP Aquastat Control Relay",
+      "Handle": "h.admin.aquastat-ctrl-relay",
+      "Name": "h.aquastat-ctrl-relay",
+      "ShNodeId": "4ec0186c-2db1-418e-be67-ce5c2592d68a",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "2ea112b9",
+      "ComponentId": "dce5c63d-8a38-439e-88ac-dd5ad845e9ca",
+      "DisplayName": "Primary Power Meter",
+      "Name": "s.power-meter",
+      "ShNodeId": "aa87a75f-7ade-482c-93f3-a7664286a6fc",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Heat Pump Outdoor Unit",
+      "InPowerMetering": true,
+      "Name": "hp-odu",
+      "ShNodeId": "daa391c0-de8c-4a10-9353-6ddb5bb79fed",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Heat Pump Indoor Unit",
+      "InPowerMetering": true,
+      "Name": "hp-idu",
+      "ShNodeId": "837f07fb-9533-4980-8dd5-c7cc0ef9ad13",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Primary Pump",
+      "InPowerMetering": true,
+      "Name": "primary-pump",
+      "ShNodeId": "f8b8d3b0-b7a1-4298-b89f-a319ea93c480",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Dist Pump",
+      "InPowerMetering": false,
+      "Name": "dist-pump",
+      "ShNodeId": "f348629d-239b-40d9-a8f8-96ca20cf39aa",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Store Pump",
+      "InPowerMetering": false,
+      "Name": "store-pump",
+      "ShNodeId": "f54ce3e0-8704-40d3-b130-2d4284612cdb",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Oil Boiler",
+      "InPowerMetering": false,
+      "Name": "oil-boiler",
+      "ShNodeId": "240dbe3a-3684-44b2-86a0-f9d9ab41714f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "7c483ad0",
+      "ComponentId": "dfbb257e-a851-437b-b9af-55f948f7d4af",
+      "DisplayName": "GridWorks MultiTemp1",
+      "Name": "s.temp-sensor",
+      "ShNodeId": "2043d4f7-3dfa-4d65-b4d2-43ade10f250f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Dist Feed Water (Ch 1, TEWA__TT0P10KC3T1051500)",
+      "Name": "dist-sw",
+      "ShNodeId": "4ab09db9-aaa2-4d16-bbc4-0f807af2b97a",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Dist Return Water (Ch 2, TEWA__TT0P10KC3T1051500)",
+      "Name": "dist-rw",
+      "ShNodeId": "46ac854e-0ff3-4b12-81b0-41799be4514c",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Heat Pump Leaving Water (Ch 3, TEWA__TT0P10KC3T1051500)",
+      "Name": "hp-lw",
+      "ShNodeId": "81d9c08e-6329-4428-b47a-6e53f3c54c95",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Heat Pump Entering Water (Ch 4, TEWA__TT0P10KC3T1051500)",
+      "Name": "hp-ew",
+      "ShNodeId": "16ed0a16-a05c-4796-90eb-6191ebb2913f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Store Hot Pipe (Ch 5, TEWA__TT0P10KC3T1051500)",
+      "Name": "store-hot-pipe",
+      "ShNodeId": "148f3790-c4ec-4e09-a402-bf9b381c19f6",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Store Cold Pipe (Ch 6, TEWA__TT0P10KC3T1051500)",
+      "Name": "store-cold-pipe",
+      "ShNodeId": "37036f8a-2668-4599-a566-db9b334968dd",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Buffer Hot Pipe (Ch 7, TEWA__TT0P10KC3T1051500)",
+      "Name": "buffer-hot-pipe",
+      "ShNodeId": "ec3aa8d6-4db6-4f7d-ae59-3756798750e4",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Buffer Cold Pipe (Ch 8, TEWA__TT0P10KC3T1051500)",
+      "Name": "buffer-cold-pipe",
+      "ShNodeId": "6bf48373-00b5-4473-a05e-bd9816e4cc4f",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Outside Air Temp (Ch 9, AMPHENOL__NTC_10K_THERMISTOR_MA100GG103BN)",
+      "Name": "oat",
+      "ShNodeId": "641882f1-eca7-4a57-baef-1e9d25d709f9",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Zone 2 Gw Temp sensor (Ch 10, AMPHENOL__NTC_10K_THERMISTOR_MA100GG103BN)",
+      "Name": "zone2-upstairs",
+      "ShNodeId": "b0b6e2c8-e535-40ef-9497-df9e990dbe22",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Buffer Well Temp (Ch 12, TEWA__TT0P10KC3T1051500)",
+      "Name": "buffer-well-temp",
+      "ShNodeId": "f5ff66d5-9bd7-4f35-a432-9d3cf038f0b6",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "06b306e7",
+      "ComponentId": "b043bcdd-800c-471e-b681-105bf99b8db0",
+      "DisplayName": "GSCADA Atlas EZFLO I2c Pulse Counter Reader",
+      "Name": "s.flow-totalizer",
+      "ShNodeId": "47548ac1-268c-4ade-ab7d-3630b5f54e58",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Store Flow (PRMFILTRATION__WM075 on i2c 100)",
+      "Name": "store-flow",
+      "ShNodeId": "3e3340b9-7b75-4c3e-81ab-83d8c04028f1",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Dist Flow (OMEGA__FTB8010HWPT on i2c 101)",
+      "Name": "dist-flow",
+      "ShNodeId": "e1b1667f-2972-4b90-9be3-602f833a648a",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    },
+    {
+      "ActorClassGtEnumSymbol": "00000000",
+      "DisplayName": "Primary Flow (OMEGA__FTB8010HWPT on i2c 102)",
+      "Name": "primary-flow",
+      "ShNodeId": "71be9b7b-47c4-4462-8d22-309c397191f6",
+      "TypeName": "spaceheat.node.gt",
+      "Version": "200"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "gtr_asl": "001",
+  "enum_name": "sh.fsm.event.type",
+  "enum_version": "000",
+  "description": "The name of a set of events for a particular Spaceheat finite state machine.",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html",
+  "ssot": "https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmeventtype",
+  "values": ["ChangeRelayPin", "ChangeRelayState", "SetAnalog010V", "SetAnalog420mA", "ChangeValveState", "ChangeStoreFlowDirection", "ChangeHeatcallSource", "ChangeAquastatControl", "ChangeHeatPumpControl", "ChangeLgOperatingMode", "TimerFinished", "ChangePrimaryPumpState"],
+  "value_to_symbol": {
+    "ChangeRelayPin": "a2b691bb",
+    "ChangeRelayState": "00000000",
+    "SetAnalog010V": "bbef899f",
+    "SetAnalog420mA": "aa4b0c96",
+    "ChangeValveState": "c234ee7a",
+    "ChangeStoreFlowDirection": "1efc9909",
+    "ChangeHeatcallSource": "c5717e64",
+    "ChangeAquastatControl": "0066a412",
+    "ChangeHeatPumpControl": "50ea0661",
+    "ChangeLgOperatingMode": "89a98375",
+    "TimerFinished": "9e44ab43",
+    "ChangePrimaryPumpState": "d71c8c2a"
+  },
+  "value_to_version": {
+    "ChangeRelayPin": "000",
+    "ChangeRelayState": "000",
+    "SetAnalog010V": "000",
+    "SetAnalog420mA": "000",
+    "ChangeValveState": "000",
+    "ChangeStoreFlowDirection": "000",
+    "ChangeHeatcallSource": "000",
+    "ChangeAquastatControl": "000",
+    "ChangeHeatPumpControl": "000",
+    "ChangeLgOperatingMode": "000",
+    "TimerFinished": "000",
+    "ChangePrimaryPumpState": "000"
+  },
+  "value_descriptions": {
+    "ChangeRelayPin": "Meant to be used between a single relay actor and a multiplexer (for example, an i2c relay actor and an i2c relay multiplexer). The associated values are DeEnergized and Energized. Note that the multiplexer does not concern itself with the configuration of the relay (NormallyOpen, NormallyClosed, DoubleThrow). Instead, it just makes sure it is receiving a ChangeRelayPin command from one of its known relays.",
+    "ChangeRelayState": "Meant to be used for a relay whose RelayConfig is NormallyOpen or NormallyClosed (not DoubleThrow). Associated values are CloseRelay and OpenRelay - so it is meant to be a layer up in abstraction from sending energization/de-energization commands to the pin. The sender indeed does not need to know whether the relay is normally open or normally closed (although obviously the receiver must know).",
+    "SetAnalog010V": "",
+    "SetAnalog420mA": "",
+    "ChangeValveState": "",
+    "ChangeStoreFlowDirection": "",
+    "ChangeHeatcallSource": "",
+    "ChangeAquastatControl": "",
+    "ChangeHeatPumpControl": "",
+    "ChangeLgOperatingMode": "",
+    "TimerFinished": "",
+    "ChangePrimaryPumpState": ""
+  },
+  "default_value": "ChangeRelayState"
+}

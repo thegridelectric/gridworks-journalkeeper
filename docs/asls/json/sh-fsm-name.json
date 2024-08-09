@@ -1,0 +1,31 @@
+{
+  "gtr_asl": "001",
+  "enum_name": "sh.fsm.name",
+  "enum_version": "000",
+  "description": "The name of a specific Spaceheat finite state machine. That name is used as a literal enum for a set of staets.",
+  "url": "https://gridworks-protocol.readthedocs.io/en/latest/house-0.html",
+  "ssot": "https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmname",
+  "values": ["Unknown", "IsoValve", "StoreFlowDirection", "RelayState", "RelayPinState"],
+  "value_to_symbol": {
+    "Unknown": "00000000",
+    "IsoValve": "0cce8d12",
+    "StoreFlowDirection": "cfd57bec",
+    "RelayState": "1f560b73",
+    "RelayPinState": "1a3c9545"
+  },
+  "value_to_version": {
+    "Unknown": "000",
+    "IsoValve": "000",
+    "StoreFlowDirection": "000",
+    "RelayState": "000",
+    "RelayPinState": "000"
+  },
+  "value_descriptions": {
+    "Unknown": "",
+    "IsoValve": "Finite State Machine reflecting the state of the Iso Valve in a House 0 design",
+    "StoreFlowDirection": "",
+    "RelayState": "Finite State Machine for a normally open or normally closed relay whose states (Closed, Open) are enumerated by RelayClosedOrOpen.",
+    "RelayPinState": "Finite State Machine for a relay pin with states enumerated by RelayEnergizationState (Energized and DeEnergized)."
+  },
+  "default_value": "IsoValve"
+}
