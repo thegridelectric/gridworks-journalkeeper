@@ -28,21 +28,24 @@ on these ideas:
   - [GridWorks Enums](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [GridWorks Types](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
- """
+"""
 
 from gjk.enums.fsm_action_type import FsmActionType
 from gjk.enums.fsm_event_type import FsmEventType
 from gjk.enums.fsm_name import FsmName
 from gjk.enums.fsm_report_type import FsmReportType
+from gjk.enums.g_node_role import GNodeRole
+from gjk.enums.g_node_status import GNodeStatus
 from gjk.enums.kind_of_param import KindOfParam
 from gjk.enums.telemetry_name import TelemetryName
-
 
 __all__ = [
     "FsmActionType",  # [sh.fsm.action.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmactiontype)
     "FsmEventType",  # [sh.fsm.event.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmeventtype)
     "FsmName",  # [sh.fsm.name.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmname)
     "FsmReportType",  # [fsm.report.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#fsmreporttype)
+    "GNodeRole",  # [g.node.role.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnoderole)
+    "GNodeStatus",  # [g.node.status.100](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnodestatus)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
 ]

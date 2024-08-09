@@ -18,4 +18,3 @@ Python pydantic class corresponding to json type `power.watts`, version `000`.
 
 .. autoclass:: gjk.types.PowerWatts_Maker
     :members:
-

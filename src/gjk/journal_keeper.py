@@ -1,19 +1,16 @@
-""" JournalKeeper """
+"""JournalKeeper"""
 
 import functools
 import logging
 import time
 from typing import no_type_check
 
-import pendulum
 from gw.enums import MessageCategorySymbol
 from gwbase.actor_base import ActorBase
-from gwbase.enums import GNodeRole
-from gwbase.enums import UniverseType
+from gwbase.enums import GNodeRole, UniverseType
 
 from gjk.config import Settings
 from gjk.types import HeartbeatA
-
 
 LOG_FORMAT = (
     "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
@@ -77,5 +74,3 @@ class JournalKeeper(ActorBase):
                 self.timestep_from_timecoordinator(payload)
             except:
                 LOGGER.exception("Error in timestep_from_timecoordinator")
-
-

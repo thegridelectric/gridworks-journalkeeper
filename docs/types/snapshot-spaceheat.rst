@@ -6,15 +6,15 @@ Python pydantic class corresponding to json type `snapshot.spaceheat`, version `
     :members:
 
 **FromGNodeAlias**:
-    - Description: 
+    - Description:
     - Format: LeftRightDot
 
 **FromGNodeInstanceId**:
-    - Description: 
+    - Description:
     - Format: UuidCanonicalTextual
 
 **Snapshot**:
-    - Description: 
+    - Description:
 
 **TypeName**:
     - Description: All GridWorks Versioned Types have a fixed TypeName, which is a string of lowercase alphanumeric words separated by periods, most significant word (on the left) starting with an alphabet character, and final word NOT all Hindu-Arabic numerals.
@@ -34,4 +34,3 @@ Python pydantic class corresponding to json type `snapshot.spaceheat`, version `
 
 .. autoclass:: gjk.types.SnapshotSpaceheat_Maker
     :members:
-

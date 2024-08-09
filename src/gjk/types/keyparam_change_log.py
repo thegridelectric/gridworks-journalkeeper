@@ -2,20 +2,19 @@
 
 import json
 import logging
-from typing import Any
-from typing import Dict
-from typing import Literal
+import os
+from typing import Any, Dict, Literal
 
+import dotenv
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case
-from gw.utils import pascal_to_snake
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel
-from pydantic import Field
-from pydantic import field_validator
+from gw.utils import is_pascal_case, pascal_to_snake, snake_to_pascal
+from pydantic import BaseModel, Field, field_validator
 
 from gjk.enums import KindOfParam
 
+dotenv.load_dotenv()
+
+ENCODE_ENUMS = int(os.getenv("ENUM_ENCODE", "1"))
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
@@ -85,40 +84,52 @@ class KeyparamChangeLog(BaseModel):
         alias_generator = snake_to_pascal
 
     @field_validator("about_node_alias")
+    @classmethod
     def _check_about_node_alias(cls, v: str) -> str:
         try:
             check_is_left_right_dot(v)
         except ValueError as e:
             raise ValueError(
-                f"AboutNodeAlias failed LeftRightDot format validation: {e}"
-            )
+                f"AboutNodeAlias failed LeftRightDot format validation: {e}",
+            ) from e
         return v
 
     @field_validator("change_time_utc")
+    @classmethod
     def _check_change_time_utc(cls, v: str) -> str:
         try:
             check_is_log_style_date_with_millis(v)
         except ValueError as e:
             raise ValueError(
-                f"ChangeTimeUtc failed LogStyleDateWithMillis format validation: {e}"
-            )
+                f"ChangeTimeUtc failed LogStyleDateWithMillis format validation: {e}",
+            ) from e
         return v
 
     def as_dict(self) -> Dict[str, Any]:
         """
-        Translate the object into a dictionary representation that can be serialized into a
-        keyparam.change.log.000 object.
+        Main step in serializing the object. Encodes enums as their 8-digit random hex symbol if
+        settings.encode_enums = 1.
+        """
+        if ENCODE_ENUMS:
+            return self.enum_encoded_dict()
+        else:
+            return self.plain_enum_dict()
 
-        This method prepares the object for serialization by the as_type method, creating a
-        dictionary with key-value pairs that follow the requirements for an instance of the
-        keyparam.change.log.000 type. Unlike the standard python dict method,
-        it makes the following substantive changes:
-        - Enum Values: Translates between the values used locally by the actor to the symbol
-        sent in messages.
-        - Removes any key-value pairs where the value is None for a clearer message, especially
-        in cases with many optional attributes.
+    def plain_enum_dict(self) -> Dict[str, Any]:
+        """
+        Returns enums as their values.
+        """
+        d = {
+            snake_to_pascal(key): value
+            for key, value in self.model_dump().items()
+            if value is not None
+        }
+        d["Kind"] = d["Kind"].value
+        return d
 
-        It also applies these changes recursively to sub-types.
+    def enum_encoded_dict(self) -> Dict[str, Any]:
+        """
+        Encodes enums as their 8-digit random hex symbol
         """
         d = {
             snake_to_pascal(key): value
@@ -131,24 +142,10 @@ class KeyparamChangeLog(BaseModel):
 
     def as_type(self) -> bytes:
         """
-        Serialize to the keyparam.change.log.000 representation.
+        Serialize to the keyparam.change.log.000 representation designed to send in a message.
 
-        Instances in the class are python-native representations of keyparam.change.log.000
-        objects, while the actual keyparam.change.log.000 object is the serialized UTF-8 byte
-        string designed for sending in a message.
-
-        This method calls the as_dict() method, which differs from the native python dict()
-        in the following key ways:
-        - Enum Values: Translates between the values used locally by the actor to the symbol
-        sent in messages.
-        - - Removes any key-value pairs where the value is None for a clearer message, especially
-        in cases with many optional attributes.
-
-        It also applies these changes recursively to sub-types.
-
-        Its near-inverse is KeyparamChangeLog.type_to_tuple(). If the type (or any sub-types)
-        includes an enum, then the type_to_tuple will map an unrecognized symbol to the
-        default enum value. This is why these two methods are only 'near' inverses.
+        Recursively encodes enums as hard-to-remember 8-digit random hex symbols
+        unless settings.encode_enums is set to 0.
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
@@ -157,7 +154,7 @@ class KeyparamChangeLog(BaseModel):
         return hash((type(self),) + tuple(self.__dict__.values()))  # noqa
 
 
-class KeyparamChangeLog_Maker:
+class KeyparamChangeLogMaker:
     type_name = "keyparam.change.log"
     version = "000"
 
@@ -169,41 +166,32 @@ class KeyparamChangeLog_Maker:
         return tuple.as_type()
 
     @classmethod
-    def type_to_tuple(cls, t: bytes) -> KeyparamChangeLog:
+    def type_to_tuple(cls, b: bytes) -> KeyparamChangeLog:
         """
-        Given a serialized JSON type object, returns the Python class object.
+        Given the bytes in a message, returns the corresponding class object.
+
+        Args:
+            b (bytes): candidate type instance
+
+        Raises:
+           GwTypeError: if the bytes are not a keyparam.change.log.000 type
+
+        Returns:
+            KeyparamChangeLog instance
         """
         try:
-            d = json.loads(t)
-        except TypeError:
-            raise GwTypeError("Type must be string or bytes!")
+            d = json.loads(b)
+        except TypeError as e:
+            raise GwTypeError("Type must be string or bytes!") from e
         if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing <{t}> must result in dict!")
+            raise GwTypeError(f"Deserializing  must result in dict!\n <{b}>")
         return cls.dict_to_tuple(d)
 
     @classmethod
     def dict_to_tuple(cls, d: dict[str, Any]) -> KeyparamChangeLog:
         """
-        Deserialize a dictionary representation of a keyparam.change.log.000 message object
-        into a KeyparamChangeLog python object for internal use.
-
-        This is the near-inverse of the KeyparamChangeLog.as_dict() method:
-          - Enums: translates between the symbols sent in messages between actors and
-        the values used by the actors internally once they've deserialized the messages.
-          - Types: recursively validates and deserializes sub-types.
-
-        Note that if a required attribute with a default value is missing in a dict, this method will
-        raise a GwTypeError. This differs from the pydantic BaseModel practice of auto-completing
-        missing attributes with default values when they exist.
-
-        Args:
-            d (dict): the dictionary resulting from json.loads(t) for a serialized JSON type object t.
-
-        Raises:
-           GwTypeError: if the dict cannot be turned into a KeyparamChangeLog object.
-
-        Returns:
-            KeyparamChangeLog
+        Translates a dict representation of a keyparam.change.log.000 message object
+        into the Python class object.
         """
         for key in d.keys():
             if not is_pascal_case(key):
@@ -219,11 +207,19 @@ class KeyparamChangeLog_Maker:
             raise GwTypeError(f"dict missing ParamName: <{d2}>")
         if "Description" not in d2.keys():
             raise GwTypeError(f"dict missing Description: <{d2}>")
-        if "KindGtEnumSymbol" not in d2.keys():
-            raise GwTypeError(f"KindGtEnumSymbol missing from dict <{d2}>")
-        value = KindOfParam.symbol_to_value(d2["KindGtEnumSymbol"])
-        d2["Kind"] = KindOfParam(value)
-        del d2["KindGtEnumSymbol"]
+        if "KindGtEnumSymbol" in d2.keys():
+            value = KindOfParam.symbol_to_value(d2["KindGtEnumSymbol"])
+            d2["Kind"] = KindOfParam(value)
+            del d2["KindGtEnumSymbol"]
+        elif "Kind" in d2.keys():
+            if d2["Kind"] not in KindOfParam.values():
+                d2["Kind"] = KindOfParam.default()
+            else:
+                d2["Kind"] = KindOfParam(d2["Kind"])
+        else:
+            raise GwTypeError(
+                f"both KindGtEnumSymbol and Kind missing from dict <{d2}>",
+            )
         if "TypeName" not in d2.keys():
             raise GwTypeError(f"TypeName missing from dict <{d2}>")
         if "Version" not in d2.keys():
@@ -249,12 +245,10 @@ def check_is_left_right_dot(v: str) -> None:
     Raises:
         ValueError: if v is not LeftRightDot format
     """
-    from typing import List
-
     try:
-        x: List[str] = v.split(".")
-    except:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'.'")
+        x = v.split(".")
+    except Exception as e:
+        raise ValueError(f"Failed to seperate <{v}> into words with split'.'") from e
     first_word = x[0]
     first_char = first_word[0]
     if not first_char.isalpha():
@@ -284,8 +278,8 @@ def check_is_log_style_date_with_millis(v: str) -> None:
 
     try:
         datetime.fromisoformat(v)
-    except ValueError:
-        raise ValueError(f"{v} is not in LogStyleDateWithMillis format")
+    except ValueError as e:
+        raise ValueError(f"{v} is not in LogStyleDateWithMillis format") from e
     # The python fromisoformat allows for either 3 digits (milli) or 6 (micro)
     # after the final period. Make sure its 3
     milliseconds_part = v.split(".")[1]

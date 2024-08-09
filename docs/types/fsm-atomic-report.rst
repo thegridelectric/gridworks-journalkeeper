@@ -63,4 +63,3 @@ Python pydantic class corresponding to json type `fsm.atomic.report`, version `0
 
 .. autoclass:: gjk.types.FsmAtomicReport_Maker
     :members:
-

@@ -19,4 +19,3 @@ Python pydantic class corresponding to json type `heartbeat.a`, version `001`.
 
 .. autoclass:: gjk.types.HeartbeatA_Maker
     :members:
-

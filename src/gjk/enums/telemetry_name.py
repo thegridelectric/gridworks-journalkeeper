@@ -1,6 +1,5 @@
 from enum import auto
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
 from gw.enums import GwStrEnum
 
@@ -11,7 +10,7 @@ class TelemetryName(GwStrEnum):
 
     Enum spaceheat.telemetry.name version 001 in the GridWorks Type registry.
 
-    Used by used by multiple Application Shared Languages (ASLs). For more information:
+    Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
       - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
       - [More Info](https://gridworks-protocol.readthedocs.io/en/latest/telemetry-name.html)
@@ -91,7 +90,7 @@ class TelemetryName(GwStrEnum):
         if value is None:
             return "001"
         if not isinstance(value, str):
-            raise ValueError(f"This method applies to strings, not enums")
+            raise ValueError("This method applies to strings, not enums")
         if value not in value_to_version.keys():
             raise ValueError(f"Unknown enum value: {value}")
         return value_to_version[value]

@@ -1,17 +1,14 @@
-import json
 from typing import Dict
-from typing import List
 
 import dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from gjk.config import Settings
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_nodes import BeechNodes as BN
 from gjk.models import bulk_insert_idempotent
 from gjk.types import DataChannelGt
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 class BcName:
@@ -101,6 +98,8 @@ def load_channels():
     bulk_insert_idempotent(session, beech_channel_sqls)
 
 
+BEECH_TA = "hw1.isone.me.versant.keene.beech.ta"
+
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
     BcName.STORE_PUMP_PWR: DataChannelGt(
         id="ac35c2a9-e317-45e8-a036-52fa5cbd8380",
@@ -109,6 +108,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.STORE_PUMP,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
         start_s=1701293980,  # 2023-11-29 16:39:40 America/New_York
     ),
     BcName.PRIMARY_PUMP_PWR: DataChannelGt(
@@ -118,6 +118,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.PRIMARY_PUMP,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
         start_s=1701293980,  # 2023-11-29 16:39:40 America/New_York
     ),
     BcName.DIST_PUMP_PWR: DataChannelGt(
@@ -127,6 +128,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DIST_PUMP,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
         start_s=1701293980,  # 2023-11-29 16:39:40 America/New_York
     ),
     BcName.AMPHA_DIST_SWT: DataChannelGt(
@@ -136,6 +138,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.AMPHA_DIST_SWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1704862800,  # 2024-01-10
     ),
     BcName.AMPHB_DIST_SWT: DataChannelGt(
@@ -145,6 +148,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.AMPHB_DIST_SWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1704862800,  # 2024-01-10
     ),
     BcName.HP_ODU_PWR: DataChannelGt(
@@ -154,6 +158,8 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.HP_ODU,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
+        in_power_metering=True,
         start_s=1704862800,  # 2024-01-10
     ),
     BcName.HP_IDU_PWR: DataChannelGt(
@@ -163,6 +169,8 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.HP_IDU,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
+        in_power_metering=True,
         start_s=1704862800,  # 2024-01-10
     ),
     BcName.BUFFER_WELL_TEMP: DataChannelGt(
@@ -172,6 +180,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_WELL,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1706763600,  # 2024-02-01
     ),
     BcName.OIL_BOILER_FLOW_INTEGRATED: DataChannelGt(
@@ -181,6 +190,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.OIL_BOILER_FLOW,
         captured_by_node_name=BN.OIL_BOILER_FLOW,
         telemetry_name=TelemetryName.GallonsTimes100,
+        terminal_asset_alias=BEECH_TA,
         start_s=1706763600,  # 2024-02-01
     ),
     BcName.DOWN_ZONE_SET: DataChannelGt(
@@ -190,6 +200,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DOWN_ZONE,
         captured_by_node_name=BN.DOWN_ZONE,
         telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
     ),
     BcName.DOWN_ZONE_TEMP: DataChannelGt(
@@ -199,6 +210,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DOWN_ZONE,
         captured_by_node_name=BN.DOWN_ZONE,
         telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
     ),
     BcName.UP_ZONE_SET: DataChannelGt(
@@ -208,6 +220,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.UP_ZONE,
         captured_by_node_name=BN.UP_ZONE,
         telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
     ),
     BcName.UP_ZONE_TEMP: DataChannelGt(
@@ -217,6 +230,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.UP_ZONE,
         captured_by_node_name=BN.UP_ZONE,
         telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
     ),
     BcName.OIL_BOILER_PWR: DataChannelGt(
@@ -226,6 +240,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.OIL_BOILER,
         captured_by_node_name=BN.POWER_METER,
         telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700590500,  # 2023-11-21 13:15:00.000 America/NY
     ),
     BcName.BUFFER_COLD_PIPE: DataChannelGt(
@@ -235,6 +250,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_COLD_PIPE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.BUFFER_HOT_PIPE: DataChannelGt(
@@ -244,6 +260,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_HOT_PIPE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.BUFFER_DEPTH1_TEMP: DataChannelGt(
@@ -253,6 +270,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_DEPTH1,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
     ),
     BcName.BUFFER_DEPTH2_TEMP: DataChannelGt(
         id="064e5051-f724-4c65-b28f-d890afd7b3e4",
@@ -261,6 +279,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_DEPTH2,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
     ),
     BcName.BUFFER_DEPTH3_TEMP: DataChannelGt(
         id="15ef5472-9530-4e91-b8c6-6434101fc113",
@@ -269,6 +288,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_DEPTH3,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
     ),
     BcName.BUFFER_DEPTH4_TEMP: DataChannelGt(
         id="44a834d9-8052-4f21-9512-3b2579ba8491",
@@ -277,6 +297,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_DEPTH4,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
     ),
     BcName.BUFFER_WELL_TEMP: DataChannelGt(
         id="f908be82-f8ac-42e7-8203-7057eeef79a8",
@@ -285,6 +306,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.BUFFER_WELL,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
     ),
     BcName.DIST_RWT: DataChannelGt(
         id="2fe25fbf-400a-418e-b2dc-35e3b62f8250",
@@ -293,6 +315,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DIST_RWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.DIST_SWT: DataChannelGt(
@@ -302,6 +325,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DIST_SWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.UP_ZONE_GW_TEMP: DataChannelGt(
@@ -311,6 +335,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.UP_ZONE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.AirTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1708221240,  # 2024-02-17 20:54:00 America/NY
     ),
     BcName.DOWN_ZONE_GW_TEMP: DataChannelGt(
@@ -320,6 +345,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DOWN_ZONE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.AirTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1700006400,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.HP_EWT: DataChannelGt(
@@ -329,6 +355,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.HP_EWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.HP_LWT: DataChannelGt(
@@ -338,6 +365,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.HP_LWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.STORE_COLD_PIPE: DataChannelGt(
@@ -347,6 +375,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.STORE_COLD_PIPE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.STORE_HOT_PIPE: DataChannelGt(
@@ -356,6 +385,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.STORE_HOT_PIPE,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.TANK1_DEPTH1: DataChannelGt(
@@ -365,6 +395,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.TANK1_DEPTH1,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.TANK1_DEPTH2: DataChannelGt(
@@ -374,6 +405,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.TANK1_DEPTH2,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.TANK1_DEPTH3: DataChannelGt(
@@ -383,6 +415,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.TANK1_DEPTH3,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.TANK1_DEPTH4: DataChannelGt(
@@ -392,6 +425,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.TANK1_DEPTH4,
         captured_by_node_name=BN.TANK1_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.TANK2_DEPTH1: DataChannelGt(
@@ -400,6 +434,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 2 Depth 1 (C x 1000)",
         about_node_name=BN.TANK2_DEPTH1,
         captured_by_node_name=BN.TANK2_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK2_DEPTH2: DataChannelGt(
@@ -408,6 +443,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 2 Depth 2 (C x 1000)",
         about_node_name=BN.TANK2_DEPTH2,
         captured_by_node_name=BN.TANK2_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK2_DEPTH3: DataChannelGt(
@@ -416,6 +452,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 2 Depth 3 (C x 1000)",
         about_node_name=BN.TANK2_DEPTH3,
         captured_by_node_name=BN.TANK2_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK2_DEPTH4: DataChannelGt(
@@ -424,6 +461,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 2 Depth 4 (C x 1000)",
         about_node_name=BN.TANK2_DEPTH4,
         captured_by_node_name=BN.TANK2_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK3_DEPTH1: DataChannelGt(
@@ -432,6 +470,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 3 Depth 1 (C x 1000)",
         about_node_name=BN.TANK3_DEPTH1,
         captured_by_node_name=BN.TANK3_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK3_DEPTH2: DataChannelGt(
@@ -440,6 +479,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 3 Depth 2 (C x 1000)",
         about_node_name=BN.TANK3_DEPTH2,
         captured_by_node_name=BN.TANK3_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK3_DEPTH3: DataChannelGt(
@@ -448,6 +488,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 3 Depth 3 (C x 1000)",
         about_node_name=BN.TANK3_DEPTH3,
         captured_by_node_name=BN.TANK3_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.TANK3_DEPTH4: DataChannelGt(
@@ -456,6 +497,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         display_name="Tank 3 Depth 4 (C x 1000)",
         about_node_name=BN.TANK3_DEPTH4,
         captured_by_node_name=BN.TANK3_READER,
+        terminal_asset_alias=BEECH_TA,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
     ),
     BcName.OAT: DataChannelGt(
@@ -465,6 +507,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.OAT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.AirTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.HP_FOSSIL_LWT:
@@ -476,6 +519,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.HP_FOSSIL_LWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     # Integrated Flow
@@ -486,6 +530,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.DIST_FLOW,
         captured_by_node_name=BN.DIST_FLOW,
         telemetry_name=TelemetryName.GallonsTimes100,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.PRIMARY_FLOW_INTEGRATED: DataChannelGt(
@@ -495,6 +540,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.PRIMARY_FLOW,
         captured_by_node_name=BN.PRIMARY_FLOW,
         telemetry_name=TelemetryName.GallonsTimes100,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
     BcName.STORE_FLOW_INTEGRATED: DataChannelGt(
@@ -504,6 +550,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         about_node_name=BN.STORE_FLOW,
         captured_by_node_name=BN.STORE_FLOW,
         telemetry_name=TelemetryName.GallonsTimes100,
+        terminal_asset_alias=BEECH_TA,
         start_s=1699885800,  # 2023 Nov 13, 09:35 America/NY
     ),
 }
@@ -524,8 +571,7 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.DIST_SWT: [
         (1699885800, "a.dist.swt.temp"),  # 2023-11-13 09:35 America/NY
-        (1711906740, "a.dist.fwt.temp"), # 2024-03-31 13:39 America/NY
-
+        (1711906740, "a.dist.fwt.temp"),  # 2024-03-31 13:39 America/NY
     ],
     BcName.DIST_RWT: [
         (1699885800, "a.dist.rwt.temp"),  # 2023-11-13 09:35 America/NY
@@ -542,27 +588,27 @@ BeechAliasMapper.channel_mappings = {
     BcName.PRIMARY_FLOW_INTEGRATED: [
         (1699885800, "a.primary.flow"),  # 2023-11-13 09:35 America/NY
         (1706388600, "heatpump.flow"),  # 2024-01-27 15:50 America/NY
-        (1712552670, "primary.flow"), # 2024-04-08 01:04:30 America/NY
+        (1712552670, "primary.flow"),  # 2024-04-08 01:04:30 America/NY
     ],
     BcName.OAT: [
         (1699885800, "a.outdoor.air.temp"),  # 2023-11-13 09:35 America/NY
         (1700002650, "oat"),  # 2023-11-14 17:57:30.000 America/NY
         (1700020500, "a.outdoor.air.temp"),  # 2023-11-14 22:55:00.000 America/NY
-        (1711906740, "oat"), # 2024-03-31 13:39:00 America/NY
+        (1711906740, "oat"),  # 2024-03-31 13:39:00 America/NY
     ],
     BcName.STORE_COLD_PIPE: [
         (1699885800, "a.store.cold.pipe.temp"),  # 2023-11-13 09:35 America/NY
     ],
     BcName.STORE_FLOW_INTEGRATED: [
         (1699885800, "a.store.flow"),  # 2023-11-13 09:35 America/NY
-        (1706805390, "store.discharge.flow") # 2024-02-01 11:36:30 America/NY
+        (1706805390, "store.discharge.flow"),  # 2024-02-01 11:36:30 America/NY
     ],
     BcName.STORE_HOT_PIPE: [
         (1699885800, "a.store.hot.pipe.temp"),  # 2023-11-13 09:35 America/NY
     ],
     BcName.TANK1_DEPTH1: [
         (1699885800, "a.tank1.temp.depth1"),  # 2023-11-13 09:35 America/NY
-        (1707343260, "tank1.temp.depth1"), # 2024-02-07 17:01:00 America/NY
+        (1707343260, "tank1.temp.depth1"),  # 2024-02-07 17:01:00 America/NY
     ],
     BcName.TANK1_DEPTH2: [
         (1699885800, "a.tank1.temp.depth2"),  # 2023-11-13 09:35 America/NY
@@ -578,8 +624,8 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.OIL_BOILER_PWR: [
         (1700590500, "oilboiler"),  # 2023-11-21 13:15 America/NY,
-        (1701293980, "a.m.oil.boiler.power"), # 2023-11-29 16:39:40 America/New_York
-        (1712553030, "oil.boiler.power"), # 2024-04-08 01:10:30 America/NY
+        (1701293980, "a.m.oil.boiler.power"),  # 2023-11-29 16:39:40 America/New_York
+        (1712553030, "oil.boiler.power"),  # 2024-04-08 01:10:30 America/NY
     ],
     BcName.DOWN_ZONE_TEMP: [
         (1700683960, "a.thermostat.downstairs.temp"),  # 2023-11-22 15:12:40 America/NY
@@ -613,7 +659,7 @@ BeechAliasMapper.channel_mappings = {
     ],
     BcName.HP_ODU_PWR: [
         (1701293980, "a.m.hp.outdoor.power"),  # 2023-11-29 16:39:40 America/New_York
-        (1712553030, "hp.outdoor.power"), # 2024-04-08 01:10:30 America/NY
+        (1712553030, "hp.outdoor.power"),  # 2024-04-08 01:10:30 America/NY
     ],
     BcName.HP_IDU_PWR: [
         (1701293980, "a.m.hp.indoor.power"),  # 2024-02-01 America/NY
@@ -623,12 +669,12 @@ BeechAliasMapper.channel_mappings = {
         (1704117000, "ampha.distfwt"),  #  2024-01-01 08:50:00.000 America/New_York
     ],
     BcName.AMPHB_DIST_SWT: [
-        (1704117000, "amphb.distfwt") # 2024-01-01 08:50:00.000 America/New_York
+        (1704117000, "amphb.distfwt")  # 2024-01-01 08:50:00.000 America/New_York
     ],
     BcName.DIST_PUMP_PWR: [
         (1701293980, "a.m.dist.pump.power"),  # 2023-11-29 16:39:40 America/New_York
-        (1712553030, "dist.pump.power"), # 2024-04-08 01:10:30 America/NY
-    ],  
+        (1712553030, "dist.pump.power"),  # 2024-04-08 01:10:30 America/NY
+    ],
     BcName.PRIMARY_PUMP_PWR: [
         (1701293980, "a.m.primary.pump.power"),  # 2023-11-29 16:39:40 America/New_York
         (1707430530, "primary.pump.power"),  # 2024-02-08 17:15:30 America/NY
@@ -638,37 +684,36 @@ BeechAliasMapper.channel_mappings = {
         (1712553030, "store.pump.power"),  # 2024-04-08 01:10:30 America/NY
     ],
     BcName.TANK2_DEPTH1: [
-        (1707480930, "tank2.temp.depth1"), # 2024-02-09 07:15:30 America/NY
+        (1707480930, "tank2.temp.depth1"),  # 2024-02-09 07:15:30 America/NY
     ],
     BcName.TANK2_DEPTH2: [
-        (1707480930, "tank2.temp.depth2"), # 2024-02-09 07:15:30 America/NY
+        (1707480930, "tank2.temp.depth2"),  # 2024-02-09 07:15:30 America/NY
     ],
     BcName.TANK2_DEPTH3: [
-        (1707480930, "tank2.temp.depth3"), # 2024-02-09 07:15:30 America/NY
+        (1707480930, "tank2.temp.depth3"),  # 2024-02-09 07:15:30 America/NY
     ],
     BcName.TANK2_DEPTH4: [
-        (1707480930, "tank2.temp.depth4"), # 2024-02-09 07:15:30 America/NY
+        (1707480930, "tank2.temp.depth4"),  # 2024-02-09 07:15:30 America/NY
     ],
     BcName.TANK3_DEPTH1: [
-        (1707494220, "tank3.temp.depth1"), # 2024-02-09 10:57:00 America/NY
+        (1707494220, "tank3.temp.depth1"),  # 2024-02-09 10:57:00 America/NY
     ],
     BcName.TANK3_DEPTH2: [
-        (1707494220, "tank3.temp.depth2"), # 2024-02-09 10:57:00 America/NY
+        (1707494220, "tank3.temp.depth2"),  # 2024-02-09 10:57:00 America/NY
     ],
     BcName.TANK3_DEPTH3: [
-        (1707494220, "tank3.temp.depth3"), # 2024-02-09 10:57:00 America/NY
+        (1707494220, "tank3.temp.depth3"),  # 2024-02-09 10:57:00 America/NY
     ],
     BcName.TANK3_DEPTH4: [
-        (1707494220, "tank3.temp.depth4"), # 2024-02-09 10:57:00 America/NY
+        (1707494220, "tank3.temp.depth4"),  # 2024-02-09 10:57:00 America/NY
     ],
     BcName.DOWN_ZONE_GW_TEMP: [
         (1700006400, "statcheck"),  # 2023-11-13 09:35 America/NY
         (1706194440, "stat1check"),  # 2024-01-25 09:54:00 America/NY
-        (1708265130, "stat1.temp"), # 2024-02-18 09:05:30 America/NY
+        (1708265130, "stat1.temp"),  # 2024-02-18 09:05:30 America/NY
     ],
     BcName.UP_ZONE_GW_TEMP: [
-        (1708221240, "stat.up.check"), # 2024-02-17 20:54:00 America/NY
-         (1708265130, "stat2.temp"), # 2024-02-18 09:05:30 America/NY
+        (1708221240, "stat.up.check"),  # 2024-02-17 20:54:00 America/NY
+        (1708265130, "stat2.temp"),  # 2024-02-18 09:05:30 America/NY
     ],
 }
-

@@ -6,13 +6,9 @@ Create Date: 2024-07-20 12:34:54.493598
 
 """
 
-from typing import Sequence
-from typing import Union
-
-import sqlalchemy as sa
+from typing import Sequence, Union
 
 from alembic import op
-
 
 # revision identifiers, used by Alembic.
 revision: str = "b829ccf129c3"
@@ -35,5 +31,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     # Drop the named foreign key constraint
     op.drop_constraint(
-        "fk_readings_data_channel_id", "readings", type_="foreignkey"  # Constraint name
+        "fk_readings_data_channel_id",
+        "readings",
+        type_="foreignkey",  # Constraint name
     )

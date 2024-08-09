@@ -23,6 +23,7 @@ forth between type instances and Python objects.
     DataChannelGt  <types/data-channel-gt>
     FsmAtomicReport  <types/fsm-atomic-report>
     FsmFullReport  <types/fsm-full-report>
+    GNodeGt  <types/g-node-gt>
     GridworksEventGtShStatus  <types/gridworks-event-gt-sh-status>
     GridworksEventSnapshotSpaceheat  <types/gridworks-event-snapshot-spaceheat>
     GtShBooleanactuatorCmdStatus  <types/gt-sh-booleanactuator-cmd-status>

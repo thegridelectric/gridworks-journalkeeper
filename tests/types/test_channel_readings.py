@@ -3,11 +3,10 @@
 import json
 
 import pytest
+from gjk.types import ChannelReadings
+from gjk.types import ChannelReadingsMaker as Maker
 from gw.errors import GwTypeError
 from pydantic import ValidationError
-
-from gjk.types import ChannelReadings
-from gjk.types import ChannelReadings_Maker as Maker
 
 
 def test_channel_readings_generated() -> None:
@@ -45,22 +44,22 @@ def test_channel_readings_generated() -> None:
     # GwTypeError raised if missing a required attribute
     ######################################
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TypeName"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ChannelId"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ValueList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ScadaReadTimeUnixMsList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)

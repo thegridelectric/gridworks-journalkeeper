@@ -1,10 +1,7 @@
-from typing import Dict
-from typing import List
-from typing import Literal
+from typing import Dict, List, Literal
 
 
 class TankTempName:
-
     def __init__(self, tank_prefix: str):
         self.tank_prefix = tank_prefix
 
@@ -37,11 +34,11 @@ class House0TempName:
     def __init__(self, total_store_tanks: int, zone_list: List[str]):
         self.TANK = {}
         for i in range(total_store_tanks):
-            self.TANK[i + 1] = TankTempName(tank_prefix=f"tank{i+1}")
+            self.TANK[i + 1] = TankTempName(tank_prefix=f"tank{i + 1}")
 
         self.ZONE_LIST = []
         for i in range(len(zone_list)):
-            self.ZONE_LIST.append(f"zone{i+1}-{zone_list[i]}".lower())
+            self.ZONE_LIST.append(f"zone{i + 1}-{zone_list[i]}".lower())
 
 
 class House0Names:

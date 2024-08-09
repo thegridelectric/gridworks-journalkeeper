@@ -1,30 +1,27 @@
-import json
 import math
 from typing import List
 
 import dotenv
-import pendulum
-from gw.errors import GwTypeError
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-from gjk.back_office_hack import gni_from_alias
-from gjk.back_office_hack import ta_from_alias
+from gjk.back_office_hack import gni_from_alias, ta_from_alias
+from gjk.codec import deserialize
 from gjk.config import Settings
 from gjk.enums import TelemetryName
-from gjk.first_season.beech_channels import BEECH_CHANNELS_BY_NAME
-from gjk.first_season.beech_channels import BcName
-from gjk.first_season.beech_channels import BeechAliasMapper
+from gjk.first_season.beech_channels import (
+    BEECH_CHANNELS_BY_NAME,
+    BcName,
+    BeechAliasMapper,
+)
 from gjk.first_season.utils import str_from_ms
-from gjk.journal_keeper_hack import FileNameMeta
-from gjk.journal_keeper_hack import JournalKeeperHack
-from gjk.models import Message
+from gjk.journal_keeper_hack import FileNameMeta, JournalKeeperHack
 from gjk.models import bulk_insert_messages
-from gjk.types import BatchedReadings
-from gjk.types import ChannelReadings
-from gjk.types import GridworksEventGtShStatus
-from gjk.types import get_tuple_from_type
-
+from gjk.type_helpers import Message
+from gjk.types import (
+    BatchedReadings,
+    ChannelReadings,
+    GridworksEventGtShStatus,
+)
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 BEECH_IGNORED_ALIASES = [
     "a.elt1",
@@ -38,7 +35,7 @@ BEECH_IGNORED_ALIASES = [
     "calibrate.1009.temp.depth1",
     "calibrate.1009.temp.depth2",
     "calibrate.1009.temp.depth3",
-    "calibrate.1009.temp.depth4"
+    "calibrate.1009.temp.depth4",
 ]
 
 TN_GOOFS = [
@@ -58,7 +55,7 @@ TN_GOOFS = [
     [BcName.UP_ZONE_SET, TelemetryName.WaterTempFTimes1000],
     [BcName.UP_ZONE_SET, TelemetryName.AirTempCTimes1000],
     [BcName.UP_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
-    [BcName.UP_ZONE_GW_TEMP, TelemetryName.AirTempFTimes1000]
+    [BcName.UP_ZONE_GW_TEMP, TelemetryName.AirTempFTimes1000],
 ]
 
 
@@ -88,7 +85,7 @@ def beech_br_from_status(
 
     simple_list = status.simple_telemetry_list
     for simple in simple_list:
-        if not simple.sh_node_alias in BEECH_IGNORED_ALIASES:
+        if simple.sh_node_alias not in BEECH_IGNORED_ALIASES:
             try:
                 channel_name = BeechAliasMapper.lookup_name(
                     simple.sh_node_alias, status.slot_start_unix_s
@@ -96,15 +93,15 @@ def beech_br_from_status(
             except ValueError as e:
                 raise Exception(
                     f'NEW ALIAS. Add ({status.slot_start_unix_s}, "{simple.sh_node_alias}") to appropriate BeechAliasMapper.channel_mappings'
-                )
+                ) from e
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
             try:
                 assert channel.telemetry_name == simple.telemetry_name
-            except:
+            except Exception as e:
                 if [channel_name, simple.telemetry_name] not in TN_GOOFS:
                     raise Exception(
                         f"{simple.sh_node_alias} had mislabeled {simple.telemetry_name} ... change to {channel.telemetry_name}"
-                    )
+                    ) from e
             channel_list.append(channel)
             channel_reading_list.append(
                 ChannelReadings(
@@ -116,7 +113,7 @@ def beech_br_from_status(
 
     multi_list = status.multipurpose_telemetry_list
     for multi in multi_list:
-        if not multi.about_node_alias in BEECH_IGNORED_ALIASES:
+        if multi.about_node_alias not in BEECH_IGNORED_ALIASES:
             try:
                 channel_name = BeechAliasMapper.lookup_name(
                     multi.about_node_alias, status.slot_start_unix_s
@@ -125,17 +122,17 @@ def beech_br_from_status(
                 raise Exception(
                     f'NEW ALIAS. Add ({status.slot_start_unix_s}, "{multi.about_node_alias}") to appropriate BeechAliasMapper.channel_mappings'
                     f"FileName {fn.file_name}. Specific problem: <{multi.as_dict()}>"
-                )
+                ) from e
             channel = BEECH_CHANNELS_BY_NAME[channel_name]
             try:
                 assert channel.telemetry_name == multi.telemetry_name
-            except:       
+            except Exception as e:
                 if [channel_name, multi.telemetry_name] not in TN_GOOFS:
                     raise Exception(
                         f"{fn.file_name}: "
                         f"{channel_name} had mislabeled {multi.telemetry_name} ... add  [{channel_name}, {multi.telemetry_name}] to  TN_GOOFS"
                         f"time {str_from_ms(status.slot_start_unix_s * 1000)} America/NY"
-                    )
+                    ) from e
             channel_list.append(channel)
             channel_reading_list.append(
                 ChannelReadings(
@@ -147,18 +144,18 @@ def beech_br_from_status(
 
     try:
         return_tuple = BatchedReadings(
-        from_g_node_alias=status.from_g_node_alias,
-        from_g_node_instance_id=gni_from_alias(status.from_g_node_alias),
-        about_g_node_alias=ta_from_alias(status.from_g_node_alias),
-        slot_start_unix_s=status.slot_start_unix_s,
-        batched_transmission_period_s=status.reporting_period_s,
-        message_created_ms=int(status_event.time_n_s / 10**6),
-        data_channel_list=channel_list,
-        channel_reading_list=channel_reading_list,
-        fsm_action_list=[],
-        fsm_report_list=[],
-        id=status.status_uid,
-    )
+            from_g_node_alias=status.from_g_node_alias,
+            from_g_node_instance_id=gni_from_alias(status.from_g_node_alias),
+            about_g_node_alias=ta_from_alias(status.from_g_node_alias),
+            slot_start_unix_s=status.slot_start_unix_s,
+            batched_transmission_period_s=status.reporting_period_s,
+            message_created_ms=int(status_event.time_n_s / 10**6),
+            data_channel_list=channel_list,
+            channel_reading_list=channel_reading_list,
+            fsm_action_list=[],
+            fsm_report_list=[],
+            id=status.status_uid,
+        )
     except Exception as e:
         print("STORING AS GridworksEventGtShStatus")
         print(f"Examine {fn.file_name} for error: \n: <{e}>.")
@@ -202,7 +199,7 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
     for i in range(math.ceil(len(blist) / 100)):
         first = blist[i * 100]
         print(
-            f"loading messages {i*100} - {i*100+100} [{str_from_ms(first.message_persisted_ms)} America/NY]"
+            f"loading messages {i * 100} - {i * 100 + 100} [{str_from_ms(first.message_persisted_ms)} America/NY]"
         )
 
         messages: List[Message] = []
@@ -210,20 +207,22 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
         for fn in blist[i * 100 : i * 100 + 100]:
             # get the serialized byte string
             msg_bytes = p.get_message_bytes(fn)
-            if fn.type_name == 'keyparam.change.log':
+            if fn.type_name == "keyparam.change.log":
                 # Something hinky in the coding of these messages, which
-                # I sent via mosquitto_pub. 
-                # It had an extra b: 
+                # I sent via mosquitto_pub.
+                # It had an extra b:
                 # b'b{"AboutNodeAlias": "beech"}'
                 print(f"Got {fn.file_name}!")
-                json_str = msg_bytes.decode('utf-8')[1:]
-                msg_bytes = json_str.encode('utf-8')
+                json_str = msg_bytes.decode("utf-8")[1:]
+                msg_bytes = json_str.encode("utf-8")
 
             try:
-                t = get_tuple_from_type(msg_bytes)
-            except:
-                raise Exception(f"Problem with {fn.file_name}")
+                t = deserialize(msg_bytes)
+            except Exception as e:
+                raise Exception(f"Problem with {fn.file_name}") from e
 
+            if t is None:
+                raise Exception(f"Unrecognized message! {t}")
             # Transform status messages into BatchedReadings
             if isinstance(t, GridworksEventGtShStatus):
                 t = beech_br_from_status(t, fn)
@@ -236,11 +235,10 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
                 print(f"Problem with {fn.file_name}: {e}")
             if msg:
                 messages.append(msg)
-            else:
-                if t.type_name == "batched.readings":
-                    blank_statuses += 1
+            elif t.type_name == "batched.readings":
+                blank_statuses += 1
 
-        print(f"For messages {i*100} - {i*100+100}: {blank_statuses} blanks")
+        print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
         msg_sql_list = list(map(lambda x: x.as_sql(), messages))
         bulk_insert_messages(session, msg_sql_list)
         session.commit()

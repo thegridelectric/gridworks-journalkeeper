@@ -3,12 +3,11 @@
 import json
 
 import pytest
-from gw.errors import GwTypeError
-from pydantic import ValidationError
-
 from gjk.enums import TelemetryName
 from gjk.types import TelemetrySnapshotSpaceheat
-from gjk.types import TelemetrySnapshotSpaceheat_Maker as Maker
+from gjk.types import TelemetrySnapshotSpaceheatMaker as Maker
+from gw.errors import GwTypeError
+from pydantic import ValidationError
 
 
 def test_telemetry_snapshot_spaceheat_generated() -> None:
@@ -16,7 +15,10 @@ def test_telemetry_snapshot_spaceheat_generated() -> None:
         report_time_unix_ms=1656363448000,
         about_node_alias_list=["a.elt1.relay", "a.tank.temp0"],
         value_list=[1, 66086],
-        telemetry_name_list=["5a71d4b3", "c89d0ba1"],
+        telemetry_name_list=[
+            TelemetryName.RelayState,
+            TelemetryName.WaterTempCTimes1000,
+        ],
     )
 
     d = {
@@ -29,6 +31,14 @@ def test_telemetry_snapshot_spaceheat_generated() -> None:
     }
 
     assert t.as_dict() == d
+
+    d2 = d.copy()
+
+    d2["TelemetryNameList"] = [
+        TelemetryName.RelayState,
+        TelemetryName.WaterTempCTimes1000,
+    ]
+    assert t == Maker.dict_to_tuple(d2)
 
     with pytest.raises(GwTypeError):
         Maker.type_to_tuple(d)
@@ -48,27 +58,27 @@ def test_telemetry_snapshot_spaceheat_generated() -> None:
     # GwTypeError raised if missing a required attribute
     ######################################
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TypeName"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ReportTimeUnixMs"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["AboutNodeAliasList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["ValueList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)
 
-    d2 = dict(d)
+    d2 = d.copy()
     del d2["TelemetryNameList"]
     with pytest.raises(GwTypeError):
         Maker.dict_to_tuple(d2)

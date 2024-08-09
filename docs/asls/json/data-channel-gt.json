@@ -1,7 +1,7 @@
 {
   "gtr_asl": "001",
   "type_name": "data.channel.gt",
-  "version": "000",
+  "version": "001",
   "owner": "gridworks@gridworks-consulting.com",
   "description": "Data Channel. A data channel is a concept of some collection of readings that share all characteristics other than time.",
   "properties": {
@@ -38,11 +38,16 @@
       "description": "The name of the physical quantity getting measured.",
       "required": true
     },
-    "Id": {
+    "TerminalAssetAlias": {
       "type": "string",
-      "format": "UuidCanonicalTextual",
-      "title": "Id",
-      "description": "Meant to be an immutable identifier that is globally unique (i.e., across terminal assets).",
+      "format": "LeftRightDot",
+      "title": "Terminal Asset",
+      "description": "The Terminal Asset GNode for which this data channel is reporting data. For example, the GNode with alias hw1.isone.me.versant.keene.beech.ta represents the heat pump thermal storage system in the first GridWorks Millinocket deployment.",
+      "required": true
+    },
+    "InPowerMetering": {
+      "type": "boolean",
+      "description": "This channel is in the sum of the aggregate transactive power metering for the terminal asset",
       "required": true
     },
     "StartS": {
@@ -52,6 +57,13 @@
       "description": "The epoch time of the first data record associated to a channel. If this value is None it means no known data yet.",
       "required": false
     },
+    "Id": {
+      "type": "string",
+      "format": "UuidCanonicalTextual",
+      "title": "Id",
+      "description": "Meant to be an immutable identifier that is globally unique (i.e., across terminal assets).",
+      "required": true
+    },
     "TypeName": {
       "type": "string",
       "value": "data.channel.gt",
@@ -60,20 +72,14 @@
     "Version": {
       "type": "string",
       "title": "The type version",
-      "default": "000",
+      "default": "001",
       "required": true
     }
   },
-  "formats": {
-    "UuidCanonicalTextual": {
-      "type": "string",
-      "description": "A string of hex words separated by hyphens of length 8-4-4-4-12.",
-      "example": "652ba6b0-c3bf-4f06-8a80-6b9832d60a25"
-    },
-    "SpaceheatName": {
-      "type": "string",
-      "description": "Lowercase alphanumeric words separated by hypens, where first word starts with an alphabet character.",
-      "example": "store-hot-pipe"
+  "axioms": {
+    "Axiom1": {
+      "title": "Power Metering",
+      "description": "If InPowerMetering is true then the TelemetryName must be PowerW"
     }
   }
 }

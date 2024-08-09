@@ -16,7 +16,7 @@ Python pydantic class corresponding to json type `gt.sh.simple.telemetry.status`
         a reading of 37 deg C.
 
 **ValueList**:
-    - Description: List of Values.The values of the readings. 
+    - Description: List of Values.The values of the readings.
 
 **ReadTimeUnixMsList**:
     - Description: List of Read Times.The times that the SImpleSensor took the readings, in unix milliseconds
@@ -40,4 +40,3 @@ Python pydantic class corresponding to json type `gt.sh.simple.telemetry.status`
 
 .. autoclass:: gjk.types.GtShSimpleTelemetryStatus_Maker
     :members:
-

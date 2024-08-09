@@ -10,7 +10,7 @@ channel.readings.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/channel-readings.json
 
-data.channel.gt.000
+data.channel.gt.001
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/data-channel-gt.json
 
@@ -21,6 +21,10 @@ fsm.atomic.report.000
 fsm.full.report.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/fsm-full-report.json
+
+g.node.gt.002
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. literalinclude:: json/g-node-gt.json
 
 gridworks.event.gt.sh.status.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -65,4 +69,3 @@ snapshot.spaceheat.000
 telemetry.snapshot.spaceheat.000
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. literalinclude:: json/telemetry-snapshot-spaceheat.json
-
