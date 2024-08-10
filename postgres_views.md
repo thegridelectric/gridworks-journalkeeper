@@ -27,6 +27,18 @@ SELECT
 FROM messages;
 
 
+CREATE VIEW e_pretty AS
+SELECT
+    dc.name AS name,
+    e.watt_hours AS watt_hours,
+    to_timestamp(hour_start_s) AT TIME ZONE 'America/New_York' AS hour_start_local,
+    dc.terminal_asset_alias
+FROM
+    nodal_hourly_energy e
+JOIN
+    data_channels dc
+ON
+    e.power_channel_id = dc.id;
 
 
 SELECT COUNT(*) from messages;

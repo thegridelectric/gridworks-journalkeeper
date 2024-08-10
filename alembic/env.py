@@ -10,10 +10,11 @@ config = context.config
 
 # Add the URL
 import dotenv
-from gjk.config import Settings
+import os
+dotenv.load_dotenv()
 
-settings = Settings(_env_file=dotenv.find_dotenv())
-config.set_main_option("sqlalchemy.url", settings.db_url.get_secret_value())
+DATABASE_URL = os.getenv("GJK_DB_URL")
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
