@@ -38,7 +38,7 @@
                     <xsl:variable name="overwrite-mode">
 
                     <xsl:if test="not (Status = 'Pending')">
-                    <xsl:text>Always</xsl:text>
+                    <xsl:text>Never</xsl:text>
                     </xsl:if>
                     <xsl:if test="(Status = 'Pending')">
                     <xsl:text>Always</xsl:text>
@@ -172,9 +172,7 @@ from gjk.types.</xsl:text>
 <xsl:text>
 from gjk.enums import </xsl:text>
 <xsl:value-of select="$enum-local-name"/>
-
 </xsl:if>
-
 </xsl:for-each>
 
 <xsl:text>
@@ -241,7 +239,7 @@ class </xsl:text>
 
 <xsl:variable name="enum-local-name">
 <xsl:call-template name="nt-case">
-    <xsl:with-param name="type-name-text" select="LocalName" />
+    <xsl:with-param name="type-name-text" select="EnumLocalName" />
 </xsl:call-template>
 </xsl:variable>
 
@@ -1967,6 +1965,40 @@ def check_is_spaceheat_name(v: str) -> None:
         ValueError: If the provided string is not in SpaceheatName format.
     """
     try:
+        x = v.split("-")
+    except Exception as e:
+        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'-'") from e
+    first_word = x[0]
+    first_char = first_word[0]
+    if not first_char.isalpha():
+        raise ValueError(
+            f"Most significant word of &lt;{v}> must start with alphabet char."
+        )
+    for word in x:
+        if not word.isalnum():
+            raise ValueError(f"words of &lt;{v}> split by by '-' must be alphanumeric.")
+    if not v.islower():
+        raise ValueError(f"All characters of &lt;{v}> must be lowercase.")</xsl:text>
+    </xsl:when>
+
+
+<xsl:when test="Name='HandleName'">
+    <xsl:text>
+
+
+def check_is_handle_name(v: str) -> None:
+    """Check HandleName Format.
+
+    Validates if the provided string adheres to the HandleName format:
+    words separated by periods, where the worlds are lowercase alphanumeric plus hyphens
+
+    Args:
+        candidate (str): The string to be validated.
+
+    Raises:
+        ValueError: If the provided string is not in HandleName format.
+    """
+    try:
         x = v.split(".")
     except Exception as e:
         raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'") from e
@@ -1978,45 +2010,12 @@ def check_is_spaceheat_name(v: str) -> None:
         )
     for word in x:
         for char in word:
-            if not (char.isalnum() or char == '-'):
-                raise ValueError(f"words of &lt;{v}> split by by '.' must be alphanumeric or hyphen."
+            if not (char.isalnum() or char == "-"):
+                raise ValueError(
+                    f"words of &lt;{v}> split by by '.' must be alphanumeric or hyphen."
                 )
     if not v.islower():
-        raise ValueError(f"&lt;{v}> must be lowercase.")</xsl:text>
-    </xsl:when>
-
-
-<xsl:when test="Name='HandleName'">
-    <xsl:text>
-
-
-def check_is_handle_name(v: str) -> None:
-    """Check HandleName Format.
-
-    Validates if the provided string adheres to the Spaceheat HandleName format:
-    Lowercase alphanumeric words separated by hypens
-
-    Args:
-        candidate (str): The string to be validated.
-
-    Raises:
-        ValueError: If the provided string is not in HandleName format.
-    """
-    try:
-        x = v.split("-")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'") from e
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
-        raise ValueError(
-            f"Most significant word of &lt;{v}> must start with alphabet char."
-        )
-    for word in x:
-        if not word.isalnum():
-            raise ValueError(f"words of &lt;{v}> split by by '.' must be alphanumeric.")
-    if not v.islower():
-        raise ValueError(f"All characters of &lt;{v}> must be lowercase.")</xsl:text>
+        raise ValueError(f" &lt;{v}> must be lowercase.")</xsl:text>
 
     </xsl:when>
     <xsl:when test="Name='UuidCanonicalTextual'">

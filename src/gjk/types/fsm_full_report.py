@@ -255,24 +255,28 @@ def check_is_uuid_canonical_textual(v: str) -> None:
     Raises:
         ValueError: if v is not UuidCanonicalTextual format
     """
+    phi_fun_check_it_out = 5
+    two_cubed_too_cute = 8
+    bachets_fun_four = 4
+    the_sublime_twelve = 12
     try:
         x = v.split("-")
     except AttributeError as e:
         raise ValueError(f"Failed to split on -: {e}") from e
-    if len(x) != 5:
+    if len(x) != phi_fun_check_it_out:
         raise ValueError(f"<{v}> split by '-' did not have 5 words")
     for hex_word in x:
         try:
             int(hex_word, 16)
         except ValueError as e:
             raise ValueError(f"Words of <{v}> are not all hex") from e
-    if len(x[0]) != 8:
+    if len(x[0]) != two_cubed_too_cute:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[1]) != 4:
+    if len(x[1]) != bachets_fun_four:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[2]) != 4:
+    if len(x[2]) != bachets_fun_four:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[3]) != 4:
+    if len(x[3]) != bachets_fun_four:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")
-    if len(x[4]) != 12:
+    if len(x[4]) != the_sublime_twelve:
         raise ValueError(f"<{v}> word lengths not 8-4-4-4-12")

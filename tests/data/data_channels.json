@@ -24,7 +24,7 @@
         "Name": "buffer-depth1",
         "DisplayName": "Buffer Depth 1 (C x 1000)",
         "AboutNodeName": "buffer-depth1",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "buffer-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -34,7 +34,7 @@
         "Name": "buffer-depth2",
         "DisplayName": "Buffer Depth 2 (C x 1000)",
         "AboutNodeName": "buffer-depth2",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "buffer-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -44,7 +44,7 @@
         "Name": "buffer-depth3",
         "DisplayName": "Buffer Depth 3 (C x 1000)",
         "AboutNodeName": "buffer-depth3",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "buffer-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -54,7 +54,7 @@
         "Name": "buffer-depth4",
         "DisplayName": "Buffer Depth 4 (C x 1000)",
         "AboutNodeName": "buffer-depth4",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "buffer-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -174,7 +174,7 @@
         "Name": "tank2-depth1",
         "DisplayName": "Tank 2 Depth 1 (C x 1000)",
         "AboutNodeName": "tank2-depth1",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank2-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -184,7 +184,7 @@
         "Name": "tank2-depth2",
         "DisplayName": "Tank 2 Depth 2 (C x 1000)",
         "AboutNodeName": "tank2-depth2",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank2-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -194,7 +194,7 @@
         "Name": "tank2-depth3",
         "DisplayName": "Tank 2 Depth 3 (C x 1000)",
         "AboutNodeName": "tank2-depth3",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank2-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -204,7 +204,7 @@
         "Name": "tank2-depth4",
         "DisplayName": "Tank 2 Depth 4 (C x 1000)",
         "AboutNodeName": "tank2-depth4",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank2-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -214,7 +214,7 @@
         "Name": "tank3-depth1",
         "DisplayName": "Tank 3 Depth 1 (C x 1000)",
         "AboutNodeName": "tank3-depth1",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank3-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -224,7 +224,7 @@
         "Name": "tank3-depth2",
         "DisplayName": "Tank 3 Depth 2 (C x 1000)",
         "AboutNodeName": "tank3-depth2",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank3-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -234,7 +234,7 @@
         "Name": "tank3-depth3",
         "DisplayName": "Tank 3 Depth 3 (C x 1000)",
         "AboutNodeName": "tank3-depth3",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank3-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -244,7 +244,7 @@
         "Name": "tank3-depth4",
         "DisplayName": "Tank 3 Depth 4 (C x 1000)",
         "AboutNodeName": "tank3-depth4",
-        "CapturedByNodeName": "tank1-reader",
+        "CapturedByNodeName": "tank3-reader",
         "TelemetryName": "WaterTempCTimes1000",
         "StartS": null,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -301,10 +301,10 @@
     },
     {
         "Id": "0334a75a-48ee-4da1-8b77-96fe05b0c3db",
-        "Name": "down-zone-temp",
+        "Name": "zone1-down-temp",
         "DisplayName": "Down Zone Honeywell Temp",
-        "AboutNodeName": "down-zone",
-        "CapturedByNodeName": "down-zone",
+        "AboutNodeName": "zone1-down",
+        "CapturedByNodeName": "zone1-down",
         "TelemetryName": "AirTempFTimes1000",
         "StartS": 1700683960,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -321,30 +321,30 @@
     },
     {
         "Id": "dd4c0d78-d2e0-490c-b064-2f33b85ec431",
-        "Name": "down-zone-set",
+        "Name": "zone1-down-set",
         "DisplayName": "Down Zone Honeywell Setpoint",
-        "AboutNodeName": "down-zone",
-        "CapturedByNodeName": "down-zone",
+        "AboutNodeName": "zone1-down",
+        "CapturedByNodeName": "zone1-down",
         "TelemetryName": "AirTempFTimes1000",
         "StartS": 1700683960,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
     },
     {
         "Id": "581f758b-632f-426a-aebc-7432c416a99e",
-        "Name": "up-zone-set",
+        "Name": "zone2-up-set",
         "DisplayName": "Up Zone Honeywell Setpoint",
-        "AboutNodeName": "up-zone",
-        "CapturedByNodeName": "up-zone",
+        "AboutNodeName": "zone2-up",
+        "CapturedByNodeName": "zone2-up",
         "TelemetryName": "AirTempFTimes1000",
         "StartS": 1700683960,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
     },
     {
         "Id": "2196a6b7-90d1-42d0-b3f0-748f393bb35a",
-        "Name": "up-zone-temp",
+        "Name": "zone2-up-temp",
         "DisplayName": "Up Zone Honeywell Temp",
-        "AboutNodeName": "up-zone",
-        "CapturedByNodeName": "up-zone",
+        "AboutNodeName": "zone2-up",
+        "CapturedByNodeName": "zone2-up",
         "TelemetryName": "AirTempFTimes1000",
         "StartS": 1700683960,
         "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta"
@@ -361,9 +361,9 @@
     },
     {
         "Id": "01af1b8d-d22a-47c6-8e25-421be9df09b6",
-        "Name": "down-zone-gw-temp",
+        "Name": "zone1-down-gw-temp",
         "DisplayName": "Downstairs Zone Temp (C x 1000)",
-        "AboutNodeName": "down-zone",
+        "AboutNodeName": "zone1-down",
         "CapturedByNodeName": "analog-temp",
         "TelemetryName": "AirTempCTimes1000",
         "StartS": 1700006400,
@@ -371,9 +371,9 @@
     },
     {
         "Id": "0d9c3cac-5813-4881-a0f7-35d90ac4bd49",
-        "Name": "up-zone-gw-temp",
+        "Name": "zone2-up-gw-temp",
         "DisplayName": "Upstairs Zone Temp (C x 1000)",
-        "AboutNodeName": "up-zone",
+        "AboutNodeName": "zone2-up",
         "CapturedByNodeName": "analog-temp",
         "TelemetryName": "AirTempCTimes1000",
         "StartS": 1708221240,

@@ -62,13 +62,25 @@ import pytest
 from gw.errors import GwTypeError
 from pydantic import ValidationError
 </xsl:text>
-<xsl:for-each select="$airtable//GtEnums/GtEnum[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
-<xsl:text>
-from gjk.enums import </xsl:text>
+<xsl:for-each select="$airtable//GtEnums//GtEnum[normalize-space(Name) !='']">
+<xsl:sort select="Name" data-type="text"/>
+
+<xsl:variable name="base-name" select="LocalName"/>
+<xsl:variable name="enum-local-name">
 <xsl:call-template name="nt-case">
     <xsl:with-param name="type-name-text" select="LocalName" />
 </xsl:call-template>
+</xsl:variable>
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (EnumLocalName[text() = $base-name])])>0">
+
+<xsl:text>
+from gjk.enums import </xsl:text>
+<xsl:value-of select="$enum-local-name"/>
+
+</xsl:if>
+
 </xsl:for-each>
+
 <xsl:choose>
 <xsl:when test="(NotInInit='true')">
 <xsl:text>
