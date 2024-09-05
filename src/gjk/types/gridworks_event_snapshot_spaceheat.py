@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 class GridworksEventSnapshotSpaceheat(BaseModel):
     """
-    This is a gwproto wrapper around a gt.sh.status message that includes the src (which should
+    This is a gjk wrapper around a gt.sh.status message that includes the src (which should
     always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once
     the gt.sh.status message is created, and does not change if the SCADA re-sends the message
     due to no ack from AtomicTNode) and a timestamp for when the message was created.

@@ -46,6 +46,21 @@ class DataChannelSql(Base):
         "NodalHourlyEnergySql", back_populates="power_channel"
     )
 
+    def to_dict(self):
+        d = {
+            "Id": self.id,
+            "Name": self.name,
+            "DisplayName": self.display_name,
+            "AboutNodeName": self.about_node_name,
+            "CapturedByNodeName": self.captured_by_node_name,
+            "TelemetryName": self.telemetry_name,
+            "TerminalAssetAlias": self.terminal_asset_alias,
+        }
+        if self.start_s:
+            d["StartS"] = self.start_s
+        if self.in_power_metering:
+            d["InPowerMetering"] = self.in_power_metering
+
     def __repr__(self):
         ta_short = self.terminal_asset_alias.split(".")[-2]
         power_metering_status = (

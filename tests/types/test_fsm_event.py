@@ -3,10 +3,10 @@
 import json
 
 import pytest
-from gw.errors import GwTypeError
 from gjk.enums import FsmEventType
 from gjk.types import FsmEvent
 from gjk.types import FsmEventMaker as Maker
+from gw.errors import GwTypeError
 from pydantic import ValidationError
 
 

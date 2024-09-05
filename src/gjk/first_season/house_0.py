@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List
 
 
 class TankTempName:
@@ -20,6 +20,7 @@ class TankTempName:
     @property
     def depth4(self) -> str:
         return f"{self.tank_prefix}-depth4"
+
 
 class House0TempName:
     TANK: Dict[int, TankTempName]

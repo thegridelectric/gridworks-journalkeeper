@@ -55,53 +55,36 @@
 
 <xsl:text>"""Type </xsl:text><xsl:value-of select="$type-name"/><xsl:text>, version </xsl:text>
 <xsl:value-of select="Version"/><xsl:text>"""
-
 import json
 import logging
-import os
-from typing import Any, Dict</xsl:text>
-	<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsList = 'true')])>0">
-<xsl:text>, List</xsl:text>
+from typing import Any
+from typing import Dict</xsl:text>
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsList = 'true')])>0">
+<xsl:text>
+from typing import List</xsl:text>
 </xsl:if>
-<xsl:text>, Literal</xsl:text>
+<xsl:text>
+from typing import Literal</xsl:text>
 
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and not (IsRequired = 'true')]) > 0">
-<xsl:text>, Optional</xsl:text>
+<xsl:text>
+from typing import Optional</xsl:text>
 </xsl:if>
+<xsl:text>
 
-<xsl:if test="count(PropertyFormatsUsed)>0">
-<xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='AlgoAddressStringFormat')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
-<xsl:text>
-import algosdk</xsl:text>
-</xsl:for-each>
-</xsl:if>
-
-<xsl:text>
-import dotenv
-from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, pascal_to_snake, snake_to_pascal
-from pydantic import BaseModel</xsl:text>
-<xsl:text>
+from pydantic import BaseModel
 from pydantic import Field</xsl:text>
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
 <xsl:text>
-from pydantic import model_validator</xsl:text>
+from pydantic import root_validator</xsl:text>
 </xsl:if>
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsRequired='false') or (IsEnum='true' or (IsList='true' and (IsType = 'true' or (IsPrimitive='true'  and normalize-space(PrimitiveFormat) != '') )))]) > 0">
 <xsl:text>
-from pydantic import field_validator</xsl:text>
-</xsl:if>
-<xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
-<xsl:text>
-from typing_extensions import Self</xsl:text>
+from pydantic import validator</xsl:text>
 </xsl:if>
 
-<xsl:if test="count(PropertyFormatsUsed)>0">
-<xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='MarketSlotNameLrdFormat')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
-<xsl:text>
-from gw import check_is_market_slot_name_lrd_format</xsl:text>
-</xsl:for-each>
-</xsl:if>
+
+
 
 <xsl:if test="MakeDataClass='true'">
 <xsl:if test="not(IsComponent = 'true') and not(IsCac = 'true')">
@@ -154,7 +137,7 @@ from gjk.types.</xsl:text>
 <xsl:text> import </xsl:text>
 <xsl:call-template name="nt-case">
     <xsl:with-param name="type-name-text" select="SubTypeName" />
-</xsl:call-template><xsl:text>Maker</xsl:text>
+</xsl:call-template><xsl:text>_Maker</xsl:text>
 </xsl:if>
 </xsl:for-each>
 
@@ -172,14 +155,18 @@ from gjk.types.</xsl:text>
 <xsl:text>
 from gjk.enums import </xsl:text>
 <xsl:value-of select="$enum-local-name"/>
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (UseEnumAlias= 'true') and (EnumLocalName[text()=$base-name])])>0">
+<xsl:text> as Enum</xsl:text>
+<xsl:value-of select="$enum-local-name"/>
 </xsl:if>
+
+</xsl:if>
+
 </xsl:for-each>
+<xsl:text>
+from gjk.errors import SchemaError</xsl:text>
 
 <xsl:text>
-
-dotenv.load_dotenv()
-
-ENCODE_ENUMS = int(os.getenv('ENUM_ENCODE', "1"))
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
@@ -207,11 +194,10 @@ class </xsl:text>
     <!-- Type Description, wrapped, if it exists -->
     <xsl:if test="(normalize-space(Description) != '')">
     <xsl:call-template name="wrap-text">
-        <xsl:with-param name="text" select="normalize-space(concat(Description, ' ', UpdateDescription))"/>
+        <xsl:with-param name="text" select="normalize-space(Description)"/>
         <xsl:with-param name="indent-spaces" select="4"/>
     </xsl:call-template>
     </xsl:if>
-
 
     <xsl:if test="(normalize-space(Url) != '')">
     <xsl:text>
@@ -228,19 +214,22 @@ class </xsl:text>
 <xsl:sort select="Idx" data-type="number"/>
 
 <xsl:variable name = "attribute-name">
-    <xsl:call-template name="python-case">
-        <xsl:with-param name="camel-case-text" select="Value"/>
-        </xsl:call-template>
+    <xsl:value-of select="Value"/>
     <!-- If attribute is associated to a data class, add Id to the Attribute name-->
     <xsl:if test="not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
-    <xsl:text>_id</xsl:text>
+    <xsl:text>Id</xsl:text>
     </xsl:if>
 </xsl:variable>
 
-<xsl:variable name="enum-local-name">
-<xsl:call-template name="nt-case">
-    <xsl:with-param name="type-name-text" select="EnumLocalName" />
-</xsl:call-template>
+<xsl:variable name="enum-class-name">
+    <xsl:if test = "(IsEnum = 'true')">
+        <xsl:if test="UseEnumAlias = 'true'">
+        <xsl:text>Enum</xsl:text>
+        </xsl:if>
+        <xsl:call-template name="nt-case">
+                        <xsl:with-param name="type-name-text" select="EnumLocalName" />
+        </xsl:call-template>
+    </xsl:if>
 </xsl:variable>
 
 <xsl:variable name="attribute-type">
@@ -262,7 +251,7 @@ class </xsl:text>
     </xsl:when>
 
     <xsl:when test = "(IsEnum = 'true')">
-        <xsl:value-of select="$enum-local-name"/>
+        <xsl:value-of select="$enum-class-name"/>
     </xsl:when>
 
     <!-- If Attribute is a type associated with a dataclass, the reference is to its id, which is a string -->
@@ -392,23 +381,9 @@ class </xsl:text>
 </xsl:for-each>
 
 
-<xsl:text>    type_name: Literal["</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"] = "</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"
-    version: Literal["</xsl:text>
+<xsl:text>    TypeName: Literal["</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"] = "</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"
+    Version: Literal["</xsl:text>
 <xsl:value-of select="Version"/><xsl:text>"] = "</xsl:text><xsl:value-of select="Version"/><xsl:text>"</xsl:text>
-
-<xsl:if test="ExtraAllowed='true'"><xsl:text>
-
-    class Config:
-        extra = "allow"
-        populate_by_name = True
-        alias_generator = snake_to_pascal</xsl:text>
-</xsl:if>
-<xsl:if test="not(ExtraAllowed='true')"><xsl:text>
-
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal</xsl:text>
-</xsl:if>
 
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
@@ -419,8 +394,11 @@ class </xsl:text>
     <xsl:sort select="Idx" data-type="number"/>
     <xsl:variable name="type-attribute-id" select="TypeAttributeId" />
 
-    <xsl:variable name="enum-local-name">
+    <xsl:variable name="enum-class-name">
         <xsl:if test = "(IsEnum = 'true')">
+            <xsl:if test="UseEnumAlias = 'true'">
+            <xsl:text>Enum</xsl:text>
+            </xsl:if>
             <xsl:call-template name="nt-case">
                             <xsl:with-param name="type-name-text" select="EnumLocalName" />
             </xsl:call-template>
@@ -446,7 +424,7 @@ class </xsl:text>
         </xsl:when>
 
         <xsl:when test = "(IsEnum = 'true')">
-            <xsl:value-of select="$enum-local-name"/>
+            <xsl:value-of select="$enum-class-name"/>
         </xsl:when>
 
         <!-- If Attribute is a type associated with a dataclass, the reference is to its id, which is a string -->
@@ -474,12 +452,10 @@ class </xsl:text>
     </xsl:variable>
 
     <xsl:variable name = "attribute-name">
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"/>
-            </xsl:call-template>
+        <xsl:value-of select="Value"/>
         <!-- If attribute is associated to a data class, add Id to the Attribute name-->
-        <xsl:if test="not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
-        <xsl:text>_id</xsl:text>
+        <xsl:if test="not(normalize-space(SubTypeDataClass) = '')">
+        <xsl:text>Id</xsl:text>
         </xsl:if>
     </xsl:variable>
 
@@ -487,13 +463,12 @@ class </xsl:text>
 
     <xsl:text>
 
-    @field_validator("</xsl:text><xsl:value-of select="$attribute-name"/><xsl:text>"</xsl:text>
+    @validator("</xsl:text><xsl:value-of select="$attribute-name"/><xsl:text>"</xsl:text>
 
     <xsl:if test="PreValidateFormat='true'">
-    <xsl:text>, mode='before'</xsl:text>
+    <xsl:text>, pre=True</xsl:text>
     </xsl:if>
     <xsl:text>)
-    @classmethod
     def </xsl:text>
 
     <!-- add an underscore if there are no axioms getting checked, in which case its just property formats and/or enums -->
@@ -597,14 +572,14 @@ class </xsl:text>
             raise ValueError(
                 f"</xsl:text><xsl:value-of select="Value"/><xsl:text> failed </xsl:text>
             <xsl:value-of select="PrimitiveFormat"/>
-            <xsl:text> format validation: {e}",
-            ) from e</xsl:text>
+            <xsl:text> format validation: {e}"
+            )</xsl:text>
             </xsl:when>
             <xsl:otherwise>
             <xsl:text>
             raise ValueError(f"</xsl:text><xsl:value-of select="Value"/><xsl:text> failed </xsl:text>
             <xsl:value-of select="PrimitiveFormat"/>
-            <xsl:text> format validation: {e}") from e</xsl:text>
+            <xsl:text> format validation: {e}")</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -625,8 +600,8 @@ class </xsl:text>
                 raise ValueError(
                     f"</xsl:text><xsl:value-of select="Value"/><xsl:text> element {elt} failed </xsl:text>
                 <xsl:value-of select="PrimitiveFormat" />
-                <xsl:text> format validation: {e}",
-                ) from e
+                <xsl:text> format validation: {e}"
+                )
         return v</xsl:text>
         </xsl:when>
 
@@ -638,8 +613,8 @@ class </xsl:text>
         except ValueError as e:
             raise ValueError(
                 f"</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>Id failed UuidCanonicalTextual format validation: {e}",
-            ) from e
+                <xsl:value-of select="Value"/><xsl:text>Id failed UuidCanonicalTextual format validation: {e}"
+            )
         return v</xsl:text>
         </xsl:when>
 
@@ -653,8 +628,8 @@ class </xsl:text>
                 raise ValueError(
                     f"</xsl:text><xsl:value-of select="Value"/><xsl:text> element {elt} failed </xsl:text>
                 <xsl:value-of select="PrimitiveFormat" />
-                <xsl:text> format validation: {e}",
-                ) from e
+                <xsl:text> format validation: {e}"
+                )
         return v</xsl:text>
         </xsl:when>
 
@@ -671,15 +646,12 @@ class </xsl:text>
     <xsl:sort select="AxiomNumber" data-type="number"/>
     <xsl:text>
 
-    @model_validator</xsl:text>
+    @root_validator</xsl:text>
     <xsl:if test="CheckFirst='true'">
-     <xsl:text>(mode='before')</xsl:text>
-    </xsl:if>
-    <xsl:if test="not(CheckFirst='true')">
-     <xsl:text>(mode='after')</xsl:text>
+     <xsl:text>(pre=True)</xsl:text>
     </xsl:if>
     <xsl:text>
-    def check_axiom_</xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>(self) -> Self:
+    def check_axiom_</xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>(cls, v: dict) -> dict:
         """
         Axiom </xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>: </xsl:text>
         <xsl:value-of select="Title"/>
@@ -695,7 +667,7 @@ class </xsl:text>
         <xsl:text>
         """
         # TODO: Implement check for axiom </xsl:text><xsl:value-of select="AxiomNumber"/><xsl:text>"
-        return self</xsl:text>
+        return v</xsl:text>
 
     </xsl:for-each>
     </xsl:if>
@@ -714,202 +686,26 @@ class </xsl:text>
 
     def as_dict(self) -> Dict[str, Any]:
         """
-        Main step in serializing the object. Encodes enums as their 8-digit random hex symbol if
-        settings.encode_enums = 1.
-        """
-        if ENCODE_ENUMS:
-            return self.enum_encoded_dict()
-        else:
-            return self.plain_enum_dict()
+        Translate the object into a dictionary representation that can be serialized into a
+        </xsl:text><xsl:value-of select="VersionedTypeName"/><xsl:text> object.
 
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        """
-        Returns enums as their values.
+        This method prepares the object for serialization by the as_type method, creating a
+        dictionary with key-value pairs that follow the requirements for an instance of the
+        </xsl:text>
+        <xsl:value-of select="VersionedTypeName"/><xsl:text> type. Unlike the standard python dict method,
+        it makes the following substantive changes:
+        - Enum Values: Translates between the values used locally by the actor to the symbol
+        sent in messages.
+        - Removes any key-value pairs where the value is None for a clearer message, especially
+        in cases with many optional attributes.
+
+        It also applies these changes recursively to sub-types.
         """
         d = {
-            snake_to_pascal(key): value
-            for key, value in self.model_dump().items()
-            if value is not None
-        }</xsl:text>
-
-        <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
-        <xsl:sort select="Idx" data-type="number"/>
-    <xsl:choose>
-
-    <!-- (Required) CASES FOR as_dict -->
-    <xsl:when test="IsRequired = 'true'">
-    <xsl:choose>
-
-        <!-- (required) as_dict: Single Enums -->
-        <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
-    <xsl:text>
-        d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = d["</xsl:text>
-        <xsl:value-of select="Value"/><xsl:text>"].value</xsl:text>
-        </xsl:when>
-
-         <!-- (required) as_dict: List of Enums -->
-        <xsl:when test="(IsEnum = 'true')  and (IsList = 'true')">
-        <xsl:text>
-        del d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-        </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template> <xsl:text> = []
-        for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>:
-            </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>.append(elt.value)
-        d["</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-
-        <!--(required) as_dict: Single Type, no associated data class (since those just show up as id pointers) -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
-        <xsl:text>
-        d["</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>"] = self.</xsl:text>
-            <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"  />
-            </xsl:call-template>
-            <xsl:text>.as_dict()</xsl:text>
-        </xsl:when>
-
-
-        <!-- (required) as_dict: List of Types -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '' or IsList='true') and (IsList = 'true')">
-        <xsl:text>
-        # Recursively calling as_dict()
-        </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text> = []
-        for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>:
-            </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>.append(elt.as_dict())
-        d["</xsl:text>
-        <xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise></xsl:otherwise>
-    </xsl:choose>
-    </xsl:when>
-
-    <!-- Optional as_dict -->
-    <xsl:otherwise>
-        <xsl:choose>
-
-        <!-- (optional) as_dict: Single Enums -->
-        <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
-    <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d.keys():
-            d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = d["</xsl:text>
-            <xsl:value-of select="Value"/><xsl:text>"].value</xsl:text>
-        </xsl:when>
-
-         <!-- (optional) as_dict: List of Enums -->
-        <xsl:when test="(IsEnum = 'true')  and (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d.keys():
-            del d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-            </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template> <xsl:text> = []
-            for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>:
-                </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>.append(elt.value)
-            d["</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-
-        <!--(optional) as_dict: Single Type, no associated data class (since those just show up as id pointers) -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d.keys():
-            del d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-            d["</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>"] = self.</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>.as_dict()</xsl:text>
-        </xsl:when>
-
-        <!-- (optional) as_dict: List of Types -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d.keys():
-            </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text> = []
-            for elt in self.</xsl:text>
-       <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>:
-                </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>.append(elt.as_dict())
-            d["</xsl:text>
-        <xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-         <!-- End of loop inside optional -->
-        <xsl:otherwise></xsl:otherwise>
-        </xsl:choose>
-
-
-    </xsl:otherwise>
-    </xsl:choose>
-
-    </xsl:for-each>
-    <xsl:text>
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
-        """
-        Encodes enums as their 8-digit random hex symbol
-        """
-        d = {
-            snake_to_pascal(key): value
-            for key, value in self.model_dump().items()
+            key: value
+            for key, value in self.dict(
+                include=self.__fields_set__ | {"TypeName", "Version"}
+            ).items()
             if value is not None
         }</xsl:text>
 
@@ -921,6 +717,13 @@ class </xsl:text>
                 <xsl:with-param name="type-name-text" select="EnumLocalName" />
             </xsl:call-template>
         </xsl:variable>
+        <xsl:variable name="enum-class-name">
+            <xsl:if test="(normalize-space(UseEnumAlias) = 'true')">
+                <xsl:text>Enum</xsl:text>
+            </xsl:if>
+                <xsl:value-of select="$enum-local-name"/>
+        </xsl:variable>
+
     <xsl:choose>
 
     <!-- (Required) CASES FOR as_dict -->
@@ -935,12 +738,8 @@ class </xsl:text>
         <xsl:call-template name="nt-case">
                         <xsl:with-param name="type-name-text" select="Value" />
         </xsl:call-template>
-        <xsl:text>GtEnumSymbol"] = </xsl:text><xsl:value-of select="$enum-local-name"/>
-        <xsl:text>.value_to_symbol(self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"/>
-        </xsl:call-template>
-        <xsl:text>)</xsl:text>
+        <xsl:text>GtEnumSymbol"] = </xsl:text><xsl:value-of select="$enum-class-name"/>
+        <xsl:text>.value_to_symbol(self.</xsl:text><xsl:value-of select="Value"/><xsl:text>)</xsl:text>
         </xsl:when>
 
          <!-- (required) as_dict: List of Enums -->
@@ -952,9 +751,7 @@ class </xsl:text>
             <xsl:with-param name="camel-case-text" select="Value"  />
         </xsl:call-template> <xsl:text> = []
         for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>:
+        <xsl:value-of select="Value"/><xsl:text>:
             </xsl:text>
             <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
@@ -973,9 +770,7 @@ class </xsl:text>
         d["</xsl:text>
             <xsl:value-of select="Value"/>
             <xsl:text>"] = self.</xsl:text>
-            <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"  />
-            </xsl:call-template>
+            <xsl:value-of select="Value"/>
             <xsl:text>.as_dict()</xsl:text>
         </xsl:when>
 
@@ -990,9 +785,7 @@ class </xsl:text>
         </xsl:call-template>
         <xsl:text> = []
         for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
+        <xsl:value-of select="Value"/>
         <xsl:text>:
             </xsl:text>
         <xsl:call-template name="python-case">
@@ -1024,11 +817,8 @@ class </xsl:text>
         <xsl:call-template name="nt-case">
                         <xsl:with-param name="type-name-text" select="Value" />
         </xsl:call-template>
-        <xsl:text>GtEnumSymbol"] = </xsl:text><xsl:value-of select="$enum-local-name"/>
-        <xsl:text>.value_to_symbol(self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>)</xsl:text>
+        <xsl:text>GtEnumSymbol"] = </xsl:text><xsl:value-of select="$enum-class-name"/>
+        <xsl:text>.value_to_symbol(self.</xsl:text><xsl:value-of select="Value"/><xsl:text>)</xsl:text>
         </xsl:when>
 
          <!-- (optional) as_dict: List of Enums -->
@@ -1042,9 +832,7 @@ class </xsl:text>
             <xsl:with-param name="camel-case-text" select="Value"  />
         </xsl:call-template> <xsl:text> = []
             for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>:
+        <xsl:value-of select="Value"/><xsl:text>:
                 </xsl:text>
             <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
@@ -1081,9 +869,7 @@ class </xsl:text>
         </xsl:call-template>
         <xsl:text> = []
             for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
+        <xsl:value-of select="Value"/>
         <xsl:text>:
                 </xsl:text>
         <xsl:call-template name="python-case">
@@ -1112,11 +898,26 @@ class </xsl:text>
     def as_type(self) -> bytes:
         """
         Serialize to the </xsl:text>
-        <xsl:value-of select="VersionedTypeName"/>
-        <xsl:text> representation designed to send in a message.
+        <xsl:value-of select="VersionedTypeName"/><xsl:text> representation.
 
-        Recursively encodes enums as hard-to-remember 8-digit random hex symbols
-        unless settings.encode_enums is set to 0.
+        Instances in the class are python-native representations of </xsl:text><xsl:value-of select="VersionedTypeName"/><xsl:text>
+        objects, while the actual </xsl:text><xsl:value-of select="VersionedTypeName"/><xsl:text> object is the serialized UTF-8 byte
+        string designed for sending in a message.
+
+        This method calls the as_dict() method, which differs from the native python dict()
+        in the following key ways:
+        - Enum Values: Translates between the values used locally by the actor to the symbol
+        sent in messages.
+        - - Removes any key-value pairs where the value is None for a clearer message, especially
+        in cases with many optional attributes.
+
+        It also applies these changes recursively to sub-types.
+
+        Its near-inverse is </xsl:text>
+        <xsl:value-of select="$python-class-name"/>
+        <xsl:text>.type_to_tuple(). If the type (or any sub-types)
+        includes an enum, then the type_to_tuple will map an unrecognized symbol to the
+        default enum value. This is why these two methods are only 'near' inverses.
         """
         json_string = json.dumps(self.as_dict())
         return json_string.encode("utf-8")
@@ -1127,9 +928,137 @@ class </xsl:text>
 
 class </xsl:text>
     <xsl:value-of select="$python-class-name"/>
-    <xsl:text>Maker:
+    <xsl:text>_Maker:
     type_name = "</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"
     version = "</xsl:text><xsl:value-of select="Version"/><xsl:text>"
+
+    def __init__(
+        self,
+        </xsl:text>
+<xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
+<xsl:sort select="Idx" data-type="number"/>
+
+
+<xsl:variable name = "attribute-name">
+    <xsl:value-of select="Value"/>
+    <!-- If attribute is associated to a data class, add Id to the Attribute name-->
+    <xsl:if test="not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
+    <xsl:text>Id</xsl:text>
+    </xsl:if>
+</xsl:variable>
+
+<xsl:variable name="enum-class-name">
+    <xsl:if test = "(IsEnum = 'true')">
+        <xsl:if test="UseEnumAlias = 'true'">
+        <xsl:text>Enum</xsl:text>
+        </xsl:if>
+        <xsl:call-template name="nt-case">
+                        <xsl:with-param name="type-name-text" select="EnumLocalName" />
+        </xsl:call-template>
+    </xsl:if>
+</xsl:variable>
+
+<xsl:variable name="attribute-type">
+
+    <!-- If Optional, start the Optional bracket-->
+    <xsl:if test="not(IsRequired = 'true')">
+    <xsl:text>Optional[</xsl:text>
+    </xsl:if>
+
+    <!-- If List, start the List bracket-->
+    <xsl:if test="IsList = 'true'">
+    <xsl:text>List[</xsl:text>
+    </xsl:if>
+    <xsl:choose>
+    <xsl:when test="(IsPrimitive = 'true')">
+    <xsl:call-template name="python-type">
+        <xsl:with-param name="gw-type" select="PrimitiveType"/>
+    </xsl:call-template>
+    </xsl:when>
+
+    <xsl:when test = "(IsEnum = 'true')">
+        <xsl:value-of select="$enum-class-name"/>
+    </xsl:when>
+
+    <!-- If Attribute is a type associated with a dataclass, the reference is to its id, which is a string -->
+    <xsl:when test = "not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
+    <xsl:text>str</xsl:text>
+    </xsl:when>
+
+    <!-- Otherwise, the reference is to the type  -->
+    <xsl:when test="(IsType = 'true')">
+        <xsl:call-template name="nt-case">
+            <xsl:with-param name="type-name-text" select="SubTypeName" />
+        </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise></xsl:otherwise>
+    </xsl:choose>
+            <!-- If List, end the List bracket-->
+    <xsl:if test="IsList = 'true'">
+    <xsl:text>]</xsl:text>
+    </xsl:if>
+
+    <!-- If Optional, end the Optional bracket-->
+    <xsl:if test="not(IsRequired = 'true')">
+    <xsl:text>]</xsl:text>
+    </xsl:if>
+</xsl:variable>
+
+
+        <!-- python case version of attribute names in init-->
+        <xsl:call-template name="python-case">
+            <xsl:with-param name="camel-case-text" select="$attribute-name"  />
+        </xsl:call-template>
+        <xsl:text>: </xsl:text>
+        <xsl:value-of select="$attribute-type"/>
+
+        <xsl:variable name="current-attribute" select="position()" />
+        <xsl:choose>
+        <xsl:when test="$current-attribute=$total-attributes">
+        <xsl:text>,</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+        <xsl:text>,
+        </xsl:text>
+        </xsl:otherwise>
+        </xsl:choose>
+
+
+        </xsl:for-each>
+    <xsl:text>
+    ):
+        self.tuple = </xsl:text><xsl:value-of select="$python-class-name"/>
+        <xsl:text>(
+            </xsl:text>
+        <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
+        <xsl:sort select="Idx" data-type="number"/>
+        <xsl:variable name = "attribute-name">
+            <xsl:value-of select="Value"/>
+            <!-- If attribute is associated to a data class, add Id to the Attribute name-->
+            <xsl:if test="not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
+            <xsl:text>Id</xsl:text>
+            </xsl:if>
+        </xsl:variable>
+
+        <xsl:value-of select="$attribute-name"/><xsl:text>=</xsl:text>
+        <xsl:call-template name="python-case">
+            <xsl:with-param name="camel-case-text" select="$attribute-name"  />
+        </xsl:call-template>
+
+        <xsl:variable name="current-attribute" select="position()" />
+        <xsl:choose>
+        <xsl:when test="$current-attribute=$total-attributes">
+        <xsl:text>,</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+        <xsl:text>,
+            </xsl:text>
+        </xsl:otherwise>
+        </xsl:choose>
+
+    </xsl:for-each>
+    <xsl:text>
+        )
 
     @classmethod
     def tuple_to_type(cls, tuple: </xsl:text><xsl:value-of select="$python-class-name"/>
@@ -1140,40 +1069,47 @@ class </xsl:text>
         return tuple.as_type()
 
     @classmethod
-    def type_to_tuple(cls, b: bytes) -> </xsl:text><xsl:value-of select="$python-class-name"/>
+    def type_to_tuple(cls, t: bytes) -> </xsl:text><xsl:value-of select="$python-class-name"/>
 <xsl:text>:
         """
-        Given the bytes in a message, returns the corresponding class object.
-
-        Args:
-            b (bytes): candidate type instance
-
-        Raises:
-           GwTypeError: if the bytes are not a </xsl:text>
-        <xsl:value-of select="VersionedTypeName"/>  <xsl:text> type
-
-        Returns:
-            </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text> instance
+        Given a serialized JSON type object, returns the Python class object.
         """
         try:
-            d = json.loads(b)
-        except TypeError as e:
-            raise GwTypeError("Type must be string or bytes!") from e
+            d = json.loads(t)
+        except TypeError:
+            raise SchemaError("Type must be string or bytes!")
         if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing  must result in dict!\n &lt;{b}>")
+            raise SchemaError(f"Deserializing &lt;{t}> must result in dict!")
         return cls.dict_to_tuple(d)
 
     @classmethod
     def dict_to_tuple(cls, d: dict[str, Any]) -> </xsl:text><xsl:value-of select="$python-class-name"/>
     <xsl:text>:
         """
-        Translates a dict representation of a </xsl:text><xsl:value-of select="VersionedTypeName"/>
+        Deserialize a dictionary representation of a </xsl:text><xsl:value-of select="VersionedTypeName"/>
         <xsl:text> message object
-        into the Python class object.
+        into a </xsl:text>
+        <xsl:value-of select="$python-class-name"/><xsl:text> python object for internal use.
+
+        This is the near-inverse of the </xsl:text><xsl:value-of select="$python-class-name"/>
+        <xsl:text>.as_dict() method:
+          - Enums: translates between the symbols sent in messages between actors and
+        the values used by the actors internally once they've deserialized the messages.
+          - Types: recursively validates and deserializes sub-types.
+
+        Note that if a required attribute with a default value is missing in a dict, this method will
+        raise a SchemaError. This differs from the pydantic BaseModel practice of auto-completing
+        missing attributes with default values when they exist.
+
+        Args:
+            d (dict): the dictionary resulting from json.loads(t) for a serialized JSON type object t.
+
+        Raises:
+           SchemaError: if the dict cannot be turned into a </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text> object.
+
+        Returns:
+            </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>
         """
-        for key in d.keys():
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
         d2 = dict(d)</xsl:text>
 
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
@@ -1182,6 +1118,12 @@ class </xsl:text>
     <xsl:call-template name="nt-case">
         <xsl:with-param name="type-name-text" select="EnumLocalName" />
     </xsl:call-template>
+</xsl:variable>
+<xsl:variable name="enum-class-name">
+    <xsl:if test="(normalize-space(UseEnumAlias) = 'true')">
+        <xsl:text>Enum</xsl:text>
+    </xsl:if>
+        <xsl:value-of select="$enum-local-name"/>
 </xsl:variable>
 
     <xsl:choose>
@@ -1199,44 +1141,25 @@ class </xsl:text>
         <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
         <xsl:text>
         if "</xsl:text>
-            <xsl:value-of select="Value"/>
-         <xsl:text>GtEnumSymbol" in d2.keys():
-            value = </xsl:text>
-        <xsl:value-of select="$enum-local-name"/>
+        <xsl:call-template name="nt-case">
+            <xsl:with-param name="type-name-text" select="Value" />
+        </xsl:call-template><xsl:text>GtEnumSymbol" not in d2.keys():
+            raise SchemaError(f"</xsl:text>
+            <xsl:call-template name="nt-case">
+            <xsl:with-param name="type-name-text" select="Value" />
+        </xsl:call-template>
+            <xsl:text>GtEnumSymbol missing from dict &lt;{d2}>")
+        value = </xsl:text>
+        <xsl:value-of select="$enum-class-name"/>
         <xsl:text>.symbol_to_value(d2["</xsl:text>
-        <xsl:value-of select="Value" />
-        <xsl:text>GtEnumSymbol"])
-            d2["</xsl:text> <xsl:call-template name="nt-case">
+        <xsl:call-template name="nt-case">
+            <xsl:with-param name="type-name-text" select="Value" />
+        </xsl:call-template><xsl:text>GtEnumSymbol"])
+        d2["</xsl:text> <xsl:call-template name="nt-case">
             <xsl:with-param name="type-name-text" select="Value" />
         </xsl:call-template><xsl:text>"] = </xsl:text>
-        <xsl:value-of select="$enum-local-name"/>
-        <xsl:text>(value)
-            del d2["</xsl:text>
-        <xsl:value-of select="Value"/><xsl:text>GtEnumSymbol"]
-        elif "</xsl:text>
-            <xsl:value-of select="Value" />
-         <xsl:text>" in d2.keys():
-            if d2["</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>"] not in </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.values():
-                d2["</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>"] = </xsl:text>
-                <xsl:value-of select="$enum-local-name"/><xsl:text>.default()
-            else:
-                d2["</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>"] = </xsl:text>
-            <xsl:value-of select="$enum-local-name"/>
-            <xsl:text>(d2["</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>"])
-        else:
-            raise GwTypeError(
-                f"both </xsl:text>
-            <xsl:value-of select="Value" />
-            <xsl:text>GtEnumSymbol and </xsl:text>
-            <xsl:value-of select="Value" />
-            <xsl:text> missing from dict &lt;{d2}>",
-            )</xsl:text>
-
+        <xsl:value-of select="$enum-class-name"/>
+        <xsl:text>(value)</xsl:text>
         </xsl:when>
 
         <!-- (Is required) INNER LOOP dict_to_tuple:  Enum List -->
@@ -1245,13 +1168,13 @@ class </xsl:text>
         if "</xsl:text>
         <xsl:value-of select="Value"/>
         <xsl:text>" not in d2.keys():
-            raise GwTypeError(f"dict &lt;{d2}> missing </xsl:text>
+            raise SchemaError(f"dict &lt;{d2}> missing </xsl:text>
         <xsl:value-of select="Value"/>
         <xsl:text>")
         if not isinstance(d2["</xsl:text>
         <xsl:value-of select="Value"/>
         <xsl:text>"], List):
-            raise GwTypeError("</xsl:text><xsl:value-of select="Value"/><xsl:text> must be a List!")
+            raise SchemaError("</xsl:text><xsl:value-of select="Value"/><xsl:text> must be a List!")
         </xsl:text>
         <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
@@ -1260,22 +1183,15 @@ class </xsl:text>
         for elt in d2["</xsl:text>
         <xsl:value-of select="Value"/>
         <xsl:text>"]:
-            if elt in </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.symbols():
-                value = </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.symbol_to_value(elt)
-            elif elt in </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.values():
-                value = elt
-            else:
-                value = </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.default()
+            value = </xsl:text>
+            <xsl:value-of select="$enum-class-name"/>
+            <xsl:text>.symbol_to_value(elt)
             </xsl:text>
             <xsl:call-template name="python-case">
                 <xsl:with-param name="camel-case-text" select="Value"  />
             </xsl:call-template>
             <xsl:text>.append(</xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>(value))
+            <xsl:value-of select="$enum-class-name"/><xsl:text>(value))
         d2["</xsl:text><xsl:value-of select="Value"/>
         <xsl:text>"] = </xsl:text>
         <xsl:call-template name="python-case">
@@ -1287,19 +1203,17 @@ class </xsl:text>
         <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
         <xsl:text>
         if "</xsl:text><xsl:value-of select="Value"/><xsl:text>" not in d2.keys():
-            raise GwTypeError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")
+            raise SchemaError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")
         if not isinstance(d2["</xsl:text><xsl:value-of select="Value"/>
         <xsl:text>"], dict):
-            raise GwTypeError(
-                f"</xsl:text>
+            raise SchemaError(f"</xsl:text>
             <xsl:value-of select="Value"/>
             <xsl:text> &lt;{d2['</xsl:text><xsl:value-of select="Value"/>
             <xsl:text>']}> must be a </xsl:text>
             <xsl:call-template name="nt-case">
                 <xsl:with-param name="type-name-text" select="SubTypeName" />
             </xsl:call-template>
-            <xsl:text>!"
-            )
+            <xsl:text>!")
         </xsl:text>
         <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
@@ -1308,11 +1222,9 @@ class </xsl:text>
         <xsl:call-template name="nt-case">
             <xsl:with-param name="type-name-text" select="SubTypeName" />
         </xsl:call-template>
-        <xsl:text>Maker.dict_to_tuple(
-            d2["</xsl:text>
+        <xsl:text>_Maker.dict_to_tuple(d2["</xsl:text>
         <xsl:value-of select="Value"/>
-        <xsl:text>"]
-        )
+        <xsl:text>"])
         d2["</xsl:text><xsl:value-of select="Value"/>
         <xsl:text>"] = </xsl:text>
         <xsl:call-template name="python-case">
@@ -1324,10 +1236,10 @@ class </xsl:text>
         <xsl:when test="(IsType = 'true') and (IsList = 'true')">
         <xsl:text>
         if "</xsl:text><xsl:value-of select="Value"/><xsl:text>" not in d2.keys():
-            raise GwTypeError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")
+            raise SchemaError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")
         if not isinstance(d2["</xsl:text><xsl:value-of select="Value"/>
         <xsl:text>"], List):
-            raise GwTypeError(f"</xsl:text>
+            raise SchemaError(f"</xsl:text>
             <xsl:value-of select="Value"/>
             <xsl:text> &lt;{d2['</xsl:text><xsl:value-of select="Value"/>
             <xsl:text>']}> must be a List!")
@@ -1339,21 +1251,19 @@ class </xsl:text>
         for elt in d2["</xsl:text><xsl:value-of select="Value"/>
         <xsl:text>"]:
             if not isinstance(elt, dict):
-                raise GwTypeError(
-                    f"</xsl:text>
+                raise SchemaError(f"</xsl:text>
             <xsl:value-of select="Value"/>
             <xsl:text> &lt;{d2['</xsl:text><xsl:value-of select="Value"/>
             <xsl:text>']}> must be a List of </xsl:text>
             <xsl:call-template name="nt-case">
             <xsl:with-param name="type-name-text" select="SubTypeName" />
             </xsl:call-template>
-            <xsl:text> types"
-                )
+            <xsl:text> types")
             t = </xsl:text>
         <xsl:call-template name="nt-case">
             <xsl:with-param name="type-name-text" select="SubTypeName" />
         </xsl:call-template>
-        <xsl:text>Maker.dict_to_tuple(elt)
+        <xsl:text>_Maker.dict_to_tuple(elt)
             </xsl:text><xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
         </xsl:call-template><xsl:text>.append(t)
@@ -1371,28 +1281,16 @@ class </xsl:text>
 
      <!-- OUTER LOOP dict_to_tuple: attribute is optional-->
     <xsl:otherwise>
-
+    <xsl:text>
+        if "</xsl:text><xsl:value-of select="Value"/><xsl:text>" in d2.keys():
+            </xsl:text>
 
         <xsl:choose>
 
         <!-- (Is required) INNER LOOP dict_to_tuple: Single Enum -->
-        <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
-            <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/><xsl:text>" in d2.keys():
-            if d2["</xsl:text><xsl:value-of select="Value"/>
-            <xsl:text>"] not in </xsl:text>
-            <xsl:value-of select="$enum-local-name"/><xsl:text>.values():
-                d2["</xsl:text><xsl:value-of select="Value"/>
-                <xsl:text>"] = </xsl:text>
-                <xsl:value-of select="$enum-local-name"/><xsl:text>.default()
-            else:
-                d2["</xsl:text><xsl:value-of select="Value"/>
-                <xsl:text>"] = </xsl:text>
-                <xsl:value-of select="$enum-local-name"/><xsl:text>(d2["</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>"])
-        if "</xsl:text><xsl:value-of select="Value"/><xsl:text>GtEnumSymbol" in d2.keys():
-            value = </xsl:text>
-            <xsl:value-of select="$enum-local-name"/>
+            <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
+            <xsl:text>value = </xsl:text>
+            <xsl:value-of select="$enum-class-name"/>
             <xsl:text>.symbol_to_value(d2["</xsl:text>
             <xsl:call-template name="nt-case">
                 <xsl:with-param name="type-name-text" select="Value" />
@@ -1400,22 +1298,14 @@ class </xsl:text>
             d2["</xsl:text> <xsl:call-template name="nt-case">
                 <xsl:with-param name="type-name-text" select="Value" />
             </xsl:call-template><xsl:text>"] = </xsl:text>
-            <xsl:value-of select="$enum-local-name"/>
-            <xsl:text>(value)
-            del d2["</xsl:text>
-            <xsl:call-template name="nt-case">
-                <xsl:with-param name="type-name-text" select="Value" />
-            </xsl:call-template><xsl:text>GtEnumSymbol"]</xsl:text>
-        </xsl:when>
-
-
-        <!-- (Is optional) INNER LOOP dict_to_tuple: Single type not Dataclass -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/><xsl:text>" in d2.keys():
-            if not isinstance(d2["</xsl:text><xsl:value-of select="Value"/>
+            <xsl:value-of select="$enum-class-name"/>
+            <xsl:text>(value)</xsl:text>
+            </xsl:when>
+            <!-- (Is optional) INNER LOOP dict_to_tuple: Single type not Dataclass -->
+            <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
+            <xsl:text>if not isinstance(d2["</xsl:text><xsl:value-of select="Value"/>
             <xsl:text>"], dict):
-                raise GwTypeError(f"d['</xsl:text>
+                raise SchemaError(f"d['</xsl:text>
                 <xsl:value-of select="Value"/>
                 <xsl:text>'] &lt;{d2['</xsl:text><xsl:value-of select="Value"/>
                 <xsl:text>']}> must be a </xsl:text>
@@ -1461,7 +1351,7 @@ class </xsl:text>
 
 
         <xsl:text>" not in d2.keys():
-            raise GwTypeError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")</xsl:text>
+            raise SchemaError(f"dict missing </xsl:text><xsl:value-of select="Value"/><xsl:text>: &lt;{d2}>")</xsl:text>
 
     </xsl:if>
 
@@ -1473,9 +1363,9 @@ class </xsl:text>
 
 <xsl:text>
         if "TypeName" not in d2.keys():
-            raise GwTypeError(f"TypeName missing from dict &lt;{d2}>")
+            raise SchemaError(f"TypeName missing from dict &lt;{d2}>")
         if "Version" not in d2.keys():
-            raise GwTypeError(f"Version missing from dict &lt;{d2}>")
+            raise SchemaError(f"Version missing from dict &lt;{d2}>")
         if d2["Version"] != "</xsl:text><xsl:value-of select="Version"/><xsl:text>":
             LOGGER.debug(
                 f"Attempting to interpret </xsl:text>
@@ -1484,24 +1374,17 @@ class </xsl:text>
             <xsl:value-of select="Version"/> <xsl:text>"
             )
             d2["Version"] = "</xsl:text><xsl:value-of select="Version"/><xsl:text>"
-        d3 = {pascal_to_snake(key): value for key, value in d2.items()}
-        return </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>(**d3)</xsl:text>
+        return </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>(**d2)</xsl:text>
     <xsl:if test="(MakeDataClass='true')">
     <xsl:text>
 
     @classmethod
     def tuple_to_dc(cls, t: </xsl:text><xsl:value-of select="$python-class-name"/>
     <xsl:text>) -> </xsl:text><xsl:value-of select="DataClass"/><xsl:text>:
-        if t.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="DataClassIdField"/>
-        </xsl:call-template>
-        <xsl:text> in </xsl:text>
+        if t.</xsl:text><xsl:value-of select="DataClassIdField"/><xsl:text> in </xsl:text>
         <xsl:value-of select="DataClass"/><xsl:text>.by_id.keys():
             dc = </xsl:text><xsl:value-of select="DataClass"/><xsl:text>.by_id[t.</xsl:text>
-             <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="DataClassIdField"/>
-        </xsl:call-template><xsl:text>]
+            <xsl:value-of select="DataClassIdField"/><xsl:text>]
         else:
             dc = </xsl:text><xsl:value-of select="DataClass"/><xsl:text>(
                 </xsl:text>
@@ -1514,20 +1397,14 @@ class </xsl:text>
             <xsl:call-template name="python-case">
                 <xsl:with-param name="camel-case-text" select="Value"  />
             </xsl:call-template><xsl:text>_id=t.</xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"/>
-                </xsl:call-template>
-    <xsl:text>_id</xsl:text>
+            <xsl:value-of select="Value"/><xsl:text>Id</xsl:text>
         </xsl:when>
         <!-- For all other classes -->
         <xsl:otherwise>
             <xsl:call-template name="python-case">
                 <xsl:with-param name="camel-case-text" select="Value"  />
             </xsl:call-template><xsl:text>=t.</xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"/>
-                </xsl:call-template>
-
+            <xsl:value-of select="Value"/>
         </xsl:otherwise>
 
         </xsl:choose>
@@ -1550,17 +1427,16 @@ class </xsl:text>
 
     @classmethod
     def dc_to_tuple(cls, dc: </xsl:text><xsl:value-of select="DataClass"/><xsl:text>) -> </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>:
-        return </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>(
+        t = </xsl:text><xsl:value-of select="$python-class-name"/><xsl:text>_Maker(
             </xsl:text>
         <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
         <xsl:sort select="Idx" data-type="number"/>
         <xsl:choose>
         <!-- Single type associated with a single dataclass -->
         <xsl:when test="not(normalize-space(SubTypeDataClass) = '') and not(IsList = 'true')">
-            <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"/>
-            </xsl:call-template>
-        <xsl:text>_id=dc.</xsl:text>
+        <xsl:call-template name="python-case">
+            <xsl:with-param name="camel-case-text" select="Value"  />
+        </xsl:call-template><xsl:text>_id=dc.</xsl:text>
         <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
         </xsl:call-template>
@@ -1570,10 +1446,9 @@ class </xsl:text>
 
          <!-- For all other classes -->
         <xsl:otherwise>
-            <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"/>
-            </xsl:call-template>
-        <xsl:text>=dc.</xsl:text>
+        <xsl:call-template name="python-case">
+            <xsl:with-param name="camel-case-text" select="Value"  />
+        </xsl:call-template><xsl:text>=dc.</xsl:text>
         <xsl:call-template name="python-case">
             <xsl:with-param name="camel-case-text" select="Value"  />
         </xsl:call-template>
@@ -1597,7 +1472,8 @@ class </xsl:text>
 
         </xsl:for-each>
         <xsl:text>
-        )
+        ).tuple
+        return t
 
     @classmethod
     def type_to_dc(cls, t: str) -> </xsl:text><xsl:value-of select="DataClass"/><xsl:text>:
@@ -1614,11 +1490,18 @@ class </xsl:text>
 
 
 <xsl:for-each select="$airtable//GtEnums/GtEnum[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
+<xsl:variable name="enum-name-style" select="PythonEnumNameStyle" />
 <xsl:variable name="local-name" select="LocalName"/>
 <xsl:variable name="enum-local-name">
     <xsl:call-template name="nt-case">
         <xsl:with-param name="type-name-text" select="LocalName" />
     </xsl:call-template>
+</xsl:variable>
+<xsl:variable name="enum-class-name">
+    <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (UseEnumAlias ='true') and (EnumLocalName[text() = $local-name])])>0">
+        <xsl:text>Enum</xsl:text>
+    </xsl:if>
+        <xsl:value-of select="$enum-local-name"/>
 </xsl:variable>
 <xsl:variable name="enum-id" select="GtEnumId"/>
 <xsl:variable name="enum-version" select="Version"/>
@@ -1632,24 +1515,6 @@ class </xsl:text>
 <xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
 <xsl:sort select="Name" data-type="text"/>
 <xsl:choose>
-    <xsl:when test="Name='Ads1115I2cAddress'">
-    <xsl:text>
-
-
-def check_is_ads1115_i2c_address(v: str) -> None:
-    """
-    Ads1115I2cAddress: ToLower(v) in  ['0x48', '0x49', '0x4a', '0x4b'].
-
-    One of the 4 allowable I2C addresses for Texas Instrument Ads1115 chips.
-
-    Raises:
-        ValueError: if not Ads1115I2cAddress format
-    """
-    if v.lower() not in  ['0x48', '0x49', '0x4a', '0x4b']:
-        raise ValueError(f"Not Ads1115I2cAddress: &lt;{v}>")</xsl:text>
-
-    </xsl:when>
-
     <xsl:when test="Name='AlgoAddressStringFormat'">
     <xsl:text>
 
@@ -1663,12 +1528,12 @@ def check_is_algo_address_string_format(v: str) -> None:
     Raises:
         ValueError: if not AlgoAddressStringFormat format
     """
-
+    import algosdk
     at = algosdk.abi.AddressType()
     try:
-        at.decode(at.encode(v))
+        result = at.decode(at.encode(v))
     except Exception as e:
-        raise ValueError(f"Not AlgoAddressStringFormat: {e}") from e</xsl:text>
+        raise ValueError(f"Not AlgoAddressStringFormat: {e}")</xsl:text>
     </xsl:when>
 
 
@@ -1685,11 +1550,11 @@ def check_is_algo_msg_pack_encoded(v: str) -> None:
     Raises:
         ValueError: if not AlgoMSgPackEncoded  format
     """
-
+    import algosdk
     try:
         algosdk.encoding.future_msgpack_decode(v)
     except Exception as e:
-        raise ValueError(f"Not AlgoMsgPackEncoded format: {e}") from e</xsl:text>
+        raise ValueError(f"Not AlgoMsgPackEncoded format: {e}")</xsl:text>
     </xsl:when>
 
     <xsl:when test="Name='Bit'">
@@ -1753,8 +1618,8 @@ def check_is_iso_format(v: str) -> None:
 
     try:
         datetime.datetime.fromisoformat(v.replace("Z", "+00:00"))
-    except Exception as e:
-        raise ValueError(f"&lt;{v}> is not IsoFormat") from e</xsl:text>
+    except:
+        raise ValueError(f"&lt;{v}> is not IsoFormat")</xsl:text>
     </xsl:when>
 
 
@@ -1774,10 +1639,12 @@ def check_is_left_right_dot(v: str) -> None:
     Raises:
         ValueError: if v is not LeftRightDot format
     """
+    from typing import List
+
     try:
-        x = v.split(".")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'") from e
+        x: List[str] = v.split(".")
+    except:
+        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'")
     first_word = x[0]
     first_char = first_word[0]
     if not first_char.isalpha():
@@ -1793,50 +1660,63 @@ def check_is_left_right_dot(v: str) -> None:
     </xsl:when>
 
 
-    <xsl:when test="Name='LogStyleDateWithMillis'">
+    <xsl:when test="Name='MarketSlotNameLrdFormat'">
     <xsl:text>
 
 
-def check_is_log_style_date_with_millis(v: str) -> None:
-    """Checks LogStyleDateWithMillis format
-
-    LogStyleDateWithMillis format:  YYYY-MM-DDTHH:mm:ss.SSS
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not LogStyleDateWithMillis format.
-        In particular the milliseconds must have exactly 3 digits.
-    """
-    from datetime import datetime
+def check_is_market_type_name_lrd_format(v: str) -> None:
+    from gjk.enums import MarketTypeName
     try:
-        datetime.fromisoformat(v)
+        x = v.split(".")
+    except AttributeError:
+        raise ValueError(f"&lt;{v}> failed to split on '.'")
+    if not x[0] in MarketTypeName.values():
+        raise ValueError(f"&lt;{v}> not recognized MarketType")
+    g_node_alias = ".".join(x[1:])
+    check_is_left_right_dot(g_node_alias)
+
+
+def check_is_market_slot_name_lrd_format(v: str) -> None:
+    """
+    MaketSlotNameLrdFormat: the format of a MarketSlotName.
+      - The first word must be a MarketTypeName
+      - The last word (unix time of market slot start) must
+      be a 10-digit integer divisible by 300 (i.e. all MarketSlots
+      start at the top of 5 minutes)
+      - More strictly, the last word must be the start of a
+      MarketSlot for that MarketType (i.e. divisible by 3600
+      for hourly markets)
+      - The middle words have LeftRightDot format (GNodeAlias
+      of the MarketMaker)
+    Example: rt60gate5.d1.isone.ver.keene.1673539200
+
+    """
+    from gjk.data_classes.market_type import MarketType
+    try:
+        x = v.split(".")
+    except AttributeError:
+        raise ValueError(f"&lt;{v}> failed to split on '.'")
+    slot_start = x[-1]
+    if len(slot_start) != 10:
+        raise ValueError(f"slot start {slot_start} not of length 10")
+    try:
+        slot_start = int(slot_start)
+    except ValueError:
+        raise ValueError(f"slot start {slot_start} not an int")
+    if slot_start % 300 != 0:
+        raise ValueError(f"slot start {slot_start} not a multiple of 300")
+
+    market_type_name_lrd = ".".join(x[:-1])
+    try:
+        check_is_market_type_name_lrd_format(market_type_name_lrd)
     except ValueError as e:
-        raise ValueError(f"{v} is not in LogStyleDateWithMillis format") from e
-    # The python fromisoformat allows for either 3 digits (milli) or 6 (micro)
-    # after the final period. Make sure its 3
-    milliseconds_part = v.split(".")[1]
-    if len(milliseconds_part) != 3:
-        raise ValueError(f"{v} is not in LogStyleDateWithMillis format."
-                            " Milliseconds must have exactly 3 digits")
-    </xsl:text>
+        raise ValueError(f"e")
 
-    </xsl:when>
-
-
-
-
-    <xsl:when test="Name='Near5'">
-    <xsl:text>
-
-
-def check_is_near5(v: str) -> None:
-    """
-    4.5 &lt;= v &lt;= 5.5
-    """
-    if v &lt; 4.5 or v > 5.5:
-        raise ValueError(f"&lt;{v}> is not between 4.5 and 5.5, not Near5")</xsl:text>
+    market_type = MarketType.by_id[market_type_name_lrd.split(".")[0]]
+    if not slot_start % (market_type.duration_minutes * 60) == 0:
+        raise ValueError(
+            f"market_slot_start_s mod {(market_type.duration_minutes * 60)} must be 0"
+        )</xsl:text>
     </xsl:when>
 
     <xsl:when test="Name='NonNegativeInteger'">
@@ -1899,19 +1779,12 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
     Raises:
         ValueError: if v is not ReasonableUnixTimeMs format
     """
-    from datetime import datetime
-    from datetime import timezone
+    import pendulum
 
-    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
-
-    start_timestamp_ms = int(start_date.timestamp() * 1000)
-    end_timestamp_ms = int(end_date.timestamp() * 1000)
-
-    if v &lt; start_timestamp_ms:
-        raise ValueError(f"{v} must be after Jan 1 2000")
-    if v > end_timestamp_ms:
-        raise ValueError(f"{v} must be before Jan 1 3000")</xsl:text>
+    if pendulum.parse("2000-01-01T00:00:00Z").int_timestamp * 1000 > v:  # type: ignore[attr-defined]
+        raise ValueError(f"&lt;{v}> must be after Jan 1 2000")
+    if pendulum.parse("3000-01-01T00:00:00Z").int_timestamp * 1000 &lt; v:  # type: ignore[attr-defined]
+        raise ValueError(f"&lt;{v}> must be before Jan 1 3000")</xsl:text>
 
 
     </xsl:when>
@@ -1931,19 +1804,11 @@ def check_is_reasonable_unix_time_s(v: int) -> None:
     Raises:
         ValueError: if v is not ReasonableUnixTimeS format
     """
-    from datetime import datetime
-    from datetime import timezone
-
-    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
-
-    start_timestamp = int(start_date.timestamp())
-    end_timestamp = int(end_date.timestamp())
-
-    if v &lt; start_timestamp:
-        raise ValueError(f"{v} must be after Jan 1 2000")
-    if v > end_timestamp:
-        raise ValueError(f"{v} must be before Jan 1 3000")</xsl:text>
+    import pendulum
+    if pendulum.parse("2000-01-01T00:00:00Z").int_timestamp > v:  # type: ignore[attr-defined]
+        raise ValueError(f"&lt;{v}> must be after Jan 1 2000")
+    if pendulum.parse("3000-01-01T00:00:00Z").int_timestamp &lt; v:  # type: ignore[attr-defined]
+        raise ValueError(f"&lt;{v}> must be before Jan 1 3000")</xsl:text>
 
     </xsl:when>
 
@@ -1956,7 +1821,8 @@ def check_is_spaceheat_name(v: str) -> None:
     """Check SpaceheatName Format.
 
     Validates if the provided string adheres to the SpaceheatName format:
-    Lowercase alphanumeric words separated by hypens
+    Lowercase words separated by periods, where word characters can be alphanumeric
+    or a hyphen, and the first word starts with an alphabet character.
 
     Args:
         candidate (str): The string to be validated.
@@ -1964,44 +1830,11 @@ def check_is_spaceheat_name(v: str) -> None:
     Raises:
         ValueError: If the provided string is not in SpaceheatName format.
     """
+    from typing import List
     try:
-        x = v.split("-")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'-'") from e
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
-        raise ValueError(
-            f"Most significant word of &lt;{v}> must start with alphabet char."
-        )
-    for word in x:
-        if not word.isalnum():
-            raise ValueError(f"words of &lt;{v}> split by by '-' must be alphanumeric.")
-    if not v.islower():
-        raise ValueError(f"All characters of &lt;{v}> must be lowercase.")</xsl:text>
-    </xsl:when>
-
-
-<xsl:when test="Name='HandleName'">
-    <xsl:text>
-
-
-def check_is_handle_name(v: str) -> None:
-    """Check HandleName Format.
-
-    Validates if the provided string adheres to the HandleName format:
-    words separated by periods, where the worlds are lowercase alphanumeric plus hyphens
-
-    Args:
-        candidate (str): The string to be validated.
-
-    Raises:
-        ValueError: If the provided string is not in HandleName format.
-    """
-    try:
-        x = v.split(".")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'") from e
+        x: List[str] = v.split(".")
+    except:
+        raise ValueError(f"Failed to seperate &lt;{v}> into words with split'.'")
     first_word = x[0]
     first_char = first_word[0]
     if not first_char.isalpha():
@@ -2010,14 +1843,12 @@ def check_is_handle_name(v: str) -> None:
         )
     for word in x:
         for char in word:
-            if not (char.isalnum() or char == "-"):
-                raise ValueError(
-                    f"words of &lt;{v}> split by by '.' must be alphanumeric or hyphen."
-                )
+            if not (char.isalnum() or char == '-'):
+                raise ValueError(f"words of &lt;{v}> split by by '.' must be alphanumeric or hyphen.")
     if not v.islower():
-        raise ValueError(f" &lt;{v}> must be lowercase.")</xsl:text>
-
+        raise ValueError(f"&lt;{v}> must be lowercase.")</xsl:text>
     </xsl:when>
+
     <xsl:when test="Name='UuidCanonicalTextual'">
     <xsl:text>
 
@@ -2034,30 +1865,26 @@ def check_is_uuid_canonical_textual(v: str) -> None:
     Raises:
         ValueError: if v is not UuidCanonicalTextual format
     """
-    phi_fun_check_it_out = 5
-    two_cubed_too_cute = 8
-    bachets_fun_four = 4
-    the_sublime_twelve = 12
     try:
         x = v.split("-")
     except AttributeError as e:
-        raise ValueError(f"Failed to split on -: {e}") from e
-    if len(x) != phi_fun_check_it_out:
+        raise ValueError(f"Failed to split on -: {e}")
+    if len(x) != 5:
         raise ValueError(f"&lt;{v}> split by '-' did not have 5 words")
     for hex_word in x:
         try:
             int(hex_word, 16)
-        except ValueError as e:
-            raise ValueError(f"Words of &lt;{v}> are not all hex") from e
-    if len(x[0]) != two_cubed_too_cute:
+        except ValueError:
+            raise ValueError(f"Words of &lt;{v}> are not all hex")
+    if len(x[0]) != 8:
         raise ValueError(f"&lt;{v}> word lengths not 8-4-4-4-12")
-    if len(x[1]) != bachets_fun_four:
+    if len(x[1]) != 4:
         raise ValueError(f"&lt;{v}> word lengths not 8-4-4-4-12")
-    if len(x[2]) != bachets_fun_four:
+    if len(x[2]) != 4:
         raise ValueError(f"&lt;{v}> word lengths not 8-4-4-4-12")
-    if len(x[3]) != bachets_fun_four:
+    if len(x[3]) != 4:
         raise ValueError(f"&lt;{v}> word lengths not 8-4-4-4-12")
-    if len(x[4]) != the_sublime_twelve:
+    if len(x[4]) != 12:
         raise ValueError(f"&lt;{v}> word lengths not 8-4-4-4-12")</xsl:text>
 
 
@@ -2082,14 +1909,14 @@ def check_is_world_instance_name_format(v: str) -> None:
     """
     try:
         words = v.split("__")
-    except Exception as e:
-        raise ValueError(f"&lt;{v}> is not split by '__'") from e
+    except:
+        raise ValueError(f"&lt;{v}> is not split by '__'")
     if len(words) != 2:
         raise ValueError(f"&lt;{v}> not 2 words separated by '__'")
     try:
         int(words[1])
-    except Exception as e:
-        raise ValueError(f"&lt;{v}> second word not an int") from e
+    except:
+        raise ValueError(f"&lt;{v}> second word not an int")
 
     root_g_node_alias = words[0]
     first_char = root_g_node_alias[0]

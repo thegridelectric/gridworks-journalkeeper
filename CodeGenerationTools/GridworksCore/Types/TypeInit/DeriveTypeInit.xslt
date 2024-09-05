@@ -24,15 +24,13 @@
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
-<xsl:text>""" List of all the types """
+<xsl:text>
+""" List of all the types """
 </xsl:text>
-<xsl:for-each select="$airtable//VersionedTypes/VersionedType[
-  count(Protocols[text()='gjk']) > 0 and
-  (Status = 'Active' or Status = 'Pending') and
-  (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial') and
-  not (NotInInit='true')
-]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
+<xsl:variable name="versioned-type-id" select="VersionedType"/>
+<xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial') and not (NotInInit='true')]">
 
 <xsl:variable name="python-class-name">
 <xsl:if test="(normalize-space(PythonClassName) ='')">
@@ -54,61 +52,50 @@ from gjk.types.</xsl:text>
 from gjk.types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text><xsl:value-of select="$python-class-name"/>
-<xsl:text>Maker</xsl:text>
+<xsl:text>_Maker</xsl:text>
 </xsl:for-each>
-
+</xsl:for-each>
 <xsl:text>
 
 
 __all__ = [</xsl:text>
-
-
-<xsl:for-each select="$airtable//VersionedTypes/VersionedType[
-  count(Protocols[text()='gjk']) > 0 and
-  (Status = 'Active' or Status = 'Pending') and
-  (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')
-]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
+<xsl:variable name="versioned-type-id" select="VersionedType"/>
+<xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
 
 <xsl:variable name="python-class-name">
-<xsl:choose>
-<xsl:when test="(normalize-space(PythonClassName) ='')">
+<xsl:if test="(normalize-space(PythonClassName) ='')">
 <xsl:call-template name="nt-case">
     <xsl:with-param name="type-name-text" select="TypeName" />
 </xsl:call-template>
-</xsl:when>
-<xsl:otherwise>
+</xsl:if>
+<xsl:if test="(normalize-space(PythonClassName) != '')">
 <xsl:value-of select="normalize-space(PythonClassName)" />
-</xsl:otherwise>
-</xsl:choose>
+</xsl:if>
 </xsl:variable>
 
-<xsl:choose>
-<!-- The type is not in the init, comment it out-->
-<xsl:when test="(NotInInit='true')">
-<xsl:text>
-    # "</xsl:text>
-    <xsl:value-of select="$python-class-name"/>
-    <xsl:text>",
-    # "</xsl:text>
-    <xsl:value-of select="$python-class-name"/>
-    <xsl:text>Maker",</xsl:text>
-</xsl:when>
-
-<!-- The type is in the init-->
-<xsl:otherwise>
+<xsl:if test="not(NotInInit='true')">
 <xsl:text>
     "</xsl:text>
+</xsl:if>
+<xsl:if test="(NotInInit='true')">
+<xsl:text>
+    # "</xsl:text>
+</xsl:if>
     <xsl:value-of select="$python-class-name"/>
-    <xsl:text>",
+    <xsl:text>",</xsl:text>
+<xsl:if test="not(NotInInit='true')">
+<xsl:text>
     "</xsl:text>
+</xsl:if>
+<xsl:if test="(NotInInit='true')">
+<xsl:text>
+    # "</xsl:text>
+</xsl:if>
     <xsl:value-of select="$python-class-name"/>
-    <xsl:text>Maker",</xsl:text>
-</xsl:otherwise>
-</xsl:choose>
-
-
-
+    <xsl:text>_Maker",</xsl:text>
+</xsl:for-each>
 </xsl:for-each>
 <xsl:text>
 ]</xsl:text>

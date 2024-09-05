@@ -3,7 +3,6 @@
 import json
 
 import pytest
-from gw.errors import GwTypeError
 from gjk.enums import (
     FsmActionType,
     FsmEventType,
@@ -13,6 +12,7 @@ from gjk.enums import (
 )
 from gjk.types import FsmAtomicReport
 from gjk.types import FsmAtomicReportMaker as Maker
+from gw.errors import GwTypeError
 from pydantic import ValidationError
 
 

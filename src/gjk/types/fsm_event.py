@@ -16,13 +16,13 @@ from gjk.enums import (
     ChangeHeatcallSource,
     ChangeHeatPumpControl,
     ChangeLgOperatingMode,
+    ChangePrimaryPumpControl,
     ChangePrimaryPumpState,
     ChangeRelayPin,
     ChangeRelayState,
     ChangeStoreFlowDirection,
     ChangeValveState,
     FsmEventType,
-    ChangePrimaryPumpControl,
 )
 
 dotenv.load_dotenv()
