@@ -16,8 +16,8 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
     UUID4Str,
-    check_is_left_right_dot,
     check_is_positive_integer,
     check_is_reasonable_unix_time_ms,
     check_is_reasonable_unix_time_s,
@@ -44,9 +44,9 @@ class BatchedReadings(BaseModel):
     -> BatchedTransmissionPeriodS
     """
 
-    from_g_node_alias: str
+    from_g_node_alias: LeftRightDotStr
     from_g_node_instance_id: UUID4Str
-    about_g_node_alias: str
+    about_g_node_alias: LeftRightDotStr
     slot_start_unix_s: int
     batched_transmission_period_s: int
     message_created_ms: int
@@ -63,28 +63,6 @@ class BatchedReadings(BaseModel):
         extra="allow",
         populate_by_name=True,
     )
-
-    @field_validator("from_g_node_alias")
-    @classmethod
-    def _check_from_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"FromGNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
-
-    @field_validator("about_g_node_alias")
-    @classmethod
-    def _check_about_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"AboutGNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
 
     @field_validator("slot_start_unix_s")
     @classmethod
@@ -125,7 +103,11 @@ class BatchedReadings(BaseModel):
         """
         Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e. IsAction = true).
         """
-        # Implement Axiom(s)
+        for elt in v:
+            if not elt.action:
+                raise ValueError(
+                    "Violates Axiom 1: Each elt of FsmActionList must have an action"
+                )
         return v
 
     @model_validator(mode="after")
@@ -134,7 +116,21 @@ class BatchedReadings(BaseModel):
         Axiom 2: DataChannel Consistency.
         There is a bijection between the DataChannelLists and ChannelReadingLists via the ChannelId.
         """
-        # Implement check for axiom 2"
+        channel_list_ids = list(map(lambda x: x.id, self.data_channel_list))
+        reading_list_ids = list(map(lambda x: x.channel_id, self.channel_reading_list))
+        if len(set(channel_list_ids)) != len(channel_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in DataChannelList: <{self}>"
+            )
+        if len(set(reading_list_ids)) != len(reading_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in ChannelReadingList:\n <{self}>"
+            )
+        if set(channel_list_ids) != set(reading_list_ids):
+            raise ValueError(
+                "Axiom 2 violated: must be a bijection between DataChannelList "
+                f"and ChannelReadingList:\n <{self}>"
+            )
         return self
 
     @model_validator(mode="after")
@@ -171,17 +167,6 @@ class BatchedReadings(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["DataChannelList"] = [elt.to_dict() for elt in self.data_channel_list]
-        d["ChannelReadingList"] = [elt.to_dict() for elt in self.channel_reading_list]
-        d["FsmActionList"] = [elt.to_dict() for elt in self.fsm_action_list]
-        d["FsmReportList"] = [elt.to_dict() for elt in self.fsm_report_list]
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["DataChannelList"] = [elt.to_dict() for elt in self.data_channel_list]
         d["ChannelReadingList"] = [elt.to_dict() for elt in self.channel_reading_list]

@@ -72,4 +72,3 @@ def test_gridworks_event_gt_sh_status_generated() -> None:
 
     t = GridworksEventGtShStatus.from_dict(d)
     assert t.to_dict() == d
-

@@ -16,7 +16,7 @@ from pydantic import (
 
 from gjk.enums import KindOfParam
 from gjk.type_helpers.property_format import (
-    check_is_left_right_dot,
+    LeftRightDotStr,
     check_is_log_style_date_with_millis,
 )
 
@@ -40,7 +40,7 @@ class KeyparamChangeLog(BaseModel):
     rather than the entire hardware layout.
     """
 
-    about_node_alias: str
+    about_node_alias: LeftRightDotStr
     change_time_utc: str
     author: str
     param_name: str
@@ -54,17 +54,6 @@ class KeyparamChangeLog(BaseModel):
         extra="allow",
         populate_by_name=True,
     )
-
-    @field_validator("about_node_alias")
-    @classmethod
-    def _check_about_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"AboutNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
 
     @field_validator("change_time_utc")
     @classmethod

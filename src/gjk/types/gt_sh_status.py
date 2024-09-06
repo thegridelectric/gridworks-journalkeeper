@@ -9,8 +9,8 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
     UUID4Str,
-    check_is_left_right_dot,
     check_is_reasonable_unix_time_s,
 )
 from gjk.types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
@@ -31,9 +31,9 @@ class GtShStatus(BaseModel):
     Status message sent by a Spaceheat SCADA every 5 minutes
     """
 
-    from_g_node_alias: str
+    from_g_node_alias: LeftRightDotStr
     from_g_node_id: UUID4Str
-    about_g_node_alias: str
+    about_g_node_alias: LeftRightDotStr
     slot_start_unix_s: int
     reporting_period_s: int
     simple_telemetry_list: List[GtShSimpleTelemetryStatus]
@@ -47,28 +47,6 @@ class GtShStatus(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("from_g_node_alias")
-    @classmethod
-    def _check_from_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"FromGNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
-
-    @field_validator("about_g_node_alias")
-    @classmethod
-    def _check_about_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"AboutGNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
 
     @field_validator("slot_start_unix_s")
     @classmethod

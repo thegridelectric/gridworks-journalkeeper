@@ -156,9 +156,6 @@ class FsmAtomicReport(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["AboutFsm"] = self.about_fsm.value
         d["ReportType"] = self.report_type.value
@@ -166,22 +163,6 @@ class FsmAtomicReport(BaseModel):
             d["ActionType"] = d["ActionType"].value
         if "EventType" in d:
             d["EventType"] = d["EventType"].value
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        del d["AboutFsm"]
-        d["AboutFsmGtEnumSymbol"] = FsmName.value_to_symbol(self.about_fsm)
-        del d["ReportType"]
-        d["ReportTypeGtEnumSymbol"] = FsmReportType.value_to_symbol(self.report_type)
-        if "ActionType" in d:
-            del d["ActionType"]
-            d["ActionTypeGtEnumSymbol"] = FsmActionType.value_to_symbol(
-                self.action_type
-            )
-        if "EventType" in d:
-            del d["EventType"]
-            d["EventTypeGtEnumSymbol"] = FsmEventType.value_to_symbol(self.event_type)
         return d
 
     def to_type(self) -> bytes:

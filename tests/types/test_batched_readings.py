@@ -4,7 +4,6 @@ from gjk.types import BatchedReadings
 
 
 def test_batched_readings_generated() -> None:
-
     d = {
         "FromGNodeAlias": "hw1.isone.me.versant.keene.beech.scada",
         "FromGNodeInstanceId": "98542a17-3180-4f2a-a929-6023f0e7a106",
@@ -69,4 +68,3 @@ def test_batched_readings_generated() -> None:
 
     t = BatchedReadings.from_dict(d)
     assert t.to_dict() == d
-

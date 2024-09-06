@@ -17,7 +17,7 @@ from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
-    check_is_left_right_dot,
+    LeftRightDotStr,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -40,7 +40,7 @@ class TelemetrySnapshotSpaceheat(BaseModel):
     """
 
     report_time_unix_ms: int
-    about_node_alias_list: List[str]
+    about_node_alias_list: List[LeftRightDotStr]
     value_list: List[int]
     telemetry_name_list: List[TelemetryName]
     type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
@@ -59,18 +59,6 @@ class TelemetrySnapshotSpaceheat(BaseModel):
         except ValueError as e:
             raise ValueError(
                 f"ReportTimeUnixMs failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
-
-    @field_validator("about_node_alias_list")
-    @classmethod
-    def _check_about_node_alias_list(cls, v: List[str]) -> List[str]:
-        try:
-            for elt in v:
-                check_is_left_right_dot(elt)
-        except ValueError as e:
-            raise ValueError(
-                f"AboutNodeAliasList element failed LeftRightDot format validation: {e}",
             ) from e
         return v
 

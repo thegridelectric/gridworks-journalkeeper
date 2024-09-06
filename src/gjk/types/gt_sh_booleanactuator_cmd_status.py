@@ -9,7 +9,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
-    check_is_left_right_dot,
+    LeftRightDotStr,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -31,7 +31,7 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
     [More info](https://gridworks.readthedocs.io/en/latest/relay-state.html)
     """
 
-    sh_node_name: str
+    sh_node_name: LeftRightDotStr
     relay_state_command_list: List[int]
     command_time_unix_ms_list: List[int]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
@@ -43,17 +43,6 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("sh_node_name")
-    @classmethod
-    def _check_sh_node_name(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"ShNodeName failed LeftRightDot format validation: {e}"
-            ) from e
-        return v
 
     @field_validator("relay_state_command_list")
     @classmethod
@@ -101,13 +90,6 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         return d
 

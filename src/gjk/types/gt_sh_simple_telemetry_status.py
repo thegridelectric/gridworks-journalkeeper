@@ -17,7 +17,7 @@ from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
-    check_is_left_right_dot,
+    LeftRightDotStr,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -40,7 +40,7 @@ class GtShSimpleTelemetryStatus(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/simple-sensor.html)
     """
 
-    sh_node_alias: str
+    sh_node_alias: LeftRightDotStr
     telemetry_name: TelemetryName
     value_list: List[int]
     read_time_unix_ms_list: List[int]
@@ -53,17 +53,6 @@ class GtShSimpleTelemetryStatus(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("sh_node_alias")
-    @classmethod
-    def _check_sh_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"ShNodeAlias failed LeftRightDot format validation: {e}"
-            ) from e
-        return v
 
     @field_validator("read_time_unix_ms_list")
     @classmethod

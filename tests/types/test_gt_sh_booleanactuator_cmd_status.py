@@ -14,4 +14,3 @@ def test_gt_sh_booleanactuator_cmd_status_generated() -> None:
 
     t = GtShBooleanactuatorCmdStatus.from_dict(d)
     assert t.to_dict() == d
-

@@ -5,7 +5,6 @@ from gjk.types import FsmEvent
 
 
 def test_fsm_event_generated() -> None:
-
     d = {
         "FromHandle": "h.s.admin",
         "ToHandle": "h.s.admin.iso-valve",

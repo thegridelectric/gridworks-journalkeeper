@@ -93,13 +93,6 @@ class ChannelReadings(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         return d
 

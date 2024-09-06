@@ -6,11 +6,11 @@ from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
     UUID4Str,
-    check_is_left_right_dot,
 )
 from gjk.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
@@ -29,7 +29,7 @@ class SnapshotSpaceheat(BaseModel):
     its data channels.
     """
 
-    from_g_node_alias: str
+    from_g_node_alias: LeftRightDotStr
     from_g_node_instance_id: UUID4Str
     snapshot: TelemetrySnapshotSpaceheat
     type_name: Literal["snapshot.spaceheat"] = "snapshot.spaceheat"
@@ -39,17 +39,6 @@ class SnapshotSpaceheat(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("from_g_node_alias")
-    @classmethod
-    def _check_from_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"FromGNodeAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
 
     @classmethod
     def from_dict(cls, d: dict) -> "SnapshotSpaceheat":

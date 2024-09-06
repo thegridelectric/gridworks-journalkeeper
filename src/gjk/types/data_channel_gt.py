@@ -17,9 +17,9 @@ from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
     SpaceheatNameStr,
     UUID4Str,
-    check_is_left_right_dot,
     check_is_reasonable_unix_time_s,
 )
 
@@ -43,7 +43,7 @@ class DataChannelGt(BaseModel):
     about_node_name: SpaceheatNameStr
     captured_by_node_name: SpaceheatNameStr
     telemetry_name: TelemetryName
-    terminal_asset_alias: str
+    terminal_asset_alias: LeftRightDotStr
     in_power_metering: Optional[bool] = None
     start_s: Optional[int] = None
     id: UUID4Str
@@ -54,17 +54,6 @@ class DataChannelGt(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("terminal_asset_alias")
-    @classmethod
-    def _check_terminal_asset_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"TerminalAssetAlias failed LeftRightDot format validation: {e}",
-            ) from e
-        return v
 
     @field_validator("start_s")
     @classmethod
@@ -123,19 +112,8 @@ class DataChannelGt(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["TelemetryName"] = self.telemetry_name.value
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        del d["TelemetryName"]
-        d["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
-            self.telemetry_name
-        )
         return d
 
     def to_type(self) -> bytes:

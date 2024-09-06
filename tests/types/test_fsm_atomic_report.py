@@ -10,7 +10,6 @@ from gjk.types import FsmAtomicReport
 
 
 def test_fsm_atomic_report_generated() -> None:
-
     d = {
         "FromHandle": "h.admin.store-charge-discharge.relay3",
         "AboutFsm": "RelayState",

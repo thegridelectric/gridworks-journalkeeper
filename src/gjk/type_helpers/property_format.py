@@ -67,35 +67,6 @@ def check_is_hex_char(v: str) -> None:
         raise ValueError(f"<{v}> must be one of '0123456789abcdefABCDEF'")
 
 
-def check_is_left_right_dot(v: str) -> None:
-    """Checks LeftRightDot Format
-
-    LeftRightDot format: Lowercase alphanumeric words separated by periods, with
-    the most significant word (on the left) starting with an alphabet character.
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not LeftRightDot format
-    """
-    try:
-        x = v.split(".")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'.'") from e
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
-        raise ValueError(
-            f"Most significant word of <{v}> must start with alphabet char."
-        )
-    for word in x:
-        if not word.isalnum():
-            raise ValueError(f"words of <{v}> split by by '.' must be alphanumeric.")
-    if not v.islower():
-        raise ValueError(f"All characters of <{v}> must be lowercase.")
-
-
 def check_is_log_style_date_with_millis(v: str) -> None:
     """Checks LogStyleDateWithMillis format
 
@@ -176,15 +147,8 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
 
 
 def check_is_reasonable_unix_time_s(v: int) -> None:
-    """Checks ReasonableUnixTimeS format
-
+    """
     ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
-
-    Args:
-        v (int): the candidate
-
-    Raises:
-        ValueError: if v is not ReasonableUnixTimeS format
     """
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
@@ -193,38 +157,14 @@ def check_is_reasonable_unix_time_s(v: int) -> None:
     end_timestamp = int(end_date.timestamp())
 
     if v < start_timestamp:
-        raise ValueError(f"{v} must be after Jan 1 2000")
-    if v > end_timestamp:
-        raise ValueError(f"{v} must be before Jan 1 3000")
-
-
-def check_is_spaceheat_name(v: str) -> None:
-    """Check SpaceheatName Format.
-
-    Validates if the provided string adheres to the SpaceheatName format:
-    Lowercase alphanumeric words separated by hypens
-
-    Args:
-        candidate (str): The string to be validated.
-
-    Raises:
-        ValueError: If the provided string is not in SpaceheatName format.
-    """
-    try:
-        x = v.split("-")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'-'") from e
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
         raise ValueError(
-            f"Most significant word of <{v}> must start with alphabet char."
+            f"{v}: Fails ReasonableUnixTimeS format! Must be after Jan 1 2000"
         )
-    for word in x:
-        if not word.isalnum():
-            raise ValueError(f"words of <{v}> split by by '-' must be alphanumeric.")
-    if not v.islower():
-        raise ValueError(f"All characters of <{v}> must be lowercase.")
+    if v > end_timestamp:
+        raise ValueError(
+            f"{v}: Fails ReasonableUnixTimeS format! Must be before Jan 1 3000"
+        )
+    return v
 
 
 def check_is_world_instance_name_format(v: str) -> None:
@@ -259,17 +199,31 @@ def check_is_world_instance_name_format(v: str) -> None:
         raise ValueError(f"<{v}> first word must be alphanumeric")
 
 
-def str_is_left_right_dot(v: str) -> str:
-    """Checks LeftRightDot Format
+def int_is_reasonable_unix_time_s(v: int) -> None:
+    """
+    ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
+    """
+    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
 
+    start_timestamp = int(start_date.timestamp())
+    end_timestamp = int(end_date.timestamp())
+
+    if v < start_timestamp:
+        raise ValueError(
+            f"{v}: Fails ReasonableUnixTimeS format! Must be after Jan 1 2000"
+        )
+    if v > end_timestamp:
+        raise ValueError(
+            f"{v}: Fails ReasonableUnixTimeS format! Must be before Jan 1 3000"
+        )
+    return v
+
+
+def str_is_left_right_dot(v: str) -> str:
+    """
     LeftRightDot format: Lowercase alphanumeric words separated by periods, with
     the most significant word (on the left) starting with an alphabet character.
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not LeftRightDot format
     """
     try:
         x = v.split(".")
@@ -296,6 +250,9 @@ def str_is_left_right_dot(v: str) -> str:
 
 
 def str_is_spaceheat_name(v: str) -> str:
+    """
+    SpaceheatName format: Lowercase alphanumeric words separated by hypens
+    """
     try:
         x = v.split("-")
     except Exception as e:
@@ -337,6 +294,7 @@ def str_is_uuid_canonical_textual(v: str) -> str:
     return str(u)
 
 
-UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]
-
+LeftRightDotStr = Annotated[str, BeforeValidator(str_is_left_right_dot)]
+ReasonableUnixTimeS = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_s)]
 SpaceheatNameStr = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
+UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]

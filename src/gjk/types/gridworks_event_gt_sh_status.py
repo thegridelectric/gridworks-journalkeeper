@@ -10,14 +10,13 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
     UUID4Str,
-    check_is_left_right_dot,
 )
 from gjk.types.gt_sh_status import GtShStatus
 
@@ -30,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 
 class GridworksEventGtShStatus(BaseModel):
     """
-    This is a gjk wrapper around a gt.sh.status message that includes the src (which should
+    This is a gwproto wrapper around a gt.sh.status message that includes the src (which should
     always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once
     the gt.sh.status message is created, and does not change if the SCADA re-sends the message
     due to no ack from AtomicTNode) and a timestamp for when the message was created.
@@ -38,7 +37,7 @@ class GridworksEventGtShStatus(BaseModel):
 
     message_id: UUID4Str
     time_n_s: int
-    src: str
+    src: LeftRightDotStr
     status: GtShStatus
     type_name: Literal["gridworks.event.gt.sh.status"] = "gridworks.event.gt.sh.status"
     version: Literal["000"] = "000"
@@ -47,15 +46,6 @@ class GridworksEventGtShStatus(BaseModel):
         alias_generator=snake_to_pascal,
         populate_by_name=True,
     )
-
-    @field_validator("src")
-    @classmethod
-    def _check_src(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(f"Src failed LeftRightDot format validation: {e}") from e
-        return v
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
