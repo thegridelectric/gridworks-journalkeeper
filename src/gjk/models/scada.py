@@ -38,3 +38,23 @@ class ScadaSql(Base):
     short_alias = Column(String, nullable=False)
     scada_installed_s = Column(Integer)
     ta_fully_installed_s = Column(Integer)
+
+    def to_dict(self):
+        d = {
+            "GNodeId": self.g_node_id,
+            "GNodeAlias": self.g_node_alias,
+            "ShortAlias": self.short_alias,
+        }
+
+        if self.scada_installed_s:
+            d["ScadaInstalledS"] = self.scada_installed_s
+        if self.ta_fully_installed_s:
+            d["TaFullyInstalledS"] = self.ta_fully_installed_s
+
+        return d
+
+    def __repr__(self):
+        return f"<ScadaSql({self.short_alias})>"
+
+    def __str__(self):
+        return f"<ScadaSql({self.short_alias})>"

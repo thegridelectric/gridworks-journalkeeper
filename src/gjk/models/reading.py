@@ -44,6 +44,16 @@ class ReadingSql(Base):
 
     data_channel = relationship("DataChannelSql", back_populates="readings")
 
+    def to_dict(self):
+        d = {
+            "Id": self.id,
+            "Value": self.value,
+            "TimeMs": self.time_ms,
+            "DataChannelId": self.data_channel_id,
+            "MessageId": self.message_id,
+        }
+        return d
+
     def __repr__(self):
         return f"<ReadingSql({self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms / 1000)})>"
 

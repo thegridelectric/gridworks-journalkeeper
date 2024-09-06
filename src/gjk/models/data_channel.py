@@ -60,6 +60,7 @@ class DataChannelSql(Base):
             d["StartS"] = self.start_s
         if self.in_power_metering:
             d["InPowerMetering"] = self.in_power_metering
+        return d
 
     def __repr__(self):
         ta_short = self.terminal_asset_alias.split(".")[-2]

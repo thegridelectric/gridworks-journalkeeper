@@ -40,6 +40,18 @@ class MessageSql(Base):
         ),
     )
 
+    def to_dict(self):
+        d = {
+            "MessageId": self.message_id,
+            "FromAlias": self.from_alias,
+            "TypeName": self.type_name,
+            "MessagePersistedMs": self.message_persisted_ms,
+            "Payload": self.payload,
+        }
+        if self.message_created_ms:
+            d["MessageCreatedMs"] = self.message_created_ms
+        return d
+
 
 def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
     """

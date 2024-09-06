@@ -31,9 +31,9 @@ class NodalHourlyEnergySql(Base):
     __tablename__ = "nodal_hourly_energy"
 
     id = Column(String, primary_key=True)
-    hour_start_s = Column(BigInteger)
+    hour_start_s = Column(BigInteger)  # TODO: nullable = False
     power_channel_id = Column(String, ForeignKey("data_channels.id"), nullable=False)
-    watt_hours = Column(Integer)
+    watt_hours = Column(Integer)  # TODO: nullable = False
 
     # Rows must have a unique combination of start time and channel name
     __table_args__ = (
@@ -47,6 +47,15 @@ class NodalHourlyEnergySql(Base):
     power_channel = relationship(
         "DataChannelSql", back_populates="nodal_hourly_energies"
     )
+
+    def to_dict(self):
+        d = {
+            "Id": self.id,
+            "PowerChannel": self.power_channel.to_dict(),
+            "HourStartS": self.hour_start_s,
+            "WattHours": self.watt_hours,
+        }
+        return d
 
     def __repr__(self):
         hs = pendulum.from_timestamp(self.hour_start_s, tz="America/New_York")

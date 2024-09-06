@@ -199,7 +199,25 @@ def check_is_world_instance_name_format(v: str) -> None:
         raise ValueError(f"<{v}> first word must be alphanumeric")
 
 
-def int_is_reasonable_unix_time_s(v: int) -> None:
+def int_is_reasonable_unix_time_ms(v: int) -> int:
+    """
+    ReasonableUnixTimeMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
+    """
+
+    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
+    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
+
+    start_timestamp_ms = int(start_date.timestamp() * 1000)
+    end_timestamp_ms = int(end_date.timestamp() * 1000)
+
+    if v < start_timestamp_ms:
+        raise ValueError(f"{v} must be after Jan 1 2000")
+    if v > end_timestamp_ms:
+        raise ValueError(f"{v} must be before Jan 1 3000")
+    return v
+
+
+def int_is_reasonable_unix_time_s(v: int) -> int:
     """
     ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
     """
@@ -295,6 +313,7 @@ def str_is_uuid_canonical_textual(v: str) -> str:
 
 
 LeftRightDotStr = Annotated[str, BeforeValidator(str_is_left_right_dot)]
+ReasonableUnixTimeMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_ms)]
 ReasonableUnixTimeS = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_s)]
 SpaceheatNameStr = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
 UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]

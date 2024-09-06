@@ -108,6 +108,12 @@ class DataChannelGt(BaseModel):
             raise GwTypeError(f"Deserializing must result in dict!\n <{b}>")
         return cls.from_dict(d)
 
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        d.pop("type_name", None)
+        d.pop("version", None)
+        return d
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Handles lists of enums differently than model_dump

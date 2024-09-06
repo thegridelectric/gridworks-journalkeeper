@@ -1,14 +1,14 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel, ConfigDict, field_validator, model_validator
+from gw.errors import GwTypeError
+from gw.utils import is_pascal_case, snake_to_pascal
+from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from typing_extensions import Self
 
-from gjk.models import ScadaSql
-from gjk.type_helpers.utils import (
-    check_is_left_right_dot,
-    check_is_reasonable_unix_time_s,
-    check_is_uuid_canonical_textual,
+from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
+    ReasonableUnixTimeS,
+    UUID4Str,
 )
 
 
@@ -28,62 +28,16 @@ class Scada(BaseModel):
     validated against the GNodeRegistry
     """
 
-    g_node_id: str
-    g_node_alias: str
+    g_node_id: UUID4Str
+    g_node_alias: LeftRightDotStr
     short_alias: str
-    scada_installed_s: Optional[int]
-    ta_fully_installed_s: Optional[int]
+    scada_installed_s: Optional[ReasonableUnixTimeS]
+    ta_fully_installed_s: Optional[ReasonableUnixTimeS]
 
     model_config = ConfigDict(
         populate_by_name=True,
         alias_generator=snake_to_pascal,
     )
-
-    @field_validator("g_node_id")
-    @classmethod
-    def _check_g_node_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"g_node_id failed UuidCanonicalTextual format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("g_node_alias")
-    @classmethod
-    def _check_g_node_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"g_node_alias failed CheckIsLeftRightDot format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("scada_installed_s")
-    @classmethod
-    def _check_scada_installed_s(cls, v: str) -> str:
-        if v:
-            try:
-                check_is_reasonable_unix_time_s(v)
-            except ValueError as e:
-                raise ValueError(
-                    f"scada_installed_s failed CheckIsReasonableUnixTimeS format validation: {e}"
-                ) from e
-            return v
-
-    @field_validator("ta_fully_installed_s")
-    @classmethod
-    def _check_ta_fully_installed_s(cls, v: str) -> str:
-        if v:
-            try:
-                check_is_reasonable_unix_time_s(v)
-            except ValueError as e:
-                raise ValueError(
-                    f"ta_fully_installed failed CheckIsReasonableUnixTimeS format validation: {e}"
-                ) from e
-            return v
 
     @model_validator(mode="after")
     def _check_axiom_1(self) -> Self:
@@ -111,5 +65,20 @@ class Scada(BaseModel):
             )
         return self
 
-    def as_sql(self) -> ScadaSql:
-        return ScadaSql(**self.model_dump())
+    @classmethod
+    def from_dict(cls, d: dict) -> "Scada":
+        for key in d:
+            if not is_pascal_case(key):
+                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        try:
+            t = cls(**d)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
+        return t
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Handles lists of enums differently than model_dump
+        """
+        d = self.model_dump(exclude_none=True, by_alias=True)
+        return d
