@@ -1,7 +1,7 @@
 from typing import Optional
 
 from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from typing_extensions import Self
 
 from gjk.models import ScadaSql
@@ -34,9 +34,10 @@ class Scada(BaseModel):
     scada_installed_s: Optional[int]
     ta_fully_installed_s: Optional[int]
 
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=snake_to_pascal,
+    )
 
     @field_validator("g_node_id")
     @classmethod

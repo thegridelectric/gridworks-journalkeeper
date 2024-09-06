@@ -36,6 +36,8 @@ class FsmEventType(GwStrEnum):
       - ChangeLgOperatingMode (89a98375)
       - TimerFinished (9e44ab43)
       - ChangePrimaryPumpState (d71c8c2a)
+      - ChangePrimaryPumpControl (7f34907c): Change control of the primary pump between the Heat
+        pump and the SCADA
     """
 
     ChangeRelayPin = auto()
@@ -50,6 +52,7 @@ class FsmEventType(GwStrEnum):
     ChangeLgOperatingMode = auto()
     TimerFinished = auto()
     ChangePrimaryPumpState = auto()
+    ChangePrimaryPumpControl = auto()
 
     @classmethod
     def default(cls) -> "FsmEventType":
@@ -158,6 +161,7 @@ class FsmEventType(GwStrEnum):
             "89a98375",
             "9e44ab43",
             "d71c8c2a",
+            "7f34907c",
         ]
 
 
@@ -174,6 +178,7 @@ symbol_to_value = {
     "89a98375": "ChangeLgOperatingMode",
     "9e44ab43": "TimerFinished",
     "d71c8c2a": "ChangePrimaryPumpState",
+    "7f34907c": "ChangePrimaryPumpControl",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -191,4 +196,5 @@ value_to_version = {
     "ChangeLgOperatingMode": "000",
     "TimerFinished": "000",
     "ChangePrimaryPumpState": "000",
+    "ChangePrimaryPumpControl": "000",
 }

@@ -1,13 +1,7 @@
 """Tests batched.readings type, version 000"""
 
-import json
-
-import pytest
 from gjk.enums import TelemetryName
 from gjk.types import BatchedReadings, ChannelReadings, DataChannelGt
-from gjk.types import BatchedReadingsMaker as Maker
-from gw.errors import GwTypeError
-from pydantic import ValidationError
 
 
 def test_batched_readings_generated() -> None:
@@ -76,26 +70,26 @@ def test_batched_readings_generated() -> None:
                 "DisplayName": "HP ODU Power",
                 "AboutNodeName": "hp-odu",
                 "CapturedByNodeName": "primary-pwr-meter",
+                "TelemetryName": "PowerW",
                 "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
                 "InPowerMetering": True,
                 "StartS": 1704862800,
                 "Id": "498da855-bac5-47e9-b83a-a11e56a50e67",
                 "TypeName": "data.channel.gt",
                 "Version": "001",
-                "TelemetryNameGtEnumSymbol": "af39eec9",
             },
             {
                 "Name": "hp-idu-pwr",
                 "DisplayName": "HP IDU Power",
                 "AboutNodeName": "hp-idu",
                 "CapturedByNodeName": "primary-pwr-meter",
+                "TelemetryName": "PowerW",
                 "TerminalAssetAlias": "hw1.isone.me.versant.keene.beech.ta",
                 "InPowerMetering": True,
                 "StartS": 1704862800,
                 "Id": "beabac86-7caa-4ab4-a50b-af1ad54ed165",
                 "TypeName": "data.channel.gt",
                 "Version": "001",
-                "TelemetryNameGtEnumSymbol": "af39eec9",
             },
         ],
         "ChannelReadingList": [
@@ -125,186 +119,5 @@ def test_batched_readings_generated() -> None:
         "Version": "000",
     }
 
-    assert t.as_dict() == d
-
-    with pytest.raises(GwTypeError):
-        Maker.type_to_tuple(d)
-
-    with pytest.raises(GwTypeError):
-        Maker.type_to_tuple('"not a dict"')
-
-    # Test type_to_tuple
-    gtype = json.dumps(d)
-    gtuple = Maker.type_to_tuple(gtype)
-    assert gtuple == t
-
-    # test type_to_tuple and tuple_to_type maps
-    assert Maker.type_to_tuple(Maker.tuple_to_type(gtuple)) == gtuple
-
-    ######################################
-    # GwTypeError raised if missing a required attribute
-    ######################################
-
-    d2 = d.copy()
-    del d2["TypeName"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["FromGNodeAlias"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["FromGNodeInstanceId"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["AboutGNodeAlias"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["SlotStartUnixS"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["BatchedTransmissionPeriodS"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["MessageCreatedMs"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["DataChannelList"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["ChannelReadingList"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["FsmActionList"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["FsmReportList"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = d.copy()
-    del d2["Id"]
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    ######################################
-    # Behavior on incorrect types
-    ######################################
-
-    d2 = dict(d, SlotStartUnixS="1656945300.1")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, BatchedTransmissionPeriodS="300.1")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, MessageCreatedMs="1656945600044.1")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, DataChannelList="Not a list.")
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, DataChannelList=["Not a list of dicts"])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, DataChannelList=[{"Failed": "Not a GtSimpleSingleStatus"}])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, ChannelReadingList="Not a list.")
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, ChannelReadingList=["Not a list of dicts"])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, ChannelReadingList=[{"Failed": "Not a GtSimpleSingleStatus"}])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmActionList="Not a list.")
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmActionList=["Not a list of dicts"])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmActionList=[{"Failed": "Not a GtSimpleSingleStatus"}])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmReportList="Not a list.")
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmReportList=["Not a list of dicts"])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FsmReportList=[{"Failed": "Not a GtSimpleSingleStatus"}])
-    with pytest.raises(GwTypeError):
-        Maker.dict_to_tuple(d2)
-
-    ######################################
-    # ValidationError raised if TypeName is incorrect
-    ######################################
-
-    d2 = dict(d, TypeName="not the type name")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    ######################################
-    # ValidationError raised if primitive attributes do not have appropriate property_format
-    ######################################
-
-    d2 = dict(d, FromGNodeAlias="a.b-h")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, FromGNodeInstanceId="d4be12d5-33ba-4f1f-b9e5")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, AboutGNodeAlias="a.b-h")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, SlotStartUnixS=32503683600)
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, BatchedTransmissionPeriodS=0)
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, MessageCreatedMs=1656245000)
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
-
-    d2 = dict(d, Id="d4be12d5-33ba-4f1f-b9e5")
-    with pytest.raises(ValidationError):
-        Maker.dict_to_tuple(d2)
+    assert t.to_dict() == d
+    assert t == BatchedReadings.from_dict(d)

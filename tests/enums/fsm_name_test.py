@@ -8,18 +8,16 @@ from gjk.enums import FsmName
 def test_fsm_name() -> None:
     assert set(FsmName.values()) == {
         "Unknown",
-        "IsoValve",
         "StoreFlowDirection",
         "RelayState",
         "RelayPinState",
     }
 
-    assert FsmName.default() == FsmName.IsoValve
+    assert FsmName.default() == FsmName.StoreFlowDirection
     assert FsmName.enum_name() == "sh.fsm.name"
     assert FsmName.enum_version() == "000"
 
     assert FsmName.version("Unknown") == "000"
-    assert FsmName.version("IsoValve") == "000"
     assert FsmName.version("StoreFlowDirection") == "000"
     assert FsmName.version("RelayState") == "000"
     assert FsmName.version("RelayPinState") == "000"

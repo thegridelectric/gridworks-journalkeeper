@@ -3,17 +3,15 @@ from typing import Literal
 
 from gw.errors import GwTypeError
 from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 
 class Dispatch(BaseModel):
     turn_on_or_off: int
     type_name: Literal["d"] = "d"
-
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
-        extra = "forbid"
+    model_config = ConfigDict(
+        populate_by_name=True, alias_generator=snake_to_pascal, extra="forbid"
+    )
 
     @field_validator("turn_on_or_off")
     @classmethod
@@ -22,22 +20,27 @@ class Dispatch(BaseModel):
             raise ValueError(f"TurnOnOrOff must be 0 or 1, not {v}")
         return v
 
-    def as_type(self) -> bytes:
+    def to_type(self) -> bytes:
         return struct.pack("<h", self.turn_on_or_off)
 
-
-class DispatchMaker:
-    type_name = "d"
-
     @classmethod
-    def tuple_to_type(cls, tpl: Dispatch) -> bytes:
-        return tpl.as_type()
-
-    @classmethod
-    def type_to_tuple(cls, b: bytes) -> Dispatch:
+    def from_type(cls, b: bytes) -> "Dispatch":
         try:
             turn_on_or_off = struct.unpack("<h", b)[0]
         except Exception as e:
             raise GwTypeError(f"bytes failed struct.unpack('<h', b): {b}") from e
-        tpl = Dispatch(turn_on_or_off=turn_on_or_off)
-        return tpl
+        try:
+            t = Dispatch(turn_on_or_off=turn_on_or_off)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error {e}") from e
+        return t
+
+
+class DispatchMaker:
+    @classmethod
+    def type_to_tuple(cls, b: bytes) -> Dispatch:
+        return Dispatch.from_type(b)
+
+    @classmethod
+    def tuple_to_type(cls, t: Dispatch) -> bytes:
+        return Dispatch.to_type(t)

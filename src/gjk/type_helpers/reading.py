@@ -1,5 +1,5 @@
 from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from gjk.models import ReadingSql
 from gjk.type_helpers.utils import (
@@ -15,9 +15,10 @@ class Reading(BaseModel):
     data_channel_id: str
     message_id: str
 
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=snake_to_pascal,
+    )
 
     @field_validator("id")
     @classmethod
