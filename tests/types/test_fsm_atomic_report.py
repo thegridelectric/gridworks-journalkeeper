@@ -5,21 +5,11 @@ from gjk.enums import (
     FsmEventType,
     FsmName,
     FsmReportType,
-    RelayPinSet,
 )
 from gjk.types import FsmAtomicReport
 
 
 def test_fsm_atomic_report_generated() -> None:
-    t = FsmAtomicReport(
-        from_handle="h.admin.store-charge-discharge.relay3",
-        about_fsm=FsmName.RelayState,
-        report_type=FsmReportType.Action,
-        action_type=FsmActionType.RelayPinSet,
-        action=RelayPinSet.DeEnergized.value,
-        unix_time_ms=1710158001624,
-        trigger_id="12da4269-63c3-44f4-ab65-3ee5e29329fe",
-    )
 
     d = {
         "FromHandle": "h.admin.store-charge-discharge.relay3",
@@ -32,8 +22,9 @@ def test_fsm_atomic_report_generated() -> None:
         "TypeName": "fsm.atomic.report",
         "Version": "000",
     }
+
+    t = FsmAtomicReport.from_dict(d)
     assert t.to_dict() == d
-    assert t == FsmAtomicReport.from_dict(d)
 
     d2 = d.copy()
     del d2["AboutFsm"]

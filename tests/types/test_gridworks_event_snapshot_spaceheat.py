@@ -25,5 +25,6 @@ def test_gridworks_event_snapshot_spaceheat_generated() -> None:
         "TypeName": "gridworks.event.snapshot.spaceheat",
         "Version": "000",
     }
+
     t = GridworksEventSnapshotSpaceheat.from_dict(d)
     assert t.to_dict() == d
