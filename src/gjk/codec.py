@@ -1,15 +1,22 @@
 import json
-from typing import Optional
+from typing import Optional, Union
 
 from gw.errors import GwTypeError
 
-from gjk.types.asl_types import TypeMakerByName
-from gjk.types.heartbeat_a import HeartbeatA
+from gjk.models import (
+    DataChannelSql,
+    MessageSql,
+    NodalHourlyEnergySql,
+    ReadingSql,
+    ScadaSql,
+)
+from gjk.type_helpers import Message, NodalHourlyEnergy, Reading, Scada
+from gjk.types import DataChannelGt
+from gjk.types.asl_types import TypeByName
+from gjk.types.gw_base import GwBase
 
-type_list = list(TypeMakerByName.keys())
 
-
-def deserialize(msg_bytes: bytes) -> Optional[HeartbeatA]:
+def from_type(msg_bytes: bytes) -> Optional[GwBase]:
     """
     Given an instance of the type (i.e., a serialized byte string for sending
     as a message), returns the appropriate instance of the associated pydantic
@@ -20,33 +27,71 @@ def deserialize(msg_bytes: bytes) -> Optional[HeartbeatA]:
     Returns: Instance of associated Pydantic object, or None if the
     TypeName is not recognized
     """
-    content = json.loads(msg_bytes.decode("utf-8"))
-    if "TypeName" not in content.keys():
-        raise GwTypeError(f"No TypeName - so not a type. Keys: <{content.keys()}>")
-    outer_type_name = content["TypeName"]
+    try:
+        data = json.loads(msg_bytes.decode("utf-8"))
+    except Exception:
+        print("failed json loads")
+        return None
+    return from_dict(data)
+
+
+def from_dict(data: dict) -> Optional[GwBase]:
+    if "TypeName" not in data.keys():
+        raise GwTypeError(f"No TypeName - so not a type. Keys: <{data.keys()}>")
+    outer_type_name = data["TypeName"]
 
     # Scada messages all come in a 'gw' incomplete type
 
     # which has a "Header" and then the payload in a "Payload"
     if outer_type_name == "gw":
-        if "Payload" not in content.keys():
-            raise GwTypeError(f"Type Gw must include Payload! Keys: <{content.keys()}>")
-        content = content["Payload"]
-        if "TypeName" not in content.keys():
-            raise GwTypeError(f"gw Payload must have TypeName. Keys: {content.keys()}")
+        if "Payload" not in data.keys():
+            raise GwTypeError(f"Type Gw must include Payload! Keys: <{data.keys()}>")
+        data = data["Payload"]
+        if "TypeName" not in data.keys():
+            raise GwTypeError(f"gw Payload must have TypeName. Keys: {data.keys()}")
 
-    if content["TypeName"] not in TypeMakerByName.keys():
+    if data["TypeName"] not in TypeByName:
         return None
-    codec = TypeMakerByName[content["TypeName"]]
-    return codec.dict_to_tuple(content)
+
+    return TypeByName[data["TypeName"]].from_dict(data)
 
 
-def serialize(t: HeartbeatA) -> bytes:
-    """
-    Given an instance of a pydantic BaseModel class associated to a type,
-    returns the approriate instance of the serialized type.
+def type_to_sql(
+    t: Union[DataChannelGt, Message, NodalHourlyEnergy, Reading, Scada],
+) -> Union[DataChannelSql, MessageSql, NodalHourlyEnergySql, ReadingSql, ScadaSql]:
+    d = t.to_sql_dict()
 
-    Raises: GwTypeError if t fails authentication
+    d.pop("type_name", None)
+    d.pop("version", None)
+    if isinstance(t, DataChannelGt):
+        return DataChannelSql(**d)
+    elif isinstance(t, Message):
+        return MessageSql(**d)
+    elif isinstance(t, NodalHourlyEnergy):
+        d["power_channel"] = DataChannelSql(**d["power_channel"])
+        return NodalHourlyEnergySql(**d)
+    elif isinstance(t, Reading):
+        d["data_channel"] = DataChannelSql(**d["data_channel"])
+        return ReadingSql(**d)
+    elif isinstance(t, Scada):
+        return ScadaSql(**d)
+    else:
+        raise TypeError(f"Unsupported type: {type(t)}")
 
-    """
-    return t.as_type()
+
+def sql_to_type(
+    t: Union[DataChannelSql, MessageSql, NodalHourlyEnergySql, ReadingSql, ScadaSql],
+) -> Union[DataChannelGt, Message, NodalHourlyEnergy, Reading, Scada]:
+    d = t.to_dict()
+    if isinstance(t, DataChannelSql):
+        return DataChannelGt(**d)
+    elif isinstance(t, MessageSql):
+        return MessageSql(**d)
+    elif isinstance(t, NodalHourlyEnergySql):
+        return NodalHourlyEnergy(**d)
+    elif isinstance(t, ReadingSql):
+        return Reading(**d)
+    elif isinstance(t, ScadaSql):
+        return Scada(**d)
+    else:
+        raise TypeError(f"Unsupported type: {type(t)}")

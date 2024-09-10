@@ -1,9 +1,3 @@
-"""
-The DataChannelSql ORM object should be made via associated pydantic
-class DataChannelGt, which includes class validators, using the as_sql method
-e.g. ch = DataChannelGt(...).as_sql()
-"""
-
 import logging
 
 from sqlalchemy import Boolean, Column, Integer, String
@@ -45,6 +39,22 @@ class DataChannelSql(Base):
     nodal_hourly_energies = relationship(
         "NodalHourlyEnergySql", back_populates="power_channel"
     )
+
+    def to_dict(self):
+        d = {
+            "Id": self.id,
+            "Name": self.name,
+            "DisplayName": self.display_name,
+            "AboutNodeName": self.about_node_name,
+            "CapturedByNodeName": self.captured_by_node_name,
+            "TelemetryName": self.telemetry_name,
+            "TerminalAssetAlias": self.terminal_asset_alias,
+        }
+        if self.start_s:
+            d["StartS"] = self.start_s
+        if self.in_power_metering:
+            d["InPowerMetering"] = self.in_power_metering
+        return d
 
     def __repr__(self):
         ta_short = self.terminal_asset_alias.split(".")[-2]

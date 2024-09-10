@@ -56,3 +56,5 @@ DELETE FROM messages WHERE message_id = 'bf06df07-36a5-4e54-ae64-37dea6041ea8';
 
 SELECT MIN(time) AS earliest, MAX(time) AS latest FROM  readings_pretty;
 SELECT MIN(message_created) AS earliest, MAX(message_created) AS latest FROM  msg_pretty;
+
+SELECT from_alias, type_name, message_created FROM msg_pretty WHERE type_name LIKE '%batched%' LIMIT 5;

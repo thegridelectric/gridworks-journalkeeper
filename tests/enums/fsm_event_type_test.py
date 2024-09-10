@@ -19,6 +19,7 @@ def test_fsm_event_type() -> None:
         "ChangeLgOperatingMode",
         "TimerFinished",
         "ChangePrimaryPumpState",
+        "ChangePrimaryPumpControl",
     }
 
     assert FsmEventType.default() == FsmEventType.ChangeRelayState
@@ -37,6 +38,7 @@ def test_fsm_event_type() -> None:
     assert FsmEventType.version("ChangeLgOperatingMode") == "000"
     assert FsmEventType.version("TimerFinished") == "000"
     assert FsmEventType.version("ChangePrimaryPumpState") == "000"
+    assert FsmEventType.version("ChangePrimaryPumpControl") == "000"
 
     for value in FsmEventType.values():
         symbol = FsmEventType.value_to_symbol(value)

@@ -1,6 +1,7 @@
 from typing import Dict
 
 import dotenv
+from gjk.codec import type_to_sql
 from gjk.config import Settings
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
@@ -92,9 +93,7 @@ def load_channels():
     engine = create_engine(settings.db_url.get_secret_value())
     Session = sessionmaker(bind=engine)
     session = Session()
-    beech_channel_sqls = list(
-        map(lambda x: x.as_sql(), BEECH_CHANNELS_BY_NAME.values())
-    )
+    beech_channel_sqls = [type_to_sql(x) for x in BEECH_CHANNELS_BY_NAME.values()]
     bulk_insert_idempotent(session, beech_channel_sqls)
 
 

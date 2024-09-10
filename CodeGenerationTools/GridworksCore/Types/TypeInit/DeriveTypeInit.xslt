@@ -50,11 +50,6 @@ from gjk.types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:value-of select="$python-class-name"/>
-<xsl:text>
-from gjk.types.</xsl:text>
-<xsl:value-of select="translate(TypeName,'.','_')"/>
-<xsl:text> import </xsl:text><xsl:value-of select="$python-class-name"/>
-<xsl:text>Maker</xsl:text>
 </xsl:for-each>
 
 <xsl:text>
@@ -89,10 +84,7 @@ __all__ = [</xsl:text>
 <xsl:text>
     # "</xsl:text>
     <xsl:value-of select="$python-class-name"/>
-    <xsl:text>",
-    # "</xsl:text>
-    <xsl:value-of select="$python-class-name"/>
-    <xsl:text>Maker",</xsl:text>
+    <xsl:text>",</xsl:text>
 </xsl:when>
 
 <!-- The type is in the init-->
@@ -100,10 +92,7 @@ __all__ = [</xsl:text>
 <xsl:text>
     "</xsl:text>
     <xsl:value-of select="$python-class-name"/>
-    <xsl:text>",
-    "</xsl:text>
-    <xsl:value-of select="$python-class-name"/>
-    <xsl:text>Maker",</xsl:text>
+    <xsl:text>",</xsl:text>
 </xsl:otherwise>
 </xsl:choose>
 

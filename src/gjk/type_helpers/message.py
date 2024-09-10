@@ -1,78 +1,44 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from gw.errors import GwTypeError
+from gw.utils import is_pascal_case, snake_to_pascal
+from pydantic import BaseModel, ConfigDict, ValidationError
 
-from gjk.models import MessageSql
-from gjk.type_helpers.utils import (
-    check_is_left_right_dot,
-    check_is_reasonable_unix_time_ms,
-    check_is_uuid_canonical_textual,
+from gjk.type_helpers.property_format import (
+    LeftRightDotStr,
+    ReasonableUnixTimeMs,
+    UUID4Str,
 )
 
 
 class Message(BaseModel):
-    message_id: str
-    from_alias: str
-    type_name: str
-    message_persisted_ms: int
+    message_id: UUID4Str
+    from_alias: LeftRightDotStr
+    message_type_name: LeftRightDotStr
+    message_persisted_ms: ReasonableUnixTimeMs
     payload: Dict
-    message_created_ms: Optional[int] = None
+    message_created_ms: Optional[ReasonableUnixTimeMs] = None
 
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
+    model_config = ConfigDict(
+        alias_generator=snake_to_pascal,
+        populate_by_name=True,
+    )
 
-    @field_validator("message_id")
-    def _check_message_id(cls, v: str) -> str:
+    @classmethod
+    def from_dict(cls, d: dict) -> "Message":
+        for key in d:
+            if not is_pascal_case(key):
+                raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"message_id failed UuidCanonicalTextual format validation: {e}"
-            ) from e
-        return v
+            t = cls(**d)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
+        return t
 
-    @field_validator("from_alias")
-    def _check_from_alias(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"from_alias failed CheckIsLeftRightDot format validation: {e}"
-            ) from e
-        return v
+    def to_dict(self) -> Dict[str, Any]:
+        d = self.model_dump(exclude_none=True, by_alias=True)
+        return d
 
-    @field_validator("type_name")
-    def _check_type_name(cls, v: str) -> str:
-        try:
-            check_is_left_right_dot(v)
-        except ValueError as e:
-            raise ValueError(
-                f"type_name failed CheckIsLeftRightDot format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("message_persisted_ms")
-    def _check_message_persisted_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"message_persisted_ms failed ReasonableUnixTimeMs format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("message_created_ms")
-    def _check_message_created_ms(cls, v: int) -> int:
-        if v:
-            try:
-                check_is_reasonable_unix_time_ms(v)
-            except ValueError as e:
-                raise ValueError(
-                    f"message_created_ms failed ReasonableUnixTimeMs format validation: {e}"
-                ) from e
-        return v
-
-    def as_sql(self) -> MessageSql:
-        return MessageSql(**self.model_dump())
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        return d

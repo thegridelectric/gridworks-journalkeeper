@@ -18,8 +18,6 @@ class FsmName(GwStrEnum):
 
     Values (with symbols in parens):
       - Unknown (00000000)
-      - IsoValve (0cce8d12): Finite State Machine reflecting the state of the Iso Valve in a House
-        0 design
       - StoreFlowDirection (cfd57bec)
       - RelayState (1f560b73): Finite State Machine for a normally open or normally closed relay
         whose states (Closed, Open) are enumerated by RelayClosedOrOpen.
@@ -28,7 +26,6 @@ class FsmName(GwStrEnum):
     """
 
     Unknown = auto()
-    IsoValve = auto()
     StoreFlowDirection = auto()
     RelayState = auto()
     RelayPinState = auto()
@@ -36,9 +33,9 @@ class FsmName(GwStrEnum):
     @classmethod
     def default(cls) -> "FsmName":
         """
-        Returns default value (in this case IsoValve)
+        Returns default value (in this case StoreFlowDirection)
         """
-        return cls.IsoValve
+        return cls.StoreFlowDirection
 
     @classmethod
     def values(cls) -> List[str]:
@@ -98,7 +95,7 @@ class FsmName(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "IsoValve".
+            a later version of this enum, returns the default value of "StoreFlowDirection".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -116,7 +113,7 @@ class FsmName(GwStrEnum):
             str: The symbol encoding that value. If the value is not recognized -
             which could happen if the actor making the message used a later version
             of this enum than the actor decoding the message, returns the default
-            symbol of "0cce8d12".
+            symbol of "cfd57bec".
         """
         if value not in value_to_symbol.keys():
             return value_to_symbol[cls.default().value]
@@ -129,7 +126,6 @@ class FsmName(GwStrEnum):
         """
         return [
             "00000000",
-            "0cce8d12",
             "cfd57bec",
             "1f560b73",
             "1a3c9545",
@@ -138,7 +134,6 @@ class FsmName(GwStrEnum):
 
 symbol_to_value = {
     "00000000": "Unknown",
-    "0cce8d12": "IsoValve",
     "cfd57bec": "StoreFlowDirection",
     "1f560b73": "RelayState",
     "1a3c9545": "RelayPinState",
@@ -148,7 +143,6 @@ value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
     "Unknown": "000",
-    "IsoValve": "000",
     "StoreFlowDirection": "000",
     "RelayState": "000",
     "RelayPinState": "000",

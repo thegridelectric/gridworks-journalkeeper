@@ -1,9 +1,3 @@
-"""
-The MessageSql ORM object should be made via associated pydantic
-class Message, which includes class validators, using the as_sql method
-e.g. msg = Message(...).as_sql()
-"""
-
 import logging
 from typing import List
 
@@ -26,7 +20,7 @@ class MessageSql(Base):
     __tablename__ = "messages"
     message_id = Column(String, primary_key=True)
     from_alias = Column(String, nullable=False)
-    type_name = Column(String, nullable=False)
+    message_type_name = Column(String, nullable=False)
     message_persisted_ms = Column(BigInteger, nullable=False)
     payload = Column(JSONB, nullable=False)
     message_created_ms = Column(BigInteger)
@@ -34,11 +28,23 @@ class MessageSql(Base):
     __table_args__ = (
         UniqueConstraint(
             "from_alias",
-            "type_name",
+            "message_type_name",
             "message_persisted_ms",
             name="uq_from_type_message",
         ),
     )
+
+    def to_dict(self):
+        d = {
+            "MessageId": self.message_id,
+            "FromAlias": self.from_alias,
+            "MessageTypeName": self.message_type_name,
+            "MessagePersistedMs": self.message_persisted_ms,
+            "Payload": self.payload,
+        }
+        if self.message_created_ms:
+            d["MessageCreatedMs"] = self.message_created_ms
+        return d
 
 
 def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
@@ -63,7 +69,7 @@ def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
         pk_column = MessageSql.message_id
         unique_columns = [
             MessageSql.from_alias,
-            MessageSql.type_name,
+            MessageSql.message_type_name,
             MessageSql.message_persisted_ms,
         ]
 

@@ -1,67 +1,50 @@
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from typing import Any, Dict
 
-from gjk.models import ReadingSql
-from gjk.type_helpers.utils import (
-    check_is_reasonable_unix_time_ms,
-    check_is_uuid_canonical_textual,
+from gw.errors import GwTypeError
+from gw.utils import is_pascal_case, snake_to_pascal
+from pydantic import BaseModel, ConfigDict, ValidationError
+
+from gjk.type_helpers.property_format import (
+    ReasonableUnixTimeMs,
+    UUID4Str,
 )
+from gjk.types.data_channel_gt import DataChannelGt
 
 
 class Reading(BaseModel):
-    id: str
+    id: UUID4Str
     value: int
-    time_ms: int
-    data_channel_id: str
-    message_id: str
+    time_ms: ReasonableUnixTimeMs
+    data_channel: DataChannelGt
+    message_id: UUID4Str
 
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=snake_to_pascal,
+    )
 
-    @field_validator("id")
     @classmethod
-    def _check_id(cls, v: str) -> str:
+    def from_dict(cls, d: dict) -> "Reading":
+        for key in d:
+            if not is_pascal_case(key):
+                raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"id failed UuidCanonicalTextual format validation: {e}"
-            ) from e
-        return v
+            t = cls(**d)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
+        return t
 
-    @field_validator("data_channel_id")
-    @classmethod
-    def _check_data_channel_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"data_channel_id failed UuidCanonicalTextual format validation: {e}",
-            ) from e
-        return v
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Handles lists of enums differently than model_dump
+        """
+        d = self.model_dump(exclude_none=True, by_alias=True)
+        d["DataChannel"] = self.data_channel.to_dict()
+        return d
 
-    @field_validator("message_id")
-    @classmethod
-    def _check_message_id(cls, v: str) -> str:
-        try:
-            check_is_uuid_canonical_textual(v)
-        except ValueError as e:
-            raise ValueError(
-                f"message_id failed UuidCanonicalTextual format validation: {e}",
-            ) from e
-        return v
-
-    @field_validator("time_ms")
-    @classmethod
-    def _check_time_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"time_ms failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
-
-    def as_sql(self) -> ReadingSql:
-        return ReadingSql(**self.model_dump())
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        d["data_channel"] = self.data_channel.to_dict()
+        d.pop("type_name", None)
+        d.pop("version", None)
+        return d

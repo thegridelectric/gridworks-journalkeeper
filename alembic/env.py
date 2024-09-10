@@ -9,8 +9,10 @@ from alembic import context
 config = context.config
 
 # Add the URL
-import dotenv
 import os
+
+import dotenv
+
 dotenv.load_dotenv()
 
 DATABASE_URL = os.getenv("GJK_DB_URL")

@@ -30,6 +30,8 @@ on these ideas:
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
 """
 
+from gjk.enums.change_relay_state import ChangeRelayState
+from gjk.enums.change_store_flow_direction import ChangeStoreFlowDirection
 from gjk.enums.fsm_action_type import FsmActionType
 from gjk.enums.fsm_event_type import FsmEventType
 from gjk.enums.fsm_name import FsmName
@@ -37,9 +39,14 @@ from gjk.enums.fsm_report_type import FsmReportType
 from gjk.enums.g_node_role import GNodeRole
 from gjk.enums.g_node_status import GNodeStatus
 from gjk.enums.kind_of_param import KindOfParam
+from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
+from gjk.enums.relay_pin_set import RelayPinSet
+from gjk.enums.store_flow_direction import StoreFlowDirection
 from gjk.enums.telemetry_name import TelemetryName
 
 __all__ = [
+    "ChangeRelayState",  # [change.relay.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changerelaystate)
+    "ChangeStoreFlowDirection",  # [change.store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changestoreflowdirection)
     "FsmActionType",  # [sh.fsm.action.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmactiontype)
     "FsmEventType",  # [sh.fsm.event.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmeventtype)
     "FsmName",  # [sh.fsm.name.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmname)
@@ -47,5 +54,8 @@ __all__ = [
     "GNodeRole",  # [g.node.role.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnoderole)
     "GNodeStatus",  # [g.node.status.100](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnodestatus)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
+    "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)
+    "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
+    "StoreFlowDirection",  # [store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowdirection)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
 ]

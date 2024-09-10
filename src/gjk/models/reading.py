@@ -1,9 +1,3 @@
-"""
-The ReadingSql ORM object should be made via associated pydantic
-class Reading, which includes class validators, using the as_sql method
-e.g. reading = Reading(...).as_sql()
-"""
-
 import logging
 from typing import List
 
@@ -12,8 +6,8 @@ from sqlalchemy import BigInteger, Column, ForeignKey, String, UniqueConstraint,
 from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
-from gjk.first_season.utils import str_from_ms
 from gjk.models.message import Base
+from gjk.utils import str_from_ms
 
 # Define the base class
 
@@ -43,6 +37,16 @@ class ReadingSql(Base):
     )
 
     data_channel = relationship("DataChannelSql", back_populates="readings")
+
+    def to_dict(self):
+        d = {
+            "Id": self.id,
+            "Value": self.value,
+            "TimeMs": self.time_ms,
+            "DataChannelId": self.data_channel_id,
+            "MessageId": self.message_id,
+        }
+        return d
 
     def __repr__(self):
         return f"<ReadingSql({self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms / 1000)})>"

@@ -1,23 +1,25 @@
-from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from typing import Any, Dict
 
-from gjk.enums import TelemetryName
-from gjk.models import NodalHourlyEnergySql
-from gjk.type_helpers.utils import (
-    check_is_reasonable_unix_time_s,
+from gw.errors import GwTypeError
+from gw.utils import is_pascal_case, snake_to_pascal
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+
+from gjk.type_helpers.property_format import (
+    ReasonableUnixTimeS,
 )
 from gjk.types.data_channel_gt import DataChannelGt
 
 
 class NodalHourlyEnergy(BaseModel):
     id: str
-    hour_start_s: int
+    hour_start_s: ReasonableUnixTimeS
     power_channel: DataChannelGt
-    watt_hours: int
+    watt_hours: int = Field(..., gt=0)
 
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=snake_to_pascal,
+    )
 
     @field_validator("id")
     @classmethod
@@ -26,43 +28,28 @@ class NodalHourlyEnergy(BaseModel):
         # f"{channel.name}_{hour_start}_{g_node}"
         return v
 
-    @field_validator("hour_start_s")
     @classmethod
-    def _check_hour_start_s(cls, v: int) -> int:
+    def from_dict(cls, d: dict) -> "DataChannelGt":
+        for key in d:
+            if not is_pascal_case(key):
+                raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            check_is_reasonable_unix_time_s(v)
-        except ValueError as e:
-            raise ValueError(
-                f"from_alias failed CheckIsLeftRightDot format validation: {e}"
-            ) from e
-        return v
+            t = cls(**d)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
+        return t
 
-    @field_validator("power_channel")
-    @classmethod
-    def _check_power_channel(cls, v: DataChannelGt) -> DataChannelGt:
-        if v.telemetry_name != TelemetryName.PowerW:
-            raise ValueError(
-                f"Not entering {v.name} data - uses {v.telemetry_name.value} and"
-                " needs to use PowerW"
-            )
-        try:
-            check_is_reasonable_unix_time_s(v)
-        except ValueError as e:
-            raise ValueError(
-                f"from_alias failed CheckIsLeftRightDot format validation: {e}"
-            ) from e
-        return v
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Handles lists of enums differently than model_dump
+        """
+        d = self.model_dump(exclude_none=True, by_alias=True)
+        d["PowerChannel"] = self.power_channel.to_dict()
+        return d
 
-    @field_validator("watt_hours")
-    @classmethod
-    def _check_watt_hours(cls, v: int) -> int:
-        if v < 0:
-            raise ValueError(
-                "This table is in the thought domain of data analysis for electricity "
-                "used by heat pump thermal storage heating systems. This number "
-                f"must be positive: {v}"
-            )
-        return v
-
-    def as_sql(self) -> NodalHourlyEnergySql:
-        return NodalHourlyEnergySql(**self.model_dump())
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        d["power_channel"] = self.power_channel.to_sql_dict()
+        d.pop("type_name", None)
+        d.pop("version", None)
+        return d

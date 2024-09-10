@@ -3,7 +3,7 @@ from typing import Literal
 
 from gw.errors import GwTypeError
 from gw.utils import snake_to_pascal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 MAX_SHORT = 32767
 
@@ -11,11 +11,9 @@ MAX_SHORT = 32767
 class Power(BaseModel):
     value: int
     type_name: Literal["p"] = "p"
-
-    class Config:
-        populate_by_name = True
-        alias_generator = snake_to_pascal
-        extra = "forbid"
+    model_config = ConfigDict(
+        populate_by_name=True, alias_generator=snake_to_pascal, extra="forbid"
+    )
 
     @field_validator("value")
     @classmethod
@@ -24,22 +22,21 @@ class Power(BaseModel):
             raise ValueError(f"value needs to be a short! Between +/- {MAX_SHORT}")
         return v
 
-    def as_type(self) -> bytes:
+    def to_type(self) -> bytes:
         return struct.pack("<h", self.value)
 
-
-class PowerMaker:
-    type_name = "p"
-
     @classmethod
-    def tuple_to_type(cls, tpl: Power) -> bytes:
-        return tpl.as_type()
-
-    @classmethod
-    def type_to_tuple(cls, b: bytes) -> Power:
+    def from_type(cls, b: bytes) -> "Power":
         try:
             value = struct.unpack("<h", b)[0]
         except Exception as e:
             raise GwTypeError(f"bytes failed struct.unpack('<h', b): {b}") from e
-        tpl = Power(value=value)
-        return tpl
+        try:
+            t = Power(value=value)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
+        return t
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "p"
