@@ -1,8 +1,8 @@
 import copy
 
 import pytest
+from gjk.codec import sql_to_type, type_to_sql
 from gjk.type_helpers import NodalHourlyEnergy
-from gjk.utils import sql_to_type, type_to_sql
 
 
 def test_nodal_energy():

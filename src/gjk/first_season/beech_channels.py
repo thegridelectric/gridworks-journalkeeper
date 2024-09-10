@@ -1,13 +1,13 @@
 from typing import Dict
 
 import dotenv
+from gjk.codec import type_to_sql
 from gjk.config import Settings
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_nodes import BeechNodes as BN
 from gjk.models import bulk_insert_idempotent
 from gjk.types import DataChannelGt
-from gjk.utils import type_to_sql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

@@ -14,7 +14,7 @@ from gjk.type_helpers.property_format import (
 class Message(BaseModel):
     message_id: UUID4Str
     from_alias: LeftRightDotStr
-    type_name: LeftRightDotStr
+    message_type_name: LeftRightDotStr
     message_persisted_ms: ReasonableUnixTimeMs
     payload: Dict
     message_created_ms: Optional[ReasonableUnixTimeMs] = None
@@ -41,6 +41,4 @@ class Message(BaseModel):
 
     def to_sql_dict(self) -> Dict[str, Any]:
         d = self.model_dump()
-        d.pop("type_name", None)
-        d.pop("version", None)
         return d
