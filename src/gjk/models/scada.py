@@ -1,9 +1,3 @@
-"""
-The TaSql ORM object should be made via associated pydantic
-class Ta, which includes class validators, using the as_sql method
-e.g. msg = Message(...).as_sql()
-"""
-
 import logging
 
 from sqlalchemy import Column, Integer, String
@@ -19,9 +13,6 @@ LOGGER = logging.getLogger(__name__)
 
 class ScadaSql(Base):
     """
-    Make an element of this class via Scada(...).as_sql(),
-    as this will enforce the pydantic validations.
-
     This is an ORM to track when a SCADA is officially
     live. Data before this point could be the system coming online,
     or even the scada in the lab.

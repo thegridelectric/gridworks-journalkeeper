@@ -1,9 +1,3 @@
-"""
-The MessageSql ORM object should be made via associated pydantic
-class Message, which includes class validators, using the as_sql method
-e.g. msg = Message(...).as_sql()
-"""
-
 import logging
 from typing import List
 

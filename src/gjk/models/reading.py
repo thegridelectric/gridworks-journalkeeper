@@ -1,9 +1,3 @@
-"""
-The ReadingSql ORM object should be made via associated pydantic
-class Reading, which includes class validators, using the as_sql method
-e.g. reading = Reading(...).as_sql()
-"""
-
 import logging
 from typing import List
 
@@ -12,8 +6,8 @@ from sqlalchemy import BigInteger, Column, ForeignKey, String, UniqueConstraint,
 from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
-from gjk.first_season.utils import str_from_ms
 from gjk.models.message import Base
+from gjk.utils import str_from_ms
 
 # Define the base class
 

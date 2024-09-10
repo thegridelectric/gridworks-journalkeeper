@@ -44,6 +44,7 @@ class ChannelReadings(BaseModel):
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -106,3 +107,7 @@ class ChannelReadings(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "channel.readings"

@@ -14,9 +14,6 @@ from gjk.type_helpers.property_format import (
 
 class Scada(BaseModel):
     """
-    Use Scada(..).as_sql() to create the associated ScadaSql
-    ORM object.
-
     This is an ORM designed to track when a SCADA is officially
     live. Data before this point could be the system coming online,
     or even the scada in the lab.

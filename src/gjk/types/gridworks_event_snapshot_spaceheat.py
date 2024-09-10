@@ -1,5 +1,6 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
+import copy
 import json
 import logging
 from typing import Any, Dict, Literal
@@ -8,6 +9,7 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
     UUID4Str,
@@ -40,16 +42,18 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
+        frozen=True,
         populate_by_name=True,
     )
 
     @classmethod
     def from_dict(cls, d: dict) -> "GridworksEventSnapshotSpaceheat":
-        for key in d:
+        d2 = cls.first_season_fix(d)
+        for key in d2:
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            t = cls(**d)
+            t = cls(**d2)
         except ValidationError as e:
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
@@ -68,14 +72,6 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["Snap"] = self.snap.to_dict()
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["Snap"] = self.snap.to_dict()
         return d
@@ -90,3 +86,42 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "gridworks.event.snapshot.spaceheat"
+
+    @classmethod
+    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
+        """
+        Makes key "snap" -> "Snap", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+
+        d2 = copy.deepcopy(d)
+
+        if "snap" in d2.keys():
+            d2["Snap"] = d2["snap"]
+            del d2["snap"]
+
+        if "Snap" not in d2.keys():
+            raise GwTypeError(f"dict missing Snap: <{d2.keys()}>")
+
+        if "Snapshot" not in d2["Snap"].keys():
+            raise GwTypeError(f"dict['Snap'] missing Snapshot: <{d2['Snap'].keys()}>")
+
+        snapshot = d2["Snap"]["Snapshot"]
+        # replace values with symbols for TelemetryName in SimpleTelemetryList
+        if "TelemetryNameList" not in snapshot.keys():
+            raise Exception(
+                f"Snapshot does not have TelemetryNameList in keys! simple.key()): <{snapshot.keys()}>"
+            )
+        telemetry_name_list = snapshot["TelemetryNameList"]
+        new_list = []
+        for tn in telemetry_name_list:
+            new_list.append(TelemetryName.value_to_symbol(tn))
+        snapshot["TelemetryNameList"] = new_list
+
+        d2["Snap"]["Snapshot"] = snapshot
+        d2["Version"] = "000"
+        return d2

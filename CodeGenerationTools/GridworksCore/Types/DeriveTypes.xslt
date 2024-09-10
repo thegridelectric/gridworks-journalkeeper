@@ -93,7 +93,6 @@ from typing_extensions import Self</xsl:text>
 from gw import check_is_market_slot_name_lrd_format</xsl:text>
 </xsl:for-each>
 </xsl:if>
-
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
 
 
@@ -145,6 +144,10 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:when test="normalize-space(Name) = 'SpaceheatName'">
 <xsl:text>
     SpaceheatNameStr,</xsl:text>
+</xsl:when>
+<xsl:when test="normalize-space(Name) = 'LeftRightDot'">
+<xsl:text>
+    LeftRightDotStr,</xsl:text>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text>
@@ -248,6 +251,9 @@ class </xsl:text>
         <xsl:when test="normalize-space(PrimitiveFormat) = 'SpaceheatName'">
         <xsl:text>SpaceheatNameStr</xsl:text>
         </xsl:when>
+        <xsl:when test="normalize-space(PrimitiveFormat) = 'LeftRightDot'">
+        <xsl:text>LeftRightDotStr</xsl:text>
+        </xsl:when>
         <xsl:otherwise>
         <xsl:call-template name="python-type">
             <xsl:with-param name="gw-type" select="PrimitiveType"/>
@@ -303,15 +309,16 @@ class </xsl:text>
 <xsl:if test="ExtraAllowed='true'"><xsl:text>
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, extra="allow", populate_by_name=True,
+        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True,
     )</xsl:text>
 </xsl:if>
 <xsl:if test="not(ExtraAllowed='true')"><xsl:text>
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, populate_by_name=True,
+        alias_generator=snake_to_pascal, frozen=True, populate_by_name=True,
     )</xsl:text>
 </xsl:if>
+
 
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
@@ -386,7 +393,7 @@ class </xsl:text>
         </xsl:if>
     </xsl:variable>
 
-    <xsl:if test="(IsList='true' and PrimitiveType != '' and normalize-space(Format) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName'  ) or (normalize-space(PrimitiveFormat) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual'  and normalize-space(PrimitiveFormat) != 'SpaceheatName' ) or (Axiom != '')">
+    <xsl:if test="(IsList='true' and PrimitiveType != '' and normalize-space(Format) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot') or (normalize-space(PrimitiveFormat) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual'  and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' ) or (Axiom != '')">
 
     <xsl:text>
 
@@ -489,7 +496,7 @@ class </xsl:text>
         <xsl:choose>
 
         <!-- Format needs validating; not a list-->
-        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and not(IsList='true')">
+        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' and not(IsList='true')">
         <xsl:text>
         try:
             check_is_</xsl:text>
@@ -519,7 +526,7 @@ class </xsl:text>
         </xsl:when>
 
         <!-- Format needs validating; is a list-->
-        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and (IsList='true')">
+        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' and (IsList='true')">
         <xsl:text>
         try:
             for elt in v:
@@ -858,7 +865,11 @@ class </xsl:text>
 
     def __hash__(self) -> int:
         # Can use as keys in dicts
-        return hash(type(self), *tuple(self.__dict__.values()))</xsl:text>
+        return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"</xsl:text>
 
 
 <!-- Add newline at EOF for git and pre-commit-->

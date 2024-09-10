@@ -36,3 +36,7 @@ class Power(BaseModel):
         except ValidationError as e:
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "p"

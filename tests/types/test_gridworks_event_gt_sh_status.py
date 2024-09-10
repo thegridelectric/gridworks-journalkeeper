@@ -5,7 +5,7 @@ from gjk.types import GridworksEventGtShStatus
 
 def test_gridworks_event_gt_sh_status_generated() -> None:
     d = {
-        "MessageId": "2952731d-a415-44de-b37c-f5f865dee77b",
+        "MessageId": "55faec9b-7ce6-4a64-9d5d-e07e20cf6e15",
         "TimeNS": 1699886100019488593,
         "Src": "hw1.isone.me.versant.keene.beech.scada",
         "Status": {

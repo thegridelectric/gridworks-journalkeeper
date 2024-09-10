@@ -1,5 +1,6 @@
 """Type gridworks.event.gt.sh.status, version 000"""
 
+import copy
 import json
 import logging
 from typing import Any, Dict, Literal
@@ -14,6 +15,7 @@ from pydantic import (
 )
 from typing_extensions import Self
 
+from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
     UUID4Str,
@@ -44,6 +46,7 @@ class GridworksEventGtShStatus(BaseModel):
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -62,16 +65,30 @@ class GridworksEventGtShStatus(BaseModel):
         Axiom 2: Src is Status.FromGNodeAlias and MessageId matches Status.StatusUid.
         Src == Status.FromGNodeAlias
         """
-        # Implement check for axiom 2"
+        """
+        Axiom 2: Src is Status.FromGNodeAlias and MessageId matches Status.StatusUid.
+        Src == Status.FromGNodeAlias
+        """
+        if self.src != self.status.from_g_node_alias:
+            raise ValueError(
+                f"self.src <{self.src}> must be status.from_g_node_alias <{self.status.from_g_node_alias}>"
+            )
+
+        if self.message_id != self.status.status_uid:
+            raise ValueError(
+                f"message_id <{self.message_id}> must be status.status_uid <{self.status.status_uid}>"
+            )
+
         return self
 
     @classmethod
     def from_dict(cls, d: dict) -> "GridworksEventGtShStatus":
-        for key in d:
+        d2 = cls.first_season_fix(d)
+        for key in d2:
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            t = cls(**d)
+            t = cls(**d2)
         except ValidationError as e:
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
@@ -90,14 +107,6 @@ class GridworksEventGtShStatus(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["Status"] = self.status.to_dict()
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["Status"] = self.status.to_dict()
         return d
@@ -112,3 +121,55 @@ class GridworksEventGtShStatus(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "gridworks.event.gt.sh.status"
+
+    @classmethod
+    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
+        """
+        Makes key "status" -> "Status", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+
+        d2 = copy.deepcopy(d)
+
+        if "status" in d2.keys():
+            d2["Status"] = d2["status"]
+            del d2["status"]
+
+        if "Status" not in d2.keys():
+            raise GwTypeError(f"dict missing Status: <{d2}>")
+
+        status = d2["Status"]
+
+        # replace values with symbols for TelemetryName in SimpleTelemetryList
+        simple_list = status["SimpleTelemetryList"]
+        for simple in simple_list:
+            if "TelemetryName" not in simple.keys():
+                raise Exception(
+                    f"simple does not have TelemetryName in keys! simple.key()): <{simple.keys()}>"
+                )
+            simple["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                simple["TelemetryName"]
+            )
+            del simple["TelemetryName"]
+        status["SimpleTelemetryList"] = simple_list
+
+        # replace values with symbols for TelemetryName in MultipurposeTelemetryList
+        multi_list = status["MultipurposeTelemetryList"]
+        for multi in multi_list:
+            multi["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                multi["TelemetryName"]
+            )
+            del multi["TelemetryName"]
+        status["MultipurposeTelemetryList"] = multi_list
+
+        orig_message_id = d2["MessageId"]
+        if orig_message_id != status["StatusUid"]:
+            d2["MessageId"] = status["StatusUid"]
+
+        d2["Status"] = status
+        d2["Version"] = "000"
+        return d2

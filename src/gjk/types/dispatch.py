@@ -35,12 +35,6 @@ class Dispatch(BaseModel):
             raise GwTypeError(f"Pydantic validation error {e}") from e
         return t
 
-
-class DispatchMaker:
     @classmethod
-    def type_to_tuple(cls, b: bytes) -> Dispatch:
-        return Dispatch.from_type(b)
-
-    @classmethod
-    def tuple_to_type(cls, t: Dispatch) -> bytes:
-        return Dispatch.to_type(t)
+    def type_name_value(cls) -> str:
+        return "d"

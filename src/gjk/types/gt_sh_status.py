@@ -45,6 +45,7 @@ class GtShStatus(BaseModel):
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -84,20 +85,6 @@ class GtShStatus(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["SimpleTelemetryList"] = [elt.to_dict() for elt in self.simple_telemetry_list]
-        d["MultipurposeTelemetryList"] = [
-            elt.to_dict() for elt in self.multipurpose_telemetry_list
-        ]
-        d["BooleanactuatorCmdList"] = [
-            elt.to_dict() for elt in self.booleanactuator_cmd_list
-        ]
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["SimpleTelemetryList"] = [elt.to_dict() for elt in self.simple_telemetry_list]
         d["MultipurposeTelemetryList"] = [
@@ -118,3 +105,7 @@ class GtShStatus(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "gt.sh.status"

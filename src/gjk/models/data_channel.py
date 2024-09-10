@@ -1,9 +1,3 @@
-"""
-The DataChannelSql ORM object should be made via associated pydantic
-class DataChannelGt, which includes class validators, using the as_sql method
-e.g. ch = DataChannelGt(...).as_sql()
-"""
-
 import logging
 
 from sqlalchemy import Boolean, Column, Integer, String

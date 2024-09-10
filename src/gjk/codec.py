@@ -3,13 +3,11 @@ from typing import Optional
 
 from gw.errors import GwTypeError
 
-from gjk.types.asl_types import TypeMakerByName
-from gjk.types.heartbeat_a import HeartbeatA
-
-type_list = list(TypeMakerByName.keys())
+from gjk.types.asl_types import TypeByName
+from gjk.types.gw_base import GwBase
 
 
-def deserialize(msg_bytes: bytes) -> Optional[HeartbeatA]:
+def from_type(msg_bytes: bytes) -> Optional[GwBase]:
     """
     Given an instance of the type (i.e., a serialized byte string for sending
     as a message), returns the appropriate instance of the associated pydantic
@@ -20,33 +18,30 @@ def deserialize(msg_bytes: bytes) -> Optional[HeartbeatA]:
     Returns: Instance of associated Pydantic object, or None if the
     TypeName is not recognized
     """
-    content = json.loads(msg_bytes.decode("utf-8"))
-    if "TypeName" not in content.keys():
-        raise GwTypeError(f"No TypeName - so not a type. Keys: <{content.keys()}>")
-    outer_type_name = content["TypeName"]
+    try:
+        data = json.loads(msg_bytes.decode("utf-8"))
+    except Exception:
+        print("failed json loads")
+        return None
+    return from_dict(data)
+
+
+def from_dict(data: dict) -> Optional[GwBase]:
+    if "TypeName" not in data.keys():
+        raise GwTypeError(f"No TypeName - so not a type. Keys: <{data.keys()}>")
+    outer_type_name = data["TypeName"]
 
     # Scada messages all come in a 'gw' incomplete type
 
     # which has a "Header" and then the payload in a "Payload"
     if outer_type_name == "gw":
-        if "Payload" not in content.keys():
-            raise GwTypeError(f"Type Gw must include Payload! Keys: <{content.keys()}>")
-        content = content["Payload"]
-        if "TypeName" not in content.keys():
-            raise GwTypeError(f"gw Payload must have TypeName. Keys: {content.keys()}")
+        if "Payload" not in data.keys():
+            raise GwTypeError(f"Type Gw must include Payload! Keys: <{data.keys()}>")
+        data = data["Payload"]
+        if "TypeName" not in data.keys():
+            raise GwTypeError(f"gw Payload must have TypeName. Keys: {data.keys()}")
 
-    if content["TypeName"] not in TypeMakerByName.keys():
+    if data["TypeName"] not in TypeByName:
         return None
-    codec = TypeMakerByName[content["TypeName"]]
-    return codec.dict_to_tuple(content)
 
-
-def serialize(t: HeartbeatA) -> bytes:
-    """
-    Given an instance of a pydantic BaseModel class associated to a type,
-    returns the approriate instance of the serialized type.
-
-    Raises: GwTypeError if t fails authentication
-
-    """
-    return t.as_type()
+    return TypeByName[data["TypeName"]].from_dict(data)

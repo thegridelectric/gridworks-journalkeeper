@@ -3,9 +3,9 @@ from typing import List, Optional
 
 import boto3
 import pendulum
-from pydantic import BaseModel
+from gjk.utils import FileNameMeta
 
-from gjk.models import Message
+from gjk.type_helpers import Message
 from gjk.types import (
     BatchedReadings,
     GridworksEventGtShStatus,
@@ -16,13 +16,6 @@ from gjk.types import (
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
 start_s = int(start_time.timestamp())
-
-
-class FileNameMeta(BaseModel):
-    from_alias: str
-    type_name: str
-    message_persisted_ms: int
-    file_name: str
 
 
 class JournalKeeperHack:
@@ -109,7 +102,7 @@ class JournalKeeperHack:
         for i in range(len(fn_list)):
             fn = fn_list[i]
             message_bytes = self.get_message_bytes(fn)
-
+            
         return readings
 
     def get_message_bytes(self, file_name_meta: FileNameMeta) -> bytes:

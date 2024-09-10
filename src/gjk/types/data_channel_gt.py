@@ -52,6 +52,7 @@ class DataChannelGt(BaseModel):
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -108,18 +109,18 @@ class DataChannelGt(BaseModel):
             raise GwTypeError(f"Deserializing must result in dict!\n <{b}>")
         return cls.from_dict(d)
 
-    def to_sql_dict(self) -> Dict[str, Any]:
-        d = self.model_dump()
-        d.pop("type_name", None)
-        d.pop("version", None)
-        return d
-
     def to_dict(self) -> Dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["TelemetryName"] = self.telemetry_name.value
+        return d
+
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        d.pop("type_name", None)
+        d.pop("version", None)
         return d
 
     def to_type(self) -> bytes:
@@ -132,3 +133,7 @@ class DataChannelGt(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "data.channel.gt"

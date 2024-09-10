@@ -52,6 +52,7 @@ class FsmEvent(BaseModel):
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
         extra="allow",
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -132,17 +133,8 @@ class FsmEvent(BaseModel):
         """
         Handles lists of enums differently than model_dump
         """
-        return self.plain_enum_dict()
-
-    def plain_enum_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         d["EventType"] = self.event_type.value
-        return d
-
-    def enum_encoded_dict(self) -> Dict[str, Any]:
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        del d["EventType"]
-        d["EventTypeGtEnumSymbol"] = FsmEventType.value_to_symbol(self.event_type)
         return d
 
     def to_type(self) -> bytes:
@@ -155,3 +147,7 @@ class FsmEvent(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "fsm.event"

@@ -1,9 +1,3 @@
-"""
-The NodalHourlyEnergySql ORM object should be made via associated pydantic
-class HourlyEnergyGt, which includes class validators, using the as_sql method
-e.g. ch = HourlyEnergyGt(...).as_sql()
-"""
-
 from typing import List
 
 import pendulum

@@ -61,6 +61,7 @@ class BatchedReadings(BaseModel):
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
         extra="allow",
+        frozen=True,
         populate_by_name=True,
     )
 
@@ -103,11 +104,7 @@ class BatchedReadings(BaseModel):
         """
         Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e. IsAction = true).
         """
-        for elt in v:
-            if not elt.action:
-                raise ValueError(
-                    "Violates Axiom 1: Each elt of FsmActionList must have an action"
-                )
+        # Implement Axiom(s)
         return v
 
     @model_validator(mode="after")
@@ -116,21 +113,7 @@ class BatchedReadings(BaseModel):
         Axiom 2: DataChannel Consistency.
         There is a bijection between the DataChannelLists and ChannelReadingLists via the ChannelId.
         """
-        channel_list_ids = list(map(lambda x: x.id, self.data_channel_list))
-        reading_list_ids = list(map(lambda x: x.channel_id, self.channel_reading_list))
-        if len(set(channel_list_ids)) != len(channel_list_ids):
-            raise ValueError(
-                f"Axiom 2 violated. ChannelIds not unique in DataChannelList: <{self}>"
-            )
-        if len(set(reading_list_ids)) != len(reading_list_ids):
-            raise ValueError(
-                f"Axiom 2 violated. ChannelIds not unique in ChannelReadingList:\n <{self}>"
-            )
-        if set(channel_list_ids) != set(reading_list_ids):
-            raise ValueError(
-                "Axiom 2 violated: must be a bijection between DataChannelList "
-                f"and ChannelReadingList:\n <{self}>"
-            )
+        # Implement check for axiom 2"
         return self
 
     @model_validator(mode="after")
@@ -184,3 +167,7 @@ class BatchedReadings(BaseModel):
     def __hash__(self) -> int:
         # Can use as keys in dicts
         return hash(type(self), *tuple(self.__dict__.values()))
+
+    @classmethod
+    def type_name_value(cls) -> str:
+        return "batched.readings"

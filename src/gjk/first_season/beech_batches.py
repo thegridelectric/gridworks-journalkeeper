@@ -2,8 +2,8 @@ import math
 from typing import List
 
 import dotenv
+from gjk import codec
 from gjk.back_office_hack import gni_from_alias, ta_from_alias
-from gjk.codec import deserialize
 from gjk.config import Settings
 from gjk.enums import TelemetryName
 from gjk.first_season.beech_channels import (
@@ -11,7 +11,6 @@ from gjk.first_season.beech_channels import (
     BcName,
     BeechAliasMapper,
 )
-from gjk.first_season.utils import str_from_ms
 from gjk.journal_keeper_hack import FileNameMeta, JournalKeeperHack
 from gjk.models import bulk_insert_messages
 from gjk.type_helpers import Message
@@ -20,6 +19,7 @@ from gjk.types import (
     ChannelReadings,
     GridworksEventGtShStatus,
 )
+from gjk.utils import str_from_ms, type_to_sql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -163,7 +163,9 @@ def beech_br_from_status(
     return return_tuple
 
 
-def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
+def get_beech_filenames(
+    p: JournalKeeperHack, start_s: int, duration_hrs: int
+) -> List[FileNameMeta]:
     date_list = p.get_date_folder_list(start_s, duration_hrs)
     print(f"Loading filenames from folders {date_list}")
     fn_list: List[FileNameMeta] = p.get_file_name_meta_list(date_list)
@@ -190,7 +192,11 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
     print(
         f"Last file persisted at {str_from_ms(blist[-1].message_persisted_ms)} America/NY"
     )
+    return blist
 
+
+def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
+    blist = get_beech_filenames(p, start_s, duration_hrs)
     settings = Settings(_env_file=dotenv.find_dotenv())
     engine = create_engine(settings.db_url.get_secret_value())
     Session = sessionmaker(bind=engine)
@@ -217,7 +223,7 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
                 msg_bytes = json_str.encode("utf-8")
 
             try:
-                t = deserialize(msg_bytes)
+                t = codec.from_type(msg_bytes)
             except Exception as e:
                 raise Exception(f"Problem with {fn.file_name}") from e
 
@@ -239,6 +245,6 @@ def load_beech_batches(p: JournalKeeperHack, start_s: int, duration_hrs: int):
                 blank_statuses += 1
 
         print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
-        msg_sql_list = list(map(lambda x: x.as_sql(), messages))
+        msg_sql_list = [type_to_sql(x) for x in messages]
         bulk_insert_messages(session, msg_sql_list)
         session.commit()
