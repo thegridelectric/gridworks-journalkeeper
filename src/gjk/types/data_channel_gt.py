@@ -119,6 +119,7 @@ class DataChannelGt(BaseModel):
 
     def to_sql_dict(self) -> Dict[str, Any]:
         d = self.model_dump()
+        d["telemetry_name"] = self.telemetry_name.value
         d.pop("type_name", None)
         d.pop("version", None)
         return d
@@ -132,7 +133,7 @@ class DataChannelGt(BaseModel):
 
     def __hash__(self) -> int:
         # Can use as keys in dicts
-        return hash(type(self), *tuple(self.__dict__.values()))
+        return hash((type(self), *tuple(self.__dict__.values())))
 
     @classmethod
     def type_name_value(cls) -> str:
