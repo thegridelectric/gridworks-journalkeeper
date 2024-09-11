@@ -199,7 +199,7 @@ class JournalKeeperHack:
                     blank_statuses += 1
 
         print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
-        msg_sql_list = [codec.type_to_sql(x) for x in messages]
+        msg_sql_list = [codec.pyd_to_sql(x) for x in messages]
         with self.get_session() as session:
             bulk_insert_messages(session, msg_sql_list)
             session.commit()

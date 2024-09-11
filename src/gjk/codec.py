@@ -56,7 +56,7 @@ def from_dict(data: dict) -> Optional[GwBase]:
     return TypeByName[data["TypeName"]].from_dict(data)
 
 
-def type_to_sql(
+def pyd_to_sql(
     t: Union[DataChannelGt, Message, NodalHourlyEnergy, Reading, Scada],
 ) -> Union[DataChannelSql, MessageSql, NodalHourlyEnergySql, ReadingSql, ScadaSql]:
     d = t.to_sql_dict()
@@ -79,7 +79,7 @@ def type_to_sql(
         raise TypeError(f"Unsupported type: {type(t)}")
 
 
-def sql_to_type(
+def sql_to_pyd(
     t: Union[DataChannelSql, MessageSql, NodalHourlyEnergySql, ReadingSql, ScadaSql],
 ) -> Union[DataChannelGt, Message, NodalHourlyEnergy, Reading, Scada]:
     d = t.to_dict()

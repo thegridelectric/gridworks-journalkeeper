@@ -1,7 +1,7 @@
-from typing import Dict
+from typing import Dict, List, Optional
 
 from deepdiff import DeepDiff
-from gjk.codec import type_to_sql
+from gjk.codec import pyd_to_sql
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_names import BEECH_TA, BN, BcName
@@ -11,13 +11,17 @@ from gw.errors import DcError
 from sqlalchemy.orm import Session
 
 
-def data_channels_match_db(session: Session) -> None:
+def data_channels_match_db(
+    session: Session, local_dcs: Optional[List[DataChannelSql]] = None
+) -> None:
     """
     Raises exception if there is a mismatch between data channels
     in code and in database
     """
     consistent = True
-    local_dcs = {type_to_sql(dc) for dc in BEECH_CHANNELS_BY_NAME.values()}
+    if local_dcs is None:
+        local_dcs = {pyd_to_sql(dc) for dc in BEECH_CHANNELS_BY_NAME.values()}
+
     dcs = set(session.query(DataChannelSql).all())
 
     local_ids = {dc.id for dc in local_dcs}

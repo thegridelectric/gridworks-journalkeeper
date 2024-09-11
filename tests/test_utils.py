@@ -1,7 +1,7 @@
 import copy
 
 import pytest
-from gjk.codec import sql_to_type, type_to_sql
+from gjk.codec import pyd_to_sql, sql_to_pyd
 from gjk.type_helpers import NodalHourlyEnergy
 
 
@@ -26,9 +26,9 @@ def test_nodal_energy():
     }
 
     e = NodalHourlyEnergy(**d)
-    e_sql = type_to_sql(e)
-    assert sql_to_type(e_sql) == e
-    assert type_to_sql(sql_to_type(e_sql)).to_dict() == e_sql.to_dict()
+    e_sql = pyd_to_sql(e)
+    assert sql_to_pyd(e_sql) == e
+    assert pyd_to_sql(sql_to_pyd(e_sql)).to_dict() == e_sql.to_dict()
 
     d2 = copy.deepcopy(d)
     d2["WattHours"] = -150

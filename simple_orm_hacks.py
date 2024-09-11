@@ -4,7 +4,7 @@
 import dotenv
 import pendulum
 from gjk.config import Settings
-from gjk.models import DataChannelSql, NodalHourlyEnergySql
+from gjk.models import DataChannelSql, MessageSql, NodalHourlyEnergySql
 from sqlalchemy import and_, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -47,3 +47,9 @@ result = (
     )
     .all()
 )
+
+
+# pick a message by its id
+
+id = "a1aa5751-74cc-4e6a-863d-7ffcf3de6ade"
+msg = session.query(MessageSql).filter(MessageSql.message_id == id).first()
