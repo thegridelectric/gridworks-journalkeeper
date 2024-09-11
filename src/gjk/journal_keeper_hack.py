@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk import codec
 from gjk.config import Settings
+from gjk.first_season import beech_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.models import bulk_insert_messages
 from gjk.type_helpers import Message
@@ -34,6 +35,7 @@ class JournalKeeperHack:
         self.s3 = boto3.client("s3")
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
+        self.check_data_channel_consistency()
 
     @contextmanager
     def get_session(self):
@@ -47,6 +49,14 @@ class JournalKeeperHack:
             raise  # Re-raise the exception after rollback
         finally:
             session.close()  # Always close the session
+
+    def check_data_channel_consistency(self):
+        """
+        Can take this out when hardware layout for house 0 is fully
+        implemented
+        """
+        with self.get_session() as session:
+            beech_channels.data_channels_match_db(session)
 
     def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
         folder_list: List[str] = []
