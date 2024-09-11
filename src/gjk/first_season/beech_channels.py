@@ -78,7 +78,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         captured_by_node_name=BN.DOWN_ZONE_STAT,
         telemetry_name=TelemetryName.ThermostatState,
         terminal_asset_alias="hw1.isone.me.versant.keene.beech.ta",
-        start_s=1713914640,  # 2024 April 23, 16:24 America/NY
+        start_s=1713914640,  # 2024 April 23, 19:24 America/NY
     ),
     BcName.STORE_PUMP_PWR: DataChannelGt(
         id="ac35c2a9-e317-45e8-a036-52fa5cbd8380",
@@ -696,7 +696,7 @@ BeechAliasMapper.channel_mappings = {
         (1708265130, "stat2.temp"),  # 2024-02-18 09:05:30 America/NY
     ],
     BcName.DOWN_ZONE_STATE: [
-        (1713914640, "a.thermostat.downstairs.state"),  # 2024-04-23 16:24:00 America/NY
+        (1713914640, "a.thermostat.downstairs.state"),  # 2024-04-23 19:24:00 America/NY
     ],
     BcName.UP_ZONE_STATE: [
         (1713920310, "a.thermostat.upstairs.state"),  # 2024-04-23 20:58:00 America/NY
