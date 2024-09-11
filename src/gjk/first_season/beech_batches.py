@@ -49,7 +49,8 @@ TN_GOOFS = [
 
 
 def beech_br_from_status(
-    status_event: GridworksEventGtShStatus, fn: FileNameMeta
+    status_event: GridworksEventGtShStatus,
+    fn: FileNameMeta,
 ) -> BatchedReadings:
     """
     Given a GridWorksEventGtShStatus reported by the beech scada,

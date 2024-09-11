@@ -1,105 +1,81 @@
 from typing import Dict
 
-import dotenv
+from deepdiff import DeepDiff
 from gjk.codec import type_to_sql
-from gjk.config import Settings
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
-from gjk.first_season.beech_nodes import BeechNodes as BN
-from gjk.models import bulk_insert_idempotent
+from gjk.first_season.beech_names import BEECH_TA, BN, BcName
+from gjk.models import DataChannelSql
 from gjk.types import DataChannelGt
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from gw.errors import DcError
+from sqlalchemy.orm import Session
 
 
-class BcName:
+def data_channels_match_db(session: Session) -> None:
     """
-    This class provides the names of the beech channels, which
-    are local (within Beech) immutable identifiers.
-
-    A channel is a tuple of [AboutNode,  CapturedByNode, TelemetryName]
-    where AboutNode and CapturedByNode are Spaceheat Nodes.
+    Raises exception if there is a mismatch between data channels
+    in code and in database
     """
+    consistent = True
+    local_dcs = {type_to_sql(dc) for dc in BEECH_CHANNELS_BY_NAME.values()}
+    dcs = set(session.query(DataChannelSql).all())
 
-    # Temperature Channels
-    BUFFER_COLD_PIPE = "buffer-cold-pipe"
-    BUFFER_HOT_PIPE = "buffer-hot-pipe"
-    BUFFER_WELL_TEMP = "buffer-well"
-    BUFFER_DEPTH1_TEMP = "buffer-depth1"
-    BUFFER_DEPTH2_TEMP = "buffer-depth2"
-    BUFFER_DEPTH3_TEMP = "buffer-depth3"
-    BUFFER_DEPTH4_TEMP = "buffer-depth4"
-    DIST_RWT = "dist-rwt"
-    DIST_SWT = "dist-swt"
-    HP_EWT = "hp-ewt"
-    HP_LWT = "hp-lwt"
-    OAT = "oat"
-    STORE_COLD_PIPE = "store-cold-pipe"
-    STORE_HOT_PIPE = "store-hot-pipe"
-    TANK1_DEPTH1 = "tank1-depth1"
-    TANK1_DEPTH2 = "tank1-depth2"
-    TANK1_DEPTH3 = "tank1-depth3"
-    TANK1_DEPTH4 = "tank1-depth4"
-    TANK2_DEPTH1 = "tank2-depth1"
-    TANK2_DEPTH2 = "tank2-depth2"
-    TANK2_DEPTH3 = "tank2-depth3"
-    TANK2_DEPTH4 = "tank2-depth4"
-    TANK3_DEPTH1 = "tank3-depth1"
-    TANK3_DEPTH2 = "tank3-depth2"
-    TANK3_DEPTH3 = "tank3-depth3"
-    TANK3_DEPTH4 = "tank3-depth4"
-    DOWN_ZONE_TEMP = "down-zone-temp"
-    DOWN_ZONE_SET = "down-zone-set"
-    UP_ZONE_TEMP = "up-zone-temp"
-    UP_ZONE_SET = "up-zone-set"
+    local_ids = {dc.id for dc in local_dcs}
+    ids = {dc.id for dc in dcs}
 
-    # Relay Energization Channels
-    AQUASTAT_CTRL_RELAY_ENERGIZATION = "aquastat-ctrl-relay-energization"
-    CHG_DSCHG_VALVE_RELAY_ENERGIZATION = "chg-dschg-valve-relay-energization"
-    HP_FAILSAFE_RELAY_ENERGIZATION = "hp-failsafe-relay-energization"
-    HP_SCADA_OPS_RELAY_ENERGIZATION = "hp-scada-ops-relay-energization"
-    ISO_VALVE_RELAY_ENERGIZATION = "iso-valve-relay-energization"
+    # look for missing local channels
+    if (ids - local_ids) != set():
+        consistent = False
+        print("Missing some channels locally")
+        for id in ids - local_ids:
+            dc = next(dc for dc in dcs if dc.id == id)
+            print(dc.to_dict())
 
-    # Flow Channels
-    DIST_FLOW_INTEGRATED = "dist-flow-integrated"
-    PRIMARY_FLOW_INTEGRATED = "primary-flow-integrated"
-    STORE_FLOW_INTEGRATED = "store-flow-integrated"
+    # look for missing global channels
+    if (local_ids - ids) != set():
+        consistent = False
+        print("Missing some channels in db")
+        for id in local_ids - ids:
+            dc = next(dc for dc in local_dcs if dc.id == id)
+            print(dc.to_dict())
 
-    # Power Channels
-    DIST_PUMP_PWR = "dist-pump-pwr"
-    HP_IDU_PWR = "hp-idu-pwr"
-    HP_ODU_PWR = "hp-odu-pwr"
-    OIL_BOILER_PWR = "oil-boiler-pwr"
-    PRIMARY_PUMP_PWR = "primary-pump-pwr"
-    STORE_PUMP_PWR = "store-pump-pwr"
+    # look for mismatches
+    for id in local_ids & ids:
+        dc_local = next(dc for dc in local_dcs if dc.id == id)
+        dc = next(dc for dc in dcs if dc.id == id)
+        if dc_local.to_dict() != dc.to_dict():
+            consistent = False
+            print("Inconsistency!\n\n")
+            print(f"   Local: {dc_local.to_dict()}")
+            print(f"   Global: {dc.to_dict()}")
+            diff = DeepDiff(dc_local.to_dict(), dc.to_dict())
+            print("\n\nDiff:")
+            print(diff)
+    if not consistent:
+        raise DcError("local and global data channels for beech do not match")
 
-    # Misc Channels
-    # Misc Temperature Channels
-    DOWN_ZONE_GW_TEMP = "down-zone-gw-temp"
-    UP_ZONE_GW_TEMP = "up-zone-gw-temp"
-    HP_FOSSIL_LWT = "hp-fossil-lwt"
-    OIL_BOILER_FLOW_INTEGRATED = "oil-boiler-flow"
-    BUFFER_WELL_TEMP = "buffer-well-temp"
-    AMPHA_DIST_SWT = "ampha-dist-swt"
-    AMPHB_DIST_SWT = "amphb-dist-swt"
-
-
-# def hyph_to_upper(word: str) -> str:
-#     return word.replace("-", "_").upper()
-
-
-def load_channels():
-    settings = Settings(_env_file=dotenv.find_dotenv())
-    engine = create_engine(settings.db_url.get_secret_value())
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    beech_channel_sqls = [type_to_sql(x) for x in BEECH_CHANNELS_BY_NAME.values()]
-    bulk_insert_idempotent(session, beech_channel_sqls)
-
-
-BEECH_TA = "hw1.isone.me.versant.keene.beech.ta"
 
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
+    BcName.UP_ZONE_STATE: DataChannelGt(
+        id="f8f5944f-d1f7-4f82-bca6-ce47aa90cefd",
+        name=f"{BN.UP_ZONE}-state",
+        display_name="Up Zone Honeywell Heat Call State",
+        about_node_name=BN.UP_ZONE_STAT,
+        captured_by_node_name=BN.UP_ZONE_STAT,
+        telemetry_name=TelemetryName.ThermostatState,
+        terminal_asset_alias="hw1.isone.me.versant.keene.beech.ta",
+        start_s="1713920310",
+    ),
+    BcName.DOWN_ZONE_STATE: DataChannelGt(
+        id="eaec11a2-bf39-4487-bc25-9e7999d640c1",
+        name=f"{BN.DOWN_ZONE}-state",
+        display_name="Down Zone Honeywell Heat Call State",
+        about_node_name=BN.DOWN_ZONE_STAT,
+        captured_by_node_name=BN.DOWN_ZONE_STAT,
+        telemetry_name=TelemetryName.ThermostatState,
+        terminal_asset_alias="hw1.isone.me.versant.keene.beech.ta",
+        start_s="1713914640",
+    ),
     BcName.STORE_PUMP_PWR: DataChannelGt(
         id="ac35c2a9-e317-45e8-a036-52fa5cbd8380",
         name=BcName.STORE_PUMP_PWR,
@@ -196,8 +172,8 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         id="dd4c0d78-d2e0-490c-b064-2f33b85ec431",
         name=BcName.DOWN_ZONE_SET,
         display_name="Down Zone Honeywell Setpoint",
-        about_node_name=BN.DOWN_ZONE,
-        captured_by_node_name=BN.DOWN_ZONE,
+        about_node_name=BN.DOWN_ZONE_STAT,
+        captured_by_node_name=BN.DOWN_ZONE_STAT,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
@@ -207,7 +183,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.DOWN_ZONE_TEMP,
         display_name="Down Zone Honeywell Temp",
         about_node_name=BN.DOWN_ZONE,
-        captured_by_node_name=BN.DOWN_ZONE,
+        captured_by_node_name=BN.DOWN_ZONE_STAT,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
@@ -216,8 +192,8 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         id="581f758b-632f-426a-aebc-7432c416a99e",
         name=BcName.UP_ZONE_SET,
         display_name="Up Zone Honeywell Setpoint",
-        about_node_name=BN.UP_ZONE,
-        captured_by_node_name=BN.UP_ZONE,
+        about_node_name=BN.UP_ZONE_STAT,
+        captured_by_node_name=BN.UP_ZONE_STAT,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
@@ -227,7 +203,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.UP_ZONE_TEMP,
         display_name="Up Zone Honeywell Temp",
         about_node_name=BN.UP_ZONE,
-        captured_by_node_name=BN.UP_ZONE,
+        captured_by_node_name=BN.UP_ZONE_STAT,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=BEECH_TA,
         start_s=1700683960,  # 2023-11-22 15:12:40.000 America/NY
@@ -267,7 +243,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.BUFFER_DEPTH1_TEMP,
         display_name="Buffer Depth 1 (C x 1000)",
         about_node_name=BN.BUFFER_DEPTH1,
-        captured_by_node_name=BN.TANK1_READER,
+        captured_by_node_name=BN.BUFFER_TANK_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=BEECH_TA,
     ),
@@ -276,7 +252,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.BUFFER_DEPTH2_TEMP,
         display_name="Buffer Depth 2 (C x 1000)",
         about_node_name=BN.BUFFER_DEPTH2,
-        captured_by_node_name=BN.TANK1_READER,
+        captured_by_node_name=BN.BUFFER_TANK_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=BEECH_TA,
     ),
@@ -285,7 +261,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.BUFFER_DEPTH3_TEMP,
         display_name="Buffer Depth 3 (C x 1000)",
         about_node_name=BN.BUFFER_DEPTH3,
-        captured_by_node_name=BN.TANK1_READER,
+        captured_by_node_name=BN.BUFFER_TANK_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=BEECH_TA,
     ),
@@ -294,7 +270,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         name=BcName.BUFFER_DEPTH4_TEMP,
         display_name="Buffer Depth 4 (C x 1000)",
         about_node_name=BN.BUFFER_DEPTH4,
-        captured_by_node_name=BN.TANK1_READER,
+        captured_by_node_name=BN.BUFFER_TANK_READER,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=BEECH_TA,
     ),
@@ -714,5 +690,11 @@ BeechAliasMapper.channel_mappings = {
     BcName.UP_ZONE_GW_TEMP: [
         (1708221240, "stat.up.check"),  # 2024-02-17 20:54:00 America/NY
         (1708265130, "stat2.temp"),  # 2024-02-18 09:05:30 America/NY
+    ],
+    BcName.DOWN_ZONE_STATE: [
+        (1713914640, "a.thermostat.downstairs.state"),  # 2024-04-23 16:24:00 America/NY
+    ],
+    BcName.UP_ZONE_STATE: [
+        (1713914640, "a.thermostat.upstairs.state"),  # 2024-04-23 16:24:00 America/NY
     ],
 }
