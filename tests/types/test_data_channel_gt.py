@@ -45,3 +45,8 @@ def test_data_channel_gt_generated() -> None:
 
     d2 = dict(d, TelemetryName="unknown_enum_thing")
     assert DataChannelGt.from_dict(d2).telemetry_name == TelemetryName.default()
+
+    ######################################
+    # Can use as keys in a dict - tests hash
+    ######################################
+    assert type({t: "testing"}) is dict

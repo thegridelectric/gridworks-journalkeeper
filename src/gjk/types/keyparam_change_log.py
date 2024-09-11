@@ -111,10 +111,6 @@ class KeyparamChangeLog(BaseModel):
         json_string = json.dumps(self.to_dict())
         return json_string.encode("utf-8")
 
-    def __hash__(self) -> int:
-        # Can use as keys in dicts
-        return hash((type(self), *tuple(self.__dict__.values())))
-
     @classmethod
     def type_name_value(cls) -> str:
         return "keyparam.change.log"

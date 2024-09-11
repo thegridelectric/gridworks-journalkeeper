@@ -1,5 +1,6 @@
 BEECH_TA = "hw1.isone.me.versant.keene.beech.ta"
 
+
 class BN:
     """
     This class provides the names of the Beech Spaceheat Nodes.
