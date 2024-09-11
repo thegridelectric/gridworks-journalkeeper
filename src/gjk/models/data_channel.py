@@ -1,6 +1,6 @@
 import logging
 
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Boolean, Column, Integer, String, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from gjk.models.message import Base
@@ -33,6 +33,23 @@ class DataChannelSql(Base):
     start_s = Column(Integer)
     in_power_metering = Column(Boolean)
     terminal_asset_alias = Column(String, nullable=False)
+
+    __table_args__ = (
+        # name is unique per terminal asset alias
+        UniqueConstraint(
+            "terminal_asset_alias",
+            "name",
+            name="unique_name_terminal_asset",
+        ),
+        # (about_node_name, captured_by_node_name, telemetry_name) is unique per terminal asset alias
+        UniqueConstraint(
+            "terminal_asset_alias",
+            "about_node_name",
+            "captured_by_node_name",
+            "telemetry_name",
+            name="unique_triple_per_ta",
+        ),
+    )
 
     # Define the one-to-many relationships with other objects
     readings = relationship("ReadingSql", back_populates="data_channel")

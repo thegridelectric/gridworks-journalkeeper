@@ -25,9 +25,9 @@ class NodalHourlyEnergySql(Base):
     __tablename__ = "nodal_hourly_energy"
 
     id = Column(String, primary_key=True)
-    hour_start_s = Column(BigInteger)  # TODO: nullable = False
+    hour_start_s = Column(BigInteger, nullable=False)
     power_channel_id = Column(String, ForeignKey("data_channels.id"), nullable=False)
-    watt_hours = Column(Integer)  # TODO: nullable = False
+    watt_hours = Column(Integer, nullable=False)
 
     # Rows must have a unique combination of start time and channel name
     __table_args__ = (
