@@ -865,7 +865,7 @@ class </xsl:text>
 
     def __hash__(self) -> int:
         # Can use as keys in dicts
-        return hash(type(self), *tuple(self.__dict__.values()))
+        return hash((type(self), *tuple(self.__dict__.values())))
 
     @classmethod
     def type_name_value(cls) -> str:
