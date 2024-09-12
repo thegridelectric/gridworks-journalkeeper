@@ -22,33 +22,31 @@ later_id = "a1aa5751-74cc-4e6a-863d-7ffcf3de6ade"
 first_msg = session.query(MessageSql).filter(MessageSql.message_id == first_id).first()
 later_msg = session.query(MessageSql).filter(MessageSql.message_id == later_id).first()
 
-# For each data channel in the first message
-dc_list = first_msg.payload["DataChannelList"]
-
+# Edit the datachannel list
+dc_list = first_msg.payload['DataChannelList'].copy()
 for dc in dc_list:
-    # Find the key in the local channels that corresponds to the data channel ID
     for key, value in BEECH_CHANNELS_BY_NAME.items():
         if value.id == dc["Id"]:
             name = key
-
     dc["TerminalAssetAlias"] = BEECH_CHANNELS_BY_NAME[name].terminal_asset_alias
     dc["Version"] = BEECH_CHANNELS_BY_NAME[name].version
     dc["CapturedByNodeName"] = BEECH_CHANNELS_BY_NAME[name].captured_by_node_name
-    dc["DisplayName"] = dc["DisplayName"].lower()
-
-# Update the payload with the updated Data Channel list
-first_msg.payload["DataChannelList"] = dc_list
+    dc["DisplayName"] = BEECH_CHANNELS_BY_NAME[name].display_name
 
 # Check it matches local db
 first_br: BatchedReadings = from_dict(first_msg.payload)
-later_br: BatchedReadings = from_dict(later_msg.payload)
-dc_list = [pyd_to_sql(dc) for dc in first_br.data_channel_list]
-data_channels_match_db(session, dc_list, check_missing=False)
+dc_list_check = [pyd_to_sql(dc) for dc in first_br.data_channel_list]
+data_channels_match_db(session, dc_list_check, check_missing=False)
 
-# Upload to database
-bulk_insert_messages(session, [first_msg])
+# Save and commit (twice)
+first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
+session.commit()
+first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
 session.commit()
 
 # Check the update
 first_msg = session.query(MessageSql).filter(MessageSql.message_id == first_id).first()
-print(first_msg.payload["DataChannelList"] == dc_list)
+if first_msg.payload["DataChannelList"] == dc_list:
+    print("\nSuccess! DataChannelList was updated in message payload.\n")
+else:
+    print("\nDataChannelList was NOT updated in message payload.\n")
