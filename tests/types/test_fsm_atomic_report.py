@@ -34,18 +34,3 @@ def test_fsm_atomic_report_generated() -> None:
     d2["ActionTypeGtEnumSymbol"] = "00000000"
     assert t == FsmAtomicReport.from_dict(d2)
 
-    ######################################
-    # Behavior on unknown enum values: sends to default
-    ######################################
-
-    d2 = dict(d, AboutFsm="unknown_enum_thing")
-    assert FsmAtomicReport.from_dict(d2).about_fsm == FsmName.default()
-
-    d2 = dict(d, ReportType="unknown_enum_thing")
-    assert FsmAtomicReport.from_dict(d2).report_type == FsmReportType.default()
-
-    d2 = dict(d, ActionType="unknown_enum_thing")
-    assert FsmAtomicReport.from_dict(d2).action_type == FsmActionType.default()
-
-    d2 = dict(d, EventType="unknown_enum_thing")
-    assert FsmAtomicReport.from_dict(d2).event_type == FsmEventType.default()

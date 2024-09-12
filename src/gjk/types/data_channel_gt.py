@@ -62,12 +62,11 @@ class DataChannelGt(BaseModel):
         Axiom 1: Power Metering.
         If InPowerMetering is true then the TelemetryName must be PowerW
         """
-        if self.in_power_metering:
-            if self.telemetry_name != TelemetryName.PowerW:
-                raise ValueError(
-                    "Axiom 1 failed!  If InPowerMetering is true "
-                    f"then the TelemetryName must be PowerW: {self.to_dict()} "
-                )
+        if self.in_power_metering and self.telemetry_name != TelemetryName.PowerW:
+            raise ValueError(
+                "Axiom 1 failed!  If InPowerMetering is true "
+                f"then the TelemetryName must be PowerW: {self.to_dict()} "
+            )
         return self
 
     @model_validator(mode="before")

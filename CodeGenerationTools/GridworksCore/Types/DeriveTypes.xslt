@@ -149,6 +149,10 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:text>
     LeftRightDot,</xsl:text>
 </xsl:when>
+<xsl:when test="normalize-space(Name) = 'HandleName'">
+<xsl:text>
+    HandleName,</xsl:text>
+</xsl:when>
 <xsl:when test="normalize-space(Name) = 'ReasonableUnixMs'">
 <xsl:text>
     ReasonableUnixMs,</xsl:text>
@@ -265,6 +269,9 @@ class </xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveFormat = 'LeftRightDot'">
         <xsl:text>LeftRightDot</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'HandleName'">
+        <xsl:text>HandleName</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveFormat = 'ReasonableUnixMs'">
         <xsl:text>ReasonableUnixMs</xsl:text>
@@ -414,7 +421,7 @@ class </xsl:text>
         </xsl:if>
     </xsl:variable>
 
-    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
+    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
 
     <xsl:text>
 
@@ -512,7 +519,7 @@ class </xsl:text>
         <xsl:choose>
 
         <!-- Format needs validating; not a list-->
-        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and not(IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and not(IsList='true')">
         <xsl:text>
         try:
             check_is_</xsl:text>
@@ -540,7 +547,7 @@ class </xsl:text>
         </xsl:when>
 
         <!-- Format needs validating; is a list-->
-        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and (IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and (IsList='true')">
         <xsl:text>
         try:
             for elt in v:
@@ -589,7 +596,7 @@ class </xsl:text>
 
     </xsl:if>
     <!-- End the field_validator by returning v-->
-    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
+    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormtat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
         <xsl:text>
         return v</xsl:text>
     </xsl:if>

@@ -54,7 +54,10 @@ class ChannelReadings(BaseModel):
         Axiom 1: ListLengthConsistency.
         ValueList and ScadaReadTimeUnixMsList must have the same length.
         """
-        # Implement check for axiom 1"
+        if len(self.value_list) != len(self.scada_read_time_unix_ms_list):
+            raise GwTypeError(
+                "Axiom 1: lists of values and timestamps must be the same length!"
+            )
         return self
 
     @classmethod

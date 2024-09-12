@@ -10,16 +10,27 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
-from gjk.enums import FsmEventType
+from gjk.enums import (
+    ChangeAquastatControl,
+    ChangeHeatcallSource,
+    ChangeHeatPumpControl,
+    ChangeLgOperatingMode,
+    ChangePrimaryPumpControl,
+    ChangePrimaryPumpState,
+    ChangeRelayPin,
+    ChangeRelayState,
+    ChangeStoreFlowDirection,
+    ChangeValveState,
+    FsmEventType,
+)
 from gjk.type_helpers.property_format import (
+    HandleName,
     ReasonableUnixMs,
     UUID4Str,
-    check_is_handle_name,
 )
 
 LOG_FORMAT = (
@@ -40,8 +51,8 @@ class FsmEvent(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html)
     """
 
-    from_handle: str
-    to_handle: str
+    from_handle: HandleName
+    to_handle: HandleName
     event_type: FsmEventType
     event_name: str
     trigger_id: UUID4Str
@@ -56,35 +67,64 @@ class FsmEvent(BaseModel):
         populate_by_name=True,
     )
 
-    @field_validator("from_handle")
-    @classmethod
-    def _check_from_handle(cls, v: str) -> str:
-        try:
-            check_is_handle_name(v)
-        except ValueError as e:
-            raise ValueError(
-                f"FromHandle failed HandleName format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("to_handle")
-    @classmethod
-    def _check_to_handle(cls, v: str) -> str:
-        try:
-            check_is_handle_name(v)
-        except ValueError as e:
-            raise ValueError(
-                f"ToHandle failed HandleName format validation: {e}"
-            ) from e
-        return v
-
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: EventName must belong to the enum selected in the EventType.
 
         """
-        # Implement check for axiom 1"
+        if (
+            self.event_type == FsmEventType.ChangeRelayPin
+            and self.event_name not in ChangeRelayPin.values()
+        ) or (
+            self.event_type == FsmEventType.ChangeRelayState
+            and self.event_name not in ChangeRelayState.values()
+        ):
+            raise ValueError(
+                f"EventName {self.event_name} must belong to {self.event_type} values!"
+            )
+
+        if (
+            self.event_type == FsmEventType.ChangeValveState
+            and self.event_name not in ChangeValveState.values()
+        ) or (
+            self.event_type == FsmEventType.ChangeStoreFlowDirection
+            and self.event_name not in ChangeStoreFlowDirection.values()
+        ):
+            raise ValueError(
+                f"EventName {self.event_name} must belong to {self.event_type} values!"
+            )
+        if (
+            self.event_type == FsmEventType.ChangeHeatcallSource
+            and self.event_name not in ChangeHeatcallSource.values()
+        ) or (
+            self.event_type == FsmEventType.ChangeAquastatControl
+            and self.event_name not in ChangeAquastatControl.values()
+        ):
+            raise ValueError(
+                f"EventName {self.event_name} must belong to {self.event_type} values!"
+            )
+        if (
+            self.event_type == FsmEventType.ChangeHeatPumpControl
+            and self.event_name not in ChangeHeatPumpControl.values()
+        ) or (
+            self.event_type == FsmEventType.ChangeLgOperatingMode
+            and self.event_name not in ChangeLgOperatingMode.values()
+        ):
+            raise ValueError(
+                f"EventName {self.event_name} must belong to {self.event_type} values!"
+            )
+        if (
+            self.event_type == FsmEventType.ChangePrimaryPumpState
+            and self.event_name not in ChangePrimaryPumpState.values()
+        ) or (
+            self.event_type == FsmEventType.ChangePrimaryPumpControl
+            and self.event_name not in ChangePrimaryPumpControl.values()
+        ):
+            raise ValueError(
+                f"EventName {self.event_name} must belong to {self.event_type} values!"
+            )
+
         return self
 
     @model_validator(mode="before")

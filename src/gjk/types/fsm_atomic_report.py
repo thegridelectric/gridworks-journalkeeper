@@ -10,17 +10,16 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.type_helpers.property_format import (
+    HandleName,
     ReallyAnInt,
     ReasonableUnixMs,
     UUID4Str,
-    check_is_handle_name,
 )
 
 LOG_FORMAT = (
@@ -40,7 +39,7 @@ class FsmAtomicReport(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html)
     """
 
-    from_handle: str
+    from_handle: HandleName
     about_fsm: FsmName
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
@@ -61,24 +60,23 @@ class FsmAtomicReport(BaseModel):
         populate_by_name=True,
     )
 
-    @field_validator("from_handle")
-    @classmethod
-    def _check_from_handle(cls, v: str) -> str:
-        try:
-            check_is_handle_name(v)
-        except ValueError as e:
-            raise ValueError(
-                f"FromHandle failed HandleName format validation: {e}"
-            ) from e
-        return v
-
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: Action and ActionType exist iff  ReportType is Action.
         The Optional Attributes ActionType and Action exist if and only if IsAction is true.
         """
-        # Implement check for axiom 1"
+        if self.report_type == FsmReportType.Action:
+            if (self.action is None) or (self.action_type is None):
+                raise ValueError(
+                    "ReportType is Action! Action and ActionType must both exist"
+                )
+        elif self.action:
+            raise ValueError("ReportType is NOT Action, so Action should not exist!")
+        elif self.action_type:
+            raise ValueError(
+                "ReportType is NOT Action, so ActionType should not exist!"
+            )
         return self
 
     @model_validator(mode="after")
@@ -87,7 +85,12 @@ class FsmAtomicReport(BaseModel):
         Axiom 2: If Action exists, then it belongs to the un-versioned enum selected in the ActionType.
 
         """
-        # Implement check for axiom 2"
+        if (
+            self.action is not None
+            and self.action_type == FsmActionType.RelayPinSet
+            and self.action not in {0, 1}
+        ):
+            raise ValueError("ActionType RelayPinSet requires an action of 0 or 1")
         return self
 
     @model_validator(mode="after")
@@ -96,7 +99,20 @@ class FsmAtomicReport(BaseModel):
         Axiom 3: EventType, Event, FromState, ToState exist iff ReportType is Event.
 
         """
-        # Implement check for axiom 3"
+        if self.report_type == FsmReportType.Event:
+            if (
+                not self.event_type
+                or not self.event
+                or not self.from_state
+                or not self.to_state
+            ):
+                raise ValueError(
+                    "ReportType is Event =>  EventType, Event, FromState, ToState must exist "
+                )
+        elif self.event_type or self.event or self.from_state or self.to_state:
+            raise ValueError(
+                "ReportType is NOT event => EventType, Event, FromState, ToState do not exist"
+           )
         return self
 
     @model_validator(mode="before")

@@ -18,38 +18,6 @@ def check_is_ads1115_i2c_address(v: str) -> None:
         raise ValueError(f"Not Ads1115I2cAddress: <{v}>")
 
 
-def check_is_handle_name(v: str) -> None:
-    """Check HandleName Format.
-
-    Validates if the provided string adheres to the HandleName format:
-    words separated by periods, where the worlds are lowercase alphanumeric plus hyphens
-
-    Args:
-        candidate (str): The string to be validated.
-
-    Raises:
-        ValueError: If the provided string is not in HandleName format.
-    """
-    try:
-        x = v.split(".")
-    except Exception as e:
-        raise ValueError(f"Failed to seperate <{v}> into words with split'.'") from e
-    first_word = x[0]
-    first_char = first_word[0]
-    if not first_char.isalpha():
-        raise ValueError(
-            f"Most significant word of <{v}> must start with alphabet char."
-        )
-    for word in x:
-        for char in word:
-            if not (char.isalnum() or char == "-"):
-                raise ValueError(
-                    f"words of <{v}> split by by '.' must be alphanumeric or hyphen."
-                )
-    if not v.islower():
-        raise ValueError(f" <{v}> must be lowercase.")
-
-
 def check_is_hex_char(v: str) -> None:
     """Checks HexChar format
 
@@ -237,6 +205,32 @@ def int_is_reasonable_unix_s(v: int) -> int:
     return v
 
 
+def str_is_handle_name(v: str) -> None:
+    """
+    HandleName format: words separated by periods, where the worlds are lowercase
+    alphanumeric plus hyphens
+    """
+    try:
+        x = v.split(".")
+    except Exception as e:
+        raise ValueError(f"Failed to seperate <{v}> into words with split'.'") from e
+    first_word = x[0]
+    first_char = first_word[0]
+    if not first_char.isalpha():
+        raise ValueError(
+            f"Most significant word of <{v}> must start with alphabet char."
+        )
+    for word in x:
+        for char in word:
+            if not (char.isalnum() or char == "-"):
+                raise ValueError(
+                    f"words of <{v}> split by by '.' must be alphanumeric or hyphen."
+                )
+    if not v.islower():
+        raise ValueError(f" <{v}> must be lowercase.")
+    return v
+
+
 def str_is_left_right_dot(v: str) -> str:
     """
     LeftRightDot format: Lowercase alphanumeric words separated by periods, with
@@ -317,9 +311,10 @@ def is_int(v: int) -> int:
     return v
 
 
+HandleName = Annotated[str, BeforeValidator(str_is_handle_name)]
 LeftRightDot = Annotated[str, BeforeValidator(str_is_left_right_dot)]
+ReallyAnInt = Annotated[int, BeforeValidator(is_int)]
 ReasonableUnixMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_ms)]
 ReasonableUnixS = Annotated[int, BeforeValidator(int_is_reasonable_unix_s)]
 SpaceheatName = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
 UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]
-ReallyAnInt = Annotated[int, BeforeValidator(is_int)]
