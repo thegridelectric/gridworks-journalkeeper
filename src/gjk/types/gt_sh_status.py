@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
+    ReallyAnInt,
     UUID4Str,
     check_is_reasonable_unix_time_s,
 )
@@ -34,8 +35,8 @@ class GtShStatus(BaseModel):
     from_g_node_alias: LeftRightDotStr
     from_g_node_id: UUID4Str
     about_g_node_alias: LeftRightDotStr
-    slot_start_unix_s: int
-    reporting_period_s: int
+    slot_start_unix_s: ReallyAnInt
+    reporting_period_s: ReallyAnInt
     simple_telemetry_list: List[GtShSimpleTelemetryStatus]
     multipurpose_telemetry_list: List[GtShMultipurposeTelemetryStatus]
     booleanactuator_cmd_list: List[GtShBooleanactuatorCmdStatus]

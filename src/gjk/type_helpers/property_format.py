@@ -312,8 +312,15 @@ def str_is_uuid_canonical_textual(v: str) -> str:
     return str(u)
 
 
+def is_int(v: int) -> int:
+    if not isinstance(v, int):
+        raise ValueError("Not an integer!")
+    return v
+
+
 LeftRightDotStr = Annotated[str, BeforeValidator(str_is_left_right_dot)]
 ReasonableUnixTimeMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_ms)]
 ReasonableUnixTimeS = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_s)]
 SpaceheatNameStr = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
 UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]
+ReallyAnInt = Annotated[int, BeforeValidator(is_int)]

@@ -119,12 +119,12 @@ from gjk.types.</xsl:text>
 </xsl:call-template>
 </xsl:variable>
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (EnumLocalName[text() = $base-name])])>0">
-
 <xsl:text>
 from gjk.enums import </xsl:text>
 <xsl:value-of select="$enum-local-name"/>
 </xsl:if>
 </xsl:for-each>
+
 
 <xsl:if test="count(PropertyFormatsUsed)>0">
 <xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='AlgoAddressStringFormat')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
@@ -162,7 +162,10 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:text>
 )</xsl:text>
 </xsl:if>
-
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (PrimitiveType = 'Integer')])>0">
+<xsl:text>
+from gjk.type_helpers.property_format import ReallyAnInt</xsl:text>
+</xsl:if>
 
 <xsl:text>
 
@@ -245,6 +248,9 @@ class </xsl:text>
 
         <!--Some property formats have called-out names -->
         <xsl:choose>
+        <xsl:when test="PrimitiveType='Integer'">
+        <xsl:text>ReallyAnInt</xsl:text>
+        </xsl:when>
         <xsl:when test="normalize-space(PrimitiveFormat) = 'UuidCanonicalTextual'">
         <xsl:text>UUID4Str</xsl:text>
         </xsl:when>

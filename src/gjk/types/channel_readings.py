@@ -16,6 +16,7 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
+    ReallyAnInt,
     UUID4Str,
     check_is_reasonable_unix_time_ms,
 )
@@ -37,8 +38,8 @@ class ChannelReadings(BaseModel):
     """
 
     channel_id: UUID4Str
-    value_list: List[int]
-    scada_read_time_unix_ms_list: List[int]
+    value_list: List[ReallyAnInt]
+    scada_read_time_unix_ms_list: List[ReallyAnInt]
     type_name: Literal["channel.readings"] = "channel.readings"
     version: Literal["000"] = "000"
 

@@ -1,6 +1,5 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
-import copy
 import json
 import logging
 from typing import Any, Dict, Literal
@@ -9,9 +8,9 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
+    ReallyAnInt,
     UUID4Str,
 )
 from gjk.types.snapshot_spaceheat import SnapshotSpaceheat
@@ -32,7 +31,7 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
     """
 
     message_id: UUID4Str
-    time_n_s: int
+    time_n_s: ReallyAnInt
     src: LeftRightDotStr
     snap: SnapshotSpaceheat
     type_name: Literal["gridworks.event.snapshot.spaceheat"] = (
@@ -48,12 +47,11 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
 
     @classmethod
     def from_dict(cls, d: dict) -> "GridworksEventSnapshotSpaceheat":
-        d2 = cls.first_season_fix(d)
-        for key in d2:
+        for key in d:
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
         try:
-            t = cls(**d2)
+            t = cls(**d)
         except ValidationError as e:
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
@@ -86,38 +84,3 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
     @classmethod
     def type_name_value(cls) -> str:
         return "gridworks.event.snapshot.spaceheat"
-
-    @classmethod
-    def first_season_fix(cls, d: dict[str, Any]) -> dict[str, Any]:
-        """
-        Makes key "snap" -> "Snap", following the rule that
-        all GridWorks types must have PascalCase keys
-        """
-
-        d2 = copy.deepcopy(d)
-
-        if "snap" in d2.keys():
-            d2["Snap"] = d2["snap"]
-            del d2["snap"]
-
-        if "Snap" not in d2.keys():
-            raise GwTypeError(f"dict missing Snap: <{d2.keys()}>")
-
-        if "Snapshot" not in d2["Snap"].keys():
-            raise GwTypeError(f"dict['Snap'] missing Snapshot: <{d2['Snap'].keys()}>")
-
-        snapshot = d2["Snap"]["Snapshot"]
-        # replace values with symbols for TelemetryName in SimpleTelemetryList
-        if "TelemetryNameList" not in snapshot.keys():
-            raise Exception(
-                f"Snapshot does not have TelemetryNameList in keys! simple.key()): <{snapshot.keys()}>"
-            )
-        telemetry_name_list = snapshot["TelemetryNameList"]
-        new_list = []
-        for tn in telemetry_name_list:
-            new_list.append(TelemetryName.value_to_symbol(tn))
-        snapshot["TelemetryNameList"] = new_list
-
-        d2["Snap"]["Snapshot"] = snapshot
-        d2["Version"] = "000"
-        return d2

@@ -18,6 +18,7 @@ from typing_extensions import Self
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
+    ReallyAnInt,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -42,8 +43,8 @@ class GtShSimpleTelemetryStatus(BaseModel):
 
     sh_node_alias: LeftRightDotStr
     telemetry_name: TelemetryName
-    value_list: List[int]
-    read_time_unix_ms_list: List[int]
+    value_list: List[ReallyAnInt]
+    read_time_unix_ms_list: List[ReallyAnInt]
     type_name: Literal["gt.sh.simple.telemetry.status"] = (
         "gt.sh.simple.telemetry.status"
     )

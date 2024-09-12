@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
+    ReallyAnInt,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -32,8 +33,8 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
     """
 
     sh_node_name: LeftRightDotStr
-    relay_state_command_list: List[int]
-    command_time_unix_ms_list: List[int]
+    relay_state_command_list: List[ReallyAnInt]
+    command_time_unix_ms_list: List[ReallyAnInt]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
         "gt.sh.booleanactuator.cmd.status"
     )

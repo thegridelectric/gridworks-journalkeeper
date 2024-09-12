@@ -18,6 +18,7 @@ from typing_extensions import Self
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDotStr,
+    ReallyAnInt,
     check_is_reasonable_unix_time_ms,
 )
 
@@ -39,9 +40,9 @@ class TelemetrySnapshotSpaceheat(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html)
     """
 
-    report_time_unix_ms: int
+    report_time_unix_ms: ReallyAnInt
     about_node_alias_list: List[LeftRightDotStr]
-    value_list: List[int]
+    value_list: List[ReallyAnInt]
     telemetry_name_list: List[TelemetryName]
     type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
     version: Literal["000"] = "000"

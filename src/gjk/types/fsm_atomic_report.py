@@ -17,6 +17,7 @@ from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.type_helpers.property_format import (
+    ReallyAnInt,
     UUID4Str,
     check_is_handle_name,
     check_is_reasonable_unix_time_ms,
@@ -43,12 +44,12 @@ class FsmAtomicReport(BaseModel):
     about_fsm: FsmName
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
-    action: Optional[int] = None
+    action: Optional[ReallyAnInt] = None
     event_type: Optional[FsmEventType] = None
     event: Optional[str] = None
     from_state: Optional[str] = None
     to_state: Optional[str] = None
-    unix_time_ms: int
+    unix_time_ms: ReallyAnInt
     trigger_id: UUID4Str
     type_name: Literal["fsm.atomic.report"] = "fsm.atomic.report"
     version: Literal["000"] = "000"

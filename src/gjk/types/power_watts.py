@@ -8,6 +8,8 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from gjk.type_helpers.property_format import ReallyAnInt
+
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
     "-35s %(lineno) -5d: %(message)s"
@@ -26,7 +28,7 @@ class PowerWatts(BaseModel):
     bytes so comes in JSON format.
     """
 
-    watts: int
+    watts: ReallyAnInt
     type_name: Literal["power.watts"] = "power.watts"
     version: Literal["000"] = "000"
 

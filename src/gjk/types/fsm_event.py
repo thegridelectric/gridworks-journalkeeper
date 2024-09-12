@@ -17,6 +17,7 @@ from typing_extensions import Self
 
 from gjk.enums import FsmEventType
 from gjk.type_helpers.property_format import (
+    ReallyAnInt,
     UUID4Str,
     check_is_handle_name,
     check_is_reasonable_unix_time_ms,
@@ -45,7 +46,7 @@ class FsmEvent(BaseModel):
     event_type: FsmEventType
     event_name: str
     trigger_id: UUID4Str
-    send_time_unix_ms: int
+    send_time_unix_ms: ReallyAnInt
     type_name: Literal["fsm.event"] = "fsm.event"
     version: Literal["000"] = "000"
 
