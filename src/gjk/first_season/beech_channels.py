@@ -12,7 +12,9 @@ from sqlalchemy.orm import Session
 
 
 def data_channels_match_db(
-    session: Session, local_dcs: Optional[List[DataChannelSql]] = None, check_missing = True
+    session: Session,
+    local_dcs: Optional[List[DataChannelSql]] = None,
+    check_missing=True,
 ) -> None:
     """
     Raises exception if there is a mismatch between data channels
@@ -49,9 +51,9 @@ def data_channels_match_db(
         dc_local = next(dc for dc in local_dcs if dc.id == id)
         dc = next(dc for dc in dcs if dc.id == id)
         dc_local_dict = dc_local.to_dict()
-        dc_local_dict.pop('DisplayName')
+        dc_local_dict.pop("DisplayName")
         dc_dict = dc.to_dict()
-        dc_dict.pop('DisplayName')
+        dc_dict.pop("DisplayName")
         if dc_local_dict != dc_dict:
             consistent = False
             print("Inconsistency!\n\n")
