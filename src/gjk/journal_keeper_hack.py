@@ -198,11 +198,11 @@ class JournalKeeperHack:
                 elif t.type_name == "batched.readings":
                     blank_statuses += 1
 
-        print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
-        msg_sql_list = [codec.pyd_to_sql(x) for x in messages]
-        with self.get_session() as session:
-            bulk_insert_messages(session, msg_sql_list)
-            session.commit()
+            print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
+            msg_sql_list = [codec.pyd_to_sql(x) for x in messages]
+            with self.get_session() as session:
+                bulk_insert_messages(session, msg_sql_list)
+                session.commit()
 
     def get_message_bytes(self, file_name_meta: FileNameMeta) -> bytes:
         s3_object = self.s3.get_object(
