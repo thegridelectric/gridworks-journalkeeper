@@ -10,6 +10,7 @@ from gjk.models.message import bulk_insert_messages
 from gjk.types import BatchedReadings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
@@ -39,10 +40,14 @@ dc_list_check = [pyd_to_sql(dc) for dc in first_br.data_channel_list]
 data_channels_match_db(session, dc_list_check, check_missing=False)
 
 # Save and commit (twice)
-first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
-session.commit()
-first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
-session.commit()
+try:
+    first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
+    session.commit()
+    first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
+    session.commit()
+except SQLAlchemyError as e:
+    session.rollback()
+    print(f"An error occurred: {e}")
 
 # Check the update
 first_msg = session.query(MessageSql).filter(MessageSql.message_id == first_id).first()
@@ -50,3 +55,5 @@ if first_msg.payload["DataChannelList"] == dc_list:
     print("\nSuccess! DataChannelList was updated in message payload.\n")
 else:
     print("\nDataChannelList was NOT updated in message payload.\n")
+
+session.close()
