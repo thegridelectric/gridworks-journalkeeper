@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 
 def data_channels_match_db(
-    session: Session, local_dcs: Optional[List[DataChannelSql]] = None
+    session: Session, local_dcs: Optional[List[DataChannelSql]] = None, check_missing = True
 ) -> None:
     """
     Raises exception if there is a mismatch between data channels
@@ -28,12 +28,13 @@ def data_channels_match_db(
     ids = {dc.id for dc in dcs}
 
     # look for missing local channels
-    if (ids - local_ids) != set():
-        consistent = False
-        print("Missing some channels locally")
-        for id in ids - local_ids:
-            dc = next(dc for dc in dcs if dc.id == id)
-            print(dc.to_dict())
+    if check_missing:
+        if (ids - local_ids) != set():
+            consistent = False
+            print("Missing some channels locally")
+            for id in ids - local_ids:
+                dc = next(dc for dc in dcs if dc.id == id)
+                print(dc.to_dict())
 
     # look for missing global channels
     if (local_ids - ids) != set():
@@ -47,12 +48,16 @@ def data_channels_match_db(
     for id in local_ids & ids:
         dc_local = next(dc for dc in local_dcs if dc.id == id)
         dc = next(dc for dc in dcs if dc.id == id)
-        if dc_local.to_dict() != dc.to_dict():
+        dc_local_dict = dc_local.to_dict()
+        dc_local_dict.pop('DisplayName')
+        dc_dict = dc.to_dict()
+        dc_dict.pop('DisplayName')
+        if dc_local_dict != dc_dict:
             consistent = False
             print("Inconsistency!\n\n")
-            print(f"   Local: {dc_local.to_dict()}")
-            print(f"   Global: {dc.to_dict()}")
-            diff = DeepDiff(dc_local.to_dict(), dc.to_dict())
+            print(f"   Local: {dc_local_dict}")
+            print(f"   Global: {dc_dict}")
+            diff = DeepDiff(dc_local_dict, dc_dict)
             print("\n\nDiff:")
             print(diff)
     if not consistent:
