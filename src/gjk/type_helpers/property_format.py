@@ -123,15 +123,15 @@ def check_is_positive_integer(v: int) -> None:
 
 
 def check_is_reasonable_unix_time_ms(v: int) -> None:
-    """Checks ReasonableUnixTimeMs format
+    """Checks ReasonableUnixMs format
 
-    ReasonableUnixTimeMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
+    ReasonableUnixMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
 
     Args:
         v (int): the candidate
 
     Raises:
-        ValueError: if v is not ReasonableUnixTimeMs format
+        ValueError: if v is not ReasonableUnixMs format
     """
 
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
@@ -148,7 +148,7 @@ def check_is_reasonable_unix_time_ms(v: int) -> None:
 
 def check_is_reasonable_unix_time_s(v: int) -> None:
     """
-    ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
+    ReasonableUnixS format: unix seconds between Jan 1 2000 and Jan 1 3000
     """
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
@@ -157,12 +157,10 @@ def check_is_reasonable_unix_time_s(v: int) -> None:
     end_timestamp = int(end_date.timestamp())
 
     if v < start_timestamp:
-        raise ValueError(
-            f"{v}: Fails ReasonableUnixTimeS format! Must be after Jan 1 2000"
-        )
+        raise ValueError(f"{v}: Fails ReasonableUnixS format! Must be after Jan 1 2000")
     if v > end_timestamp:
         raise ValueError(
-            f"{v}: Fails ReasonableUnixTimeS format! Must be before Jan 1 3000"
+            f"{v}: Fails ReasonableUnixS format! Must be before Jan 1 3000"
         )
     return v
 
@@ -199,11 +197,12 @@ def check_is_world_instance_name_format(v: str) -> None:
         raise ValueError(f"<{v}> first word must be alphanumeric")
 
 
-def int_is_reasonable_unix_time_ms(v: int) -> int:
+def int_is_reasonable_unix_ms(v: int) -> int:
     """
-    ReasonableUnixTimeMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
+    ReasonableUnixMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
     """
-
+    if not isinstance(v, int):
+        raise ValueError("Not an int!")
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
 
@@ -217,10 +216,12 @@ def int_is_reasonable_unix_time_ms(v: int) -> int:
     return v
 
 
-def int_is_reasonable_unix_time_s(v: int) -> int:
+def int_is_reasonable_unix_s(v: int) -> int:
     """
-    ReasonableUnixTimeS format: unix seconds between Jan 1 2000 and Jan 1 3000
+    ReasonableUnixS format: unix seconds between Jan 1 2000 and Jan 1 3000
     """
+    if not isinstance(v, int):
+        raise ValueError("Not an int!")
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
     end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
 
@@ -228,12 +229,10 @@ def int_is_reasonable_unix_time_s(v: int) -> int:
     end_timestamp = int(end_date.timestamp())
 
     if v < start_timestamp:
-        raise ValueError(
-            f"{v}: Fails ReasonableUnixTimeS format! Must be after Jan 1 2000"
-        )
+        raise ValueError(f"{v}: Fails ReasonableUnixS format! Must be after Jan 1 2000")
     if v > end_timestamp:
         raise ValueError(
-            f"{v}: Fails ReasonableUnixTimeS format! Must be before Jan 1 3000"
+            f"{v}: Fails ReasonableUnixS format! Must be before Jan 1 3000"
         )
     return v
 
@@ -318,9 +317,9 @@ def is_int(v: int) -> int:
     return v
 
 
-LeftRightDotStr = Annotated[str, BeforeValidator(str_is_left_right_dot)]
-ReasonableUnixTimeMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_ms)]
-ReasonableUnixTimeS = Annotated[int, BeforeValidator(int_is_reasonable_unix_time_s)]
-SpaceheatNameStr = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
+LeftRightDot = Annotated[str, BeforeValidator(str_is_left_right_dot)]
+ReasonableUnixMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_ms)]
+ReasonableUnixS = Annotated[int, BeforeValidator(int_is_reasonable_unix_s)]
+SpaceheatName = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
 UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]
 ReallyAnInt = Annotated[int, BeforeValidator(is_int)]

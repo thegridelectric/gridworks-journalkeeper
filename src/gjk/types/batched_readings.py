@@ -16,12 +16,12 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
+    ReasonableUnixMs,
+    ReasonableUnixS,
     UUID4Str,
     check_is_positive_integer,
-    check_is_reasonable_unix_time_ms,
-    check_is_reasonable_unix_time_s,
 )
 from gjk.types.channel_readings import ChannelReadings
 from gjk.types.data_channel_gt import DataChannelGt
@@ -45,12 +45,12 @@ class BatchedReadings(BaseModel):
     -> BatchedTransmissionPeriodS
     """
 
-    from_g_node_alias: LeftRightDotStr
+    from_g_node_alias: LeftRightDot
     from_g_node_instance_id: UUID4Str
-    about_g_node_alias: LeftRightDotStr
-    slot_start_unix_s: ReallyAnInt
+    about_g_node_alias: LeftRightDot
+    slot_start_unix_s: ReasonableUnixS
     batched_transmission_period_s: ReallyAnInt
-    message_created_ms: ReallyAnInt
+    message_created_ms: ReasonableUnixMs
     data_channel_list: List[DataChannelGt]
     channel_reading_list: List[ChannelReadings]
     fsm_action_list: List[FsmAtomicReport]
@@ -66,17 +66,6 @@ class BatchedReadings(BaseModel):
         populate_by_name=True,
     )
 
-    @field_validator("slot_start_unix_s")
-    @classmethod
-    def _check_slot_start_unix_s(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_s(v)
-        except ValueError as e:
-            raise ValueError(
-                f"SlotStartUnixS failed ReasonableUnixTimeS format validation: {e}",
-            ) from e
-        return v
-
     @field_validator("batched_transmission_period_s")
     @classmethod
     def _check_batched_transmission_period_s(cls, v: int) -> int:
@@ -88,24 +77,17 @@ class BatchedReadings(BaseModel):
             ) from e
         return v
 
-    @field_validator("message_created_ms")
-    @classmethod
-    def _check_message_created_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"MessageCreatedMs failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
-
     @field_validator("fsm_action_list")
     @classmethod
     def check_fsm_action_list(cls, v: List[FsmAtomicReport]) -> List[FsmAtomicReport]:
         """
-        Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e. IsAction = true).
+        Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e.ActionType not None).
         """
-        # Implement Axiom(s)
+        for elt in v:
+            if elt.action_type is None:
+                raise ValueError(
+                    "Violates Axiom 1: Each elt of FsmActionList must have an action_type"
+                )
         return v
 
     @model_validator(mode="after")
@@ -114,16 +96,52 @@ class BatchedReadings(BaseModel):
         Axiom 2: DataChannel Consistency.
         There is a bijection between the DataChannelLists and ChannelReadingLists via the ChannelId.
         """
-        # Implement check for axiom 2"
+        channel_list_ids = list(map(lambda x: x.id, self.data_channel_list))
+        reading_list_ids = list(map(lambda x: x.channel_id, self.channel_reading_list))
+        if len(set(channel_list_ids)) != len(channel_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in DataChannelList:\n <{self.to_dict()}>"
+            )
+        if len(set(reading_list_ids)) != len(reading_list_ids):
+            raise ValueError(
+                f"Axiom 2 violated. ChannelIds not unique in ChannelReadingList:\n <{self.to_dict()}>"
+            )
+        if set(channel_list_ids) != set(reading_list_ids):
+            raise ValueError(
+                "Axiom 2 violated: must be a bijection between DataChannelList "
+                f"and ChannelReadingList:\n <{self.to_dict()}>"
+            )
         return self
 
     @model_validator(mode="after")
     def check_axiom_3(self) -> Self:
         """
         Axiom 3: Time Consistency.
-        For every ScadaReadTimeUnixMs   let read_s = read_ms / 1000.  Let start_s be SlotStartUnixS.  Then read_s >= start_s and start_s + BatchedTransmissionPeriodS + 1 + start_s > read_s.
+        For every ScadaReadTimeUnixMs   let read_s = read_ms / 1000.  Let start_s be SlotStartUnixS.
+        Then read_s >= start_s and start_s + BatchedTransmissionPeriodS + 1 + start_s > read_s.
         """
-        # Implement check for axiom 3"
+        # delta_s = self.batched_transmission_period_s
+        # read_ms_list = list(
+        #     chain(
+        #         *list(
+        #             map(
+        #                 lambda x: x.scada_read_time_unix_ms_list,
+        #                 self.channel_reading_list,
+        #             )
+        #         )
+        #     )
+        # )
+        # read_s_set = set(map(lambda x: x / 1000, read_ms_list))
+        # for read_s in read_s_set:
+        #     if read_s < self.slot_start_unix_s:
+        #         raise ValueError(
+        #             f"A ScadaReadTime <{read_s}> came before SlotStartUnixS <{self.slot_start_unix_s}>"
+        #         )
+        #     if read_s > self.slot_start_unix_s + delta_s + 1:
+        #         raise ValueError(
+        #             f"A ScadaReadTime {read_s} came AFTER SlotStartUnixS  plus "
+        #             f"BatchedTransmissionPeriodS <{self.slot_start_unix_s + delta_s}>"
+        #        )
         return self
 
     @classmethod

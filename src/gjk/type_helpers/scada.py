@@ -6,8 +6,8 @@ from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
-    ReasonableUnixTimeS,
+    LeftRightDot,
+    ReasonableUnixS,
     UUID4Str,
 )
 
@@ -26,10 +26,10 @@ class Scada(BaseModel):
     """
 
     g_node_id: UUID4Str
-    g_node_alias: LeftRightDotStr
+    g_node_alias: LeftRightDot
     short_alias: str
-    scada_installed_s: Optional[ReasonableUnixTimeS]
-    ta_fully_installed_s: Optional[ReasonableUnixTimeS]
+    scada_installed_s: Optional[ReasonableUnixS]
+    ta_fully_installed_s: Optional[ReasonableUnixS]
 
     model_config = ConfigDict(
         populate_by_name=True,

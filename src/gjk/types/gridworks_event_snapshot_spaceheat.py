@@ -9,7 +9,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
     UUID4Str,
 )
@@ -32,7 +32,7 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
 
     message_id: UUID4Str
     time_n_s: ReallyAnInt
-    src: LeftRightDotStr
+    src: LeftRightDot
     snap: SnapshotSpaceheat
     type_name: Literal["gridworks.event.snapshot.spaceheat"] = (
         "gridworks.event.snapshot.spaceheat"

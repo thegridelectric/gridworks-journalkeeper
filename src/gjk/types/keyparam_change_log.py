@@ -16,7 +16,7 @@ from pydantic import (
 
 from gjk.enums import KindOfParam
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     check_is_log_style_date_with_millis,
 )
 
@@ -40,7 +40,7 @@ class KeyparamChangeLog(BaseModel):
     rather than the entire hardware layout.
     """
 
-    about_node_alias: LeftRightDotStr
+    about_node_alias: LeftRightDot
     change_time_utc: str
     author: str
     param_name: str

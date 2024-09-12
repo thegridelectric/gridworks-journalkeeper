@@ -9,9 +9,9 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
-    check_is_reasonable_unix_time_ms,
+    ReasonableUnixMs,
 )
 
 LOG_FORMAT = (
@@ -32,9 +32,9 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
     [More info](https://gridworks.readthedocs.io/en/latest/relay-state.html)
     """
 
-    sh_node_name: LeftRightDotStr
+    sh_node_name: LeftRightDot
     relay_state_command_list: List[ReallyAnInt]
-    command_time_unix_ms_list: List[ReallyAnInt]
+    command_time_unix_ms_list: List[ReasonableUnixMs]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
         "gt.sh.booleanactuator.cmd.status"
     )
@@ -53,18 +53,6 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
         Axiom : RelayStateCommandLIst must be all 0s and 1s.
         """
         # Implement Axiom(s)
-        return v
-
-    @field_validator("command_time_unix_ms_list")
-    @classmethod
-    def _check_command_time_unix_ms_list(cls, v: List[int]) -> List[int]:
-        try:
-            for elt in v:
-                check_is_reasonable_unix_time_ms(elt)
-        except ValueError as e:
-            raise ValueError(
-                f"CommandTimeUnixMsList element failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
         return v
 
     @classmethod

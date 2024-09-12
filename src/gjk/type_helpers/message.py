@@ -5,19 +5,19 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
-    ReasonableUnixTimeMs,
+    LeftRightDot,
+    ReasonableUnixMs,
     UUID4Str,
 )
 
 
 class Message(BaseModel):
     message_id: UUID4Str
-    from_alias: LeftRightDotStr
-    message_type_name: LeftRightDotStr
-    message_persisted_ms: ReasonableUnixTimeMs
+    from_alias: LeftRightDot
+    message_type_name: LeftRightDot
+    message_persisted_ms: ReasonableUnixMs
     payload: Dict
-    message_created_ms: Optional[ReasonableUnixTimeMs] = None
+    message_created_ms: Optional[ReasonableUnixMs] = None
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,

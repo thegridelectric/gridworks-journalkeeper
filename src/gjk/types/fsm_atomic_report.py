@@ -18,9 +18,9 @@ from typing_extensions import Self
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.type_helpers.property_format import (
     ReallyAnInt,
+    ReasonableUnixMs,
     UUID4Str,
     check_is_handle_name,
-    check_is_reasonable_unix_time_ms,
 )
 
 LOG_FORMAT = (
@@ -49,7 +49,7 @@ class FsmAtomicReport(BaseModel):
     event: Optional[str] = None
     from_state: Optional[str] = None
     to_state: Optional[str] = None
-    unix_time_ms: ReallyAnInt
+    unix_time_ms: ReasonableUnixMs
     trigger_id: UUID4Str
     type_name: Literal["fsm.atomic.report"] = "fsm.atomic.report"
     version: Literal["000"] = "000"
@@ -69,17 +69,6 @@ class FsmAtomicReport(BaseModel):
         except ValueError as e:
             raise ValueError(
                 f"FromHandle failed HandleName format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("unix_time_ms")
-    @classmethod
-    def _check_unix_time_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"UnixTimeMs failed ReasonableUnixTimeMs format validation: {e}",
             ) from e
         return v
 

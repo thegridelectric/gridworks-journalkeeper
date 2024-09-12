@@ -6,13 +6,13 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
+    ReasonableUnixS,
     UUID4Str,
-    check_is_reasonable_unix_time_s,
 )
 from gjk.types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
 from gjk.types.gt_sh_multipurpose_telemetry_status import (
@@ -32,10 +32,10 @@ class GtShStatus(BaseModel):
     Status message sent by a Spaceheat SCADA every 5 minutes
     """
 
-    from_g_node_alias: LeftRightDotStr
+    from_g_node_alias: LeftRightDot
     from_g_node_id: UUID4Str
-    about_g_node_alias: LeftRightDotStr
-    slot_start_unix_s: ReallyAnInt
+    about_g_node_alias: LeftRightDot
+    slot_start_unix_s: ReasonableUnixS
     reporting_period_s: ReallyAnInt
     simple_telemetry_list: List[GtShSimpleTelemetryStatus]
     multipurpose_telemetry_list: List[GtShMultipurposeTelemetryStatus]
@@ -49,17 +49,6 @@ class GtShStatus(BaseModel):
         frozen=True,
         populate_by_name=True,
     )
-
-    @field_validator("slot_start_unix_s")
-    @classmethod
-    def _check_slot_start_unix_s(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_s(v)
-        except ValueError as e:
-            raise ValueError(
-                f"SlotStartUnixS failed ReasonableUnixTimeS format validation: {e}",
-            ) from e
-        return v
 
     @classmethod
     def from_dict(cls, d: dict) -> "GtShStatus":

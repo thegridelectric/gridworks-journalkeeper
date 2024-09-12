@@ -15,7 +15,7 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
     UUID4Str,
 )
@@ -38,7 +38,7 @@ class GridworksEventGtShStatus(BaseModel):
 
     message_id: UUID4Str
     time_n_s: ReallyAnInt
-    src: LeftRightDotStr
+    src: LeftRightDot
     status: GtShStatus
     type_name: Literal["gridworks.event.gt.sh.status"] = "gridworks.event.gt.sh.status"
     version: Literal["000"] = "000"

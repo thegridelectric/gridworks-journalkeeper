@@ -10,18 +10,16 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
-    ReallyAnInt,
-    SpaceheatNameStr,
+    LeftRightDot,
+    ReasonableUnixS,
+    SpaceheatName,
     UUID4Str,
-    check_is_reasonable_unix_time_s,
 )
 
 LOG_FORMAT = (
@@ -35,18 +33,19 @@ class DataChannelGt(BaseModel):
     """
     Data Channel.
 
-    A data channel is a concept of some collection of readings that share all characteristics
-    other than time.
+    Core mechanism for identifying a stream of telemetry data. Everything but the
+    DisplayName and StartS are meant to be immutable. The Name is meant to be unique
+    per TerminalAssetAlias.
     """
 
-    name: SpaceheatNameStr
+    name: SpaceheatName
     display_name: str
-    about_node_name: SpaceheatNameStr
-    captured_by_node_name: SpaceheatNameStr
+    about_node_name: SpaceheatName
+    captured_by_node_name: SpaceheatName
     telemetry_name: TelemetryName
-    terminal_asset_alias: LeftRightDotStr
+    terminal_asset_alias: LeftRightDot
     in_power_metering: Optional[bool] = None
-    start_s: Optional[ReallyAnInt] = None
+    start_s: Optional[ReasonableUnixS] = None
     id: UUID4Str
     type_name: Literal["data.channel.gt"] = "data.channel.gt"
     version: Literal["001"] = "001"
@@ -57,26 +56,18 @@ class DataChannelGt(BaseModel):
         populate_by_name=True,
     )
 
-    @field_validator("start_s")
-    @classmethod
-    def _check_start_s(cls, v: Optional[int]) -> Optional[int]:
-        if v is None:
-            return v
-        try:
-            check_is_reasonable_unix_time_s(v)
-        except ValueError as e:
-            raise ValueError(
-                f"StartS failed ReasonableUnixTimeS format validation: {e}",
-            ) from e
-        return v
-
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: Power Metering.
         If InPowerMetering is true then the TelemetryName must be PowerW
         """
-        # Implement check for axiom 1"
+        if self.in_power_metering:
+            if self.telemetry_name != TelemetryName.PowerW:
+                raise ValueError(
+                    "Axiom 1 failed!  If InPowerMetering is true "
+                    f"then the TelemetryName must be PowerW: {self.to_dict()} "
+                )
         return self
 
     @model_validator(mode="before")
@@ -118,19 +109,19 @@ class DataChannelGt(BaseModel):
         d["TelemetryName"] = self.telemetry_name.value
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
-        d = self.model_dump()
-        d["telemetry_name"] = self.telemetry_name.value
-        d.pop("type_name", None)
-        d.pop("version", None)
-        return d
-
     def to_type(self) -> bytes:
         """
         Serialize to the data.channel.gt.001 representation designed to send in a message.
         """
         json_string = json.dumps(self.to_dict())
         return json_string.encode("utf-8")
+
+    def to_sql_dict(self) -> Dict[str, Any]:
+        d = self.model_dump()
+        d["telemetry_name"] = self.telemetry_name.value
+        d.pop("type_name", None)
+        d.pop("version", None)
+        return d
 
     @classmethod
     def type_name_value(cls) -> str:

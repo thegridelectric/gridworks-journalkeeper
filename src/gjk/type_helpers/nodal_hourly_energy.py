@@ -5,14 +5,14 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from gjk.type_helpers.property_format import (
-    ReasonableUnixTimeS,
+    ReasonableUnixS,
 )
 from gjk.types.data_channel_gt import DataChannelGt
 
 
 class NodalHourlyEnergy(BaseModel):
     id: str
-    hour_start_s: ReasonableUnixTimeS
+    hour_start_s: ReasonableUnixS
     power_channel: DataChannelGt
     watt_hours: int = Field(..., gt=0)
 

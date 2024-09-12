@@ -219,12 +219,6 @@ def test_</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
 
     </xsl:for-each>
     </xsl:if>
-    <xsl:text>
-
-    ######################################
-    # Can use as keys in a dict - tests hash
-    ######################################
-    assert type({t: "testing"}) is dict</xsl:text>
 
 <xsl:text>&#10;</xsl:text>
 

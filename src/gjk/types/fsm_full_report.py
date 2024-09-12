@@ -9,7 +9,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
-    SpaceheatNameStr,
+    SpaceheatName,
     UUID4Str,
 )
 from gjk.types.fsm_atomic_report import FsmAtomicReport
@@ -29,7 +29,7 @@ class FsmFullReport(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html)
     """
 
-    from_name: SpaceheatNameStr
+    from_name: SpaceheatName
     trigger_id: UUID4Str
     atomic_list: List[FsmAtomicReport]
     type_name: Literal["fsm.full.report"] = "fsm.full.report"

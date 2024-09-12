@@ -74,7 +74,7 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
 
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsRequired='false') or (IsEnum='true' or (IsList='true' and (IsType = 'true' or (IsPrimitive='true'  and normalize-space(PrimitiveFormat) != '') )))]) > 0">
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsRequired='false') or (IsEnum='true' or (IsList='true' and (IsType = 'true' or (IsPrimitive='true'  and PrimitiveFormat != '') )))]) > 0">
 <xsl:text>, field_validator</xsl:text>
 </xsl:if>
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0 or count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
@@ -137,17 +137,25 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
 <xsl:sort select="Name" data-type="text"/>
 <xsl:choose>
-<xsl:when test="normalize-space(Name) = 'UuidCanonicalTextual'">
+<xsl:when test="normalize-space(Name) = 'UUID4Str'">
 <xsl:text>
     UUID4Str,</xsl:text>
 </xsl:when>
 <xsl:when test="normalize-space(Name) = 'SpaceheatName'">
 <xsl:text>
-    SpaceheatNameStr,</xsl:text>
+    SpaceheatName,</xsl:text>
 </xsl:when>
 <xsl:when test="normalize-space(Name) = 'LeftRightDot'">
 <xsl:text>
-    LeftRightDotStr,</xsl:text>
+    LeftRightDot,</xsl:text>
+</xsl:when>
+<xsl:when test="normalize-space(Name) = 'ReasonableUnixMs'">
+<xsl:text>
+    ReasonableUnixMs,</xsl:text>
+</xsl:when>
+<xsl:when test="normalize-space(Name) = 'ReasonableUnixS'">
+<xsl:text>
+    ReasonableUnixS,</xsl:text>
 </xsl:when>
 <xsl:otherwise>
 <xsl:text>
@@ -162,7 +170,8 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:text>
 )</xsl:text>
 </xsl:if>
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (PrimitiveType = 'Integer')])>0">
+
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (PrimitiveType = 'Integer') and not(PropertyFormat = 'ReasonableUnixMs') and not(PropertyFormat = 'ReasonableUnixS')])>0">
 <xsl:text>
 from gjk.type_helpers.property_format import ReallyAnInt</xsl:text>
 </xsl:if>
@@ -248,17 +257,23 @@ class </xsl:text>
 
         <!--Some property formats have called-out names -->
         <xsl:choose>
-        <xsl:when test="PrimitiveType='Integer'">
-        <xsl:text>ReallyAnInt</xsl:text>
-        </xsl:when>
-        <xsl:when test="normalize-space(PrimitiveFormat) = 'UuidCanonicalTextual'">
+        <xsl:when test="PrimitiveFormat = 'UUID4Str'">
         <xsl:text>UUID4Str</xsl:text>
         </xsl:when>
-        <xsl:when test="normalize-space(PrimitiveFormat) = 'SpaceheatName'">
-        <xsl:text>SpaceheatNameStr</xsl:text>
+        <xsl:when test="PrimitiveFormat = 'SpaceheatName'">
+        <xsl:text>SpaceheatName</xsl:text>
         </xsl:when>
-        <xsl:when test="normalize-space(PrimitiveFormat) = 'LeftRightDot'">
-        <xsl:text>LeftRightDotStr</xsl:text>
+        <xsl:when test="PrimitiveFormat = 'LeftRightDot'">
+        <xsl:text>LeftRightDot</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'ReasonableUnixMs'">
+        <xsl:text>ReasonableUnixMs</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'ReasonableUnixS'">
+        <xsl:text>ReasonableUnixS</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveType='Integer'">
+        <xsl:text>ReallyAnInt</xsl:text>
         </xsl:when>
         <xsl:otherwise>
         <xsl:call-template name="python-type">
@@ -399,7 +414,7 @@ class </xsl:text>
         </xsl:if>
     </xsl:variable>
 
-    <xsl:if test="(IsList='true' and PrimitiveType != '' and normalize-space(Format) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot') or (normalize-space(PrimitiveFormat) != '' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual'  and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' ) or (Axiom != '')">
+    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
 
     <xsl:text>
 
@@ -492,17 +507,12 @@ class </xsl:text>
         <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[(normalize-space(SinglePropertyAxiom)=$type-attribute-id)]) > 0">
         <xsl:text>
         # Implement Axiom(s)</xsl:text>
-
-        <xsl:if test="normalize-space(PrimitiveFormat) = ''">
-        <xsl:text>
-        return v</xsl:text>
-        </xsl:if>
         </xsl:if>
 
         <xsl:choose>
 
         <!-- Format needs validating; not a list-->
-        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' and not(IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and not(IsList='true')">
         <xsl:text>
         try:
             check_is_</xsl:text>
@@ -527,12 +537,10 @@ class </xsl:text>
             <xsl:text> format validation: {e}") from e</xsl:text>
             </xsl:otherwise>
         </xsl:choose>
-        <xsl:text>
-        return v</xsl:text>
         </xsl:when>
 
         <!-- Format needs validating; is a list-->
-        <xsl:when test="normalize-space(PrimitiveFormat) !='' and normalize-space(PrimitiveFormat) != 'UuidCanonicalTextual' and normalize-space(PrimitiveFormat) != 'SpaceheatName' and normalize-space(PrimitiveFormat) != 'LeftRightDot' and (IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and (IsList='true')">
         <xsl:text>
         try:
             for elt in v:
@@ -546,8 +554,7 @@ class </xsl:text>
                 f"</xsl:text><xsl:value-of select="Value"/><xsl:text> element failed </xsl:text>
             <xsl:value-of select="PrimitiveFormat" />
             <xsl:text> format validation: {e}",
-            ) from e
-        return v</xsl:text>
+            ) from e</xsl:text>
         </xsl:when>
 
          <!-- SubType w Data Class; not a list-->
@@ -558,9 +565,8 @@ class </xsl:text>
         except ValueError as e:
             raise ValueError(
                 f"</xsl:text>
-                <xsl:value-of select="Value"/><xsl:text>Id failed UuidCanonicalTextual format validation: {e}",
-            ) from e
-        return v</xsl:text>
+                <xsl:value-of select="Value"/><xsl:text>Id failed UUID4Str format validation: {e}",
+            ) from e</xsl:text>
         </xsl:when>
 
          <!-- SubType w Data Class; is a list-->
@@ -574,16 +580,22 @@ class </xsl:text>
                 f"</xsl:text><xsl:value-of select="Value"/><xsl:text> element failed </xsl:text>
             <xsl:value-of select="PrimitiveFormat" />
             <xsl:text> format validation: {e}",
-            ) from e
-        return v</xsl:text>
+            ) from e</xsl:text>
         </xsl:when>
 
         <xsl:otherwise>
         </xsl:otherwise>
         </xsl:choose>
-    </xsl:if>
 
+    </xsl:if>
+    <!-- End the field_validator by returning v-->
+    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
+        <xsl:text>
+        return v</xsl:text>
+    </xsl:if>
+    
         </xsl:for-each>
+
 
 
     <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">

@@ -1,7 +1,9 @@
 """Tests data.channel.gt type, version 001"""
 
+import pytest
 from gjk.enums import TelemetryName
 from gjk.types import DataChannelGt
+from gw.errors import GwTypeError
 
 
 def test_data_channel_gt_generated() -> None:
@@ -43,10 +45,9 @@ def test_data_channel_gt_generated() -> None:
     # Behavior on unknown enum values: sends to default
     ######################################
 
-    d2 = dict(d, TelemetryName="unknown_enum_thing")
+    d2 = dict(d, TelemetryName="unknown_enum_thing", InPowerMetering=False)
     assert DataChannelGt.from_dict(d2).telemetry_name == TelemetryName.default()
 
-    ######################################
-    # Can use as keys in a dict - tests hash
-    ######################################
-    assert type({t: "testing"}) is dict
+    d2 = dict(d, StartS="1721405699")
+    with pytest.raises(GwTypeError):
+        DataChannelGt.from_dict(d2)

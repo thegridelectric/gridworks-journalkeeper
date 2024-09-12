@@ -10,15 +10,14 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.type_helpers.property_format import (
     ReallyAnInt,
+    ReasonableUnixMs,
     UUID4Str,
-    check_is_reasonable_unix_time_ms,
 )
 
 LOG_FORMAT = (
@@ -39,7 +38,7 @@ class ChannelReadings(BaseModel):
 
     channel_id: UUID4Str
     value_list: List[ReallyAnInt]
-    scada_read_time_unix_ms_list: List[ReallyAnInt]
+    scada_read_time_unix_ms_list: List[ReasonableUnixMs]
     type_name: Literal["channel.readings"] = "channel.readings"
     version: Literal["000"] = "000"
 
@@ -48,18 +47,6 @@ class ChannelReadings(BaseModel):
         frozen=True,
         populate_by_name=True,
     )
-
-    @field_validator("scada_read_time_unix_ms_list")
-    @classmethod
-    def _check_scada_read_time_unix_ms_list(cls, v: List[int]) -> List[int]:
-        try:
-            for elt in v:
-                check_is_reasonable_unix_time_ms(elt)
-        except ValueError as e:
-            raise ValueError(
-                f"ScadaReadTimeUnixMsList element failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

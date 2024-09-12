@@ -10,16 +10,15 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
-    check_is_reasonable_unix_time_ms,
+    ReasonableUnixMs,
 )
 
 LOG_FORMAT = (
@@ -40,8 +39,8 @@ class TelemetrySnapshotSpaceheat(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html)
     """
 
-    report_time_unix_ms: ReallyAnInt
-    about_node_alias_list: List[LeftRightDotStr]
+    report_time_unix_ms: ReasonableUnixMs
+    about_node_alias_list: List[LeftRightDot]
     value_list: List[ReallyAnInt]
     telemetry_name_list: List[TelemetryName]
     type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
@@ -52,17 +51,6 @@ class TelemetrySnapshotSpaceheat(BaseModel):
         frozen=True,
         populate_by_name=True,
     )
-
-    @field_validator("report_time_unix_ms")
-    @classmethod
-    def _check_report_time_unix_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"ReportTimeUnixMs failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

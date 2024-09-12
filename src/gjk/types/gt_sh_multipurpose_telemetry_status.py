@@ -10,16 +10,15 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     ValidationError,
-    field_validator,
     model_validator,
 )
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     ReallyAnInt,
-    check_is_reasonable_unix_time_ms,
+    ReasonableUnixMs,
 )
 
 LOG_FORMAT = (
@@ -41,11 +40,11 @@ class GtShMultipurposeTelemetryStatus(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/multipurpose-sensor.html)
     """
 
-    about_node_alias: LeftRightDotStr
+    about_node_alias: LeftRightDot
     sensor_node_alias: str
     telemetry_name: TelemetryName
     value_list: List[ReallyAnInt]
-    read_time_unix_ms_list: List[ReallyAnInt]
+    read_time_unix_ms_list: List[ReasonableUnixMs]
     type_name: Literal["gt.sh.multipurpose.telemetry.status"] = (
         "gt.sh.multipurpose.telemetry.status"
     )
@@ -56,18 +55,6 @@ class GtShMultipurposeTelemetryStatus(BaseModel):
         frozen=True,
         populate_by_name=True,
     )
-
-    @field_validator("read_time_unix_ms_list")
-    @classmethod
-    def _check_read_time_unix_ms_list(cls, v: List[int]) -> List[int]:
-        try:
-            for elt in v:
-                check_is_reasonable_unix_time_ms(elt)
-        except ValueError as e:
-            raise ValueError(
-                f"ReadTimeUnixMsList element failed ReasonableUnixTimeMs format validation: {e}",
-            ) from e
-        return v
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

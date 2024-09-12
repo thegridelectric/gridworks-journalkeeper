@@ -17,10 +17,9 @@ from typing_extensions import Self
 
 from gjk.enums import FsmEventType
 from gjk.type_helpers.property_format import (
-    ReallyAnInt,
+    ReasonableUnixMs,
     UUID4Str,
     check_is_handle_name,
-    check_is_reasonable_unix_time_ms,
 )
 
 LOG_FORMAT = (
@@ -46,7 +45,7 @@ class FsmEvent(BaseModel):
     event_type: FsmEventType
     event_name: str
     trigger_id: UUID4Str
-    send_time_unix_ms: ReallyAnInt
+    send_time_unix_ms: ReasonableUnixMs
     type_name: Literal["fsm.event"] = "fsm.event"
     version: Literal["000"] = "000"
 
@@ -76,17 +75,6 @@ class FsmEvent(BaseModel):
         except ValueError as e:
             raise ValueError(
                 f"ToHandle failed HandleName format validation: {e}"
-            ) from e
-        return v
-
-    @field_validator("send_time_unix_ms")
-    @classmethod
-    def _check_send_time_unix_ms(cls, v: int) -> int:
-        try:
-            check_is_reasonable_unix_time_ms(v)
-        except ValueError as e:
-            raise ValueError(
-                f"SendTimeUnixMs failed ReasonableUnixTimeMs format validation: {e}",
             ) from e
         return v
 

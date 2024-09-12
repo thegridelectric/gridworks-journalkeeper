@@ -9,7 +9,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.type_helpers.property_format import (
-    LeftRightDotStr,
+    LeftRightDot,
     UUID4Str,
 )
 from gjk.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
@@ -29,7 +29,7 @@ class SnapshotSpaceheat(BaseModel):
     its data channels.
     """
 
-    from_g_node_alias: LeftRightDotStr
+    from_g_node_alias: LeftRightDot
     from_g_node_instance_id: UUID4Str
     snapshot: TelemetrySnapshotSpaceheat
     type_name: Literal["snapshot.spaceheat"] = "snapshot.spaceheat"
