@@ -57,7 +57,6 @@
 <xsl:value-of select="Version"/><xsl:text>"""
 
 import json
-import logging
 from typing import Any, Dict</xsl:text>
 	<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsList = 'true')])>0">
 <xsl:text>, List</xsl:text>
@@ -71,10 +70,25 @@ from typing import Any, Dict</xsl:text>
 <xsl:text>
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
+from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
 
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsRequired='false') or (IsEnum='true' or (IsList='true' and (IsType = 'true' or (IsPrimitive='true'  and PrimitiveFormat != '') )))]) > 0">
+<xsl:variable name="use-field-validator" select="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and
+                            ((Axiom != '') or
+                            (not (PrimitiveFormat = '') 
+                                and PrimitiveFormat != 'UUID4Str'
+                                and PrimitiveFormat != 'SpaceheatName' 
+                                and PrimitiveFormat != 'LeftRightDot' 
+                                and PrimitiveFormat != 'HandleName' 
+                                and PrimitiveFormat != 'ReasonableUnixS' 
+                                and PrimitiveFormat != 'ReasonableUnixMs'
+                                and PrimitiveFormat != 'PositiveInteger'
+                               )
+                            )
+                            ]) > 0" />
+
+
+<xsl:if test="$use-field-validator='true'">
 <xsl:text>, field_validator</xsl:text>
 </xsl:if>
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0 or count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
@@ -161,6 +175,10 @@ from gjk.type_helpers.property_format import (</xsl:text>
 <xsl:text>
     ReasonableUnixS,</xsl:text>
 </xsl:when>
+<xsl:when test="normalize-space(Name) = 'PositiveInteger'">
+<xsl:text>
+    PositiveInteger,</xsl:text>
+</xsl:when>
 <xsl:otherwise>
 <xsl:text>
     check_is_</xsl:text>
@@ -175,18 +193,18 @@ from gjk.type_helpers.property_format import (</xsl:text>
 )</xsl:text>
 </xsl:if>
 
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (PrimitiveType = 'Integer') and not(PropertyFormat = 'ReasonableUnixMs') and not(PropertyFormat = 'ReasonableUnixS')])>0">
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) 
+                                and (PrimitiveType = 'Integer') 
+                                and not(PropertyFormat = 'ReasonableUnixMs') 
+                                and not(PropertyFormat = 'ReasonableUnixS')
+                                and not(PropertyFormat = 'PositiveInteger')
+                                ])>0">
+<xsl:text>
 <xsl:text>
 from gjk.type_helpers.property_format import ReallyAnInt</xsl:text>
 </xsl:if>
 
 <xsl:text>
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class </xsl:text>
@@ -278,6 +296,9 @@ class </xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveFormat = 'ReasonableUnixS'">
         <xsl:text>ReasonableUnixS</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'PositiveInteger'">
+        <xsl:text>PositiveInteger</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveType='Integer'">
         <xsl:text>ReallyAnInt</xsl:text>
@@ -421,7 +442,17 @@ class </xsl:text>
         </xsl:if>
     </xsl:variable>
 
-    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
+    <xsl:if test="((Axiom != '') or
+                            (not (PrimitiveFormat = '') 
+                                and PrimitiveFormat != 'UUID4Str'
+                                and PrimitiveFormat != 'SpaceheatName' 
+                                and PrimitiveFormat != 'LeftRightDot' 
+                                and PrimitiveFormat != 'HandleName' 
+                                and PrimitiveFormat != 'ReasonableUnixS' 
+                                and PrimitiveFormat != 'ReasonableUnixMs'
+                                and PrimitiveFormat != 'PositiveInteger'
+                               )
+                            )">
 
     <xsl:text>
 
@@ -519,7 +550,15 @@ class </xsl:text>
         <xsl:choose>
 
         <!-- Format needs validating; not a list-->
-        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and not(IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' 
+                        and PrimitiveFormat != 'UUID4Str' 
+                        and PrimitiveFormat != 'SpaceheatName' 
+                        and PrimitiveFormat != 'LeftRightDot' 
+                        and PrimitiveFormat != 'HandleName' 
+                        and PrimitiveFormat != 'ReasonableUnixMs' 
+                        and PrimitiveFormat != 'ReasonableUnixS' 
+                        and PrimitiveFormat != 'PositiveInteger' 
+                        and not(IsList='true')">
         <xsl:text>
         try:
             check_is_</xsl:text>
@@ -547,7 +586,15 @@ class </xsl:text>
         </xsl:when>
 
         <!-- Format needs validating; is a list-->
-        <xsl:when test="PrimitiveFormat !='' and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixMs' and PrimitiveFormat != 'ReasonableUnixS' and (IsList='true')">
+        <xsl:when test="PrimitiveFormat !='' 
+                        and PrimitiveFormat != 'UUID4Str' 
+                        and PrimitiveFormat != 'SpaceheatName' 
+                        and PrimitiveFormat != 'LeftRightDot' 
+                        and PrimitiveFormat != 'HandleName' 
+                        and PrimitiveFormat != 'ReasonableUnixMs' 
+                        and PrimitiveFormat != 'ReasonableUnixS'
+                        and PrimitiveFormat != 'PositiveInteger'
+                        and (IsList='true')">
         <xsl:text>
         try:
             for elt in v:
@@ -596,7 +643,16 @@ class </xsl:text>
 
     </xsl:if>
     <!-- End the field_validator by returning v-->
-    <xsl:if test="(not(PrimitiveFormat = '') and PrimitiveFormat != 'UUID4Str' and PrimitiveFormat != 'SpaceheatName' and PrimitiveFormat != 'LeftRightDot' and PrimitiveFormtat != 'HandleName' and PrimitiveFormat != 'ReasonableUnixS' and PrimitiveFormat != 'ReasonableUnixMs') or (Axiom != '')">
+    <xsl:if test="(not(PrimitiveFormat = '') 
+                and PrimitiveFormat != 'UUID4Str' 
+                and PrimitiveFormat != 'SpaceheatName' 
+                and PrimitiveFormat != 'LeftRightDot' 
+                and PrimitiveFormat != 'HandleName' 
+                and PrimitiveFormat != 'ReasonableUnixS' 
+                and PrimitiveFormat != 'ReasonableUnixMs'
+                and PrimitiveFormat != 'PositiveInteger'
+                ) 
+                or (Axiom != '')">
         <xsl:text>
         return v</xsl:text>
     </xsl:if>
@@ -706,9 +762,8 @@ class </xsl:text>
     @classmethod
     def from_dict(cls, d: dict) -> "</xsl:text>
     <xsl:value-of select="$python-class-name"/><xsl:text>":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        if not recursively_pascal(d):
+                raise GwTypeError(f"dict is not recursively pascal case! {d}")
         try:
             t = cls(**d)
         except ValidationError as e:

@@ -24,7 +24,7 @@ click = ">=8.0.1"
 boto3 = "^1.26.3"
 paho-mqtt = "^1.6.1"
 
-gridworks-base = "0.1.7"
+gridworks-base = "0.1.8"
 sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"
