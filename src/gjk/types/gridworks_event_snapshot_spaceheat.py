@@ -10,7 +10,7 @@ from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.enums import TelemetryName
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
     UUID4Str,

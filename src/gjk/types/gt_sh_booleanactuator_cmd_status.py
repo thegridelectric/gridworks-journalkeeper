@@ -8,7 +8,7 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
     ReasonableUnixMs,

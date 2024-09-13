@@ -5,7 +5,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from typing_extensions import Self
 
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
     ReasonableUnixS,
     UUID4Str,

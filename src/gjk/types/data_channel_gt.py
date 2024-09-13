@@ -15,7 +15,7 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
     ReasonableUnixS,
     SpaceheatName,

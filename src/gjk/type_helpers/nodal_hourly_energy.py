@@ -4,7 +4,7 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     ReasonableUnixS,
 )
 from gjk.types.data_channel_gt import DataChannelGt

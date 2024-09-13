@@ -15,7 +15,7 @@ from pydantic import (
 )
 
 from gjk.enums import KindOfParam
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
     check_is_log_style_date_with_millis,
 )

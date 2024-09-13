@@ -6,11 +6,10 @@ from gjk.first_season.beech_channels import (
     data_channels_match_db,
 )
 from gjk.models import MessageSql
-from gjk.models.message import bulk_insert_messages
 from gjk.types import BatchedReadings
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session, sessionmaker
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
@@ -24,7 +23,7 @@ first_msg = session.query(MessageSql).filter(MessageSql.message_id == first_id).
 later_msg = session.query(MessageSql).filter(MessageSql.message_id == later_id).first()
 
 # Edit the datachannel list
-dc_list = first_msg.payload['DataChannelList'].copy()
+dc_list = first_msg.payload["DataChannelList"].copy()
 for dc in dc_list:
     for key, value in BEECH_CHANNELS_BY_NAME.items():
         if value.id == dc["Id"]:
@@ -41,9 +40,9 @@ data_channels_match_db(session, dc_list_check, check_missing=False)
 
 # Save and commit (twice)
 try:
-    first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
+    first_msg.payload = {**first_msg.payload, "DataChannelList": dc_list}
     session.commit()
-    first_msg.payload = {**first_msg.payload, 'DataChannelList': dc_list}
+    first_msg.payload = {**first_msg.payload, "DataChannelList": dc_list}
     session.commit()
 except SQLAlchemyError as e:
     session.rollback()

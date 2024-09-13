@@ -8,6 +8,7 @@ from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
     BaseModel,
     ConfigDict,
+    PositiveInt,
     ValidationError,
     field_validator,
     model_validator,
@@ -16,7 +17,6 @@ from typing_extensions import Self
 
 from gjk.property_format import (
     LeftRightDot,
-    PositiveInteger,
     ReasonableUnixMs,
     ReasonableUnixS,
     UUID4Str,
@@ -41,7 +41,7 @@ class BatchedReadings(BaseModel):
     from_g_node_instance_id: UUID4Str
     about_g_node_alias: LeftRightDot
     slot_start_unix_s: ReasonableUnixS
-    batched_transmission_period_s: PositiveInteger
+    batched_transmission_period_s: PositiveInt
     message_created_ms: ReasonableUnixMs
     data_channel_list: List[DataChannelGt]
     channel_reading_list: List[ChannelReadings]
@@ -57,7 +57,6 @@ class BatchedReadings(BaseModel):
         frozen=True,
         populate_by_name=True,
     )
-
 
     @field_validator("fsm_action_list")
     @classmethod

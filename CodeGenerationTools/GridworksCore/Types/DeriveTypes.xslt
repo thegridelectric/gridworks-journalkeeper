@@ -147,7 +147,7 @@ import algosdk</xsl:text>
 </xsl:for-each>
 
 <xsl:text>
-from gjk.type_helpers.property_format import (</xsl:text>
+from gjk.property_format import (</xsl:text>
 <xsl:for-each select="$airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) !='')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]">
 <xsl:sort select="Name" data-type="text"/>
 <xsl:choose>
@@ -201,7 +201,7 @@ from gjk.type_helpers.property_format import (</xsl:text>
                                 ])>0">
 <xsl:text>
 <xsl:text>
-from gjk.type_helpers.property_format import ReallyAnInt</xsl:text>
+from gjk.property_format import ReallyAnInt</xsl:text>
 </xsl:if>
 
 <xsl:text>
