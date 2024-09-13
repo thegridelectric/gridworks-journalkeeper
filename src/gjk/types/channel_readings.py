@@ -1,30 +1,14 @@
 """Type channel.readings, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from gw.utils import recursively_pascal, snake_to_pascal
+from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
 from typing_extensions import Self
 
-from gjk.type_helpers.property_format import (
-    ReallyAnInt,
-    ReasonableUnixMs,
-    UUID4Str,
-)
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
+from gjk.property_format import ReallyAnInt, ReasonableUnixMs, UUID4Str
 
 
 class ChannelReadings(BaseModel):
@@ -62,9 +46,8 @@ class ChannelReadings(BaseModel):
 
     @classmethod
     def from_dict(cls, d: dict) -> "ChannelReadings":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        if not recursively_pascal(d):
+            raise GwTypeError(f"dict is not recursively pascal case! {d}")
         try:
             t = cls(**d)
         except ValidationError as e:

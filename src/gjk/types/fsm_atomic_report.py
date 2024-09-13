@@ -1,11 +1,10 @@
 """Type fsm.atomic.report, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, Literal, Optional
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
+from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -15,18 +14,12 @@ from pydantic import (
 from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     HandleName,
     ReallyAnInt,
     ReasonableUnixMs,
     UUID4Str,
 )
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class FsmAtomicReport(BaseModel):
@@ -140,9 +133,8 @@ class FsmAtomicReport(BaseModel):
 
     @classmethod
     def from_dict(cls, d: dict) -> "FsmAtomicReport":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        if not recursively_pascal(d):
+            raise GwTypeError(f"dict is not recursively pascal case! {d}")
         try:
             t = cls(**d)
         except ValidationError as e:

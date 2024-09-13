@@ -1,11 +1,10 @@
 """Type fsm.event, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
+from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -27,17 +26,11 @@ from gjk.enums import (
     ChangeValveState,
     FsmEventType,
 )
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     HandleName,
     ReasonableUnixMs,
     UUID4Str,
 )
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class FsmEvent(BaseModel):
@@ -139,9 +132,8 @@ class FsmEvent(BaseModel):
 
     @classmethod
     def from_dict(cls, d: dict) -> "FsmEvent":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        if not recursively_pascal(d):
+            raise GwTypeError(f"dict is not recursively pascal case! {d}")
         try:
             t = cls(**d)
         except ValidationError as e:

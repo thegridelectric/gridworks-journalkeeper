@@ -1,11 +1,10 @@
 """Type batched.readings, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
+from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -15,24 +14,17 @@ from pydantic import (
 )
 from typing_extensions import Self
 
-from gjk.type_helpers.property_format import (
+from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
+    PositiveInteger,
     ReasonableUnixMs,
     ReasonableUnixS,
     UUID4Str,
-    check_is_positive_integer,
 )
 from gjk.types.channel_readings import ChannelReadings
 from gjk.types.data_channel_gt import DataChannelGt
 from gjk.types.fsm_atomic_report import FsmAtomicReport
 from gjk.types.fsm_full_report import FsmFullReport
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class BatchedReadings(BaseModel):
@@ -49,7 +41,7 @@ class BatchedReadings(BaseModel):
     from_g_node_instance_id: UUID4Str
     about_g_node_alias: LeftRightDot
     slot_start_unix_s: ReasonableUnixS
-    batched_transmission_period_s: ReallyAnInt
+    batched_transmission_period_s: PositiveInteger
     message_created_ms: ReasonableUnixMs
     data_channel_list: List[DataChannelGt]
     channel_reading_list: List[ChannelReadings]
@@ -66,16 +58,6 @@ class BatchedReadings(BaseModel):
         populate_by_name=True,
     )
 
-    @field_validator("batched_transmission_period_s")
-    @classmethod
-    def _check_batched_transmission_period_s(cls, v: int) -> int:
-        try:
-            check_is_positive_integer(v)
-        except ValueError as e:
-            raise ValueError(
-                f"BatchedTransmissionPeriodS failed PositiveInteger format validation: {e}",
-            ) from e
-        return v
 
     @field_validator("fsm_action_list")
     @classmethod
@@ -146,9 +128,8 @@ class BatchedReadings(BaseModel):
 
     @classmethod
     def from_dict(cls, d: dict) -> "BatchedReadings":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        if not recursively_pascal(d):
+            raise GwTypeError(f"dict is not recursively pascal case! {d}")
         try:
             t = cls(**d)
         except ValidationError as e:
