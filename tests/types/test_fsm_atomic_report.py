@@ -1,11 +1,5 @@
 """Tests fsm.atomic.report, version 000"""
 
-from gjk.enums import (
-    FsmActionType,
-    FsmEventType,
-    FsmName,
-    FsmReportType,
-)
 from gjk.types import FsmAtomicReport
 
 
@@ -33,4 +27,3 @@ def test_fsm_atomic_report_generated() -> None:
     del d2["ActionType"]
     d2["ActionTypeGtEnumSymbol"] = "00000000"
     assert t == FsmAtomicReport.from_dict(d2)
-

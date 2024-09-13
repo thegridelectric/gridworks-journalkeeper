@@ -11,5 +11,7 @@ def test_change_primary_pump_control() -> None:
         "SwitchToHeatPump",
     }
 
-    assert ChangePrimaryPumpControl.default() == ChangePrimaryPumpControl.SwitchToHeatPump
+    assert (
+        ChangePrimaryPumpControl.default() == ChangePrimaryPumpControl.SwitchToHeatPump
+    )
     assert ChangePrimaryPumpControl.enum_name() == "change.primary.pump.control"

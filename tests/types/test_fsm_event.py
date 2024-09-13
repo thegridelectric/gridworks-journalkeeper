@@ -22,4 +22,3 @@ def test_fsm_event_generated() -> None:
     del d2["EventType"]
     d2["EventTypeGtEnumSymbol"] = "c234ee7a"
     assert t == FsmEvent.from_dict(d2)
-

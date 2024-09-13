@@ -112,7 +112,7 @@ class FsmAtomicReport(BaseModel):
         elif self.event_type or self.event or self.from_state or self.to_state:
             raise ValueError(
                 "ReportType is NOT event => EventType, Event, FromState, ToState do not exist"
-           )
+            )
         return self
 
     @model_validator(mode="before")

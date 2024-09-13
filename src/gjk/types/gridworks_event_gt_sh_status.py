@@ -1,11 +1,11 @@
 """Type gridworks.event.gt.sh.status, version 000"""
 
+import copy
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
-from gw.utils import is_pascal_case, snake_to_pascal
+from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -14,18 +14,13 @@ from pydantic import (
 )
 from typing_extensions import Self
 
+from gjk.enums import TelemetryName
 from gjk.type_helpers.property_format import (
     LeftRightDot,
     ReallyAnInt,
     UUID4Str,
 )
 from gjk.types.gt_sh_status import GtShStatus
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class GridworksEventGtShStatus(BaseModel):
@@ -55,7 +50,12 @@ class GridworksEventGtShStatus(BaseModel):
         Axiom 1: SCADA time consistency.
         SlotStartS + ReportingPeriodS < MessageCreatedS (which is TimeNS / 10**9)
         """
-        # Implement check for axiom 1"
+        # a = self.status.slot_start_unix_s + self.status.reporting_period_s
+        # b = self.time_n_s / 10**9
+        # if a > b:
+        #     raise ValueError(
+        #         f"slot_start + reporting_period was larger than message created time!: {self.message_id}"
+        #     )
         return self
 
     @model_validator(mode="after")
@@ -64,16 +64,71 @@ class GridworksEventGtShStatus(BaseModel):
         Axiom 2: Src is Status.FromGNodeAlias and MessageId matches Status.StatusUid.
         Src == Status.FromGNodeAlias
         """
-        # Implement check for axiom 2"
+        if self.src != self.status.from_g_node_alias:
+            raise ValueError(
+                f"self.src <{self.src}> must be status.from_g_node_alias <{self.status.from_g_node_alias}>"
+            )
+
+        if self.message_id != self.status.status_uid:
+            raise ValueError(
+                f"message_id <{self.message_id}> must be status.status_uid <{self.status.status_uid}>"
+            )
+
         return self
 
     @classmethod
+    def first_season_fix(cls, d: dict) -> dict:
+        """
+        Makes key "status" -> "Status", following the rule that
+        all GridWorks types must have PascalCase keys
+        """
+
+        d2 = copy.deepcopy(d)
+        if "status" in d2.keys():
+            d2["Status"] = d2["status"]
+            del d2["status"]
+        if "Status" not in d2.keys():
+            raise GwTypeError(f"dict missing Status: <{d2}>")
+
+        status = d2["Status"]
+
+        # replace values with symbols for TelemetryName in SimpleTelemetryList
+        simple_list = status["SimpleTelemetryList"]
+        for simple in simple_list:
+            if "TelemetryName" not in simple.keys():
+                raise Exception(
+                    f"simple does not have TelemetryName in keys! simple.key()): <{simple.keys()}>"
+                )
+            simple["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                simple["TelemetryName"]
+            )
+            del simple["TelemetryName"]
+        status["SimpleTelemetryList"] = simple_list
+
+        # replace values with symbols for TelemetryName in MultipurposeTelemetryList
+        multi_list = status["MultipurposeTelemetryList"]
+        for multi in multi_list:
+            multi["TelemetryNameGtEnumSymbol"] = TelemetryName.value_to_symbol(
+                multi["TelemetryName"]
+            )
+            del multi["TelemetryName"]
+        status["MultipurposeTelemetryList"] = multi_list
+
+        orig_message_id = d2["MessageId"]
+        if orig_message_id != status["StatusUid"]:
+            d2["MessageId"] = status["StatusUid"]
+
+        d2["Status"] = status
+        d2["Version"] = "000"
+        return d2
+
+    @classmethod
     def from_dict(cls, d: dict) -> "GridworksEventGtShStatus":
-        for key in d:
-            if not is_pascal_case(key):
-                raise GwTypeError(f"Key '{key}' is not PascalCase")
+        d2 = cls.first_season_fix(d)
+        if not recursively_pascal(d2):
+            raise GwTypeError(f"Not recursively PascalCase: {d}")
         try:
-            t = cls(**d)
+            t = cls(**d2)
         except ValidationError as e:
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
