@@ -16,6 +16,7 @@ class Settings(BaseSettings):
         "postgresql://persister:PASSWD@journaldb.electricity.works/journaldb"
     )
     db_pass: SecretStr = SecretStr("Passwd")
+    ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
 
     model_config = ConfigDict(
         env_prefix="gjk_",
