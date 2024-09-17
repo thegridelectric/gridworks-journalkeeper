@@ -41,7 +41,6 @@ def latest_messages() -> list[str]:
             print("No files uploaded in the last 10 minutes.")
     except subprocess.CalledProcessError as e:
         print(f"Error running AWS CLI command: {e}")
-    recent_files = []
     return recent_files
 
 
