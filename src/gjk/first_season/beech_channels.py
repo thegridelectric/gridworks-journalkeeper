@@ -54,6 +54,13 @@ def data_channels_match_db(
         dc_local_dict.pop("DisplayName")
         dc_dict = dc.to_dict()
         dc_dict.pop("DisplayName")
+
+        # InPowerMetering is optional
+        if "InPowerMetering" in dc_dict:
+            dc_dict.pop("InPowerMetering")
+        if "InPowerMetering" in dc_local_dict:
+            dc_local_dict.pop("InPowerMetering")
+
         if dc_local_dict != dc_dict:
             consistent = False
             print("Inconsistency!\n\n")
