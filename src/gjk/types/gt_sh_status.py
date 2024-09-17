@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
-    ReasonableUnixS,
+    UTCSeconds,
     UUID4Str,
 )
 from gjk.types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
@@ -35,7 +35,7 @@ class GtShStatus(BaseModel):
     from_g_node_alias: LeftRightDot
     from_g_node_id: UUID4Str
     about_g_node_alias: LeftRightDot
-    slot_start_unix_s: ReasonableUnixS
+    slot_start_unix_s: UTCSeconds
     reporting_period_s: ReallyAnInt
     simple_telemetry_list: List[GtShSimpleTelemetryStatus]
     multipurpose_telemetry_list: List[GtShMultipurposeTelemetryStatus]

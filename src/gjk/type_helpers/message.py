@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.property_format import (
     LeftRightDot,
-    ReasonableUnixMs,
+    UTCMilliseconds,
     UUID4Str,
 )
 
@@ -15,9 +15,9 @@ class Message(BaseModel):
     message_id: UUID4Str
     from_alias: LeftRightDot
     message_type_name: LeftRightDot
-    message_persisted_ms: ReasonableUnixMs
+    message_persisted_ms: UTCMilliseconds
     payload: Dict
-    message_created_ms: Optional[ReasonableUnixMs] = None
+    message_created_ms: Optional[UTCMilliseconds] = None
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,

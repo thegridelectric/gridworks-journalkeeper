@@ -5,7 +5,7 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.property_format import (
-    ReasonableUnixMs,
+    UTCMilliseconds,
     UUID4Str,
 )
 from gjk.types.data_channel_gt import DataChannelGt
@@ -14,7 +14,7 @@ from gjk.types.data_channel_gt import DataChannelGt
 class Reading(BaseModel):
     id: UUID4Str
     value: int
-    time_ms: ReasonableUnixMs
+    time_ms: UTCMilliseconds
     data_channel: DataChannelGt
     message_id: UUID4Str
 

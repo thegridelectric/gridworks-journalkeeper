@@ -17,7 +17,7 @@ from typing_extensions import Self
 from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
-    ReasonableUnixS,
+    UTCSeconds,
     SpaceheatName,
     UUID4Str,
 )
@@ -45,7 +45,7 @@ class DataChannelGt(BaseModel):
     telemetry_name: TelemetryName
     terminal_asset_alias: LeftRightDot
     in_power_metering: Optional[bool] = None
-    start_s: Optional[ReasonableUnixS] = None
+    start_s: Optional[UTCSeconds] = None
     id: UUID4Str
     type_name: Literal["data.channel.gt"] = "data.channel.gt"
     version: Literal["001"] = "001"

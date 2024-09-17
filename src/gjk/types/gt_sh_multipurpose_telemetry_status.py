@@ -18,7 +18,7 @@ from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
-    ReasonableUnixMs,
+    UTCMilliseconds,
 )
 
 LOG_FORMAT = (
@@ -44,7 +44,7 @@ class GtShMultipurposeTelemetryStatus(BaseModel):
     sensor_node_alias: str
     telemetry_name: TelemetryName
     value_list: List[ReallyAnInt]
-    read_time_unix_ms_list: List[ReasonableUnixMs]
+    read_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["gt.sh.multipurpose.telemetry.status"] = (
         "gt.sh.multipurpose.telemetry.status"
     )

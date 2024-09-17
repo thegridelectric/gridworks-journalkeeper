@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
 from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
-    ReasonableUnixMs,
+    UTCMilliseconds,
 )
 
 LOG_FORMAT = (
@@ -34,7 +34,7 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
 
     sh_node_name: LeftRightDot
     relay_state_command_list: List[ReallyAnInt]
-    command_time_unix_ms_list: List[ReasonableUnixMs]
+    command_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
         "gt.sh.booleanactuator.cmd.status"
     )

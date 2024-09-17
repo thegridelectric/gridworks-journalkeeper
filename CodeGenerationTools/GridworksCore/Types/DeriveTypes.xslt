@@ -80,8 +80,9 @@ from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
                                 and PrimitiveFormat != 'SpaceheatName' 
                                 and PrimitiveFormat != 'LeftRightDot' 
                                 and PrimitiveFormat != 'HandleName' 
-                                and PrimitiveFormat != 'ReasonableUnixS' 
-                                and PrimitiveFormat != 'ReasonableUnixMs'
+                                and PrimitiveFormat != 'HexChar' 
+                                and PrimitiveFormat != 'UTCSeconds' 
+                                and PrimitiveFormat != 'UTCMilliseconds'
                                 and PrimitiveFormat != 'PositiveInteger'
                                )
                             )
@@ -94,6 +95,10 @@ from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0 or count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
 <xsl:text>, model_validator</xsl:text>
 </xsl:if>
+<xsl:if test="count($airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='PositiveInteger')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]) > 0">
+<xsl:text>, PositiveInt</xsl:text>
+</xsl:if>
+
 
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
 <xsl:text>
@@ -167,17 +172,20 @@ from gjk.property_format import (</xsl:text>
 <xsl:text>
     HandleName,</xsl:text>
 </xsl:when>
-<xsl:when test="normalize-space(Name) = 'ReasonableUnixMs'">
+<xsl:when test="normalize-space(Name) = 'HexChar'">
 <xsl:text>
-    ReasonableUnixMs,</xsl:text>
+    HexChar,</xsl:text>
 </xsl:when>
-<xsl:when test="normalize-space(Name) = 'ReasonableUnixS'">
+<xsl:when test="normalize-space(Name) = 'UTCMilliseconds'">
 <xsl:text>
-    ReasonableUnixS,</xsl:text>
+    UTCMilliseconds,</xsl:text>
+</xsl:when>
+<xsl:when test="normalize-space(Name) = 'UTCSeconds'">
+<xsl:text>
+    UTCSeconds,</xsl:text>
 </xsl:when>
 <xsl:when test="normalize-space(Name) = 'PositiveInteger'">
-<xsl:text>
-    PositiveInteger,</xsl:text>
+<!-- Do nothing - this is tested by pydantic's PositiveInt -->
 </xsl:when>
 <xsl:otherwise>
 <xsl:text>
@@ -195,8 +203,8 @@ from gjk.property_format import (</xsl:text>
 
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) 
                                 and (PrimitiveType = 'Integer') 
-                                and not(PropertyFormat = 'ReasonableUnixMs') 
-                                and not(PropertyFormat = 'ReasonableUnixS')
+                                and not(PropertyFormat = 'UTCMilliseconds') 
+                                and not(PropertyFormat = 'UTCSeconds')
                                 and not(PropertyFormat = 'PositiveInteger')
                                 ])>0">
 <xsl:text>
@@ -291,14 +299,17 @@ class </xsl:text>
         <xsl:when test="PrimitiveFormat = 'HandleName'">
         <xsl:text>HandleName</xsl:text>
         </xsl:when>
-        <xsl:when test="PrimitiveFormat = 'ReasonableUnixMs'">
-        <xsl:text>ReasonableUnixMs</xsl:text>
+        <xsl:when test="normalize-space(Name) = 'HexChar'">
+        <xsl:text>HexChar</xsl:text>
         </xsl:when>
-        <xsl:when test="PrimitiveFormat = 'ReasonableUnixS'">
-        <xsl:text>ReasonableUnixS</xsl:text>
+        <xsl:when test="PrimitiveFormat = 'UTCMilliseconds'">
+        <xsl:text>UTCMilliseconds</xsl:text>
+        </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'UTCSeconds'">
+        <xsl:text>UTCSeconds</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveFormat = 'PositiveInteger'">
-        <xsl:text>PositiveInteger</xsl:text>
+        <xsl:text>PositiveInt</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveType='Integer'">
         <xsl:text>ReallyAnInt</xsl:text>
@@ -447,9 +458,10 @@ class </xsl:text>
                                 and PrimitiveFormat != 'UUID4Str'
                                 and PrimitiveFormat != 'SpaceheatName' 
                                 and PrimitiveFormat != 'LeftRightDot' 
-                                and PrimitiveFormat != 'HandleName' 
-                                and PrimitiveFormat != 'ReasonableUnixS' 
-                                and PrimitiveFormat != 'ReasonableUnixMs'
+                                and PrimitiveFormat != 'HandleName
+                                and PrimitiveFormat != 'HexChar' 
+                                and PrimitiveFormat != 'UTCSeconds' 
+                                and PrimitiveFormat != 'UTCMilliseconds'
                                 and PrimitiveFormat != 'PositiveInteger'
                                )
                             )">
@@ -555,8 +567,9 @@ class </xsl:text>
                         and PrimitiveFormat != 'SpaceheatName' 
                         and PrimitiveFormat != 'LeftRightDot' 
                         and PrimitiveFormat != 'HandleName' 
-                        and PrimitiveFormat != 'ReasonableUnixMs' 
-                        and PrimitiveFormat != 'ReasonableUnixS' 
+                        and PrimitiveFormat != 'HexChar'
+                        and PrimitiveFormat != 'UTCMilliseconds' 
+                        and PrimitiveFormat != 'UTCSeconds' 
                         and PrimitiveFormat != 'PositiveInteger' 
                         and not(IsList='true')">
         <xsl:text>
@@ -590,9 +603,10 @@ class </xsl:text>
                         and PrimitiveFormat != 'UUID4Str' 
                         and PrimitiveFormat != 'SpaceheatName' 
                         and PrimitiveFormat != 'LeftRightDot' 
-                        and PrimitiveFormat != 'HandleName' 
-                        and PrimitiveFormat != 'ReasonableUnixMs' 
-                        and PrimitiveFormat != 'ReasonableUnixS'
+                        and PrimitiveFormat != 'HandleName'
+                        and PrimitiveFormat != 'HexChar' 
+                        and PrimitiveFormat != 'UTCMilliseconds' 
+                        and PrimitiveFormat != 'UTCSeconds'
                         and PrimitiveFormat != 'PositiveInteger'
                         and (IsList='true')">
         <xsl:text>
@@ -615,7 +629,7 @@ class </xsl:text>
         <xsl:when test = "not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
         <xsl:text>
         try:
-            check_is_uuid_canonical_textual(v)
+            is_uuid4_str(v)
         except ValueError as e:
             raise ValueError(
                 f"</xsl:text>
@@ -628,7 +642,7 @@ class </xsl:text>
         <xsl:text>
         try:
             for elt in v:
-                check_is_uuid_canonical_textual(elt)
+                is_uuid4_str(elt)
         except ValueError as e:
             raise ValueError(
                 f"</xsl:text><xsl:value-of select="Value"/><xsl:text> element failed </xsl:text>
@@ -648,8 +662,9 @@ class </xsl:text>
                 and PrimitiveFormat != 'SpaceheatName' 
                 and PrimitiveFormat != 'LeftRightDot' 
                 and PrimitiveFormat != 'HandleName' 
-                and PrimitiveFormat != 'ReasonableUnixS' 
-                and PrimitiveFormat != 'ReasonableUnixMs'
+                and PrimitiveFormat != 'HexChar'
+                and PrimitiveFormat != 'UTCSeconds' 
+                and PrimitiveFormat != 'UTCMilliseconds'
                 and PrimitiveFormat != 'PositiveInteger'
                 ) 
                 or (Axiom != '')">
