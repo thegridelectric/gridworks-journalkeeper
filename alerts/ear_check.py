@@ -1,6 +1,5 @@
 import json
 import subprocess
-import time
 import pendulum
 import requests
 import dotenv
@@ -73,11 +72,8 @@ def send_opsgenie_alert(settings: Settings):
 
 
 if __name__ == "__main__":
-    while(True):
-        settings = Settings(_env_file=dotenv.find_dotenv())
-        ear_alive = True
-        latest = latest_messages()
-        if len(latest) == 0:
-            send_opsgenie_alert(settings)
-        print("Sleeping for 10 min...")
-        time.sleep(10*60)
+
+    settings = Settings(_env_file=dotenv.find_dotenv())
+    latest = latest_messages()
+    if len(latest) == 0:
+        send_opsgenie_alert(settings)
