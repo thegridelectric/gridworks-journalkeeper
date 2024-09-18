@@ -73,6 +73,10 @@ def send_opsgenie_alert(settings: Settings):
 
 if __name__ == "__main__":
 
+    from datetime import datetime
+    with open("/home/ubuntu/gridworks-journalkeeper/alerts/ear_check.log", "a") as log_file:
+        log_file.write(f"Script executed at: {datetime.now()}\n")
+
     settings = Settings(_env_file=dotenv.find_dotenv())
     latest = latest_messages()
     if len(latest) == 0:
