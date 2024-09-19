@@ -18,7 +18,7 @@ if __name__ == "__main__":
     
     session = Session()
 
-    start_ms = pendulum.datetime(2023, 11, 13, 0, 0, 0, tz="America/New_York").int_timestamp*1000
+    start_ms = pendulum.datetime(2024, 2, 10, 0, 0, 0, tz="America/New_York").int_timestamp*1000
     end_ms = start_ms + 24*60*60*1000
         
     while True:
@@ -51,7 +51,9 @@ if __name__ == "__main__":
             
             message.payload = message_edit.payload
 
+        print("Committing the changes...")
         session.commit()
+        print("Done.\n")
         
         start_ms += 24*60*60*1000
         end_ms += 24*60*60*1000
