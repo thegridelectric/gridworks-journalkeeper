@@ -23,14 +23,15 @@ if __name__ == "__main__":
         
     while True:
 
+        print(pendulum.from_timestamp(start_ms/1000))
+
         messages = session.query(MessageSql).filter(MessageSql.message_persisted_ms >= start_ms,
                                                     MessageSql.message_persisted_ms < end_ms).order_by(asc(MessageSql.message_persisted_ms)).all()
                 
         if messages:
-            print(pendulum.from_timestamp(start_ms/1000))
             print(f"Updating {len(messages)} messages...")
         else:
-            print(f"No messages on {pendulum.from_timestamp(start_ms/1000)}")
+            print(f"No messages on this day.")
             break
         
         for message in messages: 
