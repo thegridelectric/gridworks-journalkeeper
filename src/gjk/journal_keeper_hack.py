@@ -11,7 +11,9 @@ from sqlalchemy.orm import sessionmaker
 from gjk import codec
 from gjk.config import Settings
 from gjk.first_season import beech_channels
+from gjk.first_season import oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
+from gjk.first_season.oak_batches import oak_br_from_status
 from gjk.models import bulk_insert_messages
 from gjk.type_helpers import Message
 from gjk.types import (
@@ -28,7 +30,7 @@ start_s = int(start_time.timestamp())
 
 
 class JournalKeeperHack:
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, alias: str):
         self.settings = settings
         engine = create_engine(settings.db_url.get_secret_value())
         self.Session = sessionmaker(bind=engine)
@@ -36,6 +38,7 @@ class JournalKeeperHack:
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
         self.check_data_channel_consistency()
+        self.alias = alias
 
     @contextmanager
     def get_session(self):
@@ -56,7 +59,10 @@ class JournalKeeperHack:
         implemented
         """
         with self.get_session() as session:
-            beech_channels.data_channels_match_db(session)
+            if self.alias == 'beech':
+                beech_channels.data_channels_match_db(session)
+            elif self.alias == 'oak':
+                oak_channels.data_channels_match_db(session)
 
     def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
         folder_list: List[str] = []
@@ -185,7 +191,10 @@ class JournalKeeperHack:
                     raise Exception(f"Unrecognized message! {t}")
                 # Transform status messages into BatchedReadings
                 if isinstance(t, GridworksEventGtShStatus):
-                    t = beech_br_from_status(t, fn)
+                    if self.alias == 'beech':
+                        t = beech_br_from_status(t, fn)
+                    elif self.alias == 'oak':
+                        t = oak_br_from_status(t, fn)
 
                 # msg may be None if not something we are tracking (comms stuff), or
                 # if it is a status message with no data readings

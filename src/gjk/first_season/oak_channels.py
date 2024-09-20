@@ -5,7 +5,6 @@ from gjk.codec import pyd_to_sql
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.oak_names import OAK_TA, ON, OcName
-from gjk.first_season.beech_names import BN # remove once done
 from gjk.models import DataChannelSql
 from gjk.types import DataChannelGt
 from gw.errors import DcError
@@ -111,15 +110,15 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.PowerW,
         terminal_asset_alias=OAK_TA,
     ),
-    # OcName.DIST_PUMP_PWR: DataChannelGt(
-    #     id="a2ebe9fa-05ba-4665-a6ba-dbc85aee530c",
-    #     name=OcName.DIST_PUMP_PWR,
-    #     display_name="Distribution pump power",
-    #     about_node_name=BN.DIST_PUMP,
-    #     captured_by_node_name=ON.PRIMARY_POWER_METER,
-    #     telemetry_name=TelemetryName.PowerW,
-    #     terminal_asset_alias=OAK_TA,
-    # ),
+    OcName.DIST_PUMP_PWR: DataChannelGt(
+        id="a2ebe9fa-05ba-4665-a6ba-dbc85aee530c",
+        name=OcName.DIST_PUMP_PWR,
+        display_name="Distribution pump power",
+        about_node_name=ON.DIST_PUMP,
+        captured_by_node_name=ON.DIST_PUMP,
+        telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=OAK_TA,
+    ),
     # OcName.AMPHA_DIST_SWT: DataChannelGt(
     #     id="38e95a83-270c-4520-af1a-b85a07a3c02f",
     #     name=OcName.AMPHA_DIST_SWT,

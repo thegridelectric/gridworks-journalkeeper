@@ -13,5 +13,6 @@ ON.TANK3_READER = "tank3"
 ON.ANALOG_TEMP = "analog-temp"
 ON.DIST_RWT = "dist-rwt"
 ON.DIST_SWT = "dist-swt"
+ON.DIST_PUMP = "dist-pump"
 
 OcName = House0ChannelNames(total_store_tanks=3, zone_list=zones)
