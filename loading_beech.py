@@ -16,5 +16,5 @@ start_s = day_offset * 3600 * 24 + install_s
 duration_hrs = days * 24 + 1
 print(str_from_ms(start_s * 1000))
 
-p = JournalKeeperHack(Settings(_env_file=dotenv.find_dotenv()))
+p = JournalKeeperHack(Settings(_env_file=dotenv.find_dotenv()), alias='beech')
 p.load_messages_from_s3(start_s, duration_hrs, "beech")

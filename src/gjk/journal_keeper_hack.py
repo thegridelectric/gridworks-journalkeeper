@@ -37,8 +37,8 @@ class JournalKeeperHack:
         self.s3 = boto3.client("s3")
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
-        self.check_data_channel_consistency()
         self.alias = alias
+        self.check_data_channel_consistency()
 
     @contextmanager
     def get_session(self):
