@@ -24,7 +24,9 @@ class TankTempName:
 
 class House0TempName:
     TANK: Dict[int, TankTempName]
-    ZONE_LIST: List[str]
+    ZONE_NAME: List[str]
+    ZONE_SET: List[str]
+    ZONE_STAT: List[str]
     OAT = "oat"
     BUFFER_DEPTH1 = "buffer-depth1"
     BUFFER_DEPTH2 = "buffer-depth2"
@@ -34,11 +36,16 @@ class House0TempName:
     def __init__(self, total_store_tanks: int, zone_list: List[str]):
         self.TANK = {}
         for i in range(total_store_tanks):
-            self.TANK[i + 1] = TankTempName(tank_prefix=f"tank{i + 1}")
+            self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
 
-        self.ZONE_LIST = []
+        self.ZONE_NAME = []
+        self.ZONE_SET = []
+        self.ZONE_STAT = []
         for i in range(len(zone_list)):
-            self.ZONE_LIST.append(f"zone{i + 1}-{zone_list[i]}".lower())
+            zone_name = f"zone{i+1}-{zone_list[i]}".lower()
+            self.ZONE_NAME.append(zone_name)
+            self.ZONE_SET.append(f"{zone_name}-set")
+            self.ZONE_STAT.append(f"{zone_name}-stat")
 
 
 class House0Names:
@@ -57,26 +64,74 @@ class House0Names:
     STORE_COLD_PIPE = "store-cold-pipe"
     BUFFER_HOT_PIPE = "buffer-hot-pipe"
     BUFFER_COLD_PIPE = "buffer-cold-pipe"
-    ISO_VALVE = "iso-valve"
-    ISO_VALVE_RELAY = "iso-valve-relay"
-    CHARGE_DISCHARGE_VALVE = "chg-dschg-valve"
-    CHARGE_DISCHARGE_VALVE_RELAY = "chg-dschg-valve-relay"
-    HP_FAILSAFE_RELAY = "hp-failsafe-relay"
-    HP_SCADA_OPS_RELAY = "hp-scada-ops-relay"
-    HP_DHW_V_HEAT_RELAY = "hp-dhw-v-heat-relay"
-    AQUASTAT_CTRL_RELAY = "aquastat-ctrl-relay"
     TEMP: House0TempName
     DIST_FLOW = "dist-flow"
     PRIMARY_FLOW = "primary-flow"
     STORE_FLOW = "store-flow"
-    # # Relay Nodes
-    # AQUASTAT_CTRL_RELAY = "aquastat-ctrl-relay"
-    # CHG_DSCHG_VALVE_RELAY = "chg-dschg-valve-relay"
-    # HP_FAILSAFE_RELAY = "hp-failsafe-relay"
-    # HP_SCADA_OPS_RELAY = "hp-scada-ops-relay"
-    # ISO_VALVE_RELAY = "iso-valve-relay"
 
     def __init__(self, total_store_tanks: int, zone_list: List[str]):
         self.TEMP = House0TempName(
             total_store_tanks=total_store_tanks, zone_list=zone_list
         )
+
+
+class ZoneChannelName:
+    def __init__(self, zone:str, idx:int):
+        zone_name = f"zone{idx+1}-{zone}".lower()
+        self.NAME = zone_name
+        self.TEMP = f"{zone_name}-temp"
+        self.SET = f"{zone_name}-set"
+        self.STATE = f"{zone_name}-state"
+        self.STAT = f"{zone_name}-stat"
+        self.GW_TEMP = f"{zone_name}-gw-temp"
+
+
+class House0ChannelNames:
+
+    # Temperature Channels
+    BUFFER_COLD_PIPE = "buffer-cold-pipe"
+    BUFFER_HOT_PIPE = "buffer-hot-pipe"
+    BUFFER_WELL_TEMP = "buffer-well"
+    BUFFER_DEPTH1_TEMP = "buffer-depth1"
+    BUFFER_DEPTH2_TEMP = "buffer-depth2"
+    BUFFER_DEPTH3_TEMP = "buffer-depth3"
+    BUFFER_DEPTH4_TEMP = "buffer-depth4"
+    DIST_RWT = "dist-rwt"
+    DIST_SWT = "dist-swt"
+    HP_EWT = "hp-ewt"
+    HP_LWT = "hp-lwt"
+    OAT = "oat"
+    STORE_COLD_PIPE = "store-cold-pipe"
+    STORE_HOT_PIPE = "store-hot-pipe"
+    TANK: Dict[int, TankTempName]
+    ZONE: Dict[str, ZoneChannelName]
+
+    # Flow Channels
+    DIST_FLOW_INTEGRATED = "dist-flow-integrated"
+    PRIMARY_FLOW_INTEGRATED = "primary-flow-integrated"
+    STORE_FLOW_INTEGRATED = "store-flow-integrated"
+
+    # Power Channels
+    DIST_PUMP_PWR = "dist-pump-pwr"
+    HP_IDU_PWR = "hp-idu-pwr"
+    HP_ODU_PWR = "hp-odu-pwr"
+    OIL_BOILER_PWR = "oil-boiler-pwr"
+    PRIMARY_PUMP_PWR = "primary-pump-pwr"
+    STORE_PUMP_PWR = "store-pump-pwr"
+
+    # Misc Temperature Channels
+    HP_FOSSIL_LWT = "hp-fossil-lwt"
+    OIL_BOILER_FLOW_INTEGRATED = "oil-boiler-flow"
+    BUFFER_WELL_TEMP = "buffer-well"
+    AMPHA_DIST_SWT = "ampha-dist-swt"
+    AMPHB_DIST_SWT = "amphb-dist-swt"
+
+    def __init__(self, total_store_tanks, zone_list):
+        self.ZONE = {}
+        for zone in zone_list:
+            self.ZONE[zone] = ZoneChannelName(zone, zone_list.index(zone))
+        
+        self.TANK = {}
+        for i in range(total_store_tanks):
+            self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
+            
