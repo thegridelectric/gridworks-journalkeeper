@@ -38,14 +38,14 @@ class House0TempName:
         for i in range(total_store_tanks):
             self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
 
-        self.ZONE_NAME = []
-        self.ZONE_SET = []
-        self.ZONE_STAT = []
+        self.ZONE_NAME = {}
+        self.ZONE_SET = {}
+        self.ZONE_STAT = {}
         for i in range(len(zone_list)):
             zone_name = f"zone{i+1}-{zone_list[i]}".lower()
-            self.ZONE_NAME.append(zone_name)
-            self.ZONE_SET.append(f"{zone_name}-set")
-            self.ZONE_STAT.append(f"{zone_name}-stat")
+            self.ZONE_NAME[zone_list[i]] = zone_name
+            self.ZONE_SET[zone_list[i]] = f"{zone_name}-set"
+            self.ZONE_STAT[zone_list[i]] = f"{zone_name}-stat"
 
 
 class House0Names:
