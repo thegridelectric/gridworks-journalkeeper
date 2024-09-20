@@ -12,20 +12,20 @@ from gjk.types import (
 )
 from gjk.utils import FileNameMeta, str_from_ms
 
-OAK_IGNORED_ALIASES = []
-#     "a.elt1",
-#     "george.special.temp.depth1",
-#     "george.special.temp.depth2",
-#     "george.special.temp.depth3",
-#     "george.special.temp.depth4",
-#     "a.m.tank1.power",
-#     "a.m.tank2.power",
-#     "a.m.tank3.power",
-#     "calibrate.1009.temp.depth1",
-#     "calibrate.1009.temp.depth2",
-#     "calibrate.1009.temp.depth3",
-#     "calibrate.1009.temp.depth4",
-# ]
+OAK_IGNORED_ALIASES = [
+    "a.elt1",
+    "george.special.temp.depth1",
+    "george.special.temp.depth2",
+    "george.special.temp.depth3",
+    "george.special.temp.depth4",
+    "a.m.tank1.power",
+    "a.m.tank2.power",
+    "a.m.tank3.power",
+    "calibrate.1009.temp.depth1",
+    "calibrate.1009.temp.depth2",
+    "calibrate.1009.temp.depth3",
+    "calibrate.1009.temp.depth4",
+]
 
 TN_GOOFS = []
 #     [OcName.OAT, TelemetryName.WaterTempCTimes1000],

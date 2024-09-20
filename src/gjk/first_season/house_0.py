@@ -36,9 +36,6 @@ class ZoneName:
 class House0TempName:
     TANK: Dict[int, TankTempName]
     ZONE: Dict[str, ZoneName]
-    ZONE_NAME: List[str]
-    ZONE_SET: List[str]
-    ZONE_STAT: List[str]
     OAT = "oat"
     BUFFER_DEPTH1 = "buffer-depth1"
     BUFFER_DEPTH2 = "buffer-depth2"
@@ -53,6 +50,7 @@ class House0TempName:
         self.ZONE = {}
         for i in range(len(zone_list)):
             self.ZONE[zone_list[i]] = ZoneName(zone=zone_list[i], idx=i)
+
 
 class House0Names:
     SCADA = "s"
@@ -79,9 +77,6 @@ class House0Names:
         self.TEMP = House0TempName(
             total_store_tanks=total_store_tanks, zone_list=zone_list
         )
-
-
-
 
 
 class House0ChannelNames:
@@ -132,4 +127,3 @@ class House0ChannelNames:
         self.TANK = {}
         for i in range(total_store_tanks):
             self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
-            

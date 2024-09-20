@@ -6,5 +6,12 @@ zones = ["down", "up"]
 
 ON = House0Names(total_store_tanks=3, zone_list=zones)
 ON.BUFFER_WELL = "buffer-well"
+ON.BUFFER_TANK_READER = "buffer"
+ON.TANK1_READER = "tank1"
+ON.TANK2_READER = "tank2"
+ON.TANK3_READER = "tank3"
+ON.ANALOG_TEMP = "analog-temp"
+ON.DIST_RWT = "dist-rwt"
+ON.DIST_SWT = "dist-swt"
 
 OcName = House0ChannelNames(total_store_tanks=3, zone_list=zones)
