@@ -35,6 +35,7 @@ class ZoneName:
 
 class House0TempName:
     TANK: Dict[int, TankTempName]
+    ZONE: Dict[str, ZoneName]
     ZONE_NAME: List[str]
     ZONE_SET: List[str]
     ZONE_STAT: List[str]
