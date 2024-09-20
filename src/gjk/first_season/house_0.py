@@ -20,6 +20,17 @@ class TankTempName:
     @property
     def depth4(self) -> str:
         return f"{self.tank_prefix}-depth4"
+    
+
+class ZoneName:
+    def __init__(self, zone:str, idx:int):
+        zone_name = f"zone{idx+1}-{zone}".lower()
+        self.NAME = zone_name
+        self.TEMP = f"{zone_name}-temp"
+        self.SET = f"{zone_name}-set"
+        self.STATE = f"{zone_name}-state"
+        self.STAT = f"{zone_name}-stat"
+        self.GW_TEMP = f"{zone_name}-gw-temp"
 
 
 class House0TempName:
@@ -38,15 +49,9 @@ class House0TempName:
         for i in range(total_store_tanks):
             self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
 
-        self.ZONE_NAME = {}
-        self.ZONE_SET = {}
-        self.ZONE_STAT = {}
+        self.ZONE = {}
         for i in range(len(zone_list)):
-            zone_name = f"zone{i+1}-{zone_list[i]}".lower()
-            self.ZONE_NAME[zone_list[i]] = zone_name
-            self.ZONE_SET[zone_list[i]] = f"{zone_name}-set"
-            self.ZONE_STAT[zone_list[i]] = f"{zone_name}-stat"
-
+            self.ZONE[zone_list[i]] = ZoneName(zone=zone_list[i], idx=i)
 
 class House0Names:
     SCADA = "s"
@@ -75,15 +80,7 @@ class House0Names:
         )
 
 
-class ZoneChannelName:
-    def __init__(self, zone:str, idx:int):
-        zone_name = f"zone{idx+1}-{zone}".lower()
-        self.NAME = zone_name
-        self.TEMP = f"{zone_name}-temp"
-        self.SET = f"{zone_name}-set"
-        self.STATE = f"{zone_name}-state"
-        self.STAT = f"{zone_name}-stat"
-        self.GW_TEMP = f"{zone_name}-gw-temp"
+
 
 
 class House0ChannelNames:
@@ -104,7 +101,7 @@ class House0ChannelNames:
     STORE_COLD_PIPE = "store-cold-pipe"
     STORE_HOT_PIPE = "store-hot-pipe"
     TANK: Dict[int, TankTempName]
-    ZONE: Dict[str, ZoneChannelName]
+    ZONE: Dict[str, ZoneName]
 
     # Flow Channels
     DIST_FLOW_INTEGRATED = "dist-flow-integrated"
@@ -129,7 +126,7 @@ class House0ChannelNames:
     def __init__(self, total_store_tanks, zone_list):
         self.ZONE = {}
         for zone in zone_list:
-            self.ZONE[zone] = ZoneChannelName(zone, zone_list.index(zone))
+            self.ZONE[zone] = ZoneName(zone, zone_list.index(zone))
         
         self.TANK = {}
         for i in range(total_store_tanks):
