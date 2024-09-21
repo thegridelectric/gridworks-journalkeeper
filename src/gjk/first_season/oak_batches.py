@@ -12,6 +12,7 @@ from gjk.types import (
 )
 from gjk.utils import FileNameMeta, str_from_ms
 
+
 OAK_IGNORED_ALIASES = [
     "a.elt1",
     "george.special.temp.depth1",
@@ -27,25 +28,14 @@ OAK_IGNORED_ALIASES = [
     "calibrate.1009.temp.depth4",
 ]
 
-TN_GOOFS = []
-#     [OcName.OAT, TelemetryName.WaterTempCTimes1000],
-#     [OcName.OAT, TelemetryName.AirTempFTimes1000],
-#     [OcName.DOWN_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
-#     [OcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
-#     [OcName.DOWN_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
-#     [OcName.DOWN_ZONE_TEMP, TelemetryName.AirTempCTimes1000],
-#     [OcName.DOWN_ZONE_SET, TelemetryName.WaterTempCTimes1000],
-#     [OcName.DOWN_ZONE_SET, TelemetryName.WaterTempFTimes1000],
-#     [OcName.DOWN_ZONE_SET, TelemetryName.AirTempCTimes1000],
-#     [OcName.UP_ZONE_TEMP, TelemetryName.WaterTempCTimes1000],
-#     [OcName.UP_ZONE_TEMP, TelemetryName.WaterTempFTimes1000],
-#     [OcName.UP_ZONE_TEMP, TelemetryName.AirTempCTimes1000],
-#     [OcName.UP_ZONE_SET, TelemetryName.WaterTempCTimes1000],
-#     [OcName.UP_ZONE_SET, TelemetryName.WaterTempFTimes1000],
-#     [OcName.UP_ZONE_SET, TelemetryName.AirTempCTimes1000],
-#     [OcName.UP_ZONE_GW_TEMP, TelemetryName.WaterTempCTimes1000],
-#     [OcName.UP_ZONE_GW_TEMP, TelemetryName.AirTempFTimes1000],
-# ]
+TN_GOOFS = [
+    [OcName.OAT, TelemetryName.WaterTempCTimes1000],
+    [OcName.ZONE['down'].GW_TEMP, TelemetryName.WaterTempCTimes1000],
+    [OcName.ZONE['living-room'].TEMP, TelemetryName.WaterTempFTimes1000],
+    [OcName.ZONE['living-room'].SET, TelemetryName.WaterTempFTimes1000],
+    [OcName.ZONE['garage'].TEMP, TelemetryName.WaterTempFTimes1000],
+    [OcName.ZONE['garage'].SET, TelemetryName.WaterTempFTimes1000],
+]
 
 
 def oak_br_from_status(

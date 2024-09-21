@@ -211,15 +211,51 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    # OcName.OIL_BOILER_PWR: DataChannelGt(
-    #     id="83fe770f-e022-4ad6-a471-cfb83e1b64be",
-    #     name=OcName.OIL_BOILER_PWR,
-    #     display_name="Oil Boiler pump power",
-    #     about_node_name=BN.OIL_BOILER,
-    #     captured_by_node_name=ON.PRIMARY_POWER_METER,
-    #     telemetry_name=TelemetryName.PowerW,
-    #     terminal_asset_alias=OAK_TA,
-    # ),
+    OcName.ZONE['living-room'].SET: DataChannelGt(
+        id="42177a16-edea-41e0-bbcb-b200d762af5d",
+        name=OcName.ZONE['living-room'].SET,
+        display_name="Living room Zone Honeywell Setpoint",
+        about_node_name=ON.TEMP.ZONE['living-room'].STAT,
+        captured_by_node_name=OcName.ZONE['living-room'].STAT,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=OAK_TA,
+    ),
+    OcName.ZONE['living-room'].TEMP: DataChannelGt(
+        id="f316b3c4-3f9c-4d8a-a862-7074aeda1f86",
+        name=OcName.ZONE['living-room'].TEMP,
+        display_name="Living room Zone Honeywell Temp",
+        about_node_name=ON.TEMP.ZONE['living-room'].STAT,
+        captured_by_node_name=OcName.ZONE['living-room'].NAME,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=OAK_TA,
+    ),
+    OcName.ZONE['garage'].SET: DataChannelGt(
+        id="4b5b5534-39a9-4424-b79a-b1611438283d",
+        name=OcName.ZONE['garage'].SET,
+        display_name="Garage Zone Honeywell Setpoint",
+        about_node_name=ON.TEMP.ZONE['garage'].STAT,
+        captured_by_node_name=OcName.ZONE['garage'].STAT,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=OAK_TA,
+    ),
+    OcName.ZONE['garage'].TEMP: DataChannelGt(
+        id="971a2c41-a459-4857-a9c0-ad3b6b2eb5dc",
+        name=OcName.ZONE['garage'].TEMP,
+        display_name="Garage Zone Honeywell Temp",
+        about_node_name=ON.TEMP.ZONE['garage'].STAT,
+        captured_by_node_name=OcName.ZONE['garage'].NAME,
+        telemetry_name=TelemetryName.AirTempFTimes1000,
+        terminal_asset_alias=OAK_TA,
+    ),
+    OcName.OIL_BOILER_PWR: DataChannelGt(
+        id="960beace-27fd-4038-8579-74b0afe6f578",
+        name=OcName.OIL_BOILER_PWR,
+        display_name="Oil Boiler pump power",
+        about_node_name=ON.OIL_BOILER,
+        captured_by_node_name=ON.PRIMARY_POWER_METER,
+        telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=OAK_TA,
+    ),
     OcName.BUFFER_COLD_PIPE: DataChannelGt(
         id="9eb57c30-7339-4c08-8fc1-0f7371f09a58",
         name=OcName.BUFFER_COLD_PIPE,
@@ -472,17 +508,17 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.AirTempCTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    # OcName.HP_FOSSIL_LWT:
-    # # Non-essential temperatures
-    # DataChannelGt(
-    #     id="87f1e9f5-8959-4780-9195-0f1267822e22",
-    #     name=OcName.HP_FOSSIL_LWT,
-    #     display_name="HeatPump Fossil LWT(C x 1000)",
-    #     about_node_name=ON.HP_FOSSIL_LWT,
-    #     captured_by_node_name=ON.ANALOG_TEMP,
-    #     telemetry_name=TelemetryName.WaterTempCTimes1000,
-    #     terminal_asset_alias=OAK_TA,
-    # ),
+    OcName.HP_FOSSIL_LWT:
+    # Non-essential temperatures
+    DataChannelGt(
+        id="a5e82dbd-7956-4d5d-926d-2c1db9bec7e2",
+        name=OcName.HP_FOSSIL_LWT,
+        display_name="HeatPump Fossil LWT(C x 1000)",
+        about_node_name=ON.HP_FOSSIL_LWT,
+        captured_by_node_name=ON.ANALOG_TEMP,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+        terminal_asset_alias=OAK_TA,
+    ),
     # Integrated Flow
     OcName.DIST_FLOW_INTEGRATED: DataChannelGt(
         id="648fcb3a-80b6-4886-9567-af6197021ce9",
@@ -511,6 +547,15 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.GallonsTimes100,
         terminal_asset_alias=OAK_TA,
     ),
+    OcName.HOUSE_PANEL_PWR: DataChannelGt(
+        id="69a485b0-6e60-4eae-b417-0c787ae35cd4",
+        name=OcName.HOUSE_PANEL_PWR,
+        display_name="House Panel Power",
+        about_node_name=ON.HOUSE_PANEL,
+        captured_by_node_name=ON.HOUSE_PANEL,
+        telemetry_name=TelemetryName.PowerW,
+        terminal_asset_alias=OAK_TA,
+    ),
 }
 
 
@@ -523,25 +568,91 @@ OakAliasMapper.channel_mappings = {
         (1701406790, "a.store.flow"),  # 
     ],
     OcName.HP_LWT: [
-        (1701406790., "a.hp.lwt.temp"),  # 
+        (1701406790, "a.hp.lwt.temp"),  # 
     ],
+    OcName.HP_EWT: [
+        (1701406790, "a.hp.ewt.temp"),  # 
+    ],
+    OcName.STORE_HOT_PIPE: [
+        (1701406790, "a.store.hot.pipe.temp"),  # 
+    ],
+    OcName.STORE_COLD_PIPE: [
+        (1701406790, "a.store.cold.pipe.temp"),  # 
+    ],
+    OcName.BUFFER_HOT_PIPE: [
+        (1701406790, "a.buffer.hot.pipe.temp"),  # 
+    ],
+    OcName.BUFFER_COLD_PIPE: [
+        (1701406790, "a.buffer.cold.pipe.temp"),  # 
+    ],
+    OcName.HP_FOSSIL_LWT: [
+        (1701406790, "a.hp.fossil.lwt.temp"),  # 
+    ],
+    OcName.OAT: [
+        (1701406790, "a.oat.temp")  #
+    ],
+    OcName.ZONE['down'].GW_TEMP: [
+        (1701406790, "statcheck"),  #
+    ],
+    OcName.OIL_BOILER_PWR: [
+        (1701406800, "a.m.oil.boiler.power"),  # 
+    ],
+    OcName.DIST_SWT: [
+        (1701406800, "a.dist.swt.temp"),  # 
+    ],
+    OcName.DIST_RWT: [
+        (1701406800, "a.dist.rwt.temp"),  # 
+    ],
+    OcName.DIST_FLOW_INTEGRATED: [
+        (1701406810, "a.dist.flow"),  # 
+    ],
+    OcName.ZONE['living-room'].TEMP: [
+        (1701406840, "a.thermostat.living.room.temp"),  # 
+    ],
+    OcName.ZONE['living-room'].SET: [
+        (1701406840, "a.thermostat.living.room.set"),  # 
+    ],
+    OcName.ZONE['garage'].TEMP: [
+        (1701406840, 'a.thermostat.garage.temp')
+    ],
+    OcName.ZONE['garage'].SET: [
+        (1701406840, 'a.thermostat.garage.set')
+    ],
+    OcName.HP_ODU_PWR: [
+        (1701406870, "a.m.hp.outdoor.power")
+    ],
+    OcName.HP_IDU_PWR: [
+        (1701406870, "a.m.hp.indoor.power")
+    ],
+    OcName.DIST_PUMP_PWR:[
+        (1701406870, "a.m.dist.pump.power")
+    ],
+    OcName.PRIMARY_PUMP_PWR:[
+        (1701406870, "a.m.primary.pump.power")
+    ],
+    OcName.STORE_PUMP_PWR:[
+        (1701406870, "a.m.store.pump.power")
+    ],
+    OcName.HOUSE_PANEL_PWR:[
+        (1701406900, "a.m.house.panel.power")
+    ]
 }
 
 
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#     from sqlalchemy.orm import Session, sessionmaker
-#     from sqlalchemy import create_engine
-#     import dotenv
-#     import os 
-#     from gjk.codec import pyd_to_sql
+    from sqlalchemy.orm import Session, sessionmaker
+    from sqlalchemy import create_engine
+    import dotenv
+    import os 
+    from gjk.codec import pyd_to_sql
 
-#     dotenv.load_dotenv()
-#     engine = create_engine(os.getenv("GJK_DB_URL"))
-#     Session = sessionmaker(bind=engine)
-#     session = Session()
+    dotenv.load_dotenv()
+    engine = create_engine(os.getenv("GJK_DB_URL"))
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
-#     from gjk.models import bulk_insert_datachannels
-#     datachannel_list = [pyd_to_sql(value) for value in OAK_CHANNELS_BY_NAME.values()]
-#     bulk_insert_datachannels(session, datachannel_list)
+    from gjk.models import bulk_insert_datachannels
+    datachannel_list = [pyd_to_sql(value) for value in OAK_CHANNELS_BY_NAME.values()]
+    bulk_insert_datachannels(session, datachannel_list)
