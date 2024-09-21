@@ -74,24 +74,24 @@ def data_channels_match_db(
 
 
 OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
-    OcName.ZONE['up'].NAME: DataChannelGt(
-        id="c2b54623-4c9d-4b23-bf37-447190d058d2",
-        name=OcName.ZONE['up'].STATE,
-        display_name="Up Zone Honeywell Heat Call State",
-        about_node_name=ON.TEMP.ZONE['up'].STAT,
-        captured_by_node_name=ON.TEMP.ZONE['up'].STAT,
-        telemetry_name=TelemetryName.ThermostatState,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['down'].NAME: DataChannelGt(
-        id="37154ab8-1166-41ef-bdb2-3fa116049990",
-        name=OcName.ZONE['down'].STATE,
-        display_name="Down Zone Honeywell Heat Call State",
-        about_node_name=ON.TEMP.ZONE['down'].STAT,
-        captured_by_node_name=ON.TEMP.ZONE['down'].STAT,
-        telemetry_name=TelemetryName.ThermostatState,
-        terminal_asset_alias=OAK_TA,
-    ),
+    # OcName.ZONE['up'].NAME: DataChannelGt(
+    #     id="c2b54623-4c9d-4b23-bf37-447190d058d2",
+    #     name=OcName.ZONE['up'].STATE,
+    #     display_name="Up Zone Honeywell Heat Call State",
+    #     about_node_name=ON.TEMP.ZONE['up'].STAT,
+    #     captured_by_node_name=ON.TEMP.ZONE['up'].STAT,
+    #     telemetry_name=TelemetryName.ThermostatState,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
+    # OcName.ZONE['down'].NAME: DataChannelGt(
+    #     id="37154ab8-1166-41ef-bdb2-3fa116049990",
+    #     name=OcName.ZONE['down'].STATE,
+    #     display_name="Down Zone Honeywell Heat Call State",
+    #     about_node_name=ON.TEMP.ZONE['down'].STAT,
+    #     captured_by_node_name=ON.TEMP.ZONE['down'].STAT,
+    #     telemetry_name=TelemetryName.ThermostatState,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
     OcName.STORE_PUMP_PWR: DataChannelGt(
         id="b4d40404-dc8f-4353-9cd6-3eea4457eae9",
         name=OcName.STORE_PUMP_PWR,
@@ -175,57 +175,57 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
     #     telemetry_name=TelemetryName.GallonsTimes100,
     #     terminal_asset_alias=OAK_TA,
     # ),
-    OcName.ZONE['down'].SET: DataChannelGt(
-        id="44f85516-cab9-47ef-be3f-ffa79a03ace1",
-        name=OcName.ZONE['down'].SET,
-        display_name="Down Zone Honeywell Setpoint",
-        about_node_name=ON.TEMP.ZONE['down'].STAT,
-        captured_by_node_name=ON.TEMP.ZONE['down'].STAT,
-        telemetry_name=TelemetryName.AirTempFTimes1000,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['down'].TEMP: DataChannelGt(
-        id="1a99c18e-c409-4344-b87d-fe932038c39f",
-        name=OcName.ZONE['down'].TEMP,
-        display_name="Down Zone Honeywell Temp",
-        about_node_name=ON.TEMP.ZONE['down'].STAT,
-        captured_by_node_name=ON.TEMP.ZONE['down'].NAME,
-        telemetry_name=TelemetryName.AirTempFTimes1000,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['up'].SET: DataChannelGt(
-        id="d2158a1b-0459-4b0f-a67b-395e79136330",
-        name=OcName.ZONE['up'].SET,
-        display_name="Up Zone Honeywell Setpoint",
-        about_node_name=ON.TEMP.ZONE['up'].STAT,
-        captured_by_node_name=ON.TEMP.ZONE['up'].STAT,
-        telemetry_name=TelemetryName.AirTempFTimes1000,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['up'].TEMP: DataChannelGt(
-        id="91d9fca3-c823-42aa-a8a0-a6b8c267e415",
-        name=OcName.ZONE['up'].TEMP,
-        display_name="Up Zone Honeywell Temp",
-        about_node_name=ON.TEMP.ZONE['up'].STAT,
-        captured_by_node_name=OcName.ZONE['up'].NAME,
-        telemetry_name=TelemetryName.AirTempFTimes1000,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['living-room'].SET: DataChannelGt(
+    # OcName.ZONE['down'].SET: DataChannelGt(
+    #     id="44f85516-cab9-47ef-be3f-ffa79a03ace1",
+    #     name=OcName.ZONE['down'].SET,
+    #     display_name="Down Zone Honeywell Setpoint",
+    #     about_node_name=ON.TEMP.ZONE['down'].STAT,
+    #     captured_by_node_name=ON.TEMP.ZONE['down'].STAT,
+    #     telemetry_name=TelemetryName.AirTempFTimes1000,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
+    # OcName.ZONE['down'].TEMP: DataChannelGt(
+    #     id="1a99c18e-c409-4344-b87d-fe932038c39f",
+    #     name=OcName.ZONE['down'].TEMP,
+    #     display_name="Down Zone Honeywell Temp",
+    #     about_node_name=ON.TEMP.ZONE['down'].STAT,
+    #     captured_by_node_name=ON.TEMP.ZONE['down'].NAME,
+    #     telemetry_name=TelemetryName.AirTempFTimes1000,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
+    # OcName.ZONE['up'].SET: DataChannelGt(
+    #     id="d2158a1b-0459-4b0f-a67b-395e79136330",
+    #     name=OcName.ZONE['up'].SET,
+    #     display_name="Up Zone Honeywell Setpoint",
+    #     about_node_name=ON.TEMP.ZONE['up'].STAT,
+    #     captured_by_node_name=ON.TEMP.ZONE['up'].STAT,
+    #     telemetry_name=TelemetryName.AirTempFTimes1000,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
+    # OcName.ZONE['up'].TEMP: DataChannelGt(
+    #     id="91d9fca3-c823-42aa-a8a0-a6b8c267e415",
+    #     name=OcName.ZONE['up'].TEMP,
+    #     display_name="Up Zone Honeywell Temp",
+    #     about_node_name=ON.TEMP.ZONE['up'].STAT,
+    #     captured_by_node_name=OcName.ZONE['up'].NAME,
+    #     telemetry_name=TelemetryName.AirTempFTimes1000,
+    #     terminal_asset_alias=OAK_TA,
+    # ),
+    OcName.ZONE['living-rm'].SET: DataChannelGt(
         id="42177a16-edea-41e0-bbcb-b200d762af5d",
-        name=OcName.ZONE['living-room'].SET,
+        name=OcName.ZONE['living-rm'].SET,
         display_name="Living room Zone Honeywell Setpoint",
-        about_node_name=ON.TEMP.ZONE['living-room'].STAT,
-        captured_by_node_name=OcName.ZONE['living-room'].STAT,
+        about_node_name=ON.TEMP.ZONE['living-rm'].STAT,
+        captured_by_node_name=OcName.ZONE['living-rm'].STAT,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OcName.ZONE['living-room'].TEMP: DataChannelGt(
+    OcName.ZONE['living-rm'].TEMP: DataChannelGt(
         id="f316b3c4-3f9c-4d8a-a862-7074aeda1f86",
-        name=OcName.ZONE['living-room'].TEMP,
+        name=OcName.ZONE['living-rm'].TEMP,
         display_name="Living room Zone Honeywell Temp",
-        about_node_name=ON.TEMP.ZONE['living-room'].STAT,
-        captured_by_node_name=OcName.ZONE['living-room'].NAME,
+        about_node_name=ON.TEMP.ZONE['living-rm'].STAT,
+        captured_by_node_name=OcName.ZONE['living-rm'].NAME,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
@@ -337,20 +337,11 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OcName.ZONE['up'].GW_TEMP: DataChannelGt(
+    OcName.ZONE['living-rm'].GW_TEMP: DataChannelGt(
         id="3eca0062-4885-4687-b29a-d6a1af8f777a",
-        name=OcName.ZONE['up'].GW_TEMP,
-        display_name="Upstairs Zone Temp (C x 1000)",
-        about_node_name=ON.TEMP.ZONE['up'].NAME,
-        captured_by_node_name=ON.ANALOG_TEMP,
-        telemetry_name=TelemetryName.AirTempCTimes1000,
-        terminal_asset_alias=OAK_TA,
-    ),
-    OcName.ZONE['down'].GW_TEMP: DataChannelGt(
-        id="4d164537-4466-4e0e-9517-9ead63698f38",
-        name=OcName.ZONE['down'].GW_TEMP,
-        display_name="Downstairs Zone Temp (C x 1000)",
-        about_node_name=ON.TEMP.ZONE['up'].STAT,
+        name=OcName.ZONE['living-rm'].GW_TEMP,
+        display_name="Living room Zone Temp (C x 1000)",
+        about_node_name=ON.TEMP.ZONE['living-rm'].NAME,
         captured_by_node_name=ON.ANALOG_TEMP,
         telemetry_name=TelemetryName.AirTempCTimes1000,
         terminal_asset_alias=OAK_TA,
@@ -591,7 +582,7 @@ OakAliasMapper.channel_mappings = {
     OcName.OAT: [
         (1701406790, "a.oat.temp")  #
     ],
-    OcName.ZONE['down'].GW_TEMP: [
+    OcName.ZONE['living-rm'].GW_TEMP: [
         (1701406790, "statcheck"),  #
     ],
     OcName.OIL_BOILER_PWR: [
@@ -606,10 +597,10 @@ OakAliasMapper.channel_mappings = {
     OcName.DIST_FLOW_INTEGRATED: [
         (1701406810, "a.dist.flow"),  # 
     ],
-    OcName.ZONE['living-room'].TEMP: [
+    OcName.ZONE['living-rm'].TEMP: [
         (1701406840, "a.thermostat.living.room.temp"),  # 
     ],
-    OcName.ZONE['living-room'].SET: [
+    OcName.ZONE['living-rm'].SET: [
         (1701406840, "a.thermostat.living.room.set"),  # 
     ],
     OcName.ZONE['garage'].TEMP: [
@@ -640,19 +631,19 @@ OakAliasMapper.channel_mappings = {
 
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    from sqlalchemy.orm import Session, sessionmaker
-    from sqlalchemy import create_engine
-    import dotenv
-    import os 
-    from gjk.codec import pyd_to_sql
+#     from sqlalchemy.orm import Session, sessionmaker
+#     from sqlalchemy import create_engine
+#     import dotenv
+#     import os 
+#     from gjk.codec import pyd_to_sql
 
-    dotenv.load_dotenv()
-    engine = create_engine(os.getenv("GJK_DB_URL"))
-    Session = sessionmaker(bind=engine)
-    session = Session()
+#     dotenv.load_dotenv()
+#     engine = create_engine(os.getenv("GJK_DB_URL"))
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
 
-    from gjk.models import bulk_insert_datachannels
-    datachannel_list = [pyd_to_sql(value) for value in OAK_CHANNELS_BY_NAME.values()]
-    bulk_insert_datachannels(session, datachannel_list)
+#     from gjk.models import bulk_insert_datachannels
+#     datachannel_list = [pyd_to_sql(value) for value in OAK_CHANNELS_BY_NAME.values()]
+#     bulk_insert_datachannels(session, datachannel_list)

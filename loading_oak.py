@@ -5,7 +5,7 @@ from gjk.journal_keeper_hack import JournalKeeperHack
 from gjk.utils import str_from_ms
 
 day_offset = 0
-days = 1
+days = 1/24
 
 atn_alias = "hw1.isone.me.versant.keene.oak"
 
