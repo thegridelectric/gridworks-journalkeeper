@@ -18,7 +18,6 @@ def check_is_ads1115_i2c_address(v: str) -> None:
         raise ValueError(f"Not Ads1115I2cAddress: <{v}>")
 
 
-
 def check_is_log_style_date_with_millis(v: str) -> None:
     """Checks LogStyleDateWithMillis format
 
@@ -142,9 +141,7 @@ def is_utc_seconds(v: int) -> int:
     if v < start_timestamp:
         raise ValueError(f"{v}: Fails UTCSeconds format! Must be after Jan 1 2000")
     if v > end_timestamp:
-        raise ValueError(
-            f"{v}: Fails UTCSeconds format! Must be before Jan 1 3000"
-        )
+        raise ValueError(f"{v}: Fails UTCSeconds format! Must be before Jan 1 3000")
     return v
 
 

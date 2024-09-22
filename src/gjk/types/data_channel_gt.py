@@ -17,8 +17,8 @@ from typing_extensions import Self
 from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
-    UTCSeconds,
     SpaceheatName,
+    UTCSeconds,
     UUID4Str,
 )
 
