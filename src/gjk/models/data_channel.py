@@ -1,11 +1,12 @@
 import logging
+from typing import List
 
-from sqlalchemy import Boolean, Column, Integer, String, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, Column, Integer, String, UniqueConstraint, tuple_
+from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
+from sqlalchemy.orm import Session, relationship
 
 from gjk.models.message import Base
-
-# Define the base class
+from gjk.utils import str_from_ms
 
 
 LOG_FORMAT = (
@@ -96,3 +97,78 @@ class DataChannelSql(Base):
             f"about_node_name: {self.about_node_name}, captured_by_node_name: {self.captured_by_node_name}, "
             f"telemetry_name: {self.telemetry_name}, terminal asset: {ta_short}"
         )
+
+
+def bulk_insert_datachannels(session: Session, datachannel_list: List[DataChannelSql]):
+    """
+    Idempotently bulk inserts DataChannelSql into the journaldb messages table,
+    inserting only those whose primary keys do not already exist AND that
+    don't violate the uniqueness constraint.
+
+    Args:
+        session (Session): An active SQLAlchemy session used for database operations.
+        datachannel_list (List[DataChannelSql]): A list of DataChannelSql objects to be conditionally
+        inserted into the data_channels table of the journaldb database
+
+    Returns:
+        None
+    """
+    if not all(isinstance(obj, DataChannelSql) for obj in datachannel_list):
+        raise ValueError("All objects in datachannel_list must be DataChannelSql objects")
+
+    batch_size = 10
+
+    for i in range(0, len(datachannel_list), batch_size):
+        try:
+            batch = datachannel_list[i : i + batch_size]
+            pk_column = DataChannelSql.id
+            unique_columns = [
+                DataChannelSql.name,
+                DataChannelSql.terminal_asset_alias,
+                DataChannelSql.about_node_name,
+                DataChannelSql.captured_by_node_name,
+                DataChannelSql.telemetry_name
+            ]
+
+            pk_set = set()
+            unique_set = set()
+
+            for datachannel in batch:
+                pk_set.add(datachannel.id)
+                unique_set.add(
+                    tuple(getattr(datachannel, col.name) for col in unique_columns)
+                )
+
+            existing_pks = set(
+                session.query(pk_column).filter(pk_column.in_(pk_set)).all()
+            )
+
+            existing_uniques = set(
+                session.query(*unique_columns)
+                .filter(tuple_(*unique_columns).in_(unique_set))
+                .all()
+            )
+
+            new_datachannels = [
+                datachannel
+                for datachannel in batch
+                if datachannel.id not in existing_pks
+                and tuple(getattr(datachannel, col.name) for col in unique_columns)
+                not in existing_uniques
+            ]
+            print(
+                f"Inserting {len(new_datachannels)} out of {len(batch)}"
+            )
+
+            session.bulk_save_objects(new_datachannels)
+            session.commit()
+
+        except NoSuchTableError as e:
+            print(f"Error: The table does not exist. {e}")
+            session.rollback()
+        except OperationalError as e:
+            print(f"Operational Error! {e}")
+            session.rollback()
+        except SQLAlchemyError as e:
+            print(f"An error occurred: {e}")
+            session.rollback()

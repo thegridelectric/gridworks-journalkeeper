@@ -1,6 +1,6 @@
 """List of all the models"""
 
-from gjk.models.data_channel import DataChannelSql
+from gjk.models.data_channel import DataChannelSql, bulk_insert_datachannels
 from gjk.models.message import MessageSql, bulk_insert_messages
 from gjk.models.nodal_hourly_energy import (
     NodalHourlyEnergySql,
@@ -14,6 +14,7 @@ __all__ = [
     "bulk_insert_idempotent",
     "bulk_insert_messages",
     "bulk_insert_nodal_hourly_energy",
+    "bulk_insert_datachannels",
     "DataChannelSql",
     "MessageSql",
     "ScadaSql",
