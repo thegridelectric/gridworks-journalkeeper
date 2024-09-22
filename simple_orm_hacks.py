@@ -55,7 +55,6 @@ id = "a1aa5751-74cc-4e6a-863d-7ffcf3de6ade"
 msg = session.query(MessageSql).filter(MessageSql.message_id == id).first()
 
 
-
 # if __name__ == '__main__':
 
 #     from sqlalchemy.orm import Session, sessionmaker

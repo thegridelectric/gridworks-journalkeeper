@@ -2,7 +2,7 @@ from gjk.back_office_hack import gni_from_alias, ta_from_alias
 from gjk.enums import TelemetryName
 from gjk.first_season.oak_channels import (
     OAK_CHANNELS_BY_NAME,
-    OcName,
+    OC,
     OakAliasMapper,
 )
 from gjk.types import (
@@ -11,7 +11,6 @@ from gjk.types import (
     GridworksEventGtShStatus,
 )
 from gjk.utils import FileNameMeta, str_from_ms
-
 
 OAK_IGNORED_ALIASES = [
     "a.elt1",
@@ -29,12 +28,12 @@ OAK_IGNORED_ALIASES = [
 ]
 
 TN_GOOFS = [
-    [OcName.OAT, TelemetryName.WaterTempCTimes1000],
-    [OcName.ZONE['living-rm'].GW_TEMP, TelemetryName.WaterTempCTimes1000],
-    [OcName.ZONE['living-rm'].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OcName.ZONE['living-rm'].SET, TelemetryName.WaterTempFTimes1000],
-    [OcName.ZONE['garage'].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OcName.ZONE['garage'].SET, TelemetryName.WaterTempFTimes1000],
+    [OC.oat, TelemetryName.WaterTempCTimes1000],
+    [OC.ZONE["living-rm"].GW_TEMP, TelemetryName.WaterTempCTimes1000],
+    [OC.ZONE["living-rm"].TEMP, TelemetryName.WaterTempFTimes1000],
+    [OC.ZONE["living-rm"].SET, TelemetryName.WaterTempFTimes1000],
+    [OC.ZONE["garage"].TEMP, TelemetryName.WaterTempFTimes1000],
+    [OC.ZONE["garage"].SET, TelemetryName.WaterTempFTimes1000],
 ]
 
 

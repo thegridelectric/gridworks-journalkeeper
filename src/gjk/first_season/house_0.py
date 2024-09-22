@@ -1,129 +1,130 @@
 from typing import Dict, List
 
+from gjk.enums import TelemetryName
+from gjk.property_format import (
+    SpaceheatName,
+)
+from pydantic import BaseModel
 
-class TankTempName:
-    def __init__(self, tank_prefix: str):
-        self.tank_prefix = tank_prefix
+DEFAULT_ANALOG_READER = "analog-temp"
 
-    @property
-    def depth1(self) -> str:
-        return f"{self.tank_prefix}-depth1"
-
-    @property
-    def depth2(self) -> str:
-        return f"{self.tank_prefix}-depth2"
-
-    @property
-    def depth3(self) -> str:
-        return f"{self.tank_prefix}-depth3"
-
-    @property
-    def depth4(self) -> str:
-        return f"{self.tank_prefix}-depth4"
-    
 
 class ZoneName:
-    def __init__(self, zone:str, idx:int):
-        zone_name = f"zone{idx+1}-{zone}".lower()
-        self.NAME = zone_name
-        self.TEMP = f"{zone_name}-temp"
-        self.SET = f"{zone_name}-set"
-        self.STATE = f"{zone_name}-state"
-        self.STAT = f"{zone_name}-stat"
-        self.GW_TEMP = f"{zone_name}-gw-temp"
+    def __init__(self, zone: str, idx: int):
+        zone_name = f"zone{idx + 1}-{zone}".lower()
+        self.zone_name = zone_name
+        self.stat = f"{zone_name}-stat"
 
 
-class House0TempName:
-    TANK: Dict[int, TankTempName]
-    ZONE: Dict[str, ZoneName]
-    OAT = "oat"
-    BUFFER_DEPTH1 = "buffer-depth1"
-    BUFFER_DEPTH2 = "buffer-depth2"
-    BUFFER_DEPTH3 = "buffer-depth3"
-    BUFFER_DEPTH4 = "buffer-depth4"
+class TankNodes:
+    def __init__(self, tank_name: str):
+        self.reader = tank_name
+        self.depth1 = f"{tank_name}-depth1"
+        self.depth2 = f"{tank_name}-depth2"
+        self.depth3 = f"{tank_name}-depth3"
+        self.depth4 = f"{tank_name}-depth4"
+
+
+class ZoneChannelName:
+    def __init__(self, zone: str, idx: int):
+        zone_name = f"zone{idx + 1}-{zone}".lower()
+        self.temp = f"{zone_name}-temp"
+        self.set = f"{zone_name}-set"
+        self.state = f"{zone_name}-state"
+
+
+class ChannelStub(BaseModel):
+    name: SpaceheatName
+    about_node_name: SpaceheatName
+    captured_by_node_name: SpaceheatName
+    telemetry_name: TelemetryName
+
+
+class H0N:
+    # core actors
+    scada = "s"
+    home_alone = "h"
+    primary_power_meter = "power-meter"
+
+    # core temperatures
+    buffer_cold_pipe = "buffer-cold-pipe"
+    buffer_hot_pipe = "buffer-hot-pipe"
+    buffer = TankNodes("buffer")
+    dist_rwt = "dist-rwt"
+    dist_swt = "dist-swt"
+    hp_ewt = "hp-ewt"
+    hp_lwt = "hp-lwt"
+    oat = "oat"
+    store_cold_pipe = "store-cold-pipe"
+    store_hot_pipe = "store-hot-pipe"
+
+    # core power-metered nodes
+    hp_idu = "hp-idu"
+    hp_odu = "hp-odu"
+    dist_pump = "dist-pump"
+    primary_pump = "primary-pump"
+    store_pump = "store-pump"
+
+    # core flow-metered nodes
+    dist_flow = "dist-flow"
+    primary_flow = "primary-flow"
+    store_flow = "store-flow"
+
+    zone: Dict[str, ZoneName] = {}
+    tank: Dict[int, TankNodes] = {}
 
     def __init__(self, total_store_tanks: int, zone_list: List[str]):
-        self.TANK = {}
         for i in range(total_store_tanks):
-            self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
-
-        self.ZONE = {}
+            self.tank[i + 1] = TankNodes(f"tank{i + 1}")
         for i in range(len(zone_list)):
-            self.ZONE[zone_list[i]] = ZoneName(zone=zone_list[i], idx=i)
+            self.zone[zone_list[i]] = ZoneName(zone=zone_list[i], idx=i)
 
 
-class House0Names:
-    SCADA = "s"
-    HOME_ALONE = "h"
-    PRIMARY_POWER_METER = "primary-power-meter"
-    HP_IDU = "hp-idu"
-    HP_ODU = "hp-odu"
-    PRIMARY_PUMP = "primary-pump"
-    STORE_PUMP = "store-pump"
-    HP_LWT = "hp-lwt"
-    HP_EWT = "hp-ewt"
-    DIST_SWT = "dist-swt"
-    DIST_RWT = "dist-rwt"
-    STORE_HOT_PIPE = "store-hot-pipe"
-    STORE_COLD_PIPE = "store-cold-pipe"
-    BUFFER_HOT_PIPE = "buffer-hot-pipe"
-    BUFFER_COLD_PIPE = "buffer-cold-pipe"
-    TEMP: House0TempName
-    DIST_FLOW = "dist-flow"
-    PRIMARY_FLOW = "primary-flow"
-    STORE_FLOW = "store-flow"
-
-    def __init__(self, total_store_tanks: int, zone_list: List[str]):
-        self.TEMP = House0TempName(
-            total_store_tanks=total_store_tanks, zone_list=zone_list
-        )
-
-
-class House0ChannelNames:
-
-    # Temperature Channels
-    BUFFER_COLD_PIPE = "buffer-cold-pipe"
-    BUFFER_HOT_PIPE = "buffer-hot-pipe"
-    BUFFER_WELL_TEMP = "buffer-well"
-    BUFFER_DEPTH1_TEMP = "buffer-depth1"
-    BUFFER_DEPTH2_TEMP = "buffer-depth2"
-    BUFFER_DEPTH3_TEMP = "buffer-depth3"
-    BUFFER_DEPTH4_TEMP = "buffer-depth4"
-    DIST_RWT = "dist-rwt"
-    DIST_SWT = "dist-swt"
-    HP_EWT = "hp-ewt"
-    HP_LWT = "hp-lwt"
-    OAT = "oat"
-    STORE_COLD_PIPE = "store-cold-pipe"
-    STORE_HOT_PIPE = "store-hot-pipe"
-    TANK: Dict[int, TankTempName]
-    ZONE: Dict[str, ZoneName]
+class H0C:
+    buffer_cold_pipe = H0N.buffer_cold_pipe
+    buffer_hot_pipe = H0N.buffer_hot_pipe
+    buffer = H0N.buffer
+    dist_rwt = H0N.dist_rwt
+    dist_swt = H0N.dist_swt
+    hp_ewt = H0N.hp_ewt
+    hp_lwt = H0N.hp_lwt
+    oat = H0N.oat
+    store_cold_pipe = H0N.store_cold_pipe
+    store_hot_pipe = H0N.store_hot_pipe
 
     # Flow Channels
-    DIST_FLOW_INTEGRATED = "dist-flow-integrated"
-    PRIMARY_FLOW_INTEGRATED = "primary-flow-integrated"
-    STORE_FLOW_INTEGRATED = "store-flow-integrated"
+    dist_flow_integrated = f"{H0N.dist_flow}-integrated"
+    primary_flow_integrated = f"{H0N.primary_flow}-integrated"
+    store_flow_integrated = f"{H0N.store_flow}-integrated"
 
     # Power Channels
-    DIST_PUMP_PWR = "dist-pump-pwr"
-    HP_IDU_PWR = "hp-idu-pwr"
-    HP_ODU_PWR = "hp-odu-pwr"
-    OIL_BOILER_PWR = "oil-boiler-pwr"
-    PRIMARY_PUMP_PWR = "primary-pump-pwr"
-    STORE_PUMP_PWR = "store-pump-pwr"
+    dist_pump_pwr = f"{H0N.dist_pump}-pwr"
+    hp_idu_pwr = f"{H0N.hp_idu}-pwr"
+    hp_odu_pwr = f"{H0N.hp_odu}-pwr"
+    primary_pump_pwr = f"{H0N.primary_pump}-pwr"
+    store_pump_pwr = f"{H0N.store_pump}-pwr"
 
-    # Misc Temperature Channels
-    HP_FOSSIL_LWT = "hp-fossil-lwt"
-    OIL_BOILER_FLOW_INTEGRATED = "oil-boiler-flow"
-    BUFFER_WELL_TEMP = "buffer-well"
-    AMPHA_DIST_SWT = "ampha-dist-swt"
-    AMPHB_DIST_SWT = "amphb-dist-swt"
+    zone: Dict[str, ZoneChannelName] = {}
+    tank: Dict[int, TankNodes] = {}
 
-    def __init__(self, total_store_tanks, zone_list):
-        self.ZONE = {}
-        for zone in zone_list:
-            self.ZONE[zone] = ZoneName(zone, zone_list.index(zone))
-        
-        self.TANK = {}
+    def __init__(self, total_store_tanks: int, zone_list: List[str]):
         for i in range(total_store_tanks):
-            self.TANK[i+1] = TankTempName(tank_prefix=f"tank{i+1}")
+            self.tank[i + 1] = TankNodes(f"tank{i + 1}")
+        for i in range(len(zone_list)):
+            self.zone[zone_list[i]] = ZoneChannelName(zone=zone_list[i], idx=i)
+
+
+ChannelStubByName: Dict[str, ChannelStub] = {
+    H0C.buffer_cold_pipe: ChannelStub(
+        name=H0C.buffer_cold_pipe,
+        about_node_name=H0N.buffer_cold_pipe,
+        captured_by_node_name=DEFAULT_ANALOG_READER,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+    ),
+    H0C.buffer_hot_pipe: ChannelStub(
+        name=H0C.buffer_hot_pipe,
+        about_node_name=H0N.buffer_cold_pipe,
+        captured_by_node_name=DEFAULT_ANALOG_READER,
+        telemetry_name=TelemetryName.WaterTempCTimes1000,
+    ),
+}
