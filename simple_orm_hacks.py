@@ -53,3 +53,21 @@ result = (
 
 id = "a1aa5751-74cc-4e6a-863d-7ffcf3de6ade"
 msg = session.query(MessageSql).filter(MessageSql.message_id == id).first()
+
+
+# if __name__ == '__main__':
+
+#     from sqlalchemy.orm import Session, sessionmaker
+#     from sqlalchemy import create_engine
+#     import dotenv
+#     import os
+#     from gjk.codec import pyd_to_sql
+
+#     dotenv.load_dotenv()
+#     engine = create_engine(os.getenv("GJK_DB_URL"))
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
+
+#     from gjk.models import bulk_insert_datachannels
+#     datachannel_list = [pyd_to_sql(value) for value in OAK_CHANNELS_BY_NAME.values()]
+#     bulk_insert_datachannels(session, datachannel_list)

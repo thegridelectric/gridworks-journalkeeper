@@ -17,7 +17,7 @@ from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.property_format import (
     HandleName,
     ReallyAnInt,
-    ReasonableUnixMs,
+    UTCMilliseconds,
     UUID4Str,
 )
 
@@ -41,7 +41,7 @@ class FsmAtomicReport(BaseModel):
     event: Optional[str] = None
     from_state: Optional[str] = None
     to_state: Optional[str] = None
-    unix_time_ms: ReasonableUnixMs
+    unix_time_ms: UTCMilliseconds
     trigger_id: UUID4Str
     type_name: Literal["fsm.atomic.report"] = "fsm.atomic.report"
     version: Literal["000"] = "000"

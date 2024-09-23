@@ -17,8 +17,8 @@ from typing_extensions import Self
 
 from gjk.property_format import (
     LeftRightDot,
-    ReasonableUnixMs,
-    ReasonableUnixS,
+    UTCMilliseconds,
+    UTCSeconds,
     UUID4Str,
 )
 from gjk.types.channel_readings import ChannelReadings
@@ -40,9 +40,9 @@ class BatchedReadings(BaseModel):
     from_g_node_alias: LeftRightDot
     from_g_node_instance_id: UUID4Str
     about_g_node_alias: LeftRightDot
-    slot_start_unix_s: ReasonableUnixS
+    slot_start_unix_s: UTCSeconds
     batched_transmission_period_s: PositiveInt
-    message_created_ms: ReasonableUnixMs
+    message_created_ms: UTCMilliseconds
     data_channel_list: List[DataChannelGt]
     channel_reading_list: List[ChannelReadings]
     fsm_action_list: List[FsmAtomicReport]

@@ -24,7 +24,11 @@ def data_channels_match_db(
     if local_dcs is None:
         local_dcs = {pyd_to_sql(dc) for dc in BEECH_CHANNELS_BY_NAME.values()}
 
-    dcs = set(dc for dc in session.query(DataChannelSql).all() if 'beech' in dc.terminal_asset_alias)
+    dcs = {
+        dc
+        for dc in session.query(DataChannelSql).all()
+        if "beech" in dc.terminal_asset_alias
+    }
 
     local_ids = {dc.id for dc in local_dcs}
     ids = {dc.id for dc in dcs}

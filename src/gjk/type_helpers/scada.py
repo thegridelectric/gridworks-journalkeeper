@@ -7,7 +7,7 @@ from typing_extensions import Self
 
 from gjk.property_format import (
     LeftRightDot,
-    ReasonableUnixS,
+    UTCSeconds,
     UUID4Str,
 )
 
@@ -28,8 +28,8 @@ class Scada(BaseModel):
     g_node_id: UUID4Str
     g_node_alias: LeftRightDot
     short_alias: str
-    scada_installed_s: Optional[ReasonableUnixS]
-    ta_fully_installed_s: Optional[ReasonableUnixS]
+    scada_installed_s: Optional[UTCSeconds]
+    ta_fully_installed_s: Optional[UTCSeconds]
 
     model_config = ConfigDict(
         populate_by_name=True,

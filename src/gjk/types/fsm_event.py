@@ -28,7 +28,7 @@ from gjk.enums import (
 )
 from gjk.property_format import (
     HandleName,
-    ReasonableUnixMs,
+    UTCMilliseconds,
     UUID4Str,
 )
 
@@ -49,7 +49,7 @@ class FsmEvent(BaseModel):
     event_type: FsmEventType
     event_name: str
     trigger_id: UUID4Str
-    send_time_unix_ms: ReasonableUnixMs
+    send_time_unix_ms: UTCMilliseconds
     type_name: Literal["fsm.event"] = "fsm.event"
     version: Literal["000"] = "000"
 

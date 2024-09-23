@@ -18,23 +18,6 @@ def check_is_ads1115_i2c_address(v: str) -> None:
         raise ValueError(f"Not Ads1115I2cAddress: <{v}>")
 
 
-def check_is_hex_char(v: str) -> None:
-    """Checks HexChar format
-
-    HexChar format: single-char string in '0123456789abcdefABCDEF'
-
-    Args:
-        v (str): the candidate
-
-    Raises:
-        ValueError: if v is not HexChar format
-    """
-    if len(v) > 1:
-        raise ValueError(f"<{v}> must be a hex char, but not of len 1")
-    if v not in "0123456789abcdefABCDEF":
-        raise ValueError(f"<{v}> must be one of '0123456789abcdefABCDEF'")
-
-
 def check_is_log_style_date_with_millis(v: str) -> None:
     """Checks LogStyleDateWithMillis format
 
@@ -72,67 +55,6 @@ def check_is_near5(v: str) -> None:
         raise ValueError(f"<{v}> is not between 4.5 and 5.5, not Near5")
 
 
-def check_is_positive_integer(v: int) -> None:
-    """
-    Must be positive when interpreted as an integer. Interpretation as an
-    integer follows the pydantic rules for this - which will round down
-    rational numbers. So 1.7 will be interpreted as 1 and is also fine,
-    while 0.5 is interpreted as 0 and will raise an exception.
-
-    Args:
-        v (int): the candidate
-
-    Raises:
-        ValueError: if v < 1
-    """
-    v2 = int(v)
-    if v2 < 1:
-        raise ValueError(f"<{v}> is not PositiveInteger")
-
-
-def check_is_reasonable_unix_time_ms(v: int) -> None:
-    """Checks ReasonableUnixMs format
-
-    ReasonableUnixMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
-
-    Args:
-        v (int): the candidate
-
-    Raises:
-        ValueError: if v is not ReasonableUnixMs format
-    """
-
-    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
-
-    start_timestamp_ms = int(start_date.timestamp() * 1000)
-    end_timestamp_ms = int(end_date.timestamp() * 1000)
-
-    if v < start_timestamp_ms:
-        raise ValueError(f"{v} must be after Jan 1 2000")
-    if v > end_timestamp_ms:
-        raise ValueError(f"{v} must be before Jan 1 3000")
-
-
-def check_is_reasonable_unix_time_s(v: int) -> None:
-    """
-    ReasonableUnixS format: unix seconds between Jan 1 2000 and Jan 1 3000
-    """
-    start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    end_date = datetime(3000, 1, 1, tzinfo=timezone.utc)
-
-    start_timestamp = int(start_date.timestamp())
-    end_timestamp = int(end_date.timestamp())
-
-    if v < start_timestamp:
-        raise ValueError(f"{v}: Fails ReasonableUnixS format! Must be after Jan 1 2000")
-    if v > end_timestamp:
-        raise ValueError(
-            f"{v}: Fails ReasonableUnixS format! Must be before Jan 1 3000"
-        )
-    return v
-
-
 def check_is_world_instance_name_format(v: str) -> None:
     """Checks WorldInstanceName Format
 
@@ -165,9 +87,29 @@ def check_is_world_instance_name_format(v: str) -> None:
         raise ValueError(f"<{v}> first word must be alphanumeric")
 
 
-def int_is_reasonable_unix_ms(v: int) -> int:
+def is_hex_char(v: str) -> str:
+    """Checks HexChar format
+
+    HexChar format: single-char string in '0123456789abcdefABCDEF'
+
+    Args:
+        v (str): the candidate
+
+    Raises:
+        ValueError: if v is not HexChar format
     """
-    ReasonableUnixMs format: unix milliseconds between Jan 1 2000 and Jan 1 3000
+    if not isinstance(v, str):
+        raise ValueError(f"<{v}> must be string. Got type <{type(v)}")  # noqa: TRY004
+    if len(v) > 1:
+        raise ValueError(f"<{v}> must be a hex char, but not of len 1")
+    if v not in "0123456789abcdefABCDEF":
+        raise ValueError(f"<{v}> must be one of '0123456789abcdefABCDEF'")
+    return v
+
+
+def is_utc_milliseconds(v: int) -> int:
+    """
+    UTCMilliseconds format: unix milliseconds between Jan 1 2000 and Jan 1 3000
     """
     if not isinstance(v, int):
         raise ValueError("Not an int!")
@@ -184,9 +126,9 @@ def int_is_reasonable_unix_ms(v: int) -> int:
     return v
 
 
-def int_is_reasonable_unix_s(v: int) -> int:
+def is_utc_seconds(v: int) -> int:
     """
-    ReasonableUnixS format: unix seconds between Jan 1 2000 and Jan 1 3000
+    UTCSeconds format: unix seconds between Jan 1 2000 and Jan 1 3000
     """
     if not isinstance(v, int):
         raise ValueError("Not an int!")
@@ -197,15 +139,13 @@ def int_is_reasonable_unix_s(v: int) -> int:
     end_timestamp = int(end_date.timestamp())
 
     if v < start_timestamp:
-        raise ValueError(f"{v}: Fails ReasonableUnixS format! Must be after Jan 1 2000")
+        raise ValueError(f"{v}: Fails UTCSeconds format! Must be after Jan 1 2000")
     if v > end_timestamp:
-        raise ValueError(
-            f"{v}: Fails ReasonableUnixS format! Must be before Jan 1 3000"
-        )
+        raise ValueError(f"{v}: Fails UTCSeconds format! Must be before Jan 1 3000")
     return v
 
 
-def str_is_handle_name(v: str) -> None:
+def is_handle_name(v: str) -> None:
     """
     HandleName format: words separated by periods, where the worlds are lowercase
     alphanumeric plus hyphens
@@ -231,7 +171,7 @@ def str_is_handle_name(v: str) -> None:
     return v
 
 
-def str_is_left_right_dot(v: str) -> str:
+def is_left_right_dot(v: str) -> str:
     """
     LeftRightDot format: Lowercase alphanumeric words separated by periods, with
     the most significant word (on the left) starting with an alphabet character.
@@ -260,7 +200,7 @@ def str_is_left_right_dot(v: str) -> str:
     return v
 
 
-def str_is_spaceheat_name(v: str) -> str:
+def is_spaceheat_name(v: str) -> str:
     """
     SpaceheatName format: Lowercase alphanumeric words separated by hypens
     """
@@ -288,7 +228,7 @@ def str_is_spaceheat_name(v: str) -> str:
     return v
 
 
-def str_is_uuid_canonical_textual(v: str) -> str:
+def is_uuid4_str(v: str) -> str:
     """
     UuidCanonicalTextual format:  A string of hex words separated by hyphens
     of length 8-4-4-4-12.
@@ -311,10 +251,11 @@ def is_int(v: int) -> int:
     return v
 
 
-HandleName = Annotated[str, BeforeValidator(str_is_handle_name)]
-LeftRightDot = Annotated[str, BeforeValidator(str_is_left_right_dot)]
+HandleName = Annotated[str, BeforeValidator(is_handle_name)]
+HexChar = Annotated[str, BeforeValidator(is_hex_char)]
+LeftRightDot = Annotated[str, BeforeValidator(is_left_right_dot)]
 ReallyAnInt = Annotated[int, BeforeValidator(is_int)]
-ReasonableUnixMs = Annotated[int, BeforeValidator(int_is_reasonable_unix_ms)]
-ReasonableUnixS = Annotated[int, BeforeValidator(int_is_reasonable_unix_s)]
-SpaceheatName = Annotated[str, BeforeValidator(str_is_spaceheat_name)]
-UUID4Str = Annotated[str, BeforeValidator(str_is_uuid_canonical_textual)]
+UTCMilliseconds = Annotated[int, BeforeValidator(is_utc_milliseconds)]
+UTCSeconds = Annotated[int, BeforeValidator(is_utc_seconds)]
+SpaceheatName = Annotated[str, BeforeValidator(is_spaceheat_name)]
+UUID4Str = Annotated[str, BeforeValidator(is_uuid4_str)]

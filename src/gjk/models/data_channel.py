@@ -6,8 +6,6 @@ from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
 from gjk.models.message import Base
-from gjk.utils import str_from_ms
-
 
 LOG_FORMAT = (
     "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
@@ -114,7 +112,9 @@ def bulk_insert_datachannels(session: Session, datachannel_list: List[DataChanne
         None
     """
     if not all(isinstance(obj, DataChannelSql) for obj in datachannel_list):
-        raise ValueError("All objects in datachannel_list must be DataChannelSql objects")
+        raise ValueError(
+            "All objects in datachannel_list must be DataChannelSql objects"
+        )
 
     batch_size = 10
 
@@ -127,7 +127,7 @@ def bulk_insert_datachannels(session: Session, datachannel_list: List[DataChanne
                 DataChannelSql.terminal_asset_alias,
                 DataChannelSql.about_node_name,
                 DataChannelSql.captured_by_node_name,
-                DataChannelSql.telemetry_name
+                DataChannelSql.telemetry_name,
             ]
 
             pk_set = set()
@@ -156,9 +156,7 @@ def bulk_insert_datachannels(session: Session, datachannel_list: List[DataChanne
                 and tuple(getattr(datachannel, col.name) for col in unique_columns)
                 not in existing_uniques
             ]
-            print(
-                f"Inserting {len(new_datachannels)} out of {len(batch)}"
-            )
+            print(f"Inserting {len(new_datachannels)} out of {len(batch)}")
 
             session.bulk_save_objects(new_datachannels)
             session.commit()

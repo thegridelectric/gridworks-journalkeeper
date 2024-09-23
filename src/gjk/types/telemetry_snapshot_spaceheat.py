@@ -18,7 +18,7 @@ from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
     ReallyAnInt,
-    ReasonableUnixMs,
+    UTCMilliseconds,
 )
 
 LOG_FORMAT = (
@@ -39,7 +39,7 @@ class TelemetrySnapshotSpaceheat(BaseModel):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/spaceheat-node.html)
     """
 
-    report_time_unix_ms: ReasonableUnixMs
+    report_time_unix_ms: UTCMilliseconds
     about_node_alias_list: List[LeftRightDot]
     value_list: List[ReallyAnInt]
     telemetry_name_list: List[TelemetryName]
