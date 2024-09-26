@@ -11,7 +11,6 @@ from gjk.utils import str_from_ms
 # Define the base class
 
 
-
 class ReadingSql(Base):
     __tablename__ = "readings"
     id = Column(String, primary_key=True)

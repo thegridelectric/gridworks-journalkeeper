@@ -5,11 +5,10 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, field_validator
 
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UTCMilliseconds,
 )
 
@@ -26,7 +25,7 @@ class GtShBooleanactuatorCmdStatus(BaseModel):
     """
 
     sh_node_name: LeftRightDot
-    relay_state_command_list: List[ReallyAnInt]
+    relay_state_command_list: List[StrictInt]
     command_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
         "gt.sh.booleanactuator.cmd.status"

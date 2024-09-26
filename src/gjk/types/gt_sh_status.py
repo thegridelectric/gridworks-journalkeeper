@@ -5,11 +5,10 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError
 
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UTCSeconds,
     UUID4Str,
 )
@@ -29,7 +28,7 @@ class GtShStatus(BaseModel):
     from_g_node_id: UUID4Str
     about_g_node_alias: LeftRightDot
     slot_start_unix_s: UTCSeconds
-    reporting_period_s: ReallyAnInt
+    reporting_period_s: StrictInt
     simple_telemetry_list: List[GtShSimpleTelemetryStatus]
     multipurpose_telemetry_list: List[GtShMultipurposeTelemetryStatus]
     booleanactuator_cmd_list: List[GtShBooleanactuatorCmdStatus]

@@ -10,13 +10,13 @@ from pydantic import (
     ConfigDict,
     ValidationError,
     model_validator,
+    StrictInt
 )
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UTCMilliseconds,
 )
 
@@ -36,7 +36,7 @@ class GtShMultipurposeTelemetryStatus(BaseModel):
     about_node_alias: LeftRightDot
     sensor_node_alias: str
     telemetry_name: TelemetryName
-    value_list: List[ReallyAnInt]
+    value_list: List[StrictInt]
     read_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["gt.sh.multipurpose.telemetry.status"] = (
         "gt.sh.multipurpose.telemetry.status"

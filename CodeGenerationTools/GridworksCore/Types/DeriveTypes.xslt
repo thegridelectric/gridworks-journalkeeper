@@ -98,6 +98,15 @@ from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
 <xsl:if test="count($airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='PositiveInteger')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]) > 0">
 <xsl:text>, PositiveInt</xsl:text>
 </xsl:if>
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) 
+                                and (PrimitiveType = 'Integer') 
+                                and not(PropertyFormat = 'UTCMilliseconds') 
+                                and not(PropertyFormat = 'UTCSeconds')
+                                and not(PropertyFormat = 'PositiveInteger')
+                                ])>0">
+<xsl:text>
+, StrictInt</xsl:text>
+</xsl:if>
 
 
 <xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
@@ -201,17 +210,6 @@ from gjk.property_format import (</xsl:text>
 )</xsl:text>
 </xsl:if>
 
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) 
-                                and (PrimitiveType = 'Integer') 
-                                and not(PropertyFormat = 'UTCMilliseconds') 
-                                and not(PropertyFormat = 'UTCSeconds')
-                                and not(PropertyFormat = 'PositiveInteger')
-                                ])>0">
-<xsl:text>
-<xsl:text>
-from gjk.property_format import ReallyAnInt</xsl:text>
-</xsl:if>
-
 <xsl:text>
 
 
@@ -312,7 +310,7 @@ class </xsl:text>
         <xsl:text>PositiveInt</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveType='Integer'">
-        <xsl:text>ReallyAnInt</xsl:text>
+        <xsl:text>StrictInt</xsl:text>
         </xsl:when>
         <xsl:otherwise>
         <xsl:call-template name="python-type">

@@ -5,9 +5,7 @@ from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError
-
-from gjk.property_format import ReallyAnInt
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError
 
 
 class PowerWatts(BaseModel):
@@ -21,7 +19,7 @@ class PowerWatts(BaseModel):
     bytes so comes in JSON format.
     """
 
-    watts: ReallyAnInt
+    watts: StrictInt
     type_name: Literal["power.watts"] = "power.watts"
     version: Literal["000"] = "000"
 

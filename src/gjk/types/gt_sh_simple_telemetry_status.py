@@ -5,18 +5,12 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, model_validator
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UTCMilliseconds,
 )
 
@@ -35,7 +29,7 @@ class GtShSimpleTelemetryStatus(BaseModel):
 
     sh_node_alias: LeftRightDot
     telemetry_name: TelemetryName
-    value_list: List[ReallyAnInt]
+    value_list: List[StrictInt]
     read_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["gt.sh.simple.telemetry.status"] = (
         "gt.sh.simple.telemetry.status"

@@ -1,5 +1,3 @@
-import logging
-
 from sqlalchemy import Column, Integer, String
 
 from gjk.models.message import Base

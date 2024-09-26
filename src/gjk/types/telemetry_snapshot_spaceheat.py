@@ -5,20 +5,11 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, model_validator
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
-from gjk.property_format import (
-    LeftRightDot,
-    ReallyAnInt,
-    UTCMilliseconds,
-)
+from gjk.property_format import LeftRightDot, UTCMilliseconds
 
 
 class TelemetrySnapshotSpaceheat(BaseModel):
@@ -34,7 +25,7 @@ class TelemetrySnapshotSpaceheat(BaseModel):
 
     report_time_unix_ms: UTCMilliseconds
     about_node_alias_list: List[LeftRightDot]
-    value_list: List[ReallyAnInt]
+    value_list: List[StrictInt]
     telemetry_name_list: List[TelemetryName]
     type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
     version: Literal["000"] = "000"

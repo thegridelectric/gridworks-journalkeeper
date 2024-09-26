@@ -5,10 +5,10 @@ from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, model_validator
 from typing_extensions import Self
 
-from gjk.property_format import ReallyAnInt, UTCMilliseconds, UUID4Str
+from gjk.property_format import UTCMilliseconds, UUID4Str
 
 
 class ChannelReadings(BaseModel):
@@ -21,7 +21,7 @@ class ChannelReadings(BaseModel):
     """
 
     channel_id: UUID4Str
-    value_list: List[ReallyAnInt]
+    value_list: List[StrictInt]
     scada_read_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["channel.readings"] = "channel.readings"
     version: Literal["000"] = "000"

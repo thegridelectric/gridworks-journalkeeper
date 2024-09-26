@@ -5,18 +5,12 @@ from typing import Any, Dict, Literal, Optional
 
 from gw.errors import GwTypeError
 from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, model_validator
 from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.property_format import (
     HandleName,
-    ReallyAnInt,
     UTCMilliseconds,
     UUID4Str,
 )
@@ -36,7 +30,7 @@ class FsmAtomicReport(BaseModel):
     about_fsm: FsmName
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
-    action: Optional[ReallyAnInt] = None
+    action: Optional[StrictInt] = None
     event_type: Optional[FsmEventType] = None
     event: Optional[str] = None
     from_state: Optional[str] = None

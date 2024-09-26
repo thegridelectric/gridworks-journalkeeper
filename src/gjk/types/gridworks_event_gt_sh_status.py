@@ -6,18 +6,12 @@ from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
 from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, StrictInt, ValidationError, model_validator
 from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UUID4Str,
 )
 from gjk.types.gt_sh_status import GtShStatus
@@ -32,7 +26,7 @@ class GridworksEventGtShStatus(BaseModel):
     """
 
     message_id: UUID4Str
-    time_n_s: ReallyAnInt
+    time_n_s: StrictInt
     src: LeftRightDot
     status: GtShStatus
     type_name: Literal["gridworks.event.gt.sh.status"] = "gridworks.event.gt.sh.status"
