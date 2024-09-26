@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from sqlalchemy import Boolean, Column, Integer, String, UniqueConstraint, tuple_
@@ -6,12 +5,6 @@ from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
 from gjk.models.message import Base
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class DataChannelSql(Base):

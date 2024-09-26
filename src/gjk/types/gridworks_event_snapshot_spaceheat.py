@@ -2,7 +2,6 @@
 
 import copy
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
@@ -16,12 +15,6 @@ from gjk.property_format import (
     UUID4Str,
 )
 from gjk.types.snapshot_spaceheat import SnapshotSpaceheat
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class GridworksEventSnapshotSpaceheat(BaseModel):

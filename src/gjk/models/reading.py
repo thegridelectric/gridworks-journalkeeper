@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 import pendulum
@@ -11,12 +10,6 @@ from gjk.utils import str_from_ms
 
 # Define the base class
 
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class ReadingSql(Base):

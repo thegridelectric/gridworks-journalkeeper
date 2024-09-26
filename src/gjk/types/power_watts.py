@@ -1,7 +1,6 @@
 """Type power.watts, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
@@ -9,12 +8,6 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.property_format import ReallyAnInt
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class PowerWatts(BaseModel):

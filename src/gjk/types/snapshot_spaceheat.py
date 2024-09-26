@@ -1,7 +1,6 @@
 """Type snapshot.spaceheat, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
@@ -13,12 +12,6 @@ from gjk.property_format import (
     UUID4Str,
 )
 from gjk.types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class SnapshotSpaceheat(BaseModel):

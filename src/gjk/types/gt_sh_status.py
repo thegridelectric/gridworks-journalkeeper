@@ -1,7 +1,6 @@
 """Type gt.sh.status, version 110"""
 
 import json
-import logging
 from typing import Any, Dict, List, Literal
 
 from gw.errors import GwTypeError
@@ -19,12 +18,6 @@ from gjk.types.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
 from gjk.types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class GtShStatus(BaseModel):

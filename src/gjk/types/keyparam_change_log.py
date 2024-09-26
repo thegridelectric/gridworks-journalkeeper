@@ -1,7 +1,6 @@
 """Type keyparam.change.log, version 000"""
 
 import json
-import logging
 from typing import Any, Dict, Literal
 
 from gw.errors import GwTypeError
@@ -19,12 +18,6 @@ from gjk.property_format import (
     LeftRightDot,
     check_is_log_style_date_with_millis,
 )
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class KeyparamChangeLog(BaseModel):

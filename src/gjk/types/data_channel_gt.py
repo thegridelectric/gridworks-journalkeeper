@@ -1,7 +1,6 @@
 """Type data.channel.gt, version 001"""
 
 import json
-import logging
 from typing import Any, Dict, Literal, Optional
 
 from gw.errors import GwTypeError
@@ -21,12 +20,6 @@ from gjk.property_format import (
     UTCSeconds,
     UUID4Str,
 )
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class DataChannelGt(BaseModel):
