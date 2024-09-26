@@ -456,7 +456,7 @@ class </xsl:text>
                                 and PrimitiveFormat != 'UUID4Str'
                                 and PrimitiveFormat != 'SpaceheatName' 
                                 and PrimitiveFormat != 'LeftRightDot' 
-                                and PrimitiveFormat != 'HandleName
+                                and PrimitiveFormat != 'HandleName'
                                 and PrimitiveFormat != 'HexChar' 
                                 and PrimitiveFormat != 'UTCSeconds' 
                                 and PrimitiveFormat != 'UTCMilliseconds'
