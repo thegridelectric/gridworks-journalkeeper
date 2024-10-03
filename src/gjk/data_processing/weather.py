@@ -5,9 +5,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import timedelta
 
-MAINE = {'latitude': [45.36], 'longitude': [-68.97]}
+MILLINOCKET = {'latitude': [45.65329193300256], 'longitude': [-68.71116099379636]}
 
-def get_temp(time, coordinates=MAINE):
+def get_temp(time, coordinates=MILLINOCKET):
     """
     Finds the outside air temperature at a given point in space and time
     """
