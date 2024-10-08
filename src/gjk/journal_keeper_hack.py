@@ -2,6 +2,7 @@ import math
 import uuid
 from contextlib import contextmanager
 from typing import List, Optional
+from deepdiff import DeepDiff
 
 import boto3
 import pendulum
@@ -9,13 +10,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from gjk import codec
+from gjk.codec import pyd_to_sql
 from gjk.config import Settings
 from gjk.first_season import beech_channels, oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.first_season.oak_batches import oak_br_from_status
-from gjk.models import bulk_insert_messages
 from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
+from gjk.models import bulk_insert_messages, DataChannelSql
 from gjk.type_helpers import Message
+from gw.errors import DcError
 from gjk.types import (
     HeartbeatA,
     KeyparamChangeLog,
@@ -52,16 +55,75 @@ class JournalKeeperHack:
         finally:
             session.close()  # Always close the session
 
-    def check_data_channel_consistency(self):
+    def check_data_channel_consistency(self, check_missing=True):
         """
-        Can take this out when hardware layout for house 0 is fully
-        implemented
+        Raises exception if there is a mismatch between data channels
+        in code and in database
         """
         with self.get_session() as session:
-            if self.alias == "beech":
-                beech_channels.data_channels_match_db(session)
-            elif self.alias == "oak":
-                oak_channels.data_channels_match_db(session)
+        
+            consistent = True
+
+            if self.alias=='beech':
+                local_channels = beech_channels.BEECH_CHANNELS_BY_NAME.values()
+            elif self.alias == 'oak':
+                local_channels = oak_channels.OAK_CHANNELS_BY_NAME.values()
+            else:
+                raise ValueError(f'No local channels found for {self.alias}.')
+            local_dcs = {pyd_to_sql(dc) for dc in local_channels}
+
+            dcs = {
+                dc
+                for dc in session.query(DataChannelSql).all()
+                if self.alias in dc.terminal_asset_alias
+            }
+
+            local_ids = {dc.id for dc in local_dcs}
+            ids = {dc.id for dc in dcs}
+
+            # look for missing local channels
+            if check_missing:
+                if (ids - local_ids) != set():
+                    consistent = False
+                    print("Missing some channels locally")
+                    for id in ids - local_ids:
+                        dc = next(dc for dc in dcs if dc.id == id)
+                        print(dc.to_dict())
+
+            # look for missing global channels
+            if (local_ids - ids) != set():
+                consistent = False
+                print("Missing some channels in db")
+                for id in local_ids - ids:
+                    dc = next(dc for dc in local_dcs if dc.id == id)
+                    print(dc.to_dict())
+
+            # look for mismatches
+            for id in local_ids & ids:
+                dc_local = next(dc for dc in local_dcs if dc.id == id)
+                dc = next(dc for dc in dcs if dc.id == id)
+                dc_local_dict = dc_local.to_dict()
+                dc_local_dict.pop("DisplayName")
+                dc_dict = dc.to_dict()
+                dc_dict.pop("DisplayName")
+
+                # InPowerMetering is optional
+                if "InPowerMetering" in dc_dict:
+                    dc_dict.pop("InPowerMetering")
+                if "InPowerMetering" in dc_local_dict:
+                    dc_local_dict.pop("InPowerMetering")
+
+                if dc_local_dict != dc_dict:
+                    consistent = False
+                    print("Inconsistency!\n\n")
+                    print(f"   Local: {dc_local_dict}")
+                    print(f"   Global: {dc_dict}")
+                    diff = DeepDiff(dc_local_dict, dc_dict)
+                    print("\n\nDiff:")
+                    print(diff)
+            if not consistent:
+                raise DcError(f"local and global data channels for {self.alias} do not match")
+
 
     def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
         folder_list: List[str] = []
