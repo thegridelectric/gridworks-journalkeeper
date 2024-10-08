@@ -27,10 +27,13 @@ class TankNodes:
 
 class ZoneChannelName:
     def __init__(self, zone: str, idx: int):
-        zone_name = f"zone{idx + 1}-{zone}".lower()
+        zone_name = f"zone{idx}-{zone}".lower()
         self.temp = f"{zone_name}-temp"
         self.set = f"{zone_name}-set"
         self.state = f"{zone_name}-state"
+
+    def __repr__(self) -> str:
+        return f"Channels: .temp: {self.temp}, .set: {self.set}, .state: {self.state}"
 
 
 class ChannelStub(BaseModel):
@@ -111,7 +114,7 @@ class H0C:
         for i in range(total_store_tanks):
             self.tank[i + 1] = TankNodes(f"tank{i + 1}")
         for i in range(len(zone_list)):
-            self.zone[zone_list[i]] = ZoneChannelName(zone=zone_list[i], idx=i)
+            self.zone[i + 1] = ZoneChannelName(zone=zone_list[i], idx=i + 1)
 
 
 ChannelStubByName: Dict[str, ChannelStub] = {

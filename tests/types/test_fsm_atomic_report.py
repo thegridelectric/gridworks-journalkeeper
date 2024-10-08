@@ -1,4 +1,4 @@
-"""Tests fsm.atomic.report, version 000"""
+"""Tests fsm.atomic.report type, version 000"""
 
 from gjk.types import FsmAtomicReport
 
@@ -16,14 +16,8 @@ def test_fsm_atomic_report_generated() -> None:
         "Version": "000",
     }
 
-    t = FsmAtomicReport.from_dict(d)
-    assert t.to_dict() == d
+    d2 = FsmAtomicReport.from_dict(d).to_dict()
 
-    d2 = d.copy()
-    del d2["AboutFsm"]
-    d2["AboutFsmGtEnumSymbol"] = "1f560b73"
-    del d2["ReportType"]
-    d2["ReportTypeGtEnumSymbol"] = "490d4e1d"
-    del d2["ActionType"]
-    d2["ActionTypeGtEnumSymbol"] = "00000000"
-    assert t == FsmAtomicReport.from_dict(d2)
+    assert d2 == d
+
+    assert type(d2["AboutFsm"]) is str

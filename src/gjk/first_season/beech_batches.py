@@ -5,9 +5,9 @@ from gjk.first_season.beech_channels import (
     BcName,
     BeechAliasMapper,
 )
-from gjk.types import (
+from gjk.old_types import (
     BatchedReadings,
-    ChannelReadings,
+    ChannelReadings000,
     GridworksEventGtShStatus,
 )
 from gjk.utils import FileNameMeta, str_from_ms
@@ -94,7 +94,7 @@ def beech_br_from_status(
                     ) from e
             channel_list.append(channel)
             channel_reading_list.append(
-                ChannelReadings(
+                ChannelReadings000(
                     channel_id=channel.id,
                     value_list=simple.value_list,
                     scada_read_time_unix_ms_list=simple.read_time_unix_ms_list,
@@ -125,7 +125,7 @@ def beech_br_from_status(
                     ) from e
             channel_list.append(channel)
             channel_reading_list.append(
-                ChannelReadings(
+                ChannelReadings000(
                     channel_id=channel.id,
                     value_list=multi.value_list,
                     scada_read_time_unix_ms_list=multi.read_time_unix_ms_list,

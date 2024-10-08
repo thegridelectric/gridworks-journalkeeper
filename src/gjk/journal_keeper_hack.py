@@ -14,13 +14,13 @@ from gjk.first_season import beech_channels, oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.first_season.oak_batches import oak_br_from_status
 from gjk.models import bulk_insert_messages
+from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
 from gjk.type_helpers import Message
 from gjk.types import (
-    BatchedReadings,
-    GridworksEventGtShStatus,
     HeartbeatA,
     KeyparamChangeLog,
     PowerWatts,
+    GridworksEventReport,
 )
 from gjk.utils import FileNameMeta, str_from_ms
 
@@ -231,7 +231,9 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
     returns None
     """
 
-    if isinstance(t, BatchedReadings):
+    if isinstance(t, GridworksEventReport):
+        return gridworks_event_report_to_msg(t, fn)
+    elif isinstance(t, BatchedReadings):
         return batchedreading_to_msg(t, fn)
     elif isinstance(t, PowerWatts):
         return basic_to_msg(t, fn)
@@ -242,6 +244,20 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
     else:
         return None
 
+
+def gridworks_event_report_to_msg(t: GridworksEventReport, fn: FileNameMeta) -> Optional[Message]:
+
+    if t.report.channel_reading_list == [] and t.report.fsm_action_list  == [] and t.report.fsm_report_list == []:
+        return None
+    else:
+        return Message(
+            message_id = t.report.id,
+            from_alias=t.report.from_g_node_alias,
+            message_persisted_ms=fn.message_persisted_ms,
+            payload=t.report.to_dict(),
+            message_type_name=t.report.type_name,
+            message_created_ms=t.report.message_created_ms
+        )
 
 def batchedreading_to_msg(t: BatchedReadings, fn: FileNameMeta) -> Optional[Message]:
     if t.data_channel_list == []:

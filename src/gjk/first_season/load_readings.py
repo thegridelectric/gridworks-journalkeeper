@@ -1,8 +1,10 @@
+import json
+
 import dotenv
 import pendulum
 from gjk.config import Settings
 from gjk.models import MessageSql
-from gjk.types import BatchedReadingsMaker
+from gjk.old_types import BatchedReadings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -27,7 +29,7 @@ results = (
     session.query(MessageSql)
     .filter(
         MessageSql.from_alias.contains("beech"),
-        MessageSql.type_name.contains("batched"),
+        MessageSql.message_type_name.contains("batched"),
         MessageSql.message_created_ms >= start_feb_ms,
         MessageSql.message_created_ms < end_feb_ms,
     )
@@ -36,10 +38,10 @@ results = (
 
 msg = results[0]
 
-br = BatchedReadingsMaker.dict_to_tuple(msg.payload)
+br = BatchedReadings.model_validate(msg.payload)
 file_name = f"{br.from_g_node_alias}-{br.type_name}-{int(time.time() * 1000)}.json"
 
 file = f"tests/sample_messages/{file_name}"
 
 with open(file, "w") as f:
-    f.write(br.as_type())
+    json.dump(br.model_dump(exclude_none=True), f, indent=4)

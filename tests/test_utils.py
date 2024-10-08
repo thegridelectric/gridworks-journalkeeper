@@ -25,7 +25,7 @@ def test_nodal_energy():
         "WattHours": 1059,
     }
 
-    e = NodalHourlyEnergy(**d)
+    e = NodalHourlyEnergy.from_dict(d)
     e_sql = pyd_to_sql(e)
     assert sql_to_pyd(e_sql) == e
     assert pyd_to_sql(sql_to_pyd(e_sql)).to_dict() == e_sql.to_dict()

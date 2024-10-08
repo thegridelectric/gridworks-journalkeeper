@@ -53,7 +53,7 @@ def from_dict(data: dict) -> Optional[GwBase]:
     if data["TypeName"] not in TypeByName:
         return None
 
-    return TypeByName[data["TypeName"]].from_dict(data)
+    return TypeByName[data["TypeName"]].model_validate(data)
 
 
 def pyd_to_sql(

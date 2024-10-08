@@ -18,7 +18,3 @@ def test_fsm_event_generated() -> None:
     t = FsmEvent.from_dict(d)
     assert t.to_dict() == d
 
-    d2 = d.copy()
-    del d2["EventType"]
-    d2["EventTypeGtEnumSymbol"] = "c234ee7a"
-    assert t == FsmEvent.from_dict(d2)

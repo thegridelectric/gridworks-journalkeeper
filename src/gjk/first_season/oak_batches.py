@@ -5,9 +5,9 @@ from gjk.first_season.oak_channels import (
     OC,
     OakAliasMapper,
 )
-from gjk.types import (
+from gjk.old_types import (
     BatchedReadings,
-    ChannelReadings,
+    ChannelReadings000,
     GridworksEventGtShStatus,
 )
 from gjk.utils import FileNameMeta, str_from_ms
@@ -29,11 +29,11 @@ OAK_IGNORED_ALIASES = [
 
 TN_GOOFS = [
     [OC.oat, TelemetryName.WaterTempCTimes1000],
-    [OC.ZONE["living-rm"].GW_TEMP, TelemetryName.WaterTempCTimes1000],
-    [OC.ZONE["living-rm"].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["living-rm"].SET, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["garage"].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["garage"].SET, TelemetryName.WaterTempFTimes1000],
+    ["zone1-living-rm-temp", TelemetryName.WaterTempCTimes1000],
+    [OC.zone[1].temp, TelemetryName.WaterTempFTimes1000],
+    [OC.zone[1].set, TelemetryName.WaterTempFTimes1000],
+    [OC.zone[2].temp, TelemetryName.WaterTempFTimes1000],
+    [OC.zone[2].set, TelemetryName.WaterTempFTimes1000],
 ]
 
 
@@ -83,7 +83,7 @@ def oak_br_from_status(
                     ) from e
             channel_list.append(channel)
             channel_reading_list.append(
-                ChannelReadings(
+                ChannelReadings000(
                     channel_id=channel.id,
                     value_list=simple.value_list,
                     scada_read_time_unix_ms_list=simple.read_time_unix_ms_list,
@@ -114,7 +114,7 @@ def oak_br_from_status(
                     ) from e
             channel_list.append(channel)
             channel_reading_list.append(
-                ChannelReadings(
+                ChannelReadings000(
                     channel_id=channel.id,
                     value_list=multi.value_list,
                     scada_read_time_unix_ms_list=multi.read_time_unix_ms_list,

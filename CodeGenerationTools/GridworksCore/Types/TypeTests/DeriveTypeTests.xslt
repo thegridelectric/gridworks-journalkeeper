@@ -94,42 +94,6 @@ from gjk.types import </xsl:text><xsl:value-of select="$class-name"/>
 
 def test_</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
 <xsl:text>_generated() -> None:
-    t = </xsl:text><xsl:value-of select="$class-name"/><xsl:text>(</xsl:text>
-                <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
-        <xsl:sort select="Idx" data-type="number"/>
-        <xsl:variable name = "attribute-name">
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"/>
-        </xsl:call-template>
-
-        <!-- If attribute is associated to a data class, add Id to the Attribute name-->
-        <xsl:if test="not(normalize-space(SubTypeDataClass) = '') and not(IsList='true')">
-        <xsl:text>_id</xsl:text>
-        </xsl:if>
-        </xsl:variable>
-        <xsl:text>&#10;        </xsl:text>
-        <xsl:value-of select="$attribute-name"  />
-        <xsl:text>=</xsl:text>
-        <xsl:if test="not(IsEnum='true')">
-        <xsl:value-of select="normalize-space(TestValue)"/>
-        </xsl:if>
-         <xsl:if test="(IsEnum='true') and not(IsList='true')">
-        <xsl:call-template name="nt-case">
-                <xsl:with-param name="type-name-text" select="EnumLocalName" />
-        </xsl:call-template>
-         <xsl:text>.</xsl:text>
-        <xsl:value-of select="EnumTestTranslation"/>
-        </xsl:if>
-        <xsl:if test="(IsEnum='true') and (IsList='true')">
-        <xsl:value-of select="EnumTestTranslation"/>
-        </xsl:if>
-
-        <xsl:text>,</xsl:text>
-        </xsl:for-each>
-
-    <xsl:text>
-    )
-
     d = {</xsl:text>
         <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
         <xsl:sort select="Idx" data-type="number"/>
@@ -140,23 +104,11 @@ def test_</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
         <xsl:text>Id</xsl:text>
         </xsl:if>
         </xsl:variable>
-
-        <xsl:if test="(not (IsEnum = 'true')) or (IsList = 'true')">
         <xsl:text>
         "</xsl:text><xsl:value-of select="$attribute-name"  />
         <xsl:text>": </xsl:text>
         <xsl:value-of select="normalize-space(TestValue)"/>
         <xsl:text>,</xsl:text>
-        </xsl:if>
-
-        <xsl:if test="(IsEnum = 'true') and not (IsList = 'true')">
-        <xsl:text>
-        "</xsl:text><xsl:value-of select="Value"  />
-        <xsl:text>": "</xsl:text>
-        <xsl:value-of select="normalize-space(EnumTestTranslation)"/>
-            <xsl:text>",</xsl:text>
-        </xsl:if>
-
 
 
         </xsl:for-each>
@@ -165,31 +117,8 @@ def test_</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
         "Version": "</xsl:text><xsl:value-of select="Version"/><xsl:text>",
     }
 
-    assert t.to_dict() == d
-    assert t == </xsl:text><xsl:value-of select="$class-name"/><xsl:text>.from_dict(d)</xsl:text>
-    <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
-    <xsl:text>
+    assert </xsl:text><xsl:value-of select="$class-name"/><xsl:text>.from_dict(d).to_dict() == d</xsl:text>
 
-    d2 = d.copy()</xsl:text>
-    <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]">
-    <xsl:if test="not (IsList = 'true')">
-    <xsl:text>
-    del d2["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-    d2["</xsl:text><xsl:value-of select="Value"/><xsl:text>GtEnumSymbol"] = </xsl:text>
-    </xsl:if>
-    <xsl:if test="(IsList='true')">
-    <xsl:text>
-    d2["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = </xsl:text>
-    </xsl:if>
-    <xsl:value-of select="normalize-space(TestValue)"/>
-    <xsl:text></xsl:text>
-    </xsl:for-each>
-    <xsl:text>
-    assert t == </xsl:text><xsl:value-of select="$class-name"/><xsl:text>.from_dict(d2)</xsl:text>
-    </xsl:if>
-    <xsl:text>
-
-    </xsl:text>
     <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum = 'true') and not (IsList = 'true')]) >0">
     <xsl:text>
 
