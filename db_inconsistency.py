@@ -18,7 +18,7 @@ if __name__ == "__main__":
     session = Session()
 
     start_ms = (
-        pendulum.datetime(2024, 2, 15, 0, 0, 0, tz="America/New_York").int_timestamp
+        pendulum.datetime(2024, 4, 26, 0, 0, 0, tz="America/New_York").int_timestamp
         * 1000
     )
     end_ms = start_ms + 24 * 60 * 60 * 1000
