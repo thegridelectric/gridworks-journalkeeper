@@ -29,11 +29,11 @@ OAK_IGNORED_ALIASES = [
 
 TN_GOOFS = [
     [OC.oat, TelemetryName.WaterTempCTimes1000],
-    [OC.ZONE["living-rm"].GW_TEMP, TelemetryName.WaterTempCTimes1000],
-    [OC.ZONE["living-rm"].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["living-rm"].SET, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["garage"].TEMP, TelemetryName.WaterTempFTimes1000],
-    [OC.ZONE["garage"].SET, TelemetryName.WaterTempFTimes1000],
+    [OC.zone1_gw_temp, TelemetryName.WaterTempCTimes1000],
+    [OC.zone["living-rm"].temp, TelemetryName.WaterTempFTimes1000],
+    [OC.zone["living-rm"].set, TelemetryName.WaterTempFTimes1000],
+    [OC.zone["garage"].temp, TelemetryName.WaterTempFTimes1000],
+    [OC.zone["garage"].set, TelemetryName.WaterTempFTimes1000],
 ]
 
 

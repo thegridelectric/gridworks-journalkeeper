@@ -1,80 +1,8 @@
-from typing import Dict, List, Optional
-
-from deepdiff import DeepDiff
-from gjk.codec import pyd_to_sql
+from typing import Dict
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_names import BEECH_TA, BN, BcName
-from gjk.models import DataChannelSql
 from gjk.types import DataChannelGt
-from gw.errors import DcError
-from sqlalchemy.orm import Session
-
-
-def data_channels_match_db(
-    session: Session,
-    local_dcs: Optional[List[DataChannelSql]] = None,
-    check_missing=True,
-) -> None:
-    """
-    Raises exception if there is a mismatch between data channels
-    in code and in database
-    """
-    consistent = True
-    if local_dcs is None:
-        local_dcs = {pyd_to_sql(dc) for dc in BEECH_CHANNELS_BY_NAME.values()}
-
-    dcs = {
-        dc
-        for dc in session.query(DataChannelSql).all()
-        if "beech" in dc.terminal_asset_alias
-    }
-
-    local_ids = {dc.id for dc in local_dcs}
-    ids = {dc.id for dc in dcs}
-
-    # look for missing local channels
-    if check_missing:
-        if (ids - local_ids) != set():
-            consistent = False
-            print("Missing some channels locally")
-            for id in ids - local_ids:
-                dc = next(dc for dc in dcs if dc.id == id)
-                print(dc.to_dict())
-
-    # look for missing global channels
-    if (local_ids - ids) != set():
-        consistent = False
-        print("Missing some channels in db")
-        for id in local_ids - ids:
-            dc = next(dc for dc in local_dcs if dc.id == id)
-            print(dc.to_dict())
-
-    # look for mismatches
-    for id in local_ids & ids:
-        dc_local = next(dc for dc in local_dcs if dc.id == id)
-        dc = next(dc for dc in dcs if dc.id == id)
-        dc_local_dict = dc_local.to_dict()
-        dc_local_dict.pop("DisplayName")
-        dc_dict = dc.to_dict()
-        dc_dict.pop("DisplayName")
-
-        # InPowerMetering is optional
-        if "InPowerMetering" in dc_dict:
-            dc_dict.pop("InPowerMetering")
-        if "InPowerMetering" in dc_local_dict:
-            dc_local_dict.pop("InPowerMetering")
-
-        if dc_local_dict != dc_dict:
-            consistent = False
-            print("Inconsistency!\n\n")
-            print(f"   Local: {dc_local_dict}")
-            print(f"   Global: {dc_dict}")
-            diff = DeepDiff(dc_local_dict, dc_dict)
-            print("\n\nDiff:")
-            print(diff)
-    if not consistent:
-        raise DcError("local and global data channels for beech do not match")
 
 
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
