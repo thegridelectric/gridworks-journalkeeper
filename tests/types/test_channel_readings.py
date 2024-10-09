@@ -1,4 +1,4 @@
-"""Tests channel.readings type, version 000"""
+"""Tests channel.readings type, version 001"""
 
 from gjk.types import ChannelReadings
 

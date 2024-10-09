@@ -17,4 +17,3 @@ def test_fsm_event_generated() -> None:
 
     t = FsmEvent.from_dict(d)
     assert t.to_dict() == d
-

@@ -2,10 +2,11 @@ import math
 import uuid
 from contextlib import contextmanager
 from typing import List, Optional
-from deepdiff import DeepDiff
 
 import boto3
 import pendulum
+from deepdiff import DeepDiff
+from gw.errors import DcError
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -15,15 +16,14 @@ from gjk.config import Settings
 from gjk.first_season import beech_channels, oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.first_season.oak_batches import oak_br_from_status
+from gjk.models import DataChannelSql, bulk_insert_messages
 from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
-from gjk.models import bulk_insert_messages, DataChannelSql
 from gjk.type_helpers import Message
-from gw.errors import DcError
 from gjk.types import (
+    GridworksEventReport,
     HeartbeatA,
     KeyparamChangeLog,
     PowerWatts,
-    GridworksEventReport,
 )
 from gjk.utils import FileNameMeta, str_from_ms
 
@@ -61,15 +61,14 @@ class JournalKeeperHack:
         in code and in database
         """
         with self.get_session() as session:
-        
             consistent = True
 
-            if self.alias=='beech':
+            if self.alias == "beech":
                 local_channels = beech_channels.BEECH_CHANNELS_BY_NAME.values()
-            elif self.alias == 'oak':
+            elif self.alias == "oak":
                 local_channels = oak_channels.OAK_CHANNELS_BY_NAME.values()
             else:
-                raise ValueError(f'No local channels found for {self.alias}.')
+                raise ValueError(f"No local channels found for {self.alias}.")
             local_dcs = {pyd_to_sql(dc) for dc in local_channels}
 
             dcs = {
@@ -122,8 +121,9 @@ class JournalKeeperHack:
                     print("\n\nDiff:")
                     print(diff)
             if not consistent:
-                raise DcError(f"local and global data channels for {self.alias} do not match")
-
+                raise DcError(
+                    f"local and global data channels for {self.alias} do not match"
+                )
 
     def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
         folder_list: List[str] = []
@@ -307,19 +307,25 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
         return None
 
 
-def gridworks_event_report_to_msg(t: GridworksEventReport, fn: FileNameMeta) -> Optional[Message]:
-
-    if t.report.channel_reading_list == [] and t.report.fsm_action_list  == [] and t.report.fsm_report_list == []:
+def gridworks_event_report_to_msg(
+    t: GridworksEventReport, fn: FileNameMeta
+) -> Optional[Message]:
+    if (
+        t.report.channel_reading_list == []
+        and t.report.fsm_action_list == []
+        and t.report.fsm_report_list == []
+    ):
         return None
     else:
         return Message(
-            message_id = t.report.id,
+            message_id=t.report.id,
             from_alias=t.report.from_g_node_alias,
             message_persisted_ms=fn.message_persisted_ms,
             payload=t.report.to_dict(),
             message_type_name=t.report.type_name,
-            message_created_ms=t.report.message_created_ms
+            message_created_ms=t.report.message_created_ms,
         )
+
 
 def batchedreading_to_msg(t: BatchedReadings, fn: FileNameMeta) -> Optional[Message]:
     if t.data_channel_list == []:
