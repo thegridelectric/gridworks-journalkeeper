@@ -245,16 +245,9 @@ def is_uuid4_str(v: str) -> str:
     return str(u)
 
 
-def is_int(v: int) -> int:
-    if not isinstance(v, int):
-        raise ValueError("Not an integer!")
-    return v
-
-
 HandleName = Annotated[str, BeforeValidator(is_handle_name)]
 HexChar = Annotated[str, BeforeValidator(is_hex_char)]
 LeftRightDot = Annotated[str, BeforeValidator(is_left_right_dot)]
-ReallyAnInt = Annotated[int, BeforeValidator(is_int)]
 UTCMilliseconds = Annotated[int, BeforeValidator(is_utc_milliseconds)]
 UTCSeconds = Annotated[int, BeforeValidator(is_utc_seconds)]
 SpaceheatName = Annotated[str, BeforeValidator(is_spaceheat_name)]

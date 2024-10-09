@@ -1,28 +1,20 @@
 """Type fsm.atomic.report, version 000"""
 
-import json
-from typing import Any, Dict, Literal, Optional
+from typing import Literal, Optional
 
-from gw.errors import GwTypeError
-from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
-    model_validator,
-)
+from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
 from gjk.property_format import (
     HandleName,
-    ReallyAnInt,
     UTCMilliseconds,
     UUID4Str,
 )
+from gjk.types.gw_base import GwBase
 
 
-class FsmAtomicReport(BaseModel):
+class FsmAtomicReport(GwBase):
     """
     Reports of single Fsm Actions and Transitions. The actions is any side-effect, which is
     the way the StateMachine is supposed to cause things happen to the outside world (This could
@@ -36,7 +28,7 @@ class FsmAtomicReport(BaseModel):
     about_fsm: FsmName
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
-    action: Optional[ReallyAnInt] = None
+    action: Optional[StrictInt] = None
     event_type: Optional[FsmEventType] = None
     event: Optional[str] = None
     from_state: Optional[str] = None
@@ -45,13 +37,6 @@ class FsmAtomicReport(BaseModel):
     trigger_id: UUID4Str
     type_name: Literal["fsm.atomic.report"] = "fsm.atomic.report"
     version: Literal["000"] = "000"
-
-    model_config = ConfigDict(
-        alias_generator=snake_to_pascal,
-        extra="allow",
-        frozen=True,
-        populate_by_name=True,
-    )
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
@@ -107,70 +92,3 @@ class FsmAtomicReport(BaseModel):
                 "ReportType is NOT event => EventType, Event, FromState, ToState do not exist"
             )
         return self
-
-    @model_validator(mode="before")
-    @classmethod
-    def translate_enums(cls, data: dict) -> dict:
-        if "ActionTypeGtEnumSymbol" in data:
-            data["ActionType"] = FsmActionType.symbol_to_value(
-                data["ActionTypeGtEnumSymbol"]
-            )
-            del data["ActionTypeGtEnumSymbol"]
-        if "EventTypeGtEnumSymbol" in data:
-            data["EventType"] = FsmEventType.symbol_to_value(
-                data["EventTypeGtEnumSymbol"]
-            )
-            del data["EventTypeGtEnumSymbol"]
-        if "AboutFsmGtEnumSymbol" in data:
-            data["AboutFsm"] = FsmName.symbol_to_value(data["AboutFsmGtEnumSymbol"])
-            del data["AboutFsmGtEnumSymbol"]
-        if "ReportTypeGtEnumSymbol" in data:
-            data["ReportType"] = FsmReportType.symbol_to_value(
-                data["ReportTypeGtEnumSymbol"]
-            )
-            del data["ReportTypeGtEnumSymbol"]
-        return data
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "FsmAtomicReport":
-        if not recursively_pascal(d):
-            raise GwTypeError(f"dict is not recursively pascal case! {d}")
-        try:
-            t = cls(**d)
-        except ValidationError as e:
-            raise GwTypeError(f"Pydantic validation error: {e}") from e
-        return t
-
-    @classmethod
-    def from_type(cls, b: bytes) -> "FsmAtomicReport":
-        try:
-            d = json.loads(b)
-        except TypeError as e:
-            raise GwTypeError("Type must be string or bytes!") from e
-        if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing must result in dict!\n <{b}>")
-        return cls.from_dict(d)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Handles lists of enums differently than model_dump
-        """
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["AboutFsm"] = self.about_fsm.value
-        d["ReportType"] = self.report_type.value
-        if "ActionType" in d:
-            d["ActionType"] = d["ActionType"].value
-        if "EventType" in d:
-            d["EventType"] = d["EventType"].value
-        return d
-
-    def to_type(self) -> bytes:
-        """
-        Serialize to the fsm.atomic.report.000 representation designed to send in a message.
-        """
-        json_string = json.dumps(self.to_dict())
-        return json_string.encode("utf-8")
-
-    @classmethod
-    def type_name_value(cls) -> str:
-        return "fsm.atomic.report"

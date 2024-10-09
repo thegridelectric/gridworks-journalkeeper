@@ -1,14 +1,8 @@
 """Type fsm.event, version 000"""
 
-import json
-from typing import Any, Dict, Literal
+from typing import Literal
 
-from gw.errors import GwTypeError
-from gw.utils import recursively_pascal, snake_to_pascal
 from pydantic import (
-    BaseModel,
-    ConfigDict,
-    ValidationError,
     model_validator,
 )
 from typing_extensions import Self
@@ -31,9 +25,10 @@ from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,
 )
+from gjk.types.gw_base import GwBase
 
 
-class FsmEvent(BaseModel):
+class FsmEvent(GwBase):
     """
     Finite State Machine Event Command.
 
@@ -52,13 +47,6 @@ class FsmEvent(BaseModel):
     send_time_unix_ms: UTCMilliseconds
     type_name: Literal["fsm.event"] = "fsm.event"
     version: Literal["000"] = "000"
-
-    model_config = ConfigDict(
-        alias_generator=snake_to_pascal,
-        extra="allow",
-        frozen=True,
-        populate_by_name=True,
-    )
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
@@ -119,52 +107,3 @@ class FsmEvent(BaseModel):
             )
 
         return self
-
-    @model_validator(mode="before")
-    @classmethod
-    def translate_enums(cls, data: dict) -> dict:
-        if "EventTypeGtEnumSymbol" in data:
-            data["EventType"] = FsmEventType.symbol_to_value(
-                data["EventTypeGtEnumSymbol"]
-            )
-            del data["EventTypeGtEnumSymbol"]
-        return data
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "FsmEvent":
-        if not recursively_pascal(d):
-            raise GwTypeError(f"dict is not recursively pascal case! {d}")
-        try:
-            t = cls(**d)
-        except ValidationError as e:
-            raise GwTypeError(f"Pydantic validation error: {e}") from e
-        return t
-
-    @classmethod
-    def from_type(cls, b: bytes) -> "FsmEvent":
-        try:
-            d = json.loads(b)
-        except TypeError as e:
-            raise GwTypeError("Type must be string or bytes!") from e
-        if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing must result in dict!\n <{b}>")
-        return cls.from_dict(d)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Handles lists of enums differently than model_dump
-        """
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["EventType"] = self.event_type.value
-        return d
-
-    def to_type(self) -> bytes:
-        """
-        Serialize to the fsm.event.000 representation designed to send in a message.
-        """
-        json_string = json.dumps(self.to_dict())
-        return json_string.encode("utf-8")
-
-    @classmethod
-    def type_name_value(cls) -> str:
-        return "fsm.event"

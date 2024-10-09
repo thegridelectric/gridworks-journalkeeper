@@ -1,6 +1,6 @@
 """Tests gridworks.event.gt.sh.status type, version 000"""
 
-from gjk.types import GridworksEventGtShStatus
+from gjk.old_types import GridworksEventGtShStatus
 
 
 def test_gridworks_event_gt_sh_status_generated() -> None:

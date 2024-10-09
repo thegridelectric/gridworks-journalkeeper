@@ -1,30 +1,22 @@
 """Type gridworks.event.snapshot.spaceheat, version 000"""
 
 import copy
-import json
-import logging
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 from gw.errors import GwTypeError
-from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError
+from gw.utils import snake_to_pascal
+from pydantic import ConfigDict, StrictInt
 
 from gjk.enums import TelemetryName
+from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.property_format import (
     LeftRightDot,
-    ReallyAnInt,
     UUID4Str,
 )
-from gjk.types.snapshot_spaceheat import SnapshotSpaceheat
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
+from gjk.types.gw_base import GwBase
 
 
-class GridworksEventSnapshotSpaceheat(BaseModel):
+class GridworksEventSnapshotSpaceheat(GwBase):
     """
     This is a gwproto wrapper around a gt.sh.status message that includes the src (which should
     always be the GNodeAlias for the Scada actor), a unique message id (which is immutable once
@@ -33,9 +25,9 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
     """
 
     message_id: UUID4Str
-    time_n_s: ReallyAnInt
+    time_n_s: StrictInt
     src: LeftRightDot
-    snap: SnapshotSpaceheat
+    snap: SnapshotSpaceheat000
     type_name: Literal["gridworks.event.snapshot.spaceheat"] = (
         "gridworks.event.snapshot.spaceheat"
     )
@@ -81,43 +73,3 @@ class GridworksEventSnapshotSpaceheat(BaseModel):
         d2["Snap"]["Snapshot"] = snapshot
         d2["Version"] = "000"
         return d2
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "GridworksEventSnapshotSpaceheat":
-        d2 = cls.first_season_fix(d)
-        if not recursively_pascal(d2):
-            raise GwTypeError(f"Not recursively PascalCase: {d2}")
-        try:
-            t = cls(**d2)
-        except ValidationError as e:
-            raise GwTypeError(f"Pydantic validation error: {e}") from e
-        return t
-
-    @classmethod
-    def from_type(cls, b: bytes) -> "GridworksEventSnapshotSpaceheat":
-        try:
-            d = json.loads(b)
-        except TypeError as e:
-            raise GwTypeError("Type must be string or bytes!") from e
-        if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing must result in dict!\n <{b}>")
-        return cls.from_dict(d)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Handles lists of enums differently than model_dump
-        """
-        d = self.model_dump(exclude_none=True, by_alias=True)
-        d["Snap"] = self.snap.to_dict()
-        return d
-
-    def to_type(self) -> bytes:
-        """
-        Serialize to the gridworks.event.snapshot.spaceheat.000 representation designed to send in a message.
-        """
-        json_string = json.dumps(self.to_dict())
-        return json_string.encode("utf-8")
-
-    @classmethod
-    def type_name_value(cls) -> str:
-        return "gridworks.event.snapshot.spaceheat"

@@ -1,7 +1,7 @@
 """Tests gt.sh.simple.telemetry.status type, version 100"""
 
 from gjk.enums import TelemetryName
-from gjk.types import GtShSimpleTelemetryStatus
+from gjk.old_types import GtShSimpleTelemetryStatus
 
 
 def test_gt_sh_simple_telemetry_status_generated() -> None:

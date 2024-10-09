@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from sqlalchemy import BigInteger, Column, String, UniqueConstraint, tuple_
@@ -8,12 +7,6 @@ from sqlalchemy.orm import Session, declarative_base
 
 # Define the base class
 Base = declarative_base()
-
-LOG_FORMAT = (
-    "%(levelname) -10s %(asctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
 
 
 class MessageSql(Base):

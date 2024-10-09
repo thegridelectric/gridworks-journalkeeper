@@ -1,6 +1,6 @@
 """Tests gridworks.event.snapshot.spaceheat type, version 000"""
 
-from gjk.types import GridworksEventSnapshotSpaceheat
+from gjk.old_types import GridworksEventSnapshotSpaceheat
 
 
 def test_gridworks_event_snapshot_spaceheat_generated() -> None:

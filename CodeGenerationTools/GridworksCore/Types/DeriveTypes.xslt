@@ -56,12 +56,11 @@
 <xsl:text>"""Type </xsl:text><xsl:value-of select="$type-name"/><xsl:text>, version </xsl:text>
 <xsl:value-of select="Version"/><xsl:text>"""
 
-import json
-from typing import Any, Dict</xsl:text>
+from typing import Literal</xsl:text>
 	<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsList = 'true')])>0">
 <xsl:text>, List</xsl:text>
 </xsl:if>
-<xsl:text>, Literal</xsl:text>
+
 
 <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and not (IsRequired = 'true')]) > 0">
 <xsl:text>, Optional</xsl:text>
@@ -69,19 +68,18 @@ from typing import Any, Dict</xsl:text>
 
 <xsl:text>
 
-from gw.errors import GwTypeError
-from gw.utils import recursively_pascal, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
+from pydantic import ValidationError</xsl:text>
 
 <xsl:variable name="use-field-validator" select="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and
                             ((Axiom != '') or
-                            (not (PrimitiveFormat = '') 
+                            (not (PrimitiveFormat = '')
                                 and PrimitiveFormat != 'UUID4Str'
-                                and PrimitiveFormat != 'SpaceheatName' 
-                                and PrimitiveFormat != 'LeftRightDot' 
-                                and PrimitiveFormat != 'HandleName' 
-                                and PrimitiveFormat != 'HexChar' 
-                                and PrimitiveFormat != 'UTCSeconds' 
+                                and PrimitiveFormat != 'SpaceheatName'
+                                and PrimitiveFormat != 'LeftRightDot'
+                                and PrimitiveFormat != 'HandleName'
+                                and PrimitiveFormat != 'MarketName'
+                                and PrimitiveFormat != 'HexChar'
+                                and PrimitiveFormat != 'UTCSeconds'
                                 and PrimitiveFormat != 'UTCMilliseconds'
                                 and PrimitiveFormat != 'PositiveInteger'
                                )
@@ -92,11 +90,22 @@ from pydantic import BaseModel, ConfigDict, ValidationError</xsl:text>
 <xsl:if test="$use-field-validator='true'">
 <xsl:text>, field_validator</xsl:text>
 </xsl:if>
-<xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0 or count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
+<xsl:if test="count($airtable//TypeAxioms/TypeAxiom[MultiPropertyAxiom=$versioned-type-id]) > 0">
 <xsl:text>, model_validator</xsl:text>
 </xsl:if>
 <xsl:if test="count($airtable//PropertyFormats/PropertyFormat[(normalize-space(Name) ='PositiveInteger')  and (count(TypesThatUse[text()=$versioned-type-id])>0)]) > 0">
 <xsl:text>, PositiveInt</xsl:text>
+</xsl:if>
+<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)
+                                and (PrimitiveType = 'Integer')
+                                and not(PropertyFormat = 'UTCMilliseconds')
+                                and not(PropertyFormat = 'UTCSeconds')
+                                and not(PropertyFormat = 'PositiveInteger')
+                                ])>0">
+<xsl:text>, StrictInt</xsl:text>
+</xsl:if>
+<xsl:if test="ExtraAllowed='true'">
+<xsl:text>, ConfigDict</xsl:text>
 </xsl:if>
 
 
@@ -112,6 +121,8 @@ from typing_extensions import Self</xsl:text>
 from gw import check_is_market_slot_name_lrd_format</xsl:text>
 </xsl:for-each>
 </xsl:if>
+<xsl:text>
+from gjk.types.gw_base import GwBase</xsl:text>
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
 
 
@@ -172,6 +183,10 @@ from gjk.property_format import (</xsl:text>
 <xsl:text>
     HandleName,</xsl:text>
 </xsl:when>
+<xsl:when test="normalize-space(Name) = 'MarketName'">
+<xsl:text>
+    MarketName,</xsl:text>
+</xsl:when>
 <xsl:when test="normalize-space(Name) = 'HexChar'">
 <xsl:text>
     HexChar,</xsl:text>
@@ -201,54 +216,12 @@ from gjk.property_format import (</xsl:text>
 )</xsl:text>
 </xsl:if>
 
-<xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) 
-                                and (PrimitiveType = 'Integer') 
-                                and not(PropertyFormat = 'UTCMilliseconds') 
-                                and not(PropertyFormat = 'UTCSeconds')
-                                and not(PropertyFormat = 'PositiveInteger')
-                                ])>0">
-<xsl:text>
-<xsl:text>
-from gjk.property_format import ReallyAnInt</xsl:text>
-</xsl:if>
-
 <xsl:text>
 
 
 class </xsl:text>
 <xsl:value-of select="$python-class-name"/>
-<xsl:text>(BaseModel):
-    """
-    </xsl:text>
-    <!-- One line title, if it exists -->
-    <xsl:if test="(normalize-space(Title) != '')">
-        <xsl:value-of select="Title"/>
-            <!-- With a space before the Description (if description exists)-->
-            <xsl:if test="(normalize-space(Description) != '')">
-                <xsl:text>.
-
-    </xsl:text>
-            </xsl:if>
-    </xsl:if>
-
-    <!-- Type Description, wrapped, if it exists -->
-    <xsl:if test="(normalize-space(Description) != '')">
-    <xsl:call-template name="wrap-text">
-        <xsl:with-param name="text" select="normalize-space(concat(Description, ' ', UpdateDescription))"/>
-        <xsl:with-param name="indent-spaces" select="4"/>
-    </xsl:call-template>
-    </xsl:if>
-
-
-    <xsl:if test="(normalize-space(Url) != '')">
-    <xsl:text>
-
-    [More info](</xsl:text>
-        <xsl:value-of select="normalize-space(Url)"/>
-        <xsl:text>)</xsl:text>
-    </xsl:if>
-    <xsl:text>
-    """
+<xsl:text>(GwBase):
 </xsl:text>
 
 
@@ -299,6 +272,9 @@ class </xsl:text>
         <xsl:when test="PrimitiveFormat = 'HandleName'">
         <xsl:text>HandleName</xsl:text>
         </xsl:when>
+        <xsl:when test="PrimitiveFormat = 'MarketName'">
+        <xsl:text>MarketName</xsl:text>
+        </xsl:when>
         <xsl:when test="normalize-space(Name) = 'HexChar'">
         <xsl:text>HexChar</xsl:text>
         </xsl:when>
@@ -312,7 +288,7 @@ class </xsl:text>
         <xsl:text>PositiveInt</xsl:text>
         </xsl:when>
         <xsl:when test="PrimitiveType='Integer'">
-        <xsl:text>ReallyAnInt</xsl:text>
+        <xsl:text>StrictInt</xsl:text>
         </xsl:when>
         <xsl:otherwise>
         <xsl:call-template name="python-type">
@@ -369,15 +345,10 @@ class </xsl:text>
 <xsl:if test="ExtraAllowed='true'"><xsl:text>
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True,
+        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True, use_enum_values=True
     )</xsl:text>
 </xsl:if>
-<xsl:if test="not(ExtraAllowed='true')"><xsl:text>
 
-    model_config = ConfigDict(
-        alias_generator=snake_to_pascal, frozen=True, populate_by_name=True,
-    )</xsl:text>
-</xsl:if>
 
 
 <!-- CONSTRUCTING VALIDATORS CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS  CONSTRUCTING VALIDATORS -->
@@ -454,17 +425,20 @@ class </xsl:text>
     </xsl:variable>
 
     <xsl:if test="((Axiom != '') or
-                            (not (PrimitiveFormat = '') 
-                                and PrimitiveFormat != 'UUID4Str'
-                                and PrimitiveFormat != 'SpaceheatName' 
-                                and PrimitiveFormat != 'LeftRightDot' 
-                                and PrimitiveFormat != 'HandleName
-                                and PrimitiveFormat != 'HexChar' 
-                                and PrimitiveFormat != 'UTCSeconds' 
-                                and PrimitiveFormat != 'UTCMilliseconds'
-                                and PrimitiveFormat != 'PositiveInteger'
-                               )
-                            )">
+                            (not (PrimitiveFormat = '')
+                               and PrimitiveFormat != 'UUID4Str'
+                               and PrimitiveFormat != 'SpaceheatName'
+                               and PrimitiveFormat != 'LeftRightDot'
+                               and PrimitiveFormat != 'HandleName'
+                               and PrimitiveFormat != 'MarketName'
+                               and PrimitiveFormat != 'HexChar'
+                               and PrimitiveFormat != 'UTCSeconds'
+                               and PrimitiveFormat != 'UTCMilliseconds'
+                               and PrimitiveFormat != 'PositiveInteger'
+
+                            )
+                            )
+                            ">
 
     <xsl:text>
 
@@ -562,15 +536,16 @@ class </xsl:text>
         <xsl:choose>
 
         <!-- Format needs validating; not a list-->
-        <xsl:when test="PrimitiveFormat !='' 
-                        and PrimitiveFormat != 'UUID4Str' 
-                        and PrimitiveFormat != 'SpaceheatName' 
-                        and PrimitiveFormat != 'LeftRightDot' 
-                        and PrimitiveFormat != 'HandleName' 
+        <xsl:when test="PrimitiveFormat !=''
+                        and PrimitiveFormat != 'UUID4Str'
+                        and PrimitiveFormat != 'SpaceheatName'
+                        and PrimitiveFormat != 'LeftRightDot'
+                        and PrimitiveFormat != 'HandleName'
+                        and PrimitiveFormat != 'MarketName'
                         and PrimitiveFormat != 'HexChar'
-                        and PrimitiveFormat != 'UTCMilliseconds' 
-                        and PrimitiveFormat != 'UTCSeconds' 
-                        and PrimitiveFormat != 'PositiveInteger' 
+                        and PrimitiveFormat != 'UTCMilliseconds'
+                        and PrimitiveFormat != 'UTCSeconds'
+                        and PrimitiveFormat != 'PositiveInteger'
                         and not(IsList='true')">
         <xsl:text>
         try:
@@ -599,13 +574,14 @@ class </xsl:text>
         </xsl:when>
 
         <!-- Format needs validating; is a list-->
-        <xsl:when test="PrimitiveFormat !='' 
-                        and PrimitiveFormat != 'UUID4Str' 
-                        and PrimitiveFormat != 'SpaceheatName' 
-                        and PrimitiveFormat != 'LeftRightDot' 
+        <xsl:when test="PrimitiveFormat !=''
+                        and PrimitiveFormat != 'UUID4Str'
+                        and PrimitiveFormat != 'SpaceheatName'
+                        and PrimitiveFormat != 'LeftRightDot'
                         and PrimitiveFormat != 'HandleName'
-                        and PrimitiveFormat != 'HexChar' 
-                        and PrimitiveFormat != 'UTCMilliseconds' 
+                        and PrimitiveFormat != 'MarketName'
+                        and PrimitiveFormat != 'HexChar'
+                        and PrimitiveFormat != 'UTCMilliseconds'
                         and PrimitiveFormat != 'UTCSeconds'
                         and PrimitiveFormat != 'PositiveInteger'
                         and (IsList='true')">
@@ -657,21 +633,22 @@ class </xsl:text>
 
     </xsl:if>
     <!-- End the field_validator by returning v-->
-    <xsl:if test="(not(PrimitiveFormat = '') 
-                and PrimitiveFormat != 'UUID4Str' 
-                and PrimitiveFormat != 'SpaceheatName' 
-                and PrimitiveFormat != 'LeftRightDot' 
-                and PrimitiveFormat != 'HandleName' 
+    <xsl:if test="(not(PrimitiveFormat = '')
+                and PrimitiveFormat != 'UUID4Str'
+                and PrimitiveFormat != 'SpaceheatName'
+                and PrimitiveFormat != 'LeftRightDot'
+                and PrimitiveFormat != 'HandleName'
+                and PrimitiveFormat != 'MarketName'
                 and PrimitiveFormat != 'HexChar'
-                and PrimitiveFormat != 'UTCSeconds' 
+                and PrimitiveFormat != 'UTCSeconds'
                 and PrimitiveFormat != 'UTCMilliseconds'
                 and PrimitiveFormat != 'PositiveInteger'
-                ) 
+                )
                 or (Axiom != '')">
         <xsl:text>
         return v</xsl:text>
     </xsl:if>
-    
+
         </xsl:for-each>
 
 
@@ -710,59 +687,6 @@ class </xsl:text>
     </xsl:for-each>
     </xsl:if>
 
-    <xsl:if test="count($airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]) > 0">
-    <xsl:text>
-
-    @model_validator(mode="before")
-    @classmethod
-    def translate_enums(cls, data: dict) -> dict:</xsl:text>
-        <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id) and (IsEnum='true')]">
-        <xsl:variable name="enum-local-name">
-        <xsl:call-template name="nt-case">
-            <xsl:with-param name="type-name-text" select="EnumLocalName" />
-        </xsl:call-template>
-        </xsl:variable>
-
-        <xsl:if test="not (IsList='true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>GtEnumSymbol" in data:
-            data["</xsl:text><xsl:value-of select="Value"/>
-            <xsl:text>"] = </xsl:text><xsl:value-of select="$enum-local-name"/>
-            <xsl:text>.symbol_to_value(data["</xsl:text><xsl:value-of select="Value"/>
-            <xsl:text>GtEnumSymbol"])
-            del data["</xsl:text><xsl:value-of select="Value"/>
-            <xsl:text>GtEnumSymbol"]</xsl:text>
-        </xsl:if>
-        <xsl:if test="(IsList='true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in data:
-            if not isinstance(data["</xsl:text>
-            <xsl:value-of select="Value"/><xsl:text>"], list):
-                raise GwTypeError("</xsl:text><xsl:value-of select="Value"/>
-                <xsl:text> must be a list!")
-            nl = []
-            for elt in data["</xsl:text>
-            <xsl:value-of select="Value"/><xsl:text>"]:
-                if elt in </xsl:text><xsl:value-of select="$enum-local-name"/>
-                <xsl:text>.values():
-                    nl.append(elt)
-                elif elt in </xsl:text><xsl:value-of select="$enum-local-name"/>
-                <xsl:text>.symbols():
-                    nl.append(</xsl:text>
-                    <xsl:value-of select="$enum-local-name"/><xsl:text>.symbol_to_value(elt))
-                else:
-                    nl.append(</xsl:text>
-                    <xsl:value-of select="$enum-local-name"/>
-                    <xsl:text>.default())
-            data["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = nl</xsl:text>
-        </xsl:if>
-        </xsl:for-each>
-        <xsl:text>
-        return data</xsl:text>
-    </xsl:if>
-
     <!-- DONE WITH VALIDATORS  -->
     <!-- DONE WITH VALIDATORS  -->
 
@@ -772,196 +696,6 @@ class </xsl:text>
     <!-- AS_DICT ######################################################################-->
     <!-- AS_DICT ######################################################################-->
     <!-- AS_DICT ######################################################################-->
-    <xsl:text>
-
-    @classmethod
-    def from_dict(cls, d: dict) -> "</xsl:text>
-    <xsl:value-of select="$python-class-name"/><xsl:text>":
-        if not recursively_pascal(d):
-                raise GwTypeError(f"dict is not recursively pascal case! {d}")
-        try:
-            t = cls(**d)
-        except ValidationError as e:
-            raise GwTypeError(f"Pydantic validation error: {e}") from e
-        return t
-
-    @classmethod
-    def from_type(cls, b: bytes) -> "</xsl:text>
-    <xsl:value-of select="$python-class-name"/><xsl:text>":
-        try:
-            d = json.loads(b)
-        except TypeError as e:
-            raise GwTypeError("Type must be string or bytes!") from e
-        if not isinstance(d, dict):
-            raise GwTypeError(f"Deserializing must result in dict!\n &lt;{b}>")
-        return cls.from_dict(d)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Handles lists of enums differently than model_dump
-        """
-        d = self.model_dump(exclude_none=True, by_alias=True)</xsl:text>
-
-        <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
-        <xsl:sort select="Idx" data-type="number"/>
-    <xsl:choose>
-
-    <!-- (Required) CASES FOR to_dict -->
-    <xsl:when test="IsRequired = 'true'">
-    <xsl:choose>
-
-        <!-- (required) to_dict: Single Enums -->
-        <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
-    <xsl:text>
-        d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = self.</xsl:text>
-         <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>.value</xsl:text>
-        </xsl:when>
-
-         <!-- (required) to_dict: List of Enums -->
-        <xsl:when test="(IsEnum = 'true')  and (IsList = 'true')">
-        <xsl:text>
-        d["</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>"] = [elt.value for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>]</xsl:text>
-        </xsl:when>
-
-        <!--(required) to_dict: Single Type, no associated data class (since those just show up as id pointers) -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
-        <xsl:text>
-        d["</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>"] = self.</xsl:text>
-            <xsl:call-template name="python-case">
-                <xsl:with-param name="camel-case-text" select="Value"  />
-            </xsl:call-template>
-            <xsl:text>.to_dict()</xsl:text>
-        </xsl:when>
-
-
-        <!-- (required) to_dict: List of Types -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '' or IsList='true') and (IsList = 'true')">
-        <xsl:text>
-        d["</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>"] = [elt.to_dict() for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>]</xsl:text>
-        </xsl:when>
-        <xsl:otherwise></xsl:otherwise>
-    </xsl:choose>
-    </xsl:when>
-
-    <!-- Optional to_dict -->
-    <xsl:otherwise>
-        <xsl:choose>
-
-        <!-- (optional) to_dict: Single Enums -->
-        <xsl:when test="(IsEnum = 'true') and not (IsList = 'true')">
-    <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d:
-            d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"] = d["</xsl:text>
-            <xsl:value-of select="Value"/><xsl:text>"].value</xsl:text>
-        </xsl:when>
-
-         <!-- (optional) to_dict: List of Enums -->
-        <xsl:when test="(IsEnum = 'true')  and (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d:
-            del d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-            </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template> <xsl:text> = []
-            for elt in self.</xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>:
-                </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template><xsl:text>.append(elt.value)
-            d["</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-            <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-
-        <!--(optional) to_dict: Single Type, no associated data class (since those just show up as id pointers) -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and not (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in d:
-            del d["</xsl:text><xsl:value-of select="Value"/><xsl:text>"]
-            d["</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>"] = self.</xsl:text>
-            <xsl:value-of select="Value"/>
-            <xsl:text>.to_dict()</xsl:text>
-        </xsl:when>
-
-        <!-- (optional) to_dict: List of Types -->
-        <xsl:when test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '') and (IsList = 'true')">
-        <xsl:text>
-        if "</xsl:text><xsl:value-of select="Value"/>
-        <xsl:text>" in ds:
-            </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text> = []
-            for elt in self.</xsl:text>
-       <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>:
-                </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        <xsl:text>.append(elt.to_dict())
-            d["</xsl:text>
-        <xsl:value-of select="Value"/>
-        <xsl:text>"] = </xsl:text>
-        <xsl:call-template name="python-case">
-            <xsl:with-param name="camel-case-text" select="Value"  />
-        </xsl:call-template>
-        </xsl:when>
-         <!-- End of loop inside optional -->
-        <xsl:otherwise></xsl:otherwise>
-        </xsl:choose>
-
-
-    </xsl:otherwise>
-    </xsl:choose>
-
-    </xsl:for-each>
-    <xsl:text>
-        return d
-
-    def to_type(self) -> bytes:
-        """
-        Serialize to the </xsl:text>
-        <xsl:value-of select="VersionedTypeName"/>
-        <xsl:text> representation designed to send in a message.
-        """
-        json_string = json.dumps(self.to_dict())
-        return json_string.encode("utf-8")
-
-    @classmethod
-    def type_name_value(cls) -> str:
-        return "</xsl:text><xsl:value-of select="TypeName"/><xsl:text>"</xsl:text>
-
 
 <!-- Add newline at EOF for git and pre-commit-->
 <xsl:text>&#10;</xsl:text>

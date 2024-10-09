@@ -1,6 +1,6 @@
 """Tests batched.readings type, version 000"""
 
-from gjk.types import BatchedReadings
+from gjk.old_types import BatchedReadings
 
 
 def test_batched_readings_generated() -> None:
