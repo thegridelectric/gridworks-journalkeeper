@@ -1,4 +1,4 @@
-from gjk.first_season.house_0 import DEFAULT_ANALOG_READER, H0C, H0N
+from gjk.first_season.house_0 import DEFAULT_ANALOG_READER, H0CN, H0N
 
 OAK_TA = "hw1.isone.me.versant.keene.oak.ta"
 
@@ -18,7 +18,7 @@ class OakNames(H0N):
     hp_fossil_lwt = "hp-fossil-lwt"
 
 
-class OakChannelNames(H0C):
+class OakChannelNames(H0CN):
     buffer_well_temp = "buffer-well"
     zone1_gw_temp = "zone1-living-rm-gw-temp"
     oil_boiler_pwr = "oil-boiler-pwr"

@@ -1,9 +1,18 @@
 from typing import Dict, List
 
+from gjk.property_format import SpaceheatName
+from gjk.enums import TelemetryName
+from pydantic import BaseModel
 DEFAULT_ANALOG_READER = "analog-temp"
-from gwproto.data_classes.telemetry_tuple import ChannelStub
-from gwproto.enums import TelemetryName
 
+class ChannelStub(BaseModel):
+    Name: SpaceheatName
+    AboutNodeName: SpaceheatName
+    TelemetryName: TelemetryName
+    InPowerMetering: bool = False
+
+    def __hash__(self) -> int:
+        return hash(self.Name)
 
 class ZoneName:
     def __init__(self, zone: str, idx: int):
@@ -73,7 +82,7 @@ class H0N:
     oat = "oat"
     buffer = TankNodes("buffer")
     tank: Dict[int, TankNodes] = {}
-    zone: Dict[str, ZoneName] = {}
+    zone: Dict[int, ZoneName] = {}
 
     # core flow-metered nodes
     dist_flow = "dist-flow"
@@ -86,7 +95,7 @@ class H0N:
         for i in range(total_store_tanks):
             self.tank[i + 1] = TankNodes(f"tank{i + 1}")
         for i in range(len(zone_list)):
-            self.zone[zone_list[i]] = ZoneName(zone=zone_list[i], idx=i)
+            self.zone[i+1] = ZoneName(zone=zone_list[i], idx=i+1)
 
 
 class H0Readers:

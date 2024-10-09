@@ -2,7 +2,7 @@ from typing import Dict
 
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
-from gjk.first_season.oak_names import OAK_TA, OAK_ZONE_1, OAK_ZONE_2, OC, ON
+from gjk.first_season.oak_names import OAK_TA, OC, ON
 from gjk.types import DataChannelGt
 
 OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
@@ -62,39 +62,39 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         telemetry_name=TelemetryName.WaterTempCTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OC.zone[OAK_ZONE_1].set: DataChannelGt(
+    OC.zone[1].set: DataChannelGt(
         id="42177a16-edea-41e0-bbcb-b200d762af5d",
-        name=OC.zone[OAK_ZONE_1].set,
+        name=OC.zone[1].set,
         display_name="Living room Zone Honeywell Setpoint",
-        about_node_name=ON.zone[OAK_ZONE_1].stat,
-        captured_by_node_name=ON.zone[OAK_ZONE_1].stat,
+        about_node_name=ON.zone[1].stat,
+        captured_by_node_name=ON.zone[1].stat,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OC.zone[OAK_ZONE_1].temp: DataChannelGt(
+    OC.zone[1].temp: DataChannelGt(
         id="f316b3c4-3f9c-4d8a-a862-7074aeda1f86",
-        name=OC.zone[OAK_ZONE_1].temp,
+        name=OC.zone[1].temp,
         display_name="Living room Zone Honeywell Temp",
-        about_node_name=ON.zone[OAK_ZONE_1].zone_name,
-        captured_by_node_name=ON.zone[OAK_ZONE_1].stat,
+        about_node_name=ON.zone[1].zone_name,
+        captured_by_node_name=ON.zone[1].stat,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OC.zone[OAK_ZONE_2].set: DataChannelGt(
+    OC.zone[1].set: DataChannelGt(
         id="4b5b5534-39a9-4424-b79a-b1611438283d",
-        name=OC.zone[OAK_ZONE_2].set,
+        name=OC.zone[1].set,
         display_name="Garage Zone Honeywell Setpoint",
-        about_node_name=ON.zone[OAK_ZONE_2].stat,
-        captured_by_node_name=ON.zone[OAK_ZONE_2].stat,
+        about_node_name=ON.zone[1].stat,
+        captured_by_node_name=ON.zone[1].stat,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
-    OC.zone[OAK_ZONE_2].temp: DataChannelGt(
+    OC.zone[1].temp: DataChannelGt(
         id="971a2c41-a459-4857-a9c0-ad3b6b2eb5dc",
-        name=OC.zone[OAK_ZONE_2].temp,
+        name=OC.zone[1].temp,
         display_name="Garage Zone Honeywell Temp",
-        about_node_name=ON.zone[OAK_ZONE_2].zone_name,
-        captured_by_node_name=ON.zone[OAK_ZONE_2].stat,
+        about_node_name=ON.zone[1].zone_name,
+        captured_by_node_name=ON.zone[1].stat,
         telemetry_name=TelemetryName.AirTempFTimes1000,
         terminal_asset_alias=OAK_TA,
     ),
@@ -192,7 +192,7 @@ OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
         id="3eca0062-4885-4687-b29a-d6a1af8f777a",
         name=OC.zone1_gw_temp,
         display_name="Living room Zone Temp (C x 1000) measured by Gw",
-        about_node_name=ON.zone[OAK_ZONE_1].zone_name,
+        about_node_name=ON.zone[1].zone_name,
         captured_by_node_name=ON.analog_temp_reader,
         telemetry_name=TelemetryName.AirTempCTimes1000,
         terminal_asset_alias=OAK_TA,
@@ -444,14 +444,14 @@ OakAliasMapper.channel_mappings = {
     OC.dist_flow_integrated: [
         (1701406810, "a.dist.flow"),
     ],
-    OC.zone[OAK_ZONE_1].temp: [
+    OC.zone[1].temp: [
         (1701406840, "a.thermostat.living.room.temp"),
     ],
-    OC.zone[OAK_ZONE_1].set: [
+    OC.zone[1].set: [
         (1701406840, "a.thermostat.living.room.set"),
     ],
-    OC.zone[OAK_ZONE_2].temp: [(1701406840, "a.thermostat.garage.temp")],
-    OC.zone[OAK_ZONE_2].set: [(1701406840, "a.thermostat.garage.set")],
+    OC.zone[1].temp: [(1701406840, "a.thermostat.garage.temp")],
+    OC.zone[1].set: [(1701406840, "a.thermostat.garage.set")],
     OC.hp_odu_pwr: [(1701406870, "a.m.hp.outdoor.power")],
     OC.hp_idu_pwr: [(1701406870, "a.m.hp.indoor.power")],
     OC.dist_pump_pwr: [(1701406870, "a.m.dist.pump.power")],
