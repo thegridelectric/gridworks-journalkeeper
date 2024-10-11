@@ -13,7 +13,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 timezone = "America/New_York"
-start = pendulum.datetime(2024, 1, 18, 0, 0, tz=timezone)
+start = pendulum.datetime(2024, 3, 2, 16, 0, tz=timezone)
 
 for k in range(29):
 
@@ -21,10 +21,6 @@ for k in range(29):
     end_k = start.add(days=k+1)
     start_ms = int(start_k.timestamp() * 1000)
     end_ms = int(end_k.timestamp() * 1000)
-
-    if end_k >= pendulum.datetime(2024, 2, 1, 0, 0, tz=timezone):
-        print("Done with January")
-        break
 
     print(f"\nLoading readings from {start_k}")
 
