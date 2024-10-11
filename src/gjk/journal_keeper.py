@@ -2,19 +2,16 @@
 
 import functools
 import logging
-import time
 import threading
+import time
 from typing import no_type_check
 
-from gw.named_types import GwBase
-from gw.enums import MessageCategorySymbol
-from gwbase.actor_base import ActorBase
-from gwbase.actor_base import OnReceiveMessageDiagnostic
-from gwbase.enums import GNodeRole, UniverseType
 from gw.errors import GwTypeError
-from gjk.config import Settings
-from gjk.types import GridworksEventReport, PowerWatts, KeyparamChangeLog, MyDataChannels
+from gw.named_types import GwBase
 from gjk.
+from gwbase.actor_base import ActorBase, OnReceiveMessageDiagnostic
+
+from gjk.config import Settings
 
 LOG_FORMAT = (
     "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
@@ -63,6 +60,7 @@ class JournalKeeper(ActorBase):
     ########################
 
     def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
+        print(f"Got {payload!}")
         if payload.type_name == HeartbeatA.type_name:
             if from_role != GNodeRole.Supervisor:
                 LOGGER.info(
@@ -79,7 +77,6 @@ class JournalKeeper(ActorBase):
 
             try:
                 self.heartbeat_from_super(from_alias, payload)
-
 
     @no_type_check
     def on_message(self, _unused_channel, basic_deliver, properties, body) -> None:
@@ -106,7 +103,6 @@ class JournalKeeper(ActorBase):
                 f"IGNORING MESSAGE. {self._latest_on_message_diagnostic}: {e}"
             )
             return
-
 
         try:
             msg_category = self.message_category_from_routing_key(routing_key)

@@ -17,14 +17,14 @@ from gjk.first_season import beech_channels, oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.first_season.oak_batches import oak_br_from_status
 from gjk.models import DataChannelSql, bulk_insert_messages
-from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
-from gjk.type_helpers import Message
-from gjk.types import (
+from gjk.named_types import (
     GridworksEventReport,
     HeartbeatA,
     KeyparamChangeLog,
     PowerWatts,
 )
+from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
+from gjk.type_helpers import Message
 from gjk.utils import FileNameMeta, str_from_ms
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")

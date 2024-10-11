@@ -4,11 +4,11 @@ from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
+from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,
 )
-from gjk.types.data_channel_gt import DataChannelGt
 
 
 class Reading(BaseModel):

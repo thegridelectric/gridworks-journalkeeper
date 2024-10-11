@@ -1,6 +1,6 @@
 """Tests gridworks.event.report type, version 000"""
 
-from gjk.types import GridworksEventReport
+from gjk.named_types import GridworksEventReport
 
 
 def test_gridworks_event_report_generated() -> None:

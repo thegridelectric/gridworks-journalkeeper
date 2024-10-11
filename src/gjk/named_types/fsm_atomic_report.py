@@ -2,6 +2,7 @@
 
 from typing import Literal, Optional
 
+from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
@@ -11,7 +12,6 @@ from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class FsmAtomicReport(GwBase):

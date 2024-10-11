@@ -2,12 +2,13 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
+
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 from gjk.property_format import (
     LeftRightDot,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class SnapshotSpaceheat000(GwBase):

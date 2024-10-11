@@ -2,6 +2,7 @@
 
 from typing import List, Literal
 
+from gw.named_types import GwBase
 from pydantic import (
     PositiveInt,
     field_validator,
@@ -9,6 +10,9 @@ from pydantic import (
 )
 from typing_extensions import Self
 
+from gjk.named_types.data_channel_gt import DataChannelGt
+from gjk.named_types.fsm_atomic_report import FsmAtomicReport
+from gjk.named_types.fsm_full_report import FsmFullReport
 from gjk.old_types.channel_readings_000 import ChannelReadings000
 from gjk.property_format import (
     LeftRightDot,
@@ -16,10 +20,6 @@ from gjk.property_format import (
     UTCSeconds,
     UUID4Str,
 )
-from gjk.types.data_channel_gt import DataChannelGt
-from gjk.types.fsm_atomic_report import FsmAtomicReport
-from gjk.types.fsm_full_report import FsmFullReport
-from gjk.types.gw_base import GwBase
 
 
 class BatchedReadings(GwBase):

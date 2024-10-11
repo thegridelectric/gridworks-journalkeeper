@@ -1,6 +1,6 @@
 """Tests channel.readings type, version 001"""
 
-from gjk.types import ChannelReadings
+from gjk.named_types import ChannelReadings
 
 
 def test_channel_readings_generated() -> None:

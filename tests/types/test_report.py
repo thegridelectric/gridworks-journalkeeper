@@ -1,6 +1,6 @@
 """Tests report type, version 000"""
 
-from gjk.types import Report
+from gjk.named_types import Report
 
 
 def test_report_generated() -> None:

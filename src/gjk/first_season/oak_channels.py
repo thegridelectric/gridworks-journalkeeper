@@ -3,7 +3,7 @@ from typing import Dict
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.oak_names import OAK_TA, OC, ON
-from gjk.types import DataChannelGt
+from gjk.named_types import DataChannelGt
 
 OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
     OC.store_pump_pwr: DataChannelGt(

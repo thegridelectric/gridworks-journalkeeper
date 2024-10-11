@@ -2,6 +2,7 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
 from pydantic import (
     field_validator,
 )
@@ -11,7 +12,6 @@ from gjk.property_format import (
     LeftRightDot,
     check_is_log_style_date_with_millis,
 )
-from gjk.types.gw_base import GwBase
 
 
 class KeyparamChangeLog(GwBase):

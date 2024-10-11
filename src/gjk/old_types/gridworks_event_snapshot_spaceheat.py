@@ -4,6 +4,7 @@ import copy
 from typing import Any, Literal
 
 from gw.errors import GwTypeError
+from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, StrictInt
 
@@ -13,7 +14,6 @@ from gjk.property_format import (
     LeftRightDot,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class GridworksEventSnapshotSpaceheat(GwBase):

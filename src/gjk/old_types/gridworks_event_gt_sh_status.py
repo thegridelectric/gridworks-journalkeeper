@@ -4,6 +4,7 @@ import copy
 from typing import Literal
 
 from gw.errors import GwTypeError
+from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, StrictInt, model_validator
 from typing_extensions import Self
@@ -14,7 +15,6 @@ from gjk.property_format import (
     LeftRightDot,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class GridworksEventGtShStatus(GwBase):

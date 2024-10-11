@@ -2,6 +2,7 @@
 
 from typing import List, Literal
 
+from gw.named_types import GwBase
 from pydantic import StrictInt
 
 from gjk.old_types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
@@ -14,7 +15,6 @@ from gjk.property_format import (
     UTCSeconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class GtShStatus(GwBase):

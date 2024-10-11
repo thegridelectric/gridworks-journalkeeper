@@ -2,7 +2,7 @@
 
 import pytest
 from gjk.enums import TelemetryName
-from gjk.types import DataChannelGt
+from gjk.named_types import DataChannelGt
 from gw.errors import GwTypeError
 
 

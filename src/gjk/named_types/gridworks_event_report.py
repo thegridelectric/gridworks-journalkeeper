@@ -2,12 +2,13 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
+
+from gjk.named_types.report import Report
 from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
-from gjk.types.report import Report
 
 
 class GridworksEventReport(GwBase):

@@ -1,10 +1,10 @@
 """Settings for a GridWorks JournalKeeper, readable from environment and/or from env files."""
 
-from pydantic import BaseModel, ConfigDict, SecretStr
 from gwbase.config import GNodeSettings
-
+from pydantic import BaseModel, ConfigDict, SecretStr
 
 DEFAULT_ENV_FILE = ".env"
+
 
 class AwsClient(BaseModel):
     """Settings for interacting with Aws"""
@@ -24,7 +24,7 @@ class Settings(GNodeSettings):
     g_node_alias: str = "d1.journal"
     g_node_id: str = "00000000-0000-0000-0000-000000000000"
     world_instance_alias: str = "d1__1"
-    my_fqdn: str = "localhost" 
+    my_fqdn: str = "localhost"
 
     model_config = ConfigDict(
         env_prefix="gjk_",

@@ -2,13 +2,14 @@
 
 from typing import List, Literal
 
+from gw.named_types import GwBase
+
+from gjk.named_types.single_reading import SingleReading
 from gjk.property_format import (
     LeftRightDot,
     UTCMilliseconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
-from gjk.types.single_reading import SingleReading
 
 
 class SnapshotSpaceheat(GwBase):

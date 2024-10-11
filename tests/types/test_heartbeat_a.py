@@ -1,6 +1,6 @@
 """Tests heartbeat.a type, version 001"""
 
-from gjk.types import HeartbeatA
+from gjk.named_types import HeartbeatA
 
 
 def test_heartbeat_a_generated() -> None:
