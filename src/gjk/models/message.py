@@ -40,6 +40,14 @@ class MessageSql(Base):
         return d
 
 
+def insert_single_message(session: Session, msg: MessageSql) -> bool:
+    try:
+        session.add(msg)
+        session.commit()
+        return True
+    except Exception:
+        return False
+
 def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
     """
     Idempotently bulk inserts MessageSql into the journaldb messages table,

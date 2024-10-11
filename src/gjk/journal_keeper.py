@@ -13,11 +13,12 @@ from gwbase.codec import GwCodec
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from gjk.codec import pyd_to_sql
+from gjk.codec import pyd_to_sql, sql_to_pyd
 from gjk.config import Settings
+from gjk.models import insert_single_message, bulk_insert_readings, DataChannelSql
 from gjk.named_types import GridworksEventReport
 from gjk.named_types.asl_types import TypeByName
-from gjk.type_helpers import Message
+from gjk.type_helpers import Message, Reading
 
 LOG_FORMAT = (
     "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
@@ -90,8 +91,7 @@ class JournalKeeper(ActorBase):
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
 
     def gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
-        report = t.report
-        msg = Message(
+        self.msg = Message(
             message_id=t.report.id,
             from_alias=t.report.from_g_node_alias,
             message_persisted_ms=int(time.time() * 1000),
@@ -99,15 +99,22 @@ class JournalKeeper(ActorBase):
             message_type_name=t.report.type_name,
             message_created_ms=t.report.message_created_ms,
         )
-        print(f"Got Report from {report.from_g_node_alias}")
-        # readings = report.channel_reading_list
-        # TODO - turn this into a bunch of ReadingSqls to be bulk insreted
-        with self.get_db() as db:
-            try:
-                db.add(pyd_to_sql(msg))
-                db.commit()
-            except Exception:
-                pass  # probably a repeat report
+        # with self.get_db() as db:
+        #     if insert_single_message(msg):
+        #         readings = []
+        #         for ch_readings in t.report.channel_reading_list:
+        #             ch = db.get(DataChannelSql, ch_readings.channel_id)
+        #             if ch is None:
+        #                 raise Exception(f"Did not find channel {ch_readings.channel_id} (see msg id {msg.message_id})")
+        #             if ch.name != ch_readings.channel_name:
+        #                 raise Exception(f"Expect name {ch.name} for {ch.id} .. not {ch_readings.channel_name}. (see msg id {msg.message_id})")
+        #             readings.append(pyd_to_sql(
+        #                 Reading(value=ch_readings.value_list[i],
+        #                         time_ms=ch_readings.scada_read_time_unix_ms_list[i],
+        #                         message_id=msg.message_id,
+        #                         data_channel=sql_to_pyd(ch)
+        #                 ) for i in len(ch_readings.value_list)
+        #             ))
 
     def main(self) -> None:
         while True:

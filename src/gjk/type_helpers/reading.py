@@ -1,8 +1,9 @@
+import uuid
 from typing import Any, Dict
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.property_format import (
@@ -12,7 +13,7 @@ from gjk.property_format import (
 
 
 class Reading(BaseModel):
-    id: UUID4Str
+    id: UUID4Str = Field(default_factory=lambda: str(uuid.uuid4()))
     value: int
     time_ms: UTCMilliseconds
     data_channel: DataChannelGt
