@@ -199,6 +199,8 @@ class JournalKeeperHack:
             for fn in all_fns
             if (
                 ("status" in fn.type_name)
+                or ("report" in fn.type_name)
+                or ("snapshot" in fn.type_name)
                 or ("power.watts" in fn.type_name)
                 or ("keyparam.change.log" in fn.type_name)
             )

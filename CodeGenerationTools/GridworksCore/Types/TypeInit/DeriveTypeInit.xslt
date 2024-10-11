@@ -25,7 +25,7 @@
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
 <xsl:text>""" List of all the types """
-from gjk.types.gw_base import GwBase
+from gjk.named_types.gw_base import GwBase
 </xsl:text>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
   count(Protocols[text()='gjk']) > 0 and
