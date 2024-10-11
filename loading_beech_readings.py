@@ -13,7 +13,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 timezone = "America/New_York"
-start = pendulum.datetime(2024, 3, 2, 16, 0, tz=timezone)
+start = pendulum.datetime(2024, 3, 20, 0, 0, tz=timezone)
 
 for k in range(29):
 
