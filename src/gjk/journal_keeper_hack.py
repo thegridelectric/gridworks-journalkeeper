@@ -1,7 +1,6 @@
 import math
-import uuid
 from contextlib import contextmanager
-from typing import List, Optional
+from typing import List
 
 import boto3
 import pendulum
@@ -17,13 +16,7 @@ from gjk.first_season import beech_channels, oak_channels
 from gjk.first_season.beech_batches import beech_br_from_status
 from gjk.first_season.oak_batches import oak_br_from_status
 from gjk.models import DataChannelSql, bulk_insert_messages
-from gjk.named_types import (
-    GridworksEventReport,
-    HeartbeatA,
-    KeyparamChangeLog,
-    PowerWatts,
-)
-from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
+from gjk.old_types import GridworksEventGtShStatus
 from gjk.type_helpers import Message
 from gjk.utils import FileNameMeta, str_from_ms
 
@@ -282,86 +275,3 @@ class JournalKeeperHack:
         )
         msg_as_bytes = s3_object["Body"].read()
         return msg_as_bytes
-
-
-def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
-    """
-    Take a tuple along with the meta data from the filename
-    in the persistent store and return the Message to be put in the messages table
-    of the journaldb.
-
-    If the tuple is a BatchedReadings message with no actual readings, returns None
-    If the tuple is not in the list of messages we are tracking in journaldb, also
-    returns None
-    """
-
-    if isinstance(t, GridworksEventReport):
-        return gridworks_event_report_to_msg(t, fn)
-    elif isinstance(t, BatchedReadings):
-        return batchedreading_to_msg(t, fn)
-    elif isinstance(t, PowerWatts):
-        return basic_to_msg(t, fn)
-    elif isinstance(t, KeyparamChangeLog):
-        return basic_to_msg(t, fn)
-    elif isinstance(t, GridworksEventGtShStatus):
-        return gridworkseventgtshstatus_to_msg(t, fn)
-    else:
-        return None
-
-
-def gridworks_event_report_to_msg(
-    t: GridworksEventReport, fn: FileNameMeta
-) -> Optional[Message]:
-    if (
-        t.report.channel_reading_list == []
-        and t.report.fsm_action_list == []
-        and t.report.fsm_report_list == []
-    ):
-        return None
-    else:
-        return Message(
-            message_id=t.report.id,
-            from_alias=t.report.from_g_node_alias,
-            message_persisted_ms=fn.message_persisted_ms,
-            payload=t.report.to_dict(),
-            message_type_name=t.report.type_name,
-            message_created_ms=t.report.message_created_ms,
-        )
-
-
-def batchedreading_to_msg(t: BatchedReadings, fn: FileNameMeta) -> Optional[Message]:
-    if t.data_channel_list == []:
-        return None
-    else:
-        return Message(
-            message_id=t.id,
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=fn.message_persisted_ms,
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.message_created_ms,
-        )
-
-
-def gridworkseventgtshstatus_to_msg(
-    t: GridworksEventGtShStatus, fn: FileNameMeta
-) -> Optional[Message]:
-    return Message(
-        message_id=t.status.status_uid,
-        from_alias=t.status.from_g_node_alias,
-        message_persisted_ms=fn.message_persisted_ms,
-        payload=t.to_dict(),
-        message_type_name=t.type_name,
-        message_created_ms=int(t.time_n_s / 10**6),
-    )
-
-
-def basic_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Message:
-    return Message(
-        message_id=str(uuid.uuid4()),
-        from_alias=fn.from_alias,
-        message_type_name=t.type_name,
-        message_persisted_ms=fn.message_persisted_ms,
-        payload=t.to_dict(),
-        message_created_ms=None,
-    )

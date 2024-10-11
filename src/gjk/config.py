@@ -27,7 +27,7 @@ class Settings(GNodeSettings):
     my_fqdn: str = "localhost"
 
     model_config = ConfigDict(
-        env_prefix="gjk_",
+        env_prefix="GJK_",
         env_nested_delimiter="__",
         extra="ignore",
     )

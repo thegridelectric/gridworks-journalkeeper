@@ -6,24 +6,25 @@ import threading
 import time
 from contextlib import contextmanager
 from typing import no_type_check
+
+from gw.named_types import GwBase
+from gwbase.actor_base import ActorBase
+from gwbase.codec import GwCodec
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from gw.errors import GwTypeError
-from gwbase.codec import GwCodec
-from gjk import codec
-from gw.named_types import GwBase
-from gjk.named_types import GridworksEventReport
-from gwbase.actor_base import ActorBase, OnReceiveMessageDiagnostic
-from gjk.models import DataChannelSql, bulk_insert_messages
+
+from gjk.codec import pyd_to_sql
 from gjk.config import Settings
+from gjk.named_types import GridworksEventReport
 from gjk.named_types.asl_types import TypeByName
-from gjk.utils import tuple_to_msg
+from gjk.type_helpers import Message
 
 LOG_FORMAT = (
     "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
     "-35s %(lineno) -5d: %(message)s"
 )
 LOGGER = logging.getLogger(__name__)
+
 
 class JournalKeeper(ActorBase):
     def __init__(self, settings: Settings):
@@ -88,22 +89,27 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
 
-
-
     def gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
         report = t.report
+        msg = Message(
+            message_id=t.report.id,
+            from_alias=t.report.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.report.to_dict(),
+            message_type_name=t.report.type_name,
+            message_created_ms=t.report.message_created_ms,
+        )
         print(f"Got Report from {report.from_g_node_alias}")
-        readings = report.channel_reading_list
+        # readings = report.channel_reading_list
         # TODO - turn this into a bunch of ReadingSqls to be bulk insreted
         with self.get_db() as db:
             try:
-                db.add(tuple_to_msg(report))
+                db.add(pyd_to_sql(msg))
                 db.commit()
-                # TODO: also add the various readings
             except Exception:
-                pass # probably a repeat report
+                pass  # probably a repeat report
 
-    def main(self)-> None:
+    def main(self) -> None:
         while True:
             time.sleep(3600)
             # Once a day check S3 for missed messages?

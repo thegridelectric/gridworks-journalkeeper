@@ -1,8 +1,9 @@
-import pendulum
-from typing import Optional
-from gjk.type_helpers import Message
-from pydantic import BaseModel
 import uuid
+from typing import Optional
+
+import pendulum
+from pydantic import BaseModel
+
 from gjk.named_types import (
     HeartbeatA,
     KeyparamChangeLog,
@@ -10,6 +11,8 @@ from gjk.named_types import (
     Report,
 )
 from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
+from gjk.type_helpers import Message
+
 
 class FileNameMeta(BaseModel):
     from_alias: str
@@ -26,6 +29,7 @@ def str_from_ms(epoch_milli_seconds: int) -> str:
         + " America/NY"
     )
 
+
 def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
     """
     Take a tuple along with the meta data from the filename
@@ -37,7 +41,7 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
     returns None
     """
     if isinstance(t, Report):
-        return gridworks_event_report_to_msg(t, fn)
+        return report_to_msg(t, fn)
     elif isinstance(t, BatchedReadings):
         return batchedreading_to_msg(t, fn)
     elif isinstance(t, PowerWatts):
@@ -50,23 +54,21 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
         return None
 
 
-def gridworks_event_report_to_msg(
-    t: GridworksEventReport, fn: FileNameMeta
-) -> Optional[Message]:
+def report_to_msg(r: Report, fn: FileNameMeta) -> Optional[Message]:
     if (
-        t.report.channel_reading_list == []
-        and t.report.fsm_action_list == []
-        and t.report.fsm_report_list == []
+        r.channel_reading_list == []
+        and r.fsm_action_list == []
+        and r.fsm_report_list == []
     ):
         return None
     else:
         return Message(
-            message_id=t.report.id,
-            from_alias=t.report.from_g_node_alias,
+            message_id=r.id,
+            from_alias=r.from_g_node_alias,
             message_persisted_ms=fn.message_persisted_ms,
-            payload=t.report.to_dict(),
-            message_type_name=t.report.type_name,
-            message_created_ms=t.report.message_created_ms,
+            payload=r.to_dict(),
+            message_type_name=r.type_name,
+            message_created_ms=r.message_created_ms,
         )
 
 
@@ -96,9 +98,8 @@ def gridworkseventgtshstatus_to_msg(
         message_created_ms=int(t.time_n_s / 10**6),
     )
 
-def report_to_msg(
-    t: Report, fn: FileNameMeta
-) -> Optional[Message]:
+
+def report_to_msg(t: Report, fn: FileNameMeta) -> Optional[Message]:
     return Message(
         message_id=t.id,
         from_alias=t.from_g_node_alias,
