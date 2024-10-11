@@ -2,6 +2,7 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
 from pydantic import (
     model_validator,
 )
@@ -25,7 +26,6 @@ from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class FsmEvent(GwBase):

@@ -2,12 +2,13 @@
 
 from typing import List, Literal
 
+from gw.named_types import GwBase
+
+from gjk.named_types.fsm_atomic_report import FsmAtomicReport
 from gjk.property_format import (
     SpaceheatName,
     UUID4Str,
 )
-from gjk.types.fsm_atomic_report import FsmAtomicReport
-from gjk.types.gw_base import GwBase
 
 
 class FsmFullReport(GwBase):

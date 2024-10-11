@@ -2,13 +2,13 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
 from pydantic import StrictInt
 
 from gjk.property_format import (
     SpaceheatName,
     UTCMilliseconds,
 )
-from gjk.types.gw_base import GwBase
 
 
 class SingleReading(GwBase):

@@ -3,12 +3,12 @@
 from typing import List, Literal
 
 from gw.errors import GwTypeError
+from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, StrictInt, model_validator
 from typing_extensions import Self
 
 from gjk.property_format import UTCMilliseconds, UUID4Str
-from gjk.types.gw_base import GwBase
 
 
 class ChannelReadings000(GwBase):

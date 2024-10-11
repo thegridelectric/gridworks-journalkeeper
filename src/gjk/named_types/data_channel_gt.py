@@ -2,6 +2,7 @@
 
 from typing import Any, Dict, Literal, Optional
 
+from gw.named_types import GwBase
 from pydantic import (
     model_validator,
 )
@@ -14,7 +15,6 @@ from gjk.property_format import (
     UTCSeconds,
     UUID4Str,
 )
-from gjk.types.gw_base import GwBase
 
 
 class DataChannelGt(GwBase):

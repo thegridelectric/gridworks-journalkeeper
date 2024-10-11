@@ -1,6 +1,6 @@
 """Tests fsm.atomic.report type, version 000"""
 
-from gjk.types import FsmAtomicReport
+from gjk.named_types import FsmAtomicReport
 
 
 def test_fsm_atomic_report_generated() -> None:

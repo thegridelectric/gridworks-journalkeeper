@@ -1,6 +1,6 @@
 """Tests snapshot.spaceheat type, version 001"""
 
-from gjk.types import SnapshotSpaceheat
+from gjk.named_types import SnapshotSpaceheat
 
 
 def test_snapshot_spaceheat_generated() -> None:

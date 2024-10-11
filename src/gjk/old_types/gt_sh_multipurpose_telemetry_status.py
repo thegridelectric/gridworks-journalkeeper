@@ -2,6 +2,7 @@
 
 from typing import List, Literal
 
+from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
@@ -10,7 +11,6 @@ from gjk.property_format import (
     LeftRightDot,
     UTCMilliseconds,
 )
-from gjk.types.gw_base import GwBase
 
 
 class GtShMultipurposeTelemetryStatus(GwBase):

@@ -20,7 +20,7 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/asl_types.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/named_types/asl_types.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
@@ -40,7 +40,7 @@ from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatu
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
-from gjk.types.gw_base import GwBase
+from gw.named_types import GwBase
 </xsl:text>
 <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
@@ -48,7 +48,7 @@ from gjk.types.gw_base import GwBase
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending') and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">
 
 <xsl:text>
-from gjk.types.</xsl:text>
+from gjk.named_types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:call-template name="nt-case">

@@ -1,6 +1,6 @@
 """Tests fsm.event type, version 000"""
 
-from gjk.types import FsmEvent
+from gjk.named_types import FsmEvent
 
 
 def test_fsm_event_generated() -> None:

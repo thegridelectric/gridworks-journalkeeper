@@ -3,7 +3,7 @@ from typing import Dict
 from gjk.enums import TelemetryName
 from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_names import BEECH_TA, BN, BcName
-from gjk.types import DataChannelGt
+from gjk.named_types import DataChannelGt
 
 BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
     BcName.UP_ZONE_STATE: DataChannelGt(

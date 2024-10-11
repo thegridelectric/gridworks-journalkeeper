@@ -46,7 +46,7 @@
                     </xsl:variable>
 
                     <FileSetFile>
-                                <xsl:element name="RelativePath"><xsl:text>../../../src/gjk/types/</xsl:text>
+                                <xsl:element name="RelativePath"><xsl:text>../../../src/gjk/named_types/</xsl:text>
                                 <xsl:value-of select="translate($type-name,'.','_')"/><xsl:text>.py</xsl:text></xsl:element>
 
                         <OverwriteMode><xsl:value-of select="$overwrite-mode"/></OverwriteMode>
@@ -122,13 +122,13 @@ from gw import check_is_market_slot_name_lrd_format</xsl:text>
 </xsl:for-each>
 </xsl:if>
 <xsl:text>
-from gjk.types.gw_base import GwBase</xsl:text>
+from gw.named_types import GwBase</xsl:text>
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
 
 
 <xsl:if test="(IsType = 'true') and (normalize-space(SubTypeDataClass) = '' or IsList = 'true')">
 <xsl:text>
-from gjk.types.</xsl:text>
+from gjk.named_types.</xsl:text>
 <xsl:call-template name="python-case">
     <xsl:with-param name="camel-case-text" select="translate(SubTypeName,'.','_')"  />
 </xsl:call-template>

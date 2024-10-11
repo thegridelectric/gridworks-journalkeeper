@@ -2,7 +2,7 @@
 
 from typing import Literal
 
-from gjk.types.gw_base import GwBase
+from gw.named_types import GwBase
 
 
 class HeartbeatA(GwBase):

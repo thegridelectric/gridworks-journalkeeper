@@ -78,13 +78,13 @@ from gjk.enums import </xsl:text>
 <xsl:choose>
 <xsl:when test="(NotInInit='true')">
 <xsl:text>
-from gjk.types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
+from gjk.named_types.</xsl:text><xsl:value-of select="translate($type-name,'.','_')"/>
 <xsl:text> import </xsl:text><xsl:value-of select="$class-name"/>
 </xsl:when>
 
 <xsl:otherwise>
 <xsl:text>
-from gjk.types import </xsl:text><xsl:value-of select="$class-name"/>
+from gjk.named_types import </xsl:text><xsl:value-of select="$class-name"/>
 </xsl:otherwise>
 
 </xsl:choose>

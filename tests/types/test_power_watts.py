@@ -1,6 +1,6 @@
 """Tests power.watts type, version 000"""
 
-from gjk.types import PowerWatts
+from gjk.named_types import PowerWatts
 
 
 def test_power_watts_generated() -> None:

@@ -22,9 +22,8 @@ Changelog = "https://github.com/thegridelectric/gridworks-journalkeeper/releases
 python = ">=3.12,<4.0"
 click = ">=8.0.1"
 boto3 = "^1.26.3"
-paho-mqtt = "^1.6.1"
 
-gridworks-base = "0.1.8"
+gridworks-base = "^0.2.2"
 sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"

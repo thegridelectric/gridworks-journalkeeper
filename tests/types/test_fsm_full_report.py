@@ -11,7 +11,7 @@ from gjk.enums import (
     RelayPinSet,
     StoreFlowDirection,
 )
-from gjk.types import FsmAtomicReport, FsmFullReport
+from gjk.named_types import FsmAtomicReport, FsmFullReport
 
 
 def test_fsm_full_report_generated() -> None:

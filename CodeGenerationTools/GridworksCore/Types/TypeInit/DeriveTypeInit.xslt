@@ -20,12 +20,11 @@
         <FileSet>
 
             <FileSetFile>
-                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/types/__init__.py</xsl:text></xsl:element>
+                    <xsl:element name="RelativePath"><xsl:text>../../../../src/gjk/named_types/__init__.py</xsl:text></xsl:element>
 
                 <OverwriteMode>Always</OverwriteMode>
                 <xsl:element name="FileContents">
 <xsl:text>""" List of all the types """
-from gjk.types.gw_base import GwBase
 </xsl:text>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[
   count(Protocols[text()='gjk']) > 0 and
@@ -33,7 +32,7 @@ from gjk.types.gw_base import GwBase
   (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial') and
   not (NotInInit='true')
 ]">
-<xsl:sort select="VersionedTypeName" data-type="text"/>
+<xsl:sort select="VersionedTypeName" data-type="text"/>s
 
 <xsl:variable name="python-class-name">
 <xsl:if test="(normalize-space(PythonClassName) ='')">
@@ -47,7 +46,7 @@ from gjk.types.gw_base import GwBase
 </xsl:variable>
 
 <xsl:text>
-from gjk.types.</xsl:text>
+from gjk.named_types.</xsl:text>
 <xsl:value-of select="translate(TypeName,'.','_')"/>
 <xsl:text> import </xsl:text>
 <xsl:value-of select="$python-class-name"/>
@@ -57,7 +56,7 @@ from gjk.types.</xsl:text>
 
 
 __all__ = [
-    "GwBase",</xsl:text>
+    </xsl:text>
 
 
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[

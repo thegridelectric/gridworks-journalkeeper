@@ -2,6 +2,7 @@ import json
 from typing import Optional, Union
 
 from gw.errors import GwTypeError
+from gw.named_types import GwBase
 
 from gjk.models import (
     DataChannelSql,
@@ -10,10 +11,9 @@ from gjk.models import (
     ReadingSql,
     ScadaSql,
 )
+from gjk.named_types import DataChannelGt
+from gjk.named_types.asl_types import TypeByName
 from gjk.type_helpers import Message, NodalHourlyEnergy, Reading, Scada
-from gjk.types import DataChannelGt
-from gjk.types.asl_types import TypeByName
-from gjk.types.gw_base import GwBase
 
 
 def from_type(msg_bytes: bytes) -> Optional[GwBase]:

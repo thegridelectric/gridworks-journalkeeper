@@ -2,9 +2,8 @@
 
 from typing import Literal
 
+from gw.named_types import GwBase
 from pydantic import StrictInt
-
-from gjk.types.gw_base import GwBase
 
 
 class PowerWatts(GwBase):
