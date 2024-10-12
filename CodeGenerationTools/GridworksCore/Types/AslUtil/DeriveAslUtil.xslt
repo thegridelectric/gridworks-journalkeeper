@@ -31,13 +31,16 @@ from typing import Dict, List, no_type_check
 from gjk.old_types import GridworksEventSnapshotSpaceheat
 from gjk.old_types.batched_readings import BatchedReadings
 from gjk.old_types.channel_readings_000 import ChannelReadings000
+from gjk.old_types.channel_readings_001 import ChannelReadings001
 from gjk.old_types.gridworks_event_gt_sh_status import GridworksEventGtShStatus
+from gjk.old_types.gridworks_event_report import GridworksEventReport
 from gjk.old_types.gt_sh_booleanactuator_cmd_status import GtShBooleanactuatorCmdStatus
 from gjk.old_types.gt_sh_multipurpose_telemetry_status import (
     GtShMultipurposeTelemetryStatus,
 )
 from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
 from gjk.old_types.gt_sh_status import GtShStatus
+from gjk.old_types.report_000 import Report000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 from gw.named_types import GwBase
@@ -66,16 +69,19 @@ def types() -> List[GwBase]:
     return [
         BatchedReadings,
         ChannelReadings000,
+        ChannelReadings001,
         GridworksEventGtShStatus,
+        GridWorksEventReport,
         GridworksEventSnapshotSpaceheat,
         GtShBooleanactuatorCmdStatus,
         GtShMultipurposeTelemetryStatus,
         GtShSimpleTelemetryStatus,
         GtShStatus,
+        Report000,
         SnapshotSpaceheat000,
         TelemetrySnapshotSpaceheat,
         </xsl:text>
-<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk') and (normalize-space(VersionedTypeName)!='')]">
+<xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk') and (normalize-space(VersionedTypeName)!='') and (TypeStatus = 'Active' or TypeStatus = 'Pending')]">
 <xsl:sort select="VersionedTypeName" data-type="text"/>
 <xsl:variable name="versioned-type-id" select="VersionedType"/>
 <xsl:for-each select="$airtable//VersionedTypes/VersionedType[(VersionedTypeId = $versioned-type-id)  and (Status = 'Active' or Status = 'Pending')  and (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial')]">

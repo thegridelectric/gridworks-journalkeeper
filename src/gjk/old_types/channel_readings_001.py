@@ -1,4 +1,4 @@
-"""Type channel.readings, version 002"""
+"""Type channel.readings, version 000"""
 
 from typing import List, Literal
 
@@ -6,18 +6,16 @@ from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
-from gjk.property_format import (
-    SpaceheatName,
-    UTCMilliseconds,
-)
+from gjk.property_format import SpaceheatName, UTCMilliseconds, UUID4Str
 
 
-class ChannelReadings(GwBase):
+class ChannelReadings001(GwBase):
     channel_name: SpaceheatName
+    channel_id: UUID4Str
     value_list: List[StrictInt]
     scada_read_time_unix_ms_list: List[UTCMilliseconds]
     type_name: Literal["channel.readings"] = "channel.readings"
-    version: Literal["002"] = "002"
+    version: Literal["001"] = "001"
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

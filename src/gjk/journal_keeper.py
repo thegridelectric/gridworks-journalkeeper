@@ -1,11 +1,9 @@
 """JournalKeeper"""
 
-import functools
 import logging
 import threading
 import time
 from contextlib import contextmanager
-from typing import no_type_check
 
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
@@ -15,9 +13,15 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk.codec import pyd_to_sql, sql_to_pyd
 from gjk.config import Settings
-from gjk.models import insert_single_message, bulk_insert_readings, DataChannelSql
-from gjk.named_types import GridworksEventReport
+from gjk.models import (
+    DataChannelSql,
+    bulk_insert_datachannels,
+    bulk_insert_readings,
+    insert_single_message,
+)
+from gjk.named_types import MyChannelsEvent, ReportEvent
 from gjk.named_types.asl_types import TypeByName
+from gjk.old_types import GridworksEventReport
 from gjk.type_helpers import Message, Reading
 
 LOG_FORMAT = (
@@ -37,21 +41,26 @@ class JournalKeeper(ActorBase):
         self.Session = sessionmaker(bind=engine)
         self.main_thread = threading.Thread(target=self.main)
 
-    @no_type_check
-    def on_queue_declareok(self, _unused_frame) -> None:
-        LOGGER.info(
-            "Binding %s to %s with %s",
-            self._consume_exchange,
-            "ear_tx",
-            "#",
-        )
-        cb = functools.partial(self.on_direct_message_bindok, binding="#")
-        self._single_channel.queue_bind(
-            self.queue_name,
-            "ear_tx",
-            routing_key="#",
-            callback=cb,
-        )
+    def local_rabbit_startup(self) -> None:
+        """Overwrites base class method.
+        Meant for adding addtional bindings"""
+        type_names = [
+            MyChannelsEvent.type_name_value(),
+            ReportEvent.type_name_value(),
+        ]
+        routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
+        for rk in routing_keys:
+            LOGGER.info(
+                "Binding %s to %s with %s",
+                self._consume_exchange,
+                "ear_tx",
+                rk,
+            )
+            self._single_channel.queue_bind(
+                self.queue_name,
+                "ear_tx",
+                routing_key=rk,
+            )
 
     def local_start(self) -> None:
         """This overwrites local_start in actor_base, used for additional threads.
@@ -84,15 +93,46 @@ class JournalKeeper(ActorBase):
 
     def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
         print(f"Got {payload.type_name}")
-        if payload.type_name == GridworksEventReport.type_name_value():
+        if payload.type_name == MyChannelsEvent.type_name_value():
             try:
-                self.gridworks_event_report_from_scada(payload)
+                self.my_channels_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(
+                    f"Trouble with my_channels_event_from_scada: {e}"
+                ) from e
+
+        elif payload.type_name == ReportEvent.type_name_value():
+            try:
+                self.report_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with report_from_scada: {e}") from e
+        # old messages
+        elif payload.type_name == GridworksEventReport.type_name_value():
+            try:
+                self.old_gridworks_event_report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
 
+    def my_channels_event_from_scada(self, t: MyChannelsEvent) -> None:
+        my_channels = t.my_channels
+        msg = Message(
+            message_id=my_channels.message_id,
+            from_alias=my_channels.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=my_channels.to_dict(),
+            message_type_name=my_channels.type_name,
+            message_created_ms=my_channels.message_created_ms,
+        )
+        print(
+            f"Got channels from {my_channels.from_g_node_alias}. Look at self.channel"
+        )
+        with self.get_db() as db:
+            if insert_single_message(db, pyd_to_sql(msg)):
+                channels = [pyd_to_sql(ch) for ch in my_channels.channel_list]
+                bulk_insert_datachannels(db, channels)
 
-    def gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
-        self.msg = Message(
+    def report_event_from_scada(self, t: ReportEvent) -> None:
+        msg = Message(
             message_id=t.report.id,
             from_alias=t.report.from_g_node_alias,
             message_persisted_ms=int(time.time() * 1000),
@@ -101,21 +141,49 @@ class JournalKeeper(ActorBase):
             message_created_ms=t.report.message_created_ms,
         )
         with self.get_db() as db:
-            if insert_single_message(db, pyd_to_sql(self.msg)):
-                readings = []
+            if insert_single_message(db, pyd_to_sql(msg)):
+                readings_pyd = []
+                ta_alias = t.report.about_g_node_alias
                 for ch_readings in t.report.channel_reading_list:
-                    ch = db.get(DataChannelSql, ch_readings.channel_id)
+                    ch = (
+                        db.query(DataChannelSql)
+                        .filter_by(
+                            name=ch_readings.channel_name, terminal_asset_alias=ta_alias
+                        )
+                        .first()
+                    )
                     if ch is None:
-                        raise Exception(f"Did not find channel {ch_readings.channel_id} (see msg id {msg.message_id})")
-                    if ch.name != ch_readings.channel_name:
-                        raise Exception(f"Expect name {ch.name} for {ch.id} .. not {ch_readings.channel_name}. (see msg id {msg.message_id})")
-                    readings.append(pyd_to_sql(
-                        Reading(value=ch_readings.value_list[i],
-                                time_ms=ch_readings.scada_read_time_unix_ms_list[i],
-                                message_id=msg.message_id,
-                                data_channel=sql_to_pyd(ch)
-                        ) for i in len(ch_readings.value_list)
-                    ))
+                        raise Exception(
+                            f"Did not find channel {ch_readings.channel_name} (see msg id {msg.message_id})"
+                        )
+                    readings_pyd.extend([
+                        Reading(
+                            value=ch_readings.value_list[i],
+                            time_ms=ch_readings.scada_read_time_unix_ms_list[i],
+                            message_id=msg.message_id,
+                            data_channel=sql_to_pyd(ch),
+                        )
+                        for i in range(len(ch_readings.value_list))
+                    ])
+                # Insert the readings that go along with the message
+                readings = [pyd_to_sql(r) for r in readings_pyd]
+                bulk_insert_readings(db, readings)
+                short_alias = t.report.from_g_node_alias.split(".")[-2]
+                print(
+                    f"Inserted {len(readings)} from {short_alias}, msg id {msg.message_id}"
+                )
+
+    def old_gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
+        msg = Message(
+            message_id=t.report.id,
+            from_alias=t.report.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.report.to_dict(),
+            message_type_name=t.report.type_name,
+            message_created_ms=t.report.message_created_ms,
+        )
+        self.msg = msg
+        print("Set this up when loading old data")
 
     def main(self) -> None:
         while True:

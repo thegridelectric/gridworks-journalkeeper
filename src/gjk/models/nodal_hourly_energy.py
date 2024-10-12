@@ -67,7 +67,7 @@ class NodalHourlyEnergySql(Base):
 
 
 def bulk_insert_nodal_hourly_energy(
-    session: Session, hourly_energy_list: List[NodalHourlyEnergySql]
+    db: Session, hourly_energy_list: List[NodalHourlyEnergySql]
 ):
     """
     Idempotently bulk inserts NodalHourlyEnergySql into the journaldb hourly_device_energy table,
@@ -75,7 +75,7 @@ def bulk_insert_nodal_hourly_energy(
     hour_start_s, power_channel, g_node_alias uniqueness constraint.
 
     Args:
-        session (Session): An active SQLAlchemy session used for database operations.
+        db (Session): An active SQLAlchemy session used for database operations.
         hourly_energy_list (List[NodalHourlyEnergySql]): A list of NodalHourlyEnergySql objects to be
         conditionally inserted into the hourly_device_energy table of the journaldb database
 
@@ -107,12 +107,13 @@ def bulk_insert_nodal_hourly_energy(
                     tuple(getattr(hourly_energy, col.name) for col in unique_columns)
                 )
 
-            existing_pks = set(
-                session.query(pk_column).filter(pk_column.in_(pk_set)).all()
-            )
+            existing_pks = {
+                row[0]
+                for row in db.query(pk_column).filter(pk_column.in_(pk_set)).all()
+            }
 
             existing_uniques = set(
-                session.query(*unique_columns)
+                db.query(*unique_columns)
                 .filter(tuple_(*unique_columns).in_(unique_set))
                 .all()
             )
@@ -128,15 +129,15 @@ def bulk_insert_nodal_hourly_energy(
                 f"[{pendulum.from_timestamp(batch[0].hour_start_s)}] Inserting {len(new_hourly_energy)} out of {len(batch)}"
             )
 
-            session.bulk_save_objects(new_hourly_energy)
-            session.commit()
+            db.bulk_save_objects(new_hourly_energy)
+            db.commit()
 
         except NoSuchTableError as e:
             print(f"Error: The table does not exist. {e}")
-            session.rollback()
+            db.rollback()
         except OperationalError as e:
             print(f"Operational Error! {e}")
-            session.rollback()
+            db.rollback()
         except SQLAlchemyError as e:
             print(f"An error occurred: {e}")
-            session.rollback()
+            db.rollback()

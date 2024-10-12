@@ -1,7 +1,15 @@
 from typing import List
 
 import pendulum
-from sqlalchemy import BigInteger, Column, ForeignKey, String, UniqueConstraint, tuple_
+from sqlalchemy import (
+    BigInteger,
+    Column,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    tuple_,
+)
 from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
@@ -26,6 +34,10 @@ class ReadingSql(Base):
             "message_id",
             name="unique_time_data_channel_message",
         ),
+        # Index on message_id to speed up message-based queries
+        Index("ix_message_id", "message_id"),
+        # Composite index on data_channel_id and time_ms to speed up time-based queries for a channel
+        Index("ix_data_channel_time", "data_channel_id", "time_ms"),
     )
 
     data_channel = relationship("DataChannelSql", back_populates="readings")
@@ -47,7 +59,7 @@ class ReadingSql(Base):
         return f"{self.data_channel.name}: {self.value} {self.data_channel.telemetry_name}', time={pendulum.from_timestamp(self.time_ms / 1000)}>"
 
 
-def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
+def bulk_insert_readings(db: Session, reading_list: List[ReadingSql]):
     """
     Idempotently bulk inserts ReadingSql into the journaldb messages table,
     inserting only those whose primary keys do not already exist AND that
@@ -55,7 +67,7 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
     constraint.
 
     Args:
-        session (Session): An active SQLAlchemy session used for database operations.
+        db (Session): An active SQLAlchemy session used for database operations.
         reading_list (List[ReadingSql]): A list of ReadingSql objects to be conditionally
         inserted into the messages table of the journaldb database
 
@@ -86,12 +98,13 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
                     tuple(getattr(reading, col.name) for col in unique_columns)
                 )
 
-            existing_pks = set(
-                session.query(pk_column).filter(pk_column.in_(pk_set)).all()
-            )
+            existing_pks = {
+                row[0]
+                for row in db.query(pk_column).filter(pk_column.in_(pk_set)).all()
+            }
 
             existing_uniques = set(
-                session.query(*unique_columns)
+                db.query(*unique_columns)
                 .filter(tuple_(*unique_columns).in_(unique_set))
                 .all()
             )
@@ -107,15 +120,15 @@ def bulk_insert_readings(session: Session, reading_list: List[ReadingSql]):
                 f"[{str_from_ms(batch[0].time_ms)}] Inserting {len(new_readings)} out of {len(batch)}"
             )
 
-            session.bulk_save_objects(new_readings)
-            session.commit()
+            db.bulk_save_objects(new_readings)
+            db.commit()
 
         except NoSuchTableError as e:
             print(f"Error: The table does not exist. {e}")
-            session.rollback()
+            db.rollback()
         except OperationalError as e:
             print(f"Operational Error! {e}")
-            session.rollback()
+            db.rollback()
         except SQLAlchemyError as e:
             print(f"An error occurred: {e}")
-            session.rollback()
+            db.rollback()

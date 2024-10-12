@@ -54,6 +54,6 @@ for k in range(29):
                     readings.append(reading)
 
         print(f"Inserting {len(readings)} readings...")
-        bulk_insert_readings(session=session, reading_list=readings)
+        bulk_insert_readings(db=session, reading_list=readings)
 
     print("Done.")

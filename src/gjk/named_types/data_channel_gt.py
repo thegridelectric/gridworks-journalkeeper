@@ -1,5 +1,6 @@
 """Type data.channel.gt, version 001"""
 
+import json
 from typing import Any, Dict, Literal, Optional
 
 from gw.named_types import GwBase
@@ -54,7 +55,8 @@ class DataChannelGt(GwBase):
         return data
 
     def to_sql_dict(self) -> Dict[str, Any]:
-        d = self.model_dump()
+        msg_bytes = self.model_dump_json()  # this translated enums into strings
+        d = json.loads(msg_bytes)
         d.pop("type_name", None)
         d.pop("version", None)
         return d

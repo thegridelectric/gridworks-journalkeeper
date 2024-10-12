@@ -48,7 +48,8 @@ def insert_single_message(db: Session, msg: MessageSql) -> bool:
     except Exception:
         return False
 
-def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
+
+def bulk_insert_messages(db: Session, message_list: List[MessageSql]):
     """
     Idempotently bulk inserts MessageSql into the journaldb messages table,
     inserting only those whose primary keys do not already exist AND that
@@ -81,10 +82,12 @@ def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
             pk_set.add(message.message_id)
             unique_set.add(tuple(getattr(message, col.name) for col in unique_columns))
 
-        existing_pks = set(session.query(pk_column).filter(pk_column.in_(pk_set)).all())
+        existing_pks = {
+            row[0] for row in db.query(pk_column).filter(pk_column.in_(pk_set)).all()
+        }
 
         existing_uniques = set(
-            session.query(*unique_columns)
+            db.query(*unique_columns)
             .filter(tuple_(*unique_columns).in_(unique_set))
             .all()
         )
@@ -97,12 +100,12 @@ def bulk_insert_messages(session: Session, message_list: List[MessageSql]):
             not in existing_uniques
         ]
         print(f"Inserting {len(new_messages)} out of {len(message_list)}")
-        session.bulk_save_objects(new_messages)
-        session.commit()
+        db.bulk_save_objects(new_messages)
+        db.commit()
 
     except NoSuchTableError as e:
         print(f"Error: The table does not exist. {e}")
-        session.rollback()
+        db.rollback()
     except SQLAlchemyError as e:
         print(f"An error occurred: {e}")
-        session.rollback()
+        db.rollback()

@@ -49,6 +49,7 @@ class NodalHourlyEnergy(BaseModel):
 
     def to_sql_dict(self) -> Dict[str, Any]:
         d = self.model_dump()
+        d["power_channel_id"] = self.power_channel.id
         d["power_channel"] = self.power_channel.to_sql_dict()
         d.pop("type_name", None)
         d.pop("version", None)

@@ -32,7 +32,7 @@
   (ProtocolCategory = 'Json' or ProtocolCategory = 'GwAlgoSerial') and
   not (NotInInit='true')
 ]">
-<xsl:sort select="VersionedTypeName" data-type="text"/>s
+<xsl:sort select="VersionedTypeName" data-type="text"/>
 
 <xsl:variable name="python-class-name">
 <xsl:if test="(normalize-space(PythonClassName) ='')">

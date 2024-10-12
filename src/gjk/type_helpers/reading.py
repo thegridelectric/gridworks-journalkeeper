@@ -45,7 +45,8 @@ class Reading(BaseModel):
 
     def to_sql_dict(self) -> Dict[str, Any]:
         d = self.model_dump()
-        d["data_channel"] = self.data_channel.to_dict()
+        d["data_channel_id"] = self.data_channel.id
+        d["data_channel"] = self.data_channel.to_sql_dict()
         d.pop("type_name", None)
         d.pop("version", None)
         return d
