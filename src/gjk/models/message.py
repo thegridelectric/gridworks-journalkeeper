@@ -40,10 +40,10 @@ class MessageSql(Base):
         return d
 
 
-def insert_single_message(session: Session, msg: MessageSql) -> bool:
+def insert_single_message(db: Session, msg: MessageSql) -> bool:
     try:
-        session.add(msg)
-        session.commit()
+        db.add(msg)
+        db.commit()
         return True
     except Exception:
         return False

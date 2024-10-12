@@ -90,6 +90,7 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
 
+
     def gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
         self.msg = Message(
             message_id=t.report.id,
@@ -99,22 +100,22 @@ class JournalKeeper(ActorBase):
             message_type_name=t.report.type_name,
             message_created_ms=t.report.message_created_ms,
         )
-        # with self.get_db() as db:
-        #     if insert_single_message(msg):
-        #         readings = []
-        #         for ch_readings in t.report.channel_reading_list:
-        #             ch = db.get(DataChannelSql, ch_readings.channel_id)
-        #             if ch is None:
-        #                 raise Exception(f"Did not find channel {ch_readings.channel_id} (see msg id {msg.message_id})")
-        #             if ch.name != ch_readings.channel_name:
-        #                 raise Exception(f"Expect name {ch.name} for {ch.id} .. not {ch_readings.channel_name}. (see msg id {msg.message_id})")
-        #             readings.append(pyd_to_sql(
-        #                 Reading(value=ch_readings.value_list[i],
-        #                         time_ms=ch_readings.scada_read_time_unix_ms_list[i],
-        #                         message_id=msg.message_id,
-        #                         data_channel=sql_to_pyd(ch)
-        #                 ) for i in len(ch_readings.value_list)
-        #             ))
+        with self.get_db() as db:
+            if insert_single_message(db, pyd_to_sql(self.msg)):
+                readings = []
+                for ch_readings in t.report.channel_reading_list:
+                    ch = db.get(DataChannelSql, ch_readings.channel_id)
+                    if ch is None:
+                        raise Exception(f"Did not find channel {ch_readings.channel_id} (see msg id {msg.message_id})")
+                    if ch.name != ch_readings.channel_name:
+                        raise Exception(f"Expect name {ch.name} for {ch.id} .. not {ch_readings.channel_name}. (see msg id {msg.message_id})")
+                    readings.append(pyd_to_sql(
+                        Reading(value=ch_readings.value_list[i],
+                                time_ms=ch_readings.scada_read_time_unix_ms_list[i],
+                                message_id=msg.message_id,
+                                data_channel=sql_to_pyd(ch)
+                        ) for i in len(ch_readings.value_list)
+                    ))
 
     def main(self) -> None:
         while True:
