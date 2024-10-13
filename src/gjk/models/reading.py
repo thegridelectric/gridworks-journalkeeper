@@ -14,7 +14,6 @@ from sqlalchemy.exc import NoSuchTableError, OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session, relationship
 
 from gjk.models.message import Base
-from gjk.utils import str_from_ms
 
 # Define the base class
 
@@ -116,9 +115,7 @@ def bulk_insert_readings(db: Session, reading_list: List[ReadingSql]):
                 and tuple(getattr(reading, col.name) for col in unique_columns)
                 not in existing_uniques
             ]
-            print(
-                f"[{str_from_ms(batch[0].time_ms)}] Inserting {len(new_readings)} out of {len(batch)}"
-            )
+            print(f"Inserting {len(new_readings)} out of {len(batch)}")
 
             db.bulk_save_objects(new_readings)
             db.commit()

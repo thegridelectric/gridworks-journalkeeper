@@ -3,7 +3,8 @@ SELECT
     dc.name AS name,
     r.value AS value,
     dc.telemetry_name AS telemetry_name,
-    to_timestamp(time_ms / 1000.0) AT TIME ZONE 'America/New_York' AS time
+    to_timestamp(time_ms / 1000.0) AT TIME ZONE 'America/New_York' AS time,
+    r.message_id AS message_id
 FROM
     readings r
 JOIN

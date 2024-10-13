@@ -5,6 +5,7 @@ import threading
 import time
 from contextlib import contextmanager
 
+import pendulum
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
 from gwbase.codec import GwCodec
@@ -92,7 +93,12 @@ class JournalKeeper(ActorBase):
     ########################
 
     def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
-        print(f"Got {payload.type_name}")
+        t = time.time()
+        ft = pendulum.from_timestamp(t, tz="America/New_York").format(
+            "YYYY-MM-DD HH:mm:ss.SSS"
+        )
+        short_alias = from_alias.split(".")[-2]
+        print(f"[{ft}] {payload.type_name} from {short_alias}")
         if payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
