@@ -1,7 +1,7 @@
 import csv
-import json
-from typing import Dict, List
 from pathlib import Path
+from typing import Dict, List
+
 import pendulum
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.background import BackgroundTasks
@@ -19,23 +19,26 @@ readings_cache: Dict[str, List[ReadingSql]] = {}
 last_update_time: Dict[str, pendulum.DateTime] = {}
 today_str = ""
 
+
 def update_cache(short_alias: str, db: Session) -> None:
     ny_tz = pendulum.timezone("America/New_York")
     now = pendulum.now(ny_tz)
     if short_alias not in last_update_time:
         # If it's the first update, get data for the whole day
-        last_update_time[short_alias] = now.start_of('day')
+        last_update_time[short_alias] = now.start_of("day")
     start_time = last_update_time[short_alias]
     start_ms = int(start_time.timestamp() * 1000)
     end_ms = int(now.timestamp() * 1000)
     new_readings: List[ReadingSql] = (
         db.query(ReadingSql)
         .join(DataChannelSql)
-        .filter(and_(
-            DataChannelSql.terminal_asset_alias.like(f"%{short_alias}%"),
-            ReadingSql.time_ms >= start_ms,
-            ReadingSql.time_ms < end_ms
-        ))
+        .filter(
+            and_(
+                DataChannelSql.terminal_asset_alias.like(f"%{short_alias}%"),
+                ReadingSql.time_ms >= start_ms,
+                ReadingSql.time_ms < end_ms,
+            )
+        )
         .order_by(DataChannelSql.name, ReadingSql.time_ms)
         .all()
     )
@@ -46,11 +49,12 @@ def update_cache(short_alias: str, db: Session) -> None:
         # Sort and remove duplicates (if any)
         readings_cache[short_alias] = sorted(
             set(readings_cache[short_alias]),
-            key=lambda r: (r.data_channel.name, r.time_ms)
+            key=lambda r: (r.data_channel.name, r.time_ms),
         )
     else:
         readings_cache[short_alias] = new_readings
     last_update_time[short_alias] = now
+
 
 def generate_csv(short_alias: str, db: Session) -> Path:
     global today_str
@@ -62,7 +66,9 @@ def generate_csv(short_alias: str, db: Session) -> Path:
         today_str = new_today_str
     update_cache(short_alias, db)
     if short_alias not in readings_cache:
-        raise HTTPException(status_code=404, detail=f"No readings found for {short_alias}")
+        raise HTTPException(
+            status_code=404, detail=f"No readings found for {short_alias}"
+        )
     readings: List[ReadingSql] = readings_cache[short_alias]
     ta_alias = readings[0].data_channel.terminal_asset_alias
     csv_file_path = Path(f"/tmp/{short_alias}_{today_str}.csv")
@@ -79,10 +85,10 @@ def generate_csv(short_alias: str, db: Session) -> Path:
             "TelemetryName",
         ])
         for r in readings:
-            time_utc = pendulum.from_timestamp(r.time_ms / 1000, tz='America/New_York')
+            time_utc = pendulum.from_timestamp(r.time_ms / 1000, tz="America/New_York")
             writer.writerow([
                 f"{r.data_channel.name}_{r.time_ms}",
-                time_utc.format('YYYY-MM-DD HH:mm:ss'),
+                time_utc.format("YYYY-MM-DD HH:mm:ss"),
                 r.data_channel.name,
                 r.time_ms,
                 r.value,
