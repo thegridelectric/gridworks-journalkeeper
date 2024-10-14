@@ -8,7 +8,7 @@ short_aliases = ["oak", "beech", "fir"]
 
 URL = "http://journalmaker.electricity.works:8000/latest-scada-report"
 INTERVAL = 300  # 5 minutes in seconds
-OUT_STUB = "/home/ubuntu/gdrive/MillinocketData/ScadaReportA"
+OUT_STUB = "/home/ubuntu/gdrive/MillinocketData/ScadaReportB"
 
 
 def fetch_and_save_csv():
@@ -24,7 +24,8 @@ def fetch_and_save_csv():
                 # Fallback to generating a filename if not provided
                 timestamp = pendulum.now("America/New_York").format("YYYYMMDD")
                 filename = f"{short_alias}_{timestamp}.csv"
-            with open(filename, "w") as f:
+            file_path = f"{OUT_STUB}/{filename}"
+            with open(file_path, "w") as f:
                 f.write(response.text)
             print(f"CSV saved as {filename}")
         except requests.RequestException as e:
