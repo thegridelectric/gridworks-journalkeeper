@@ -102,7 +102,12 @@ class JournalKeeper(ActorBase):
         print(f"[{ft}] {payload.type_name} from {short_alias}")
         if payload.type_name == Report.type_name_value():
             try:
-                self.report
+                self.report_from_scada(payload)
+            except Exception as e:
+                raise Exception(
+                    f"Trouble with report_from_scada: {e}"
+                ) from e
+
         if payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
