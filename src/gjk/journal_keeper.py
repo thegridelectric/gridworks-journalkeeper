@@ -100,27 +100,25 @@ class JournalKeeper(ActorBase):
         )
         short_alias = from_alias.split(".")[-2]
         print(f"[{ft}] {payload.type_name} from {short_alias}")
-        if payload.type_name == Report.type_name_value():
+        if payload.type_name == ReportEvent.type_name_value():
+            try:
+                self.report_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == Report.type_name_value():
             try:
                 self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(
                     f"Trouble with report_from_scada: {e}"
                 ) from e
-
-        if payload.type_name == MyChannelsEvent.type_name_value():
+        elif payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
             except Exception as e:
                 raise Exception(
                     f"Trouble with my_channels_event_from_scada: {e}"
                 ) from e
-
-        elif payload.type_name == ReportEvent.type_name_value():
-            try:
-                self.report_event_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
         # old messages
         elif payload.type_name == GridworksEventReport.type_name_value():
             try:
