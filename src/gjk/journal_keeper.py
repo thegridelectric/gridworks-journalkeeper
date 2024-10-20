@@ -20,7 +20,7 @@ from gjk.models import (
     bulk_insert_readings,
     insert_single_message,
 )
-from gjk.named_types import MyChannelsEvent, ReportEvent
+from gjk.named_types import MyChannelsEvent, ReportEvent, Report
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport
 from gjk.type_helpers import Message, Reading
@@ -48,6 +48,7 @@ class JournalKeeper(ActorBase):
         type_names = [
             MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
+            Report.type_name_value(),
         ]
         routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
         for rk in routing_keys:
@@ -99,6 +100,9 @@ class JournalKeeper(ActorBase):
         )
         short_alias = from_alias.split(".")[-2]
         print(f"[{ft}] {payload.type_name} from {short_alias}")
+        if payload.type_name == Report.type_name_value():
+            try:
+                self.report
         if payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
@@ -138,19 +142,22 @@ class JournalKeeper(ActorBase):
                 bulk_insert_datachannels(db, channels)
 
     def report_event_from_scada(self, t: ReportEvent) -> None:
+        self.report_from_scada(t.report)
+
+    def report_from_scada(self, t: Report) -> None:
         msg = Message(
-            message_id=t.report.id,
-            from_alias=t.report.from_g_node_alias,
+            message_id=t.id,
+            from_alias=t.from_g_node_alias,
             message_persisted_ms=int(time.time() * 1000),
-            payload=t.report.to_dict(),
-            message_type_name=t.report.type_name,
-            message_created_ms=t.report.message_created_ms,
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.message_created_ms,
         )
         with self.get_db() as db:
             if insert_single_message(db, pyd_to_sql(msg)):
                 readings_pyd = []
-                ta_alias = t.report.about_g_node_alias
-                for ch_readings in t.report.channel_reading_list:
+                ta_alias = t.about_g_node_alias
+                for ch_readings in t.channel_reading_list:
                     ch = (
                         db.query(DataChannelSql)
                         .filter_by(
@@ -174,7 +181,7 @@ class JournalKeeper(ActorBase):
                 # Insert the readings that go along with the message
                 readings = [pyd_to_sql(r) for r in readings_pyd]
                 bulk_insert_readings(db, readings)
-                short_alias = t.report.from_g_node_alias.split(".")[-2]
+                short_alias = t.from_g_node_alias.split(".")[-2]
                 print(
                     f"Inserted {len(readings)} from {short_alias}, msg id {msg.message_id}"
                 )
