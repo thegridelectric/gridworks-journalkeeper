@@ -20,7 +20,7 @@ from gjk.models import (
     bulk_insert_readings,
     insert_single_message,
 )
-from gjk.named_types import MyChannelsEvent, ReportEvent, Report
+from gjk.named_types import MyChannelsEvent, Report, ReportEvent
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport
 from gjk.type_helpers import Message, Reading
@@ -109,9 +109,7 @@ class JournalKeeper(ActorBase):
             try:
                 self.report_from_scada(payload)
             except Exception as e:
-                raise Exception(
-                    f"Trouble with report_from_scada: {e}"
-                ) from e
+                raise Exception(f"Trouble with report_from_scada: {e}") from e
         elif payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)

@@ -38,6 +38,7 @@ class TelemetryName(GwStrEnum):
         69329 means 69.329 deg Fahrenheit.
       - ThermostatState (00002000): Thermostat State: 0 means idle, 1 means heating, 2 means pending
         heat
+      - MicroVolts (b664ac55): Microvolts RMS
     """
 
     Unknown = auto()
@@ -54,6 +55,7 @@ class TelemetryName(GwStrEnum):
     AirTempCTimes1000 = auto()
     AirTempFTimes1000 = auto()
     ThermostatState = auto()
+    MicroVolts = auto()
 
     @classmethod
     def default(cls) -> "TelemetryName":
@@ -164,6 +166,7 @@ class TelemetryName(GwStrEnum):
             "0f627faa",
             "4c3f8c78",
             "00002000",
+            "b664ac55",
         ]
 
 
@@ -182,6 +185,7 @@ symbol_to_value = {
     "0f627faa": "AirTempCTimes1000",
     "4c3f8c78": "AirTempFTimes1000",
     "00002000": "ThermostatState",
+    "b664ac55": "MicroVolts",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -201,4 +205,5 @@ value_to_version = {
     "AirTempCTimes1000": "001",
     "AirTempFTimes1000": "001",
     "ThermostatState": "001",
+    "MicroVolts": "001",
 }
