@@ -1,12 +1,13 @@
 # From https://github.com/thegridelectric/gridworks-journalkeeper/blob/dev/src/gjk/api/csvs_to_google.py
 
 import time
+
 import pendulum
 import requests
 
 short_aliases = ["oak", "beech", "fir"]
 
-URL = "http://journalmaker.electricity.works:8000/scada-report" # 5 minutes in seconds
+URL = "http://journalmaker.electricity.works:8000/scada-report"  # 5 minutes in seconds
 OUT_STUB = "/home/ubuntu/gdrive/MillinocketData/ScadaReportB"
 TZ_STRING = "America/New_York"
 

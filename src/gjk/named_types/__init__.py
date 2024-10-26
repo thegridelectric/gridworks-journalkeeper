@@ -13,6 +13,10 @@ from gjk.named_types.power_watts import PowerWatts
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
+from gjk.named_types.ticklist_hall import TicklistHall
+from gjk.named_types.ticklist_hall_report import TicklistHallReport
+from gjk.named_types.ticklist_reed import TicklistReed
+from gjk.named_types.ticklist_reed_report import TicklistReedReport
 
 __all__ = [
     "ChannelReadings",
@@ -28,4 +32,8 @@ __all__ = [
     "Report",
     "ReportEvent",
     "SnapshotSpaceheat",
+    "TicklistHallReport",
+    "TicklistHall",
+    "TicklistReedReport",
+    "TicklistReed",
 ]

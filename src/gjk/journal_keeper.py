@@ -20,7 +20,13 @@ from gjk.models import (
     bulk_insert_readings,
     insert_single_message,
 )
-from gjk.named_types import MyChannelsEvent, Report, ReportEvent
+from gjk.named_types import (
+    MyChannelsEvent,
+    Report,
+    ReportEvent,
+    TicklistHallReport,
+    TicklistReedReport,
+)
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport
 from gjk.type_helpers import Message, Reading
@@ -49,6 +55,8 @@ class JournalKeeper(ActorBase):
             MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
+            TicklistReedReport.type_name_value(),
+            TicklistHallReport.type_name_value(),
         ]
         routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
         for rk in routing_keys:
@@ -123,6 +131,9 @@ class JournalKeeper(ActorBase):
                 self.old_gridworks_event_report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == TicklistReedReport():
+            print("Got TicklistReedReport")
+            # todo: create table in database to store data for analysis
 
     def my_channels_event_from_scada(self, t: MyChannelsEvent) -> None:
         my_channels = t.my_channels

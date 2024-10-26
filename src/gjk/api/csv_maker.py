@@ -115,23 +115,24 @@ def get_latest_scada_report(short_alias: str, db: Session = Depends(get_db)):
             status_code=500, detail=f"Error generating CSV: {str(e)}"
         ) from e
 
+
 @csv_maker_router.get("/scada-report/{short_alias}/{date_str}")
 def get_scada_report_by_date(
-    short_alias: str,
-    date_str: str,
-    db: Session = Depends(get_db)
+    short_alias: str, date_str: str, db: Session = Depends(get_db)
 ):
     if not date_str.isdigit() or len(date_str) != 8:
-        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYYMMDD.")
+        raise HTTPException(
+            status_code=400, detail="Invalid date format. Use YYYYMMDD."
+        )
     try:
         ny_tz = pendulum.timezone(TzString)
         report_date = pendulum.from_format(date_str, "YYYYMMDD", tz=ny_tz)
         # Validate that the date is not in the future
-        if report_date > pendulum.now(ny_tz).start_of('day'):
+        if report_date > pendulum.now(ny_tz).start_of("day"):
             raise HTTPException(status_code=400, detail="Date cannot be in the future")
 
-        start_ms = int(report_date.start_of('day').timestamp() * 1000)
-        end_ms = int(report_date.end_of('day').timestamp() * 1000)
+        start_ms = int(report_date.start_of("day").timestamp() * 1000)
+        end_ms = int(report_date.end_of("day").timestamp() * 1000)
 
         readings: List[ReadingSql] = (
             db.query(ReadingSql)
@@ -149,13 +150,17 @@ def get_scada_report_by_date(
 
         if not readings:
             raise HTTPException(
-                status_code=404, detail=f"No readings found for {short_alias} on {date_str}"
+                status_code=404,
+                detail=f"No readings found for {short_alias} on {date_str}",
             )
 
         csv_file_path = Path(f"/tmp/{short_alias}_{date_str}.csv")
         with open(csv_file_path, mode="w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["TerminalAsset", readings[0].data_channel.terminal_asset_alias])
+            writer.writerow([
+                "TerminalAsset",
+                readings[0].data_channel.terminal_asset_alias,
+            ])
             writer.writerow(["ReportTypeName", "scada.report.b.000"])
             writer.writerow([
                 "Channel&Time",
