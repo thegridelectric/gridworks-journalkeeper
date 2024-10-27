@@ -286,7 +286,7 @@ BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
     BcName.HP_LWT: DataChannelGt(
         id="a49db047-e38f-44a4-b773-29102c2fc526",
         name=BcName.HP_LWT,
-        display_name="HP EWT (C x 1000)",
+        display_name="HP LWT (C x 1000)",
         about_node_name=BN.HP_LWT,
         captured_by_node_name=BN.ANALOG_TEMP,
         telemetry_name=TelemetryName.WaterTempCTimes1000,
