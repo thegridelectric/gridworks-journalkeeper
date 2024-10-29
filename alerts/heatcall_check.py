@@ -115,7 +115,7 @@ def check_distflow():
             print(f'Found {len(flow_in_following_5min)} power reports in the close minutes')
             print(flow_in_following_5min)
 
-            if pendulum.now(tz='America/New_York').add(minutes=-5) < pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'):
+            if pendulum.now(tz='America/New_York').add(minutes=-2) < pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'):
                 print('This is too early to tell')
             else:
                 if len(flow_in_following_5min)==0:
