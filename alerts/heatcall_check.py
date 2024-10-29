@@ -104,25 +104,29 @@ def check_distflow():
                 if last_heatcall_zone[-1] > last_heat_call_time_ms[house_alias]:
                     last_heat_call_time_ms[house_alias] = last_heatcall_zone[-1]
         print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York')}")
-    
+
         # Try to find data after the last heat call (TODO: if you don't look before it)
         for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
             flow_in_following_5min = [
                 flow['values'][i] 
                 for i in range(len(flow['times']))
-                if flow['times'][i]>=last_heat_call_time_ms[house_alias]-2*60*1000
+                if flow['times'][i]>=last_heat_call_time_ms[house_alias]-10*60*1000
                 and flow['times'][i]<=last_heat_call_time_ms[house_alias]+10*60*1000]
             print(f'Found {len(flow_in_following_5min)} power reports in the close minutes')
             print(flow_in_following_5min)
-            if len(flow_in_following_5min)==0:
-                print(f'WE HAVE A PROBLEM AT {house_alias} !!')
-                send_opsgenie_alert(house_alias, 
-                                    pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+
+            if pendulum.now(tz='America/New_York').add(minutes=-5) < pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'):
+                print('This is too early to tell')
             else:
-                if max(flow_in_following_5min)<2:
+                if len(flow_in_following_5min)==0:
                     print(f'WE HAVE A PROBLEM AT {house_alias} !!')
                     send_opsgenie_alert(house_alias, 
                                         pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+                else:
+                    if max(flow_in_following_5min)<2:
+                        print(f'WE HAVE A PROBLEM AT {house_alias} !!')
+                        send_opsgenie_alert(house_alias, 
+                                            pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
         print(f"Done for {house_alias}")
 
 
