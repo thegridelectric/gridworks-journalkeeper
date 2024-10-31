@@ -131,11 +131,13 @@ def check_distflow():
                     if flow['times'][i]<=last_heatcall_time-10*60*1000][-1]
                 # If the last value reported means the dist pump was off
                 if last_flow_before_hc10 <= MIN_POWER_KW:
-                    alerts[house_alias].append(last_heatcall_time)
+                    if last_heatcall_time not in alerts[house_alias]:
+                        alerts[house_alias].append(last_heatcall_time)
             else:
                 # Check if there was really power
                 if max(flow_around_heatcall) <= MIN_POWER_KW:
-                    alerts[house_alias].append(last_heatcall_time)
+                    if last_heatcall_time not in alerts[house_alias]:
+                        alerts[house_alias].append(last_heatcall_time)
                 # Reset the alert to 0 if there was flow around the last heat call
                 else:
                     alerts[house_alias] = []
