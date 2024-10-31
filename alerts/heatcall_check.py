@@ -56,6 +56,7 @@ def check_distflow():
 
     # For every house
     all_house_aliases = list(set([x.from_alias for x in messages]))
+    all_house_aliases = [x.split('.')[-2] for x in all_house_aliases]
     for house_alias in all_house_aliases:
 
         print(f"\n{house_alias}\n")
