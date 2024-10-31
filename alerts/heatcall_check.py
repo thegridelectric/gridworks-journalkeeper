@@ -17,9 +17,9 @@ from gjk.models import ReadingSql, DataChannelSql, MessageSql
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 HOUSES = ['oak']
-last_heat_call_time_ms = {}
 dist_flow_after_heat_call = {}
 num_alerts = 0
+alerts = {}
 MIN_POWER_KW = 2
 
 settings = Settings(_env_file=dotenv.find_dotenv())
@@ -60,10 +60,11 @@ def check_distflow():
     for house_alias in HOUSES:
 
         print(f"\n{house_alias}\n")
-        last_heat_call_time_ms[house_alias] = 0
+        if house_alias not in alerts:
+            alerts[house_alias] = []
 
         # Get all the data you need
-        start_ms = pendulum.now().add(days=-1).timestamp() * 1000
+        start_ms = pendulum.now(tz='America/New_York').add(days=-1).timestamp() * 1000
         messages = session.query(MessageSql).filter(
             MessageSql.from_alias.like(f'%{house_alias}%'),
             or_(
@@ -100,22 +101,26 @@ def check_distflow():
             channels[key]['times'] = list(sorted_times)
         
         # Find the last heat call in the house
+        last_heatcall_time = 0
         for zone in [channels[channel] for channel in channels.keys() if 'zone' in channel]:
             last_heatcall_zone = [
                         zone['times'][i] 
                         for i in range(len(zone['times']))
                         if zone['values'][i]==1]
             if last_heatcall_zone:
-                if last_heatcall_zone[-1] > last_heat_call_time_ms[house_alias]:
-                    last_heat_call_time_ms[house_alias] = last_heatcall_zone[-1]
-        print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York')}")
+                if last_heatcall_zone[-1] > last_heatcall_time:
+                    last_heatcall_time = last_heatcall_zone[-1]
+        if last_heatcall_time>0:
+            print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York')}")
+        else:
+            print(f"The last heat call at {house_alias} was more than 24 hours ago.")
 
         # Try to find flow data around the last heat call
         for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
             flow_around_heatcall = [
                 flow['values'][i] 
                 for i in range(len(flow['times']))
-                if flow['times'][i]>=last_heat_call_time_ms[house_alias]-10*60*1000]
+                if flow['times'][i]>=last_heatcall_time-10*60*1000]
             print(f'Found {len(flow_around_heatcall)} power reports at some point in time in [heatcall-10min, now]')
             print(flow_around_heatcall)
             if not flow_around_heatcall:
@@ -123,24 +128,24 @@ def check_distflow():
                 last_flow_before_hc10 = [
                     flow['values'][i] 
                     for i in range(len(flow['times']))
-                    if flow['times'][i]<=last_heat_call_time_ms[house_alias]-10*60*1000][-1]
+                    if flow['times'][i]<=last_heatcall_time-10*60*1000][-1]
                 # If the last value reported means the dist pump was off
                 if last_flow_before_hc10 <= MIN_POWER_KW:
-                    num_alerts += 1
+                    alerts[house_alias].append(last_heatcall_time)
             else:
                 # Check if there was really power
                 if max(flow_around_heatcall) <= MIN_POWER_KW:
-                    num_alerts += 1
+                    alerts[house_alias].append(last_heatcall_time)
                 # Reset the alert to 0 if there was flow around the last heat call
                 else:
-                    num_alerts = 0
+                    alerts[house_alias] = []
 
         # Send Opsgenie alert if there have been three alerts
-        if num_alerts==3:
-            print(f'WE HAVE A PROBLEM AT {house_alias} !!')
-            send_opsgenie_alert(house_alias, pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+        if len(alerts[house_alias])==3:
+            print(f'[ALERT] There are 3 unsatisfied heat calls at {house_alias}!')
+            send_opsgenie_alert(house_alias, pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York'))
 
-        print(f"Done for {house_alias}")
+        print(f"Done for {house_alias}.")
 
 
         # # Find the datachannels in the given house
@@ -159,14 +164,14 @@ def check_distflow():
         #             ReadingSql.value == 1,
         #             ReadingSql.time_ms >= start_ms,
         #         ).order_by(desc(ReadingSql.time_ms)).first()
-        #         if last_reading.time_ms > last_heat_call_time_ms[house_alias]:
-        #             last_heat_call_time_ms[house_alias] = last_reading.time_ms
-        # print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York')}")
+        #         if last_reading.time_ms > last_heatcall_time[house_alias]:
+        #             last_heatcall_time[house_alias] = last_reading.time_ms
+        # print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heatcall_time[house_alias]/1000, tz='America/New_York')}")
 
         # # Try to find data after the last heat call (TODO: if you don't look before it)
         # for channel in [dc for dc in data_channels if dc.name=='dist-flow']:
-        #     start_ms = last_heat_call_time_ms[house_alias]
-        #     end_ms = last_heat_call_time_ms[house_alias] + 5*60*1000
+        #     start_ms = last_heatcall_time[house_alias]
+        #     end_ms = last_heatcall_time[house_alias] + 5*60*1000
         #     dist_flow_data = session.query(ReadingSql).filter(
         #         ReadingSql.data_channel_id.like(channel.id),
         #         ReadingSql.time_ms >= start_ms,
@@ -176,7 +181,7 @@ def check_distflow():
         #     if len(dist_flow_data)==0:
         #         print(f"We have a problem at {house_alias}!")
         #         send_opsgenie_alert(house_alias, 
-        #                             pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+        #                             pendulum.from_timestamp(last_heatcall_time[house_alias]/1000, tz='America/New_York'))
 
 if __name__ == '__main__':
     while(True):
