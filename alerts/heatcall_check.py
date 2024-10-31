@@ -19,6 +19,8 @@ GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 HOUSES = ['oak']
 last_heat_call_time_ms = {}
 dist_flow_after_heat_call = {}
+num_alerts = 0
+MIN_POWER_KW = 2
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
@@ -52,6 +54,9 @@ def send_opsgenie_alert(house_alias, heat_call_time):
         )
 
 def check_distflow():
+
+    global num_alerts
+
     for house_alias in HOUSES:
 
         print(f"\n{house_alias}\n")
@@ -105,28 +110,36 @@ def check_distflow():
                     last_heat_call_time_ms[house_alias] = last_heatcall_zone[-1]
         print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York')}")
 
-        # Try to find data after the last heat call (TODO: if you don't look before it)
+        # Try to find flow data around the last heat call
         for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
-            flow_in_following_5min = [
+            flow_around_heatcall = [
                 flow['values'][i] 
                 for i in range(len(flow['times']))
-                if flow['times'][i]>=last_heat_call_time_ms[house_alias]-10*60*1000
-                and flow['times'][i]<=last_heat_call_time_ms[house_alias]+10*60*1000]
-            print(f'Found {len(flow_in_following_5min)} power reports in the close minutes')
-            print(flow_in_following_5min)
-
-            if pendulum.now(tz='America/New_York').add(minutes=-2) < pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'):
-                print('This is too early to tell')
+                if flow['times'][i]>=last_heat_call_time_ms[house_alias]-10*60*1000]
+            print(f'Found {len(flow_around_heatcall)} power reports at some point in time in [heatcall-10min, now]')
+            print(flow_around_heatcall)
+            if not flow_around_heatcall:
+                # Check the last value before heatcall-10min
+                last_flow_before_hc10 = [
+                    flow['values'][i] 
+                    for i in range(len(flow['times']))
+                    if flow['times'][i]<=last_heat_call_time_ms[house_alias]-10*60*1000][-1]
+                # If the last value reported means the dist pump was off
+                if last_flow_before_hc10 <= MIN_POWER_KW:
+                    num_alerts += 1
             else:
-                if len(flow_in_following_5min)==0:
-                    print(f'WE HAVE A PROBLEM AT {house_alias} !!')
-                    send_opsgenie_alert(house_alias, 
-                                        pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+                # Check if there was really power
+                if max(flow_around_heatcall) <= MIN_POWER_KW:
+                    num_alerts += 1
+                # Reset the alert to 0 if there was flow around the last heat call
                 else:
-                    if max(flow_in_following_5min)<2:
-                        print(f'WE HAVE A PROBLEM AT {house_alias} !!')
-                        send_opsgenie_alert(house_alias, 
-                                            pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+                    num_alerts = 0
+
+        # Send Opsgenie alert if there have been three alerts
+        if num_alerts==3:
+            print(f'WE HAVE A PROBLEM AT {house_alias} !!')
+            send_opsgenie_alert(house_alias, pendulum.from_timestamp(last_heat_call_time_ms[house_alias]/1000, tz='America/New_York'))
+
         print(f"Done for {house_alias}")
 
 
