@@ -45,7 +45,7 @@ def check_distflow():
     global warnings
 
     # Get the data
-    start_ms = pendulum.now(tz='America/New_York').add(minutes=-10*RUN_EVERY_MIN).timestamp() * 1000
+    start_ms = pendulum.now(tz='America/New_York').add(days=-1).timestamp() * 1000
     messages = session.query(MessageSql).filter(
         or_(
             MessageSql.message_type_name == "batched.readings",
