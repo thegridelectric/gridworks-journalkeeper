@@ -65,7 +65,7 @@ def check_distflow():
         channels = {}
 
         # Store times and values for every channel
-        for message in messages:
+        for message in [m for m in messages if house_alias in m.from_alias]:
             for channel in message.payload['ChannelReadingList']:
                 # Find the channel name
                 if message.message_type_name == 'report':
