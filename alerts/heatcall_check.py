@@ -47,7 +47,6 @@ def check_distflow():
     # Get the data
     start_ms = pendulum.now(tz='America/New_York').add(minutes=-10*RUN_EVERY_MIN).timestamp() * 1000
     messages = session.query(MessageSql).filter(
-        MessageSql.from_alias.like(f'%{house_alias}%'),
         or_(
             MessageSql.message_type_name == "batched.readings",
             MessageSql.message_type_name == "report"
