@@ -103,42 +103,42 @@ def check_distflow():
                     last_heatcall_time = last_heatcall_zone[-1]
         if last_heatcall_time>0:
             print(f"Last heat call at {pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York')}")
-        else:
-            print(f"Last heat call was more than 24 hours ago.")
-
-        # Try to find flow data around the last heat call
-        for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
-            flow_around_heatcall = [
-                flow['values'][i] 
-                for i in range(len(flow['times']))
-                if flow['times'][i]>=last_heatcall_time-5*60*1000]
-            if not flow_around_heatcall:
-                # Check the last value before heatcall-5min
-                last_flow_before_hc5 = [
+        
+            # Try to find flow data around the last heat call
+            for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
+                flow_around_heatcall = [
                     flow['values'][i] 
                     for i in range(len(flow['times']))
-                    if flow['times'][i]<=last_heatcall_time-5*60*1000]
-                if last_flow_before_hc5:
-                    # The dist pump was off
-                    if last_flow_before_hc5[-1] <= MIN_POWER_KW:
+                    if flow['times'][i]>=last_heatcall_time-5*60*1000]
+                if not flow_around_heatcall:
+                    # Check the last value before heatcall-5min
+                    last_flow_before_hc5 = [
+                        flow['values'][i] 
+                        for i in range(len(flow['times']))
+                        if flow['times'][i]<=last_heatcall_time-5*60*1000]
+                    if last_flow_before_hc5:
+                        # The dist pump was off
+                        if last_flow_before_hc5[-1] <= MIN_POWER_KW:
+                            if last_heatcall_time not in warnings[house_alias]:
+                                warnings[house_alias].append(last_heatcall_time)
+                                print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
+                    else:
+                        # No data for the dist pump
                         if last_heatcall_time not in warnings[house_alias]:
                             warnings[house_alias].append(last_heatcall_time)
                             print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
                 else:
-                    # No data for the dist pump
-                    if last_heatcall_time not in warnings[house_alias]:
-                        warnings[house_alias].append(last_heatcall_time)
-                        print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
-            else:
-                # The dist pump was off
-                if max(flow_around_heatcall) <= MIN_POWER_KW:
-                    if last_heatcall_time not in warnings[house_alias]:
-                        warnings[house_alias].append(last_heatcall_time)
-                        print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
-                # Reset the warnings if there was flow around the last heat call
-                else:
-                    print("[OK] Distribution pump came on during or after that heat call.")
-                    warnings[house_alias] = []
+                    # The dist pump was off
+                    if max(flow_around_heatcall) <= MIN_POWER_KW:
+                        if last_heatcall_time not in warnings[house_alias]:
+                            warnings[house_alias].append(last_heatcall_time)
+                            print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
+                    # Reset the warnings if there was flow around the last heat call
+                    else:
+                        print("[OK] Distribution pump came on during or after that heat call.")
+                        warnings[house_alias] = []
+        else:
+            print(f"Last heat call was more than 24 hours ago.")
 
         # Send Opsgenie alert if there have been too many warnings
         if len(warnings[house_alias])==MAX_WARNINGS:
