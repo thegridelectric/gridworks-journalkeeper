@@ -1,79 +1,70 @@
 import json
-import subprocess
-import pandas as pd
 import time
 import dotenv
 import pendulum
 import requests
-from pydantic import BaseModel
 from sqlalchemy import create_engine, desc, asc, or_
 from sqlalchemy.orm import sessionmaker
-import matplotlib.pyplot as plt
-from datetime import timedelta
-import numpy as np
-from typing import List
 from gjk.config import Settings
 from gjk.models import ReadingSql, DataChannelSql, MessageSql
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
-HOUSES = ['oak']
-dist_flow_after_heat_call = {}
-num_alerts = 0
-alerts = {}
 MIN_POWER_KW = 2
+MAX_WARNINGS = 3
+RUN_EVERY_MIN = 10
+warnings = {}
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
 Session = sessionmaker(bind=engine)
 session = Session()
 
+
 def send_opsgenie_alert(house_alias, heat_call_time):
-    # Create OpsGenie client configuration
     url = "https://api.opsgenie.com/v2/alerts"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"GenieKey {settings.ops_genie_api_key.get_secret_value()}",
     }
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
-
     payload = {
         "message": f"[{house_alias}] No dist-flow has been recorded after a heat call at {heat_call_time}.",
         "alias": "dist-flow",
         "priority": "P1",
         "responders": responders,
     }
-
     response = requests.post(url, headers=headers, data=json.dumps(payload))
-
-    # Check for successful response
     if response.status_code == 202:
-        print("Alert sent successfully!")
+        print("Alert sent successfully")
     else:
-        print(
-            f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}"
-        )
+        print(f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}")
+
 
 def check_distflow():
 
-    global num_alerts
+    global warnings
 
-    for house_alias in HOUSES:
+    # Get the data
+    start_ms = pendulum.now(tz='America/New_York').add(minutes=-10*RUN_EVERY_MIN).timestamp() * 1000
+    messages = session.query(MessageSql).filter(
+        MessageSql.from_alias.like(f'%{house_alias}%'),
+        or_(
+            MessageSql.message_type_name == "batched.readings",
+            MessageSql.message_type_name == "report"
+            ),
+        MessageSql.message_persisted_ms >= start_ms,
+    ).order_by(asc(MessageSql.message_persisted_ms)).all()
+
+    # For every house
+    all_house_aliases = list(set([x.from_alias for x in messages]))
+    for house_alias in all_house_aliases:
 
         print(f"\n{house_alias}\n")
-        if house_alias not in alerts:
-            alerts[house_alias] = []
-
-        # Get all the data you need
-        start_ms = pendulum.now(tz='America/New_York').add(days=-1).timestamp() * 1000
-        messages = session.query(MessageSql).filter(
-            MessageSql.from_alias.like(f'%{house_alias}%'),
-            or_(
-                MessageSql.message_type_name == "batched.readings",
-                MessageSql.message_type_name == "report"
-                ),
-            MessageSql.message_persisted_ms >= start_ms,
-        ).order_by(asc(MessageSql.message_persisted_ms)).all()
+        if house_alias not in warnings:
+            warnings[house_alias] = []
         channels = {}
+
+        # Store times and values for every channel
         for message in messages:
             for channel in message.payload['ChannelReadingList']:
                 # Find the channel name
@@ -83,7 +74,7 @@ def check_distflow():
                     for dc in message.payload['DataChannelList']:
                         if dc['Id'] == channel['ChannelId']:
                             channel_name = dc['Name']
-                # Store the values and times for the channel
+                # Store the times and values
                 if ('zone' in channel_name and 'state' in channel_name) or (channel_name=='dist-pump-pwr'):
                     if channel_name not in channels:
                         channels[channel_name] = {
@@ -93,7 +84,7 @@ def check_distflow():
                     else:
                         channels[channel_name]['values'].extend(channel['ValueList'])
                         channels[channel_name]['times'].extend(channel['ScadaReadTimeUnixMsList'])
-        # Sort values according to time
+        # Sort according to time
         for key in channels.keys():
             sorted_times_values = sorted(zip(channels[key]['times'], channels[key]['values']))
             sorted_times, sorted_values = zip(*sorted_times_values)
@@ -111,39 +102,46 @@ def check_distflow():
                 if last_heatcall_zone[-1] > last_heatcall_time:
                     last_heatcall_time = last_heatcall_zone[-1]
         if last_heatcall_time>0:
-            print(f"Last heat call for {house_alias}: {pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York')}")
+            print(f"Last heat call at {pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York')}")
         else:
-            print(f"The last heat call at {house_alias} was more than 24 hours ago.")
+            print(f"Last heat call was more than 24 hours ago.")
 
         # Try to find flow data around the last heat call
         for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
             flow_around_heatcall = [
                 flow['values'][i] 
                 for i in range(len(flow['times']))
-                if flow['times'][i]>=last_heatcall_time-10*60*1000]
-            print(f'Found {len(flow_around_heatcall)} power reports at some point in time in [heatcall-10min, now]')
-            print(flow_around_heatcall)
+                if flow['times'][i]>=last_heatcall_time-5*60*1000]
             if not flow_around_heatcall:
-                # Check the last value before heatcall-10min
-                last_flow_before_hc10 = [
+                # Check the last value before heatcall-5min
+                last_flow_before_hc5 = [
                     flow['values'][i] 
                     for i in range(len(flow['times']))
-                    if flow['times'][i]<=last_heatcall_time-10*60*1000][-1]
-                # If the last value reported means the dist pump was off
-                if last_flow_before_hc10 <= MIN_POWER_KW:
-                    if last_heatcall_time not in alerts[house_alias]:
-                        alerts[house_alias].append(last_heatcall_time)
-            else:
-                # Check if there was really power
-                if max(flow_around_heatcall) <= MIN_POWER_KW:
-                    if last_heatcall_time not in alerts[house_alias]:
-                        alerts[house_alias].append(last_heatcall_time)
-                # Reset the alert to 0 if there was flow around the last heat call
+                    if flow['times'][i]<=last_heatcall_time-5*60*1000]
+                if last_flow_before_hc5:
+                    # The dist pump was off
+                    if last_flow_before_hc5[-1] <= MIN_POWER_KW:
+                        if last_heatcall_time not in warnings[house_alias]:
+                            warnings[house_alias].append(last_heatcall_time)
+                            print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
                 else:
-                    alerts[house_alias] = []
+                    # No data for the dist pump
+                    if last_heatcall_time not in warnings[house_alias]:
+                        warnings[house_alias].append(last_heatcall_time)
+                        print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
+            else:
+                # The dist pump was off
+                if max(flow_around_heatcall) <= MIN_POWER_KW:
+                    if last_heatcall_time not in warnings[house_alias]:
+                        warnings[house_alias].append(last_heatcall_time)
+                        print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
+                # Reset the warnings if there was flow around the last heat call
+                else:
+                    print("[OK] Distribution pump came on during or after that heat call.")
+                    warnings[house_alias] = []
 
-        # Send Opsgenie alert if there have been three alerts
-        if len(alerts[house_alias])==3:
+        # Send Opsgenie alert if there have been too many warnings
+        if len(warnings[house_alias])==MAX_WARNINGS:
             print(f'[ALERT] There are 3 unsatisfied heat calls at {house_alias}!')
             send_opsgenie_alert(house_alias, pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York'))
 
@@ -188,4 +186,4 @@ def check_distflow():
 if __name__ == '__main__':
     while(True):
         check_distflow()
-        time.sleep(5*60)
+        time.sleep(RUN_EVERY_MIN*60)
