@@ -1,6 +1,6 @@
 import json
 import subprocess
-
+import time
 import dotenv
 import pendulum
 import requests
@@ -38,15 +38,10 @@ def latest_messages() -> list[str]:
                     recent_files.append(file_name)
             except (IndexError, ValueError):
                 print(f"Could not process file: {file_name}")
-        if recent_files:
-            print("Recent files uploaded in the last 10 minutes:")
-            for recent_file in recent_files:
-                print(recent_file)
-        else:
-            print("No files uploaded in the last 10 minutes.")
+        print(f"{len(recent_files)} files uploaded in the last 10 minutes.")
     except subprocess.CalledProcessError as e:
         print(f"Error running AWS CLI command: {e}")
-    return recent_files
+    return len(recent_files)
 
 
 def send_opsgenie_alert(settings: Settings):
@@ -77,11 +72,14 @@ def send_opsgenie_alert(settings: Settings):
 
 
 if __name__ == "__main__":
-    # from datetime import datetime
-    # with open("/home/ubuntu/gridworks-journalkeeper/alerts/ear_check.log", "a") as log_file:
-    #     log_file.write(f"Script executed at: {datetime.now()}\n")
+    from datetime import datetime
+    with open("/home/ubuntu/gridworks-journalkeeper/alerts/ear_check.log", "a") as log_file:
+        log_file.write(f"Script executed at: {datetime.now()}\n")
 
-    settings = Settings(_env_file=dotenv.find_dotenv())
-    latest = latest_messages()
-    if len(latest) == 0:
-        send_opsgenie_alert(settings)
+    while(True):
+        print("Searching for latest messages...")
+        settings = Settings(_env_file=dotenv.find_dotenv())
+        num_messages = latest_messages()
+        if num_messages == 0:
+            send_opsgenie_alert(settings)
+        time.sleep(10*60)
