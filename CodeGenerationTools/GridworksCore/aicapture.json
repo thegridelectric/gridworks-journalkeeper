@@ -27,7 +27,7 @@
       "ProjectTranspilerId": "53b850fc-d424-44fc-8797-769a7657bbf7",
       "Name": "SSoT",
       "RelativePath": "",
-      "CommandLine": "effortless/ssot -p ssot-key=IuUqkLn41mZ8TS"
+      "CommandLine": "airtable/airtable-to-odxml -p baseId=appgibWM6WZW20bBx"
     },
     {
       "MatchedTranspiler": {
