@@ -53,6 +53,7 @@ class JournalKeeper(ActorBase):
         """Overwrites base class method.
         Meant for adding addtional bindings"""
         type_names = [
+            LayoutEvent.type_name_value(),
             MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
