@@ -9,7 +9,9 @@ def test_layout_lite_generated() -> None:
         "FromGNodeInstanceId": "98542a17-3180-4f2a-a929-6023f0e7a106",
         "MessageCreatedMs": 1728651445746,
         "MessageId": "1302c0f8-1983-43b2-90d2-61678d731db3",
+        "Strategy": "House0",
         "ZoneList": ["Down", "Up"],
+        "TotalStoreTanks": 3,
         "DataChannels": [
             {
                 "Name": "hp-idu-pwr",

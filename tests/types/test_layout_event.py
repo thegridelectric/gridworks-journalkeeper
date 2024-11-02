@@ -14,6 +14,8 @@ def test_layout_event_generated() -> None:
             "MessageCreatedMs": 1728651445746,
             "MessageId": "1302c0f8-1983-43b2-90d2-61678d731db3",
             "ZoneList": ["Down", "Up"],
+            "Strategy": "House0",
+            "TotalStoreTanks": 3,
             "DataChannels": [
                 {
                     "Name": "hp-idu-pwr",

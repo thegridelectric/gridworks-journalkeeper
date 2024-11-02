@@ -8,8 +8,8 @@ from gjk.property_format import LeftRightDot, SpaceheatName, UTCMilliseconds
 
 class TicklistHallReport(GwBase):
     terminal_asset_alias: LeftRightDot
-    actor_node_name: SpaceheatName
+    channel_name: SpaceheatName
     scada_received_unix_ms: UTCMilliseconds
-    tick_list: TicklistHall
+    ticklist: TicklistHall
     type_name: Literal["ticklist.hall.report"] = "ticklist.hall.report"
     version: Literal["000"] = "000"

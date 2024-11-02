@@ -12,8 +12,8 @@ class TicklistHall(GwBase):
     first_tick_timestamp_nano_second: Optional[int]
     relative_microsecond_list: List[int]
     pico_before_post_timestamp_nano_second: int
-    TypeName: Literal["ticklist.hall"] = "ticklist.hall"
-    Version: Literal["101"] = "101"
+    type_name: Literal["ticklist.hall"] = "ticklist.hall"
+    version: Literal["101"] = "101"
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

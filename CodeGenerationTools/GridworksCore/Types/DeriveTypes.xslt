@@ -123,6 +123,8 @@ from gw import check_is_market_slot_name_lrd_format</xsl:text>
 </xsl:if>
 <xsl:text>
 from gw.named_types import GwBase</xsl:text>
+<xsl:if test="ExtraAllowed='true'"><xsl:text>
+from gw.utils import snake_to_pascal</xsl:text></xsl:if>
 <xsl:for-each select="$airtable//TypeAttributes/TypeAttribute[(VersionedType = $versioned-type-id)]">
 
 

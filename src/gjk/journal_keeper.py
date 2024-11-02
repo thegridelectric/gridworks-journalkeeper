@@ -21,6 +21,7 @@ from gjk.models import (
     insert_single_message,
 )
 from gjk.named_types import (
+    LayoutEvent,
     MyChannelsEvent,
     Report,
     ReportEvent,
@@ -118,6 +119,11 @@ class JournalKeeper(ActorBase):
                 self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == LayoutEvent.type_name_value():
+            try:
+                self.layout_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with layout_event_from_scada: {e}") from e
         elif payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
@@ -135,6 +141,26 @@ class JournalKeeper(ActorBase):
             print("Got TicklistReedReport")
             # todo: create table in database to store data for analysis
 
+    def layout_event_from_scada(self, t: LayoutEvent) -> None:
+        layout = t.layout
+        msg = Message(
+            message_id=layout.message_id,
+            from_alias=layout.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=layout.to_dict(),
+            message_type_name=layout.type_name,
+            message_created_ms=layout.message_created_ms,
+        )
+        print("Got layout event")
+        for c in layout.flow_module_components:
+            print(
+                f"{c.flow_node_name}: {c.flow_meter_type}, {c.hz_calc_method}, {c.constant_gallons_per_tick} ticks per gallon"
+            )
+        with self.get_db() as db:
+            if insert_single_message(db, pyd_to_sql(msg)):
+                channels = [pyd_to_sql(ch) for ch in layout.data_channels]
+                bulk_insert_datachannels(db, channels)
+
     def my_channels_event_from_scada(self, t: MyChannelsEvent) -> None:
         my_channels = t.my_channels
         msg = Message(
@@ -144,9 +170,6 @@ class JournalKeeper(ActorBase):
             payload=my_channels.to_dict(),
             message_type_name=my_channels.type_name,
             message_created_ms=my_channels.message_created_ms,
-        )
-        print(
-            f"Got channels from {my_channels.from_g_node_alias}. Look at self.channel"
         )
         with self.get_db() as db:
             if insert_single_message(db, pyd_to_sql(msg)):
