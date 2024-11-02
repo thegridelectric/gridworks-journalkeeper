@@ -24,7 +24,10 @@ class TicklistReed(GwBase):
             raise ValueError(
                 "FirstTickTimestampNanoSecond is None but RelativeMillisecondList has nonzero length!"
             )
-        if self.first_tick_timestamp_nano_second and len(self.relative_millisecond_list) == 0:
+        if (
+            self.first_tick_timestamp_nano_second
+            and len(self.relative_millisecond_list) == 0
+        ):
             raise ValueError(
                 "FirstTickTimestampNanoSecond exists but RelativeMillisecondList has no elements!"
             )

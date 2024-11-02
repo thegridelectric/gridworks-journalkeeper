@@ -18,8 +18,8 @@ class TelemetryName(GwStrEnum):
     Values (with symbols in parens):
       - Unknown (00000000): Default Value - unknown telemetry name.
       - PowerW (af39eec9): Power in Watts.
-      - RelayState (5a71d4b3): The Telemetry reading belongs to ['Energized', 'DeEnergized'] (relay.energization.state
-        enum).
+      - RelayState (5a71d4b3): The Telemetry reading belongs to [1 ('Energized'), 0 ('DeEnergized')]
+        (relay.energization.state enum).
       - WaterTempCTimes1000 (c89d0ba1): Water temperature, in Degrees Celcius multiplied by 1000.
         Example: 43200 means 43.2 deg Celcius.
       - WaterTempFTimes1000 (793505aa): Water temperature, in Degrees F multiplied by 1000. Example:
@@ -31,7 +31,7 @@ class TelemetryName(GwStrEnum):
         report cumulative gallons as their raw output. Example: 55300 means 55.3 gallons.
       - VoltageRmsMilliVolts (bb6fdd59): Voltage in Root Mean Square MilliVolts.
       - MilliWattHours (e0bb014b): Energy in MilliWattHours.
-      - FrequencyMicroHz (337b8659): Frequency in MicroHz. Example: 59,965,332 means 59.965332 Hz.
+      - MicroHz (337b8659): Frequency in MicroHz. Example: 59,965,332 means 59.965332 Hz.
       - AirTempCTimes1000 (0f627faa): Air temperature, in Degrees Celsius multiplied by 1000. Example:
         6234 means 6.234 deg Celcius.
       - AirTempFTimes1000 (4c3f8c78): Air temperature, in Degrees F multiplied by 1000. Example:
@@ -51,7 +51,7 @@ class TelemetryName(GwStrEnum):
     GallonsTimes100 = auto()
     VoltageRmsMilliVolts = auto()
     MilliWattHours = auto()
-    FrequencyMicroHz = auto()
+    MicroHz = auto()
     AirTempCTimes1000 = auto()
     AirTempFTimes1000 = auto()
     ThermostatState = auto()
@@ -181,7 +181,7 @@ symbol_to_value = {
     "329a68c0": "GallonsTimes100",
     "bb6fdd59": "VoltageRmsMilliVolts",
     "e0bb014b": "MilliWattHours",
-    "337b8659": "FrequencyMicroHz",
+    "337b8659": "MicroHz",
     "0f627faa": "AirTempCTimes1000",
     "4c3f8c78": "AirTempFTimes1000",
     "00002000": "ThermostatState",
@@ -201,7 +201,7 @@ value_to_version = {
     "GallonsTimes100": "000",
     "VoltageRmsMilliVolts": "001",
     "MilliWattHours": "001",
-    "FrequencyMicroHz": "001",
+    "MicroHz": "001",
     "AirTempCTimes1000": "001",
     "AirTempFTimes1000": "001",
     "ThermostatState": "001",

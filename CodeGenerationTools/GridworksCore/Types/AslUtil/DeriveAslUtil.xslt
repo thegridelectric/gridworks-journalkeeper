@@ -71,7 +71,7 @@ def types() -> List[GwBase]:
         ChannelReadings000,
         ChannelReadings001,
         GridworksEventGtShStatus,
-        GridWorksEventReport,
+        GridworksEventReport,
         GridworksEventSnapshotSpaceheat,
         GtShBooleanactuatorCmdStatus,
         GtShMultipurposeTelemetryStatus,

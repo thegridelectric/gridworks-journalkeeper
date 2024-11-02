@@ -17,7 +17,7 @@ def test_telemetry_name() -> None:
         "GallonsTimes100",
         "VoltageRmsMilliVolts",
         "MilliWattHours",
-        "FrequencyMicroHz",
+        "MicroHz",
         "AirTempCTimes1000",
         "AirTempFTimes1000",
         "ThermostatState",
@@ -38,7 +38,7 @@ def test_telemetry_name() -> None:
     assert TelemetryName.version("GallonsTimes100") == "000"
     assert TelemetryName.version("VoltageRmsMilliVolts") == "001"
     assert TelemetryName.version("MilliWattHours") == "001"
-    assert TelemetryName.version("FrequencyMicroHz") == "001"
+    assert TelemetryName.version("MicroHz") == "001"
     assert TelemetryName.version("AirTempCTimes1000") == "001"
     assert TelemetryName.version("AirTempFTimes1000") == "001"
     assert TelemetryName.version("ThermostatState") == "001"

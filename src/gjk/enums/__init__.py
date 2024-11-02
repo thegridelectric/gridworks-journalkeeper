@@ -51,6 +51,7 @@ from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.enums.relay_pin_set import RelayPinSet
 from gjk.enums.store_flow_direction import StoreFlowDirection
 from gjk.enums.telemetry_name import TelemetryName
+from gjk.enums.temp_calc_method import TempCalcMethod
 
 __all__ = [
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
@@ -74,4 +75,5 @@ __all__ = [
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
     "StoreFlowDirection",  # [store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowdirection)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
+    "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
 ]

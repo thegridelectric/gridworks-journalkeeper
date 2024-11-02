@@ -24,7 +24,10 @@ class TicklistHall(GwBase):
             raise ValueError(
                 "FirstTickTimestampNanoSecond is None but  RelativeMicrosecondList has nonzero length!"
             )
-        if self.first_tick_timestamp_nano_second and len(self.relative_microsecond_list) == 0:
+        if (
+            self.first_tick_timestamp_nano_second
+            and len(self.relative_microsecond_list) == 0
+        ):
             raise ValueError(
                 "FirstTickTimestampNanoSecond exists but  RelativeMicrosecondList has no elements!"
             )

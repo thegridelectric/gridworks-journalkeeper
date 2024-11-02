@@ -11,12 +11,18 @@ from gjk.named_types.fsm_event import FsmEvent
 from gjk.named_types.fsm_full_report import FsmFullReport
 from gjk.named_types.heartbeat_a import HeartbeatA
 from gjk.named_types.keyparam_change_log import KeyparamChangeLog
+from gjk.named_types.layout_event import LayoutEvent
+from gjk.named_types.layout_lite import LayoutLite
 from gjk.named_types.my_channels import MyChannels
 from gjk.named_types.my_channels_event import MyChannelsEvent
 from gjk.named_types.power_watts import PowerWatts
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
+from gjk.named_types.ticklist_hall import TicklistHall
+from gjk.named_types.ticklist_hall_report import TicklistHallReport
+from gjk.named_types.ticklist_reed import TicklistReed
+from gjk.named_types.ticklist_reed_report import TicklistReedReport
 from gjk.old_types import GridworksEventSnapshotSpaceheat
 from gjk.old_types.batched_readings import BatchedReadings
 from gjk.old_types.channel_readings_000 import ChannelReadings000
@@ -59,12 +65,18 @@ def types() -> List[GwBase]:
         FsmFullReport,
         HeartbeatA,
         KeyparamChangeLog,
+        LayoutEvent,
+        LayoutLite,
         MyChannels,
         MyChannelsEvent,
         PowerWatts,
         Report,
         ReportEvent,
         SnapshotSpaceheat,
+        TicklistHall,
+        TicklistHallReport,
+        TicklistReed,
+        TicklistReedReport,
     ]
 
 
