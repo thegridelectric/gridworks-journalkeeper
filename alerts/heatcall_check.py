@@ -1,12 +1,13 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
-from sqlalchemy import create_engine, desc, asc, or_
-from sqlalchemy.orm import sessionmaker
 from gjk.config import Settings
-from gjk.models import ReadingSql, DataChannelSql, MessageSql
+from gjk.models import MessageSql
+from sqlalchemy import asc, create_engine, or_
+from sqlalchemy.orm import sessionmaker
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 MIN_POWER_KW = 2
@@ -37,28 +38,33 @@ def send_opsgenie_alert(house_alias, heat_call_time):
     if response.status_code == 202:
         print("Alert sent successfully")
     else:
-        print(f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}")
+        print(
+            f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}"
+        )
 
 
 def check_distflow():
-
     global warnings
 
     # Get the data
-    start_ms = pendulum.now(tz='America/New_York').add(days=-1).timestamp() * 1000
-    messages = session.query(MessageSql).filter(
-        or_(
-            MessageSql.message_type_name == "batched.readings",
-            MessageSql.message_type_name == "report"
+    start_ms = pendulum.now(tz="America/New_York").add(days=-1).timestamp() * 1000
+    messages = (
+        session.query(MessageSql)
+        .filter(
+            or_(
+                MessageSql.message_type_name == "batched.readings",
+                MessageSql.message_type_name == "report",
             ),
-        MessageSql.message_persisted_ms >= start_ms,
-    ).order_by(asc(MessageSql.message_persisted_ms)).all()
+            MessageSql.message_persisted_ms >= start_ms,
+        )
+        .order_by(asc(MessageSql.message_persisted_ms))
+        .all()
+    )
 
     # For every house
-    all_house_aliases = list(set([x.from_alias for x in messages]))
-    all_house_aliases = [x.split('.')[-2] for x in all_house_aliases]
+    all_house_aliases = list({x.from_alias for x in messages})
+    all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
     for house_alias in all_house_aliases:
-
         print(f"\n{house_alias}\n")
         if house_alias not in warnings:
             warnings[house_alias] = []
@@ -66,87 +72,111 @@ def check_distflow():
 
         # Store times and values for every channel
         for message in [m for m in messages if house_alias in m.from_alias]:
-            for channel in message.payload['ChannelReadingList']:
+            for channel in message.payload["ChannelReadingList"]:
                 # Find the channel name
-                if message.message_type_name == 'report':
-                    channel_name = channel['ChannelName']
-                elif message.message_type_name == 'batched.readings':
-                    for dc in message.payload['DataChannelList']:
-                        if dc['Id'] == channel['ChannelId']:
-                            channel_name = dc['Name']
+                if message.message_type_name == "report":
+                    channel_name = channel["ChannelName"]
+                elif message.message_type_name == "batched.readings":
+                    for dc in message.payload["DataChannelList"]:
+                        if dc["Id"] == channel["ChannelId"]:
+                            channel_name = dc["Name"]
                 # Store the times and values
-                if ('zone' in channel_name and 'state' in channel_name) or (channel_name=='dist-pump-pwr'):
+                if ("zone" in channel_name and "state" in channel_name) or (
+                    channel_name == "dist-pump-pwr"
+                ):
                     if channel_name not in channels:
                         channels[channel_name] = {
-                            'values': channel['ValueList'],
-                            'times': channel['ScadaReadTimeUnixMsList']
+                            "values": channel["ValueList"],
+                            "times": channel["ScadaReadTimeUnixMsList"],
                         }
                     else:
-                        channels[channel_name]['values'].extend(channel['ValueList'])
-                        channels[channel_name]['times'].extend(channel['ScadaReadTimeUnixMsList'])
+                        channels[channel_name]["values"].extend(channel["ValueList"])
+                        channels[channel_name]["times"].extend(
+                            channel["ScadaReadTimeUnixMsList"]
+                        )
         # Sort according to time
         for key in channels.keys():
-            sorted_times_values = sorted(zip(channels[key]['times'], channels[key]['values']))
+            sorted_times_values = sorted(
+                zip(channels[key]["times"], channels[key]["values"])
+            )
             sorted_times, sorted_values = zip(*sorted_times_values)
-            channels[key]['values'] = list(sorted_values)
-            channels[key]['times'] = list(sorted_times)
-        
+            channels[key]["values"] = list(sorted_values)
+            channels[key]["times"] = list(sorted_times)
+
         # Find the last heat call in the house
         last_heatcall_time = 0
-        for zone in [channels[channel] for channel in channels.keys() if 'zone' in channel]:
+        for zone in [
+            channels[channel] for channel in channels.keys() if "zone" in channel
+        ]:
             last_heatcall_zone = [
-                        zone['times'][i] 
-                        for i in range(len(zone['times']))
-                        if zone['values'][i]==1]
+                zone["times"][i]
+                for i in range(len(zone["times"]))
+                if zone["values"][i] == 1
+            ]
             if last_heatcall_zone:
-                if last_heatcall_zone[-1] > last_heatcall_time:
-                    last_heatcall_time = last_heatcall_zone[-1]
-        if last_heatcall_time>0:
-            print(f"Last heat call at {pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York')}")
-        
+                last_heatcall_time = max(last_heatcall_zone[-1], last_heatcall_time)
+        if last_heatcall_time > 0:
+            print(
+                f"Last heat call at {pendulum.from_timestamp(last_heatcall_time / 1000, tz='America/New_York')}"
+            )
+
             # Try to find flow data around the last heat call
-            for flow in [channels[channel] for channel in channels.keys() if 'dist-pump-pwr' in channel]:
+            for flow in [
+                channels[channel]
+                for channel in channels.keys()
+                if "dist-pump-pwr" in channel
+            ]:
                 flow_around_heatcall = [
-                    flow['values'][i] 
-                    for i in range(len(flow['times']))
-                    if flow['times'][i]>=last_heatcall_time-5*60*1000]
+                    flow["values"][i]
+                    for i in range(len(flow["times"]))
+                    if flow["times"][i] >= last_heatcall_time - 5 * 60 * 1000
+                ]
                 if not flow_around_heatcall:
                     # Check the last value before heatcall-5min
                     last_flow_before_hc5 = [
-                        flow['values'][i] 
-                        for i in range(len(flow['times']))
-                        if flow['times'][i]<=last_heatcall_time-5*60*1000]
+                        flow["values"][i]
+                        for i in range(len(flow["times"]))
+                        if flow["times"][i] <= last_heatcall_time - 5 * 60 * 1000
+                    ]
                     if last_flow_before_hc5:
                         # The dist pump was off
                         if last_flow_before_hc5[-1] <= MIN_POWER_KW:
                             if last_heatcall_time not in warnings[house_alias]:
                                 warnings[house_alias].append(last_heatcall_time)
-                                print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
-                    else:
-                        # No data for the dist pump
-                        if last_heatcall_time not in warnings[house_alias]:
-                            warnings[house_alias].append(last_heatcall_time)
-                            print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
+                                print(
+                                    f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call."
+                                )
+                    elif last_heatcall_time not in warnings[house_alias]:
+                        warnings[house_alias].append(last_heatcall_time)
+                        print(
+                            f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call."
+                        )
+                elif max(flow_around_heatcall) <= MIN_POWER_KW:
+                    if last_heatcall_time not in warnings[house_alias]:
+                        warnings[house_alias].append(last_heatcall_time)
+                        print(
+                            f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call."
+                        )
+                # Reset the warnings if there was flow around the last heat call
                 else:
-                    # The dist pump was off
-                    if max(flow_around_heatcall) <= MIN_POWER_KW:
-                        if last_heatcall_time not in warnings[house_alias]:
-                            warnings[house_alias].append(last_heatcall_time)
-                            print(f"[WARNING {len(warnings[house_alias])}/{MAX_WARNINGS}] Distribution pump has not reported any activity during or after that heat call.")
-                    # Reset the warnings if there was flow around the last heat call
-                    else:
-                        print("[OK] Distribution pump came on during or after that heat call.")
-                        warnings[house_alias] = []
+                    print(
+                        "[OK] Distribution pump came on during or after that heat call."
+                    )
+                    warnings[house_alias] = []
         else:
-            print(f"Last heat call was more than 24 hours ago.")
+            print("Last heat call was more than 24 hours ago.")
 
         # Send Opsgenie alert if there have been too many warnings
-        if len(warnings[house_alias])==MAX_WARNINGS:
-            print(f'[ALERT] There are 3 unsatisfied heat calls at {house_alias}!')
-            send_opsgenie_alert(house_alias, pendulum.from_timestamp(last_heatcall_time/1000, tz='America/New_York'))
+        if len(warnings[house_alias]) == MAX_WARNINGS:
+            print(f"[ALERT] There are 3 unsatisfied heat calls at {house_alias}!")
+            send_opsgenie_alert(
+                house_alias,
+                pendulum.from_timestamp(
+                    last_heatcall_time / 1000, tz="America/New_York"
+                ),
+            )
 
         print(f"Done for {house_alias}.")
-
 
         # # Find the datachannels in the given house
         # data_channels = session.query(DataChannelSql).filter(
@@ -180,10 +210,11 @@ def check_distflow():
         #     print(f"Found {len(dist_flow_data)} dist-flow readings in the 5 minutes after that heat call.")
         #     if len(dist_flow_data)==0:
         #         print(f"We have a problem at {house_alias}!")
-        #         send_opsgenie_alert(house_alias, 
+        #         send_opsgenie_alert(house_alias,
         #                             pendulum.from_timestamp(last_heatcall_time[house_alias]/1000, tz='America/New_York'))
 
-if __name__ == '__main__':
-    while(True):
+
+if __name__ == "__main__":
+    while True:
         check_distflow()
-        time.sleep(RUN_EVERY_MIN*60)
+        time.sleep(RUN_EVERY_MIN * 60)

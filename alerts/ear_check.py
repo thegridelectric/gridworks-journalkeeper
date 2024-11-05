@@ -1,6 +1,7 @@
 import json
 import subprocess
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -73,13 +74,16 @@ def send_opsgenie_alert(settings: Settings):
 
 if __name__ == "__main__":
     from datetime import datetime
-    with open("/home/ubuntu/gridworks-journalkeeper/alerts/ear_check.log", "a") as log_file:
+
+    with open(
+        "/home/ubuntu/gridworks-journalkeeper/alerts/ear_check.log", "a"
+    ) as log_file:
         log_file.write(f"Script executed at: {datetime.now()}\n")
 
-    while(True):
+    while True:
         print("Searching for latest messages...")
         settings = Settings(_env_file=dotenv.find_dotenv())
         num_messages = latest_messages()
         if num_messages == 0:
             send_opsgenie_alert(settings)
-        time.sleep(10*60)
+        time.sleep(10 * 60)
