@@ -30,7 +30,11 @@ class ChannelConfig(GwBase):
     version: Literal["000"] = "000"
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True, use_enum_values=True
+        alias_generator=snake_to_pascal,
+        extra="allow",
+        frozen=True,
+        populate_by_name=True,
+        use_enum_values=True,
     )
 
     @model_validator(mode="after")

@@ -43,19 +43,25 @@ class PicoFlowModuleComponentGt(GwBase):
     component_attribute_class_id: Optional[UUID4Str] = None
     config_list: Optional[List[ChannelConfig]] = None
     d_isplay_name: Optional[str] = None
-    type_name: Literal["pico.flow.module.component.gt"] = "pico.flow.module.component.gt"
+    type_name: Literal["pico.flow.module.component.gt"] = (
+        "pico.flow.module.component.gt"
+    )
     version: Literal["000"] = "000"
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True, use_enum_values=True
+        alias_generator=snake_to_pascal,
+        extra="allow",
+        frozen=True,
+        populate_by_name=True,
+        use_enum_values=True,
     )
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
-        Axiom 1: Param consistency.
-        - If HzCalcMethod is BasicExpWeightedAvg then ExpAlpha must exist. 
-- If HzCalcMethod is BasicButterhworth then CutoffFrequency must exist
+                Axiom 1: Param consistency.
+                - If HzCalcMethod is BasicExpWeightedAvg then ExpAlpha must exist.
+        - If HzCalcMethod is BasicButterhworth then CutoffFrequency must exist
 
 
         """

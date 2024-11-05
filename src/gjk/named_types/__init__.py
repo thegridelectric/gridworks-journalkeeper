@@ -6,6 +6,7 @@ from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.named_types.fsm_atomic_report import FsmAtomicReport
 from gjk.named_types.fsm_event import FsmEvent
 from gjk.named_types.fsm_full_report import FsmFullReport
+from gjk.named_types.gridworks_event_problem import GridworksEventProblem
 from gjk.named_types.heartbeat_a import HeartbeatA
 from gjk.named_types.keyparam_change_log import KeyparamChangeLog
 from gjk.named_types.layout_event import LayoutEvent
@@ -30,6 +31,7 @@ __all__ = [
     "FsmAtomicReport",
     "FsmEvent",
     "FsmFullReport",
+    "GridworksEventProblem",
     "HeartbeatA",
     "KeyparamChangeLog",
     "LayoutEvent",

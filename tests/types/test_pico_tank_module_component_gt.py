@@ -97,6 +97,7 @@ def test_pico_tank_module_component_gt_generated() -> None:
         ],
         "DisplayName": "buffer PicoTankModule",
         "SerialNumber": "NA",
+        "AsyncCaptureDeltaMicroVolts": 2000,
         "TypeName": "pico.tank.module.component.gt",
         "Version": "000",
     }

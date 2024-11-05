@@ -50,6 +50,7 @@ from gjk.enums.gpm_from_hz_method import GpmFromHzMethod
 from gjk.enums.hz_calc_method import HzCalcMethod
 from gjk.enums.kind_of_param import KindOfParam
 from gjk.enums.make_model import MakeModel
+from gjk.enums.problem_type import ProblemType
 from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.enums.relay_pin_set import RelayPinSet
 from gjk.enums.store_flow_direction import StoreFlowDirection
@@ -79,10 +80,11 @@ __all__ = [
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
     "MakeModel",  # [spaceheat.make.model.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatmakemodel)
+    "ProblemType",  # [problem.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
     "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
     "StoreFlowDirection",  # [store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowdirection)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
-    "Unit",
+    "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
 ]

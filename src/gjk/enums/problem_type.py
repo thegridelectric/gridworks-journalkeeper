@@ -4,30 +4,30 @@ from typing import List, Optional
 from gw.enums import GwStrEnum
 
 
-class HzCalcMethod(GwStrEnum):
+class ProblemType(GwStrEnum):
     """
+    
 
-
-    Enum hz.calc.method version 000 in the GridWorks Type registry.
+    Enum problem.type version 000 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
-      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
+      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
 
     Values (with symbols in parens):
-      - BasicExpWeightedAvg (00000000)
-      - BasicButterWorth (7552194e)
+      - error (c3c751ae)
+      - warning (ee32663d)
     """
 
-    BasicExpWeightedAvg = auto()
-    BasicButterWorth = auto()
+    error = auto()
+    warning = auto()
 
     @classmethod
-    def default(cls) -> "HzCalcMethod":
+    def default(cls) -> "ProblemType":
         """
-        Returns default value (in this case BasicExpWeightedAvg)
+        Returns default value (in this case error)
         """
-        return cls.BasicExpWeightedAvg
+        return cls.error
 
     @classmethod
     def values(cls) -> List[str]:
@@ -65,9 +65,9 @@ class HzCalcMethod(GwStrEnum):
     @classmethod
     def enum_name(cls) -> str:
         """
-        The name in the GridWorks Type Registry (hz.calc.method)
+        The name in the GridWorks Type Registry (problem.type)
         """
-        return "hz.calc.method"
+        return "problem.type"
 
     @classmethod
     def enum_version(cls) -> str:
@@ -87,7 +87,7 @@ class HzCalcMethod(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "BasicExpWeightedAvg".
+            a later version of this enum, returns the default value of "error".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -96,7 +96,7 @@ class HzCalcMethod(GwStrEnum):
     @classmethod
     def value_to_symbol(cls, value: str) -> str:
         """
-        Provides the encoding symbol for a HzCalcMethod enum to send in seriliazed messages.
+        Provides the encoding symbol for a ProblemType enum to send in seriliazed messages.
 
         Args:
             symbol (str): The candidate value.
@@ -105,7 +105,7 @@ class HzCalcMethod(GwStrEnum):
             str: The symbol encoding that value. If the value is not recognized -
             which could happen if the actor making the message used a later version
             of this enum than the actor decoding the message, returns the default
-            symbol of "00000000".
+            symbol of "c3c751ae".
         """
         if value not in value_to_symbol.keys():
             return value_to_symbol[cls.default().value]
@@ -117,19 +117,19 @@ class HzCalcMethod(GwStrEnum):
         Returns a list of the enum symbols
         """
         return [
-            "00000000",
-            "7552194e",
+            "c3c751ae",
+            "ee32663d",
         ]
 
 
 symbol_to_value = {
-    "00000000": "BasicExpWeightedAvg",
-    "7552194e": "BasicButterWorth",
+    "c3c751ae": "error",
+    "ee32663d": "warning",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
-    "BasicExpWeightedAvg": "000",
-    "BasicButterWorth": "000",
+    "error": "000",
+    "warning": "000",
 }

@@ -4,7 +4,7 @@ from typing import List, Literal, Optional
 
 from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
-from pydantic import ConfigDict, PositiveInt
+from pydantic import ConfigDict, PositiveInt, StrictInt
 
 from gjk.enums import TempCalcMethod
 from gjk.named_types.channel_config import ChannelConfig
@@ -28,9 +28,16 @@ class PicoTankModuleComponentGt(GwBase):
     config_list: List[ChannelConfig]
     display_name: Optional[str] = None
     serial_number: str
-    type_name: Literal["pico.tank.module.component.gt"] = "pico.tank.module.component.gt"
+    async_capture_delta_micro_volts: StrictInt
+    type_name: Literal["pico.tank.module.component.gt"] = (
+        "pico.tank.module.component.gt"
+    )
     version: Literal["000"] = "000"
 
     model_config = ConfigDict(
-        alias_generator=snake_to_pascal, extra="allow", frozen=True, populate_by_name=True, use_enum_values=True
+        alias_generator=snake_to_pascal,
+        extra="allow",
+        frozen=True,
+        populate_by_name=True,
+        use_enum_values=True,
     )
