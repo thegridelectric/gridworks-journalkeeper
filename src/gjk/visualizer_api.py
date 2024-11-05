@@ -12,9 +12,8 @@ from datetime import timedelta
 from pydantic import BaseModel
 from sqlalchemy import create_engine, asc, or_
 from sqlalchemy.orm import sessionmaker
-from gjk.config import Settings
-from gjk.models import MessageSql
-from gjk.models import ReadingSql, DataChannelSql
+from config import Settings
+from models import MessageSql, ReadingSql, DataChannelSql
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import plotly.graph_objects as go
