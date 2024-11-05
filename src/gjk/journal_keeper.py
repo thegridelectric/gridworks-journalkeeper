@@ -21,6 +21,7 @@ from gjk.models import (
     insert_single_message,
 )
 from gjk.named_types import (
+    GridworksEventProblem,
     LayoutEvent,
     MyChannelsEvent,
     Report,
@@ -53,6 +54,7 @@ class JournalKeeper(ActorBase):
         """Overwrites base class method.
         Meant for adding addtional bindings"""
         type_names = [
+            GridworksEventProblem.type_name_value(),
             LayoutEvent.type_name_value(),
             MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
@@ -110,16 +112,12 @@ class JournalKeeper(ActorBase):
         )
         short_alias = from_alias.split(".")[-2]
         print(f"[{ft}] {payload.type_name} from {short_alias}")
-        if payload.type_name == ReportEvent.type_name_value():
+        if payload.type_name == GridworksEventProblem.type_name_value():
             try:
-                self.report_event_from_scada(payload)
+                self.problem_event_from_scada(payload)
             except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
-        elif payload.type_name == Report.type_name_value():
-            try:
-                self.report_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
+                raise Exception(f"Trouble with problem_event_from_scada: {e}") from e
+
         elif payload.type_name == LayoutEvent.type_name_value():
             try:
                 self.layout_event_from_scada(payload)
@@ -132,10 +130,21 @@ class JournalKeeper(ActorBase):
                 raise Exception(
                     f"Trouble with my_channels_event_from_scada: {e}"
                 ) from e
+        elif payload.type_name == ReportEvent.type_name_value():
+            try:
+                self.report_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with report_from_scada: {e}") from e
+
         # old messages
         elif payload.type_name == GridworksEventReport.type_name_value():
             try:
                 self.old_gridworks_event_report_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == Report.type_name_value():
+            try:
+                self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
         elif payload.type_name == TicklistReedReport():
@@ -179,6 +188,19 @@ class JournalKeeper(ActorBase):
 
     def report_event_from_scada(self, t: ReportEvent) -> None:
         self.report_from_scada(t.report)
+
+    def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
+        msg = Message(
+            message_id=t.message_id,
+            from_alias=t.src,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.time_created_ms,
+        )
+        print(f"Got problem: {t}")
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
 
     def report_from_scada(self, t: Report) -> None:
         msg = Message(
