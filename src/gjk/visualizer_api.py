@@ -12,8 +12,8 @@ from datetime import timedelta
 from pydantic import BaseModel
 from sqlalchemy import create_engine, asc, or_
 from sqlalchemy.orm import sessionmaker
-from config import Settings
-from models import MessageSql, ReadingSql, DataChannelSql
+from gwk.config import Settings
+from gwk.models import MessageSql, ReadingSql, DataChannelSql
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import plotly.graph_objects as go
@@ -99,7 +99,11 @@ storage_colors = {
 storage_colors_hex = {key: to_hex(value) for key, value in storage_colors.items()}
 
 zone_colors_hex = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
-plot_background_hex = '#f8f8f8'
+plot_background_hex = 'white'
+
+# ------------------------------
+# Pull data from journaldb
+# ------------------------------
 
 def get_data(request):
 
