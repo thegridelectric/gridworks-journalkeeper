@@ -159,12 +159,9 @@ def check_setpoint():
                 # No thermostat change: alert immediately
                 if len(set(channels[setpoint_channel]['values'])) == 1:
                     print('[ALERT] Not caused by a thermostat change!')
-                    # send_opsgenie_alert(
-                    #     house_alias,
-                    #     setpoint_channel.replace('-set',''),
-                    # )
-                    send_opsgenie_warning(
-                        f"[{house_alias}] Hi George"
+                    send_opsgenie_alert(
+                        house_alias,
+                        setpoint_channel.replace('-set',''),
                     )
                 else:
                     # Find the latest thermostat increase
@@ -183,13 +180,14 @@ def check_setpoint():
                     # There was no increase in thermostat: alert immediately
                     else:
                         print('[ALERT] Not caused by a thermostat increase!')
-                        # send_opsgenie_alert(
-                        #     house_alias,
-                        #     setpoint_channel.replace('-set',''),
-                        # )
-                        send_opsgenie_warning(
-                            f"[{house_alias}] Hi George"
+                        send_opsgenie_alert(
+                            house_alias,
+                            setpoint_channel.replace('-set',''),
                         )
+            else:
+                send_opsgenie_warning(
+                    f"Hi George!"
+                )
 
 
 if __name__ == "__main__":
