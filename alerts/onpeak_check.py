@@ -129,6 +129,8 @@ def check_onpeak():
         
         if need_to_alert>0:
             send_opsgenie_alert(house_alias, need_to_alert)
+        else:
+            print('Everything is OK')
 
 
 if __name__ == "__main__":
