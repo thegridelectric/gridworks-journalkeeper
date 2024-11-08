@@ -55,10 +55,10 @@ def send_opsgenie_warning(message):
     }
     response = requests.post(url, headers=headers, data=json.dumps(payload))
     if response.status_code == 202:
-        print("Alert sent successfully")
+        print("Warning sent successfully")
     else:
         print(
-            f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}"
+            f"Failed to send warning. Status code: {response.status_code}, Response: {response.text}"
         )
 
 
@@ -185,9 +185,8 @@ def check_setpoint():
                             setpoint_channel.replace('-set',''),
                         )
             else:
-                send_opsgenie_warning(
-                    f"Hi George!"
-                )
+                if house_alias == 'oak' and zone=='zone1':
+                    send_opsgenie_warning(message="Hi George!")
 
 
 if __name__ == "__main__":
