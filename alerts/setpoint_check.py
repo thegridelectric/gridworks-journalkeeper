@@ -80,6 +80,10 @@ def check_setpoint():
         .all()
     )
 
+    if not messages:
+        print(f"No messages found.")
+        return
+
     # For every house
     all_house_aliases = list({x.from_alias for x in messages})
     all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
