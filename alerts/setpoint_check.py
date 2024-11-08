@@ -163,6 +163,9 @@ def check_setpoint():
                         house_alias,
                         setpoint_channel.replace('-set',''),
                     )
+                    send_opsgenie_warning(
+                        f"[{house_alias}] Hi George"
+                    )
                 else:
                     # Find the latest thermostat increase
                     lower_setpoints = [(t,s) for t,s in zip(times,setpoints) if s<last_setpoint]
@@ -183,6 +186,9 @@ def check_setpoint():
                         send_opsgenie_alert(
                             house_alias,
                             setpoint_channel.replace('-set',''),
+                        )
+                        send_opsgenie_warning(
+                            f"[{house_alias}] Hi George"
                         )
 
 
