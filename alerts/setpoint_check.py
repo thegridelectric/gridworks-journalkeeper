@@ -143,9 +143,9 @@ def check_setpoint():
                 print(f'Potential problem! {setpoint} >= {temperature}+{MAX_DIFFERENCE_F}')
             elif setpoint <= temperature and zone in warnings[house_alias]:
                 print(f"[Ok] Setpoint in {zone} has now been reached")
-                send_opsgenie_warning(
-                    f"[{house_alias}] Setpoint in {zone} has now been reached."
-                )
+                # send_opsgenie_warning(
+                #     f"[{house_alias}] Setpoint in {zone} has now been reached."
+                # )
                 del warnings[house_alias][zone]
             
             # Check if the user turned up the thermostat recently
@@ -173,9 +173,9 @@ def check_setpoint():
                         # Warn that the setpoit has not been reached yet
                         if time_since_increased > 2*RUN_EVERY_MIN and zone not in warnings[house_alias]:
                             print(f"[Warning] Setpoint in {zone} increased at {time_increased}, and has not been reached yet")
-                            send_opsgenie_warning(
-                                f"[{house_alias}] Setpoint in {zone} increased at {time_increased}, and has not been reached yet."
-                            )
+                            # send_opsgenie_warning(
+                            #     f"[{house_alias}] Setpoint in {zone} increased at {time_increased}, and has not been reached yet."
+                            # )
                             warnings[house_alias][zone] = True
                     # There was no increase in thermostat: alert immediately
                     else:
@@ -184,9 +184,6 @@ def check_setpoint():
                             house_alias,
                             setpoint_channel.replace('-set',''),
                         )
-            else:
-                if house_alias == 'oak' and zone=='zone1':
-                    send_opsgenie_warning(message="Hi George!")
 
 
 if __name__ == "__main__":
