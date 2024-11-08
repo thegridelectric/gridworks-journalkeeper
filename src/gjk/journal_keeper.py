@@ -166,8 +166,8 @@ class JournalKeeper(ActorBase):
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
             message_persisted_ms=int(time.time() * 1000),
-            paylaod=t.to_dict(),
-            messaage_type_name=t.type_name,
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
         print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks")
@@ -181,8 +181,8 @@ class JournalKeeper(ActorBase):
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
             message_persisted_ms=int(time.time() * 1000),
-            paylaod=t.to_dict(),
-            messaage_type_name=t.type_name,
+            payload=t.to_dict(),
+            messsage_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
         print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks")
