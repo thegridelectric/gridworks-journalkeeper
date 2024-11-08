@@ -112,6 +112,7 @@ class JournalKeeper(ActorBase):
         )
         short_alias = from_alias.split(".")[-2]
         print(f"[{ft}] {payload.type_name} from {short_alias}")
+        self.payload = payload
         if payload.type_name == GridworksEventProblem.type_name_value():
             try:
                 self.problem_event_from_scada(payload)
