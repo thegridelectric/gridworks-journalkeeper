@@ -11,6 +11,7 @@ from gjk.named_types.heartbeat_a import HeartbeatA
 from gjk.named_types.keyparam_change_log import KeyparamChangeLog
 from gjk.named_types.layout_event import LayoutEvent
 from gjk.named_types.layout_lite import LayoutLite
+from gjk.named_types.machine_states import MachineStates
 from gjk.named_types.my_channels import MyChannels
 from gjk.named_types.my_channels_event import MyChannelsEvent
 from gjk.named_types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
@@ -36,6 +37,7 @@ __all__ = [
     "KeyparamChangeLog",
     "LayoutEvent",
     "LayoutLite",
+    "MachineStates",
     "MyChannels",
     "MyChannelsEvent",
     "PicoFlowModuleComponentGt",
