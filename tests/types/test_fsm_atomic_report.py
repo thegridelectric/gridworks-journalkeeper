@@ -1,23 +1,30 @@
 """Tests fsm.atomic.report type, version 000"""
 
+from gjk.enums import FsmActionType, FsmReportType
 from gjk.named_types import FsmAtomicReport
 
 
 def test_fsm_atomic_report_generated() -> None:
     d = {
-        "FromHandle": "h.admin.store-charge-discharge.relay3",
-        "AboutFsm": "RelayState",
-        "ReportType": "Action",
-        "ActionType": "RelayPinSet",
-        "Action": 0,
-        "UnixTimeMs": 1710158001624,
+        "MachineHandle": "h.picy-cycler.relay1",
+        "StateEnum": "relay.closed.or.open",
+        "ReportType": "Event",
+        "EventEnum": "change.relay.state",
+        "Event": "CloseRelay",
+        "UnixTimeMs": 1709923792000,
         "TriggerId": "12da4269-63c3-44f4-ab65-3ee5e29329fe",
         "TypeName": "fsm.atomic.report",
         "Version": "000",
     }
 
-    d2 = FsmAtomicReport.from_dict(d).to_dict()
+    assert FsmAtomicReport.from_dict(d).to_dict() == d
 
-    assert d2 == d
+    ######################################
+    # Behavior on unknown enum values: sends to default
+    ######################################
 
-    assert type(d2["AboutFsm"]) is str
+    d2 = dict(d, ReportType="unknown_enum_thing")
+    assert FsmAtomicReport.from_dict(d2).report_type == FsmReportType.default()
+
+    d2 = dict(d, ActionType="unknown_enum_thing")
+    assert FsmAtomicReport.from_dict(d2).action_type == FsmActionType.default()

@@ -1,16 +1,18 @@
 """JournalKeeper"""
-import uuid
+
 import logging
 import threading
 import time
+import uuid
 from contextlib import contextmanager
+from typing import List
 
 import pendulum
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
 from gwbase.codec import GwCodec
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.codec import pyd_to_sql, sql_to_pyd
 from gjk.config import Settings
@@ -21,6 +23,7 @@ from gjk.models import (
     insert_single_message,
 )
 from gjk.named_types import (
+    ChannelReadings,
     GridworksEventProblem,
     LayoutEvent,
     MyChannelsEvent,
@@ -30,7 +33,7 @@ from gjk.named_types import (
     TicklistReedReport,
 )
 from gjk.named_types.asl_types import TypeByName
-from gjk.old_types import GridworksEventReport
+from gjk.old_types import GridworksEventReport, ReportEvent000
 from gjk.type_helpers import Message, Reading
 
 LOG_FORMAT = (
@@ -132,21 +135,28 @@ class JournalKeeper(ActorBase):
                 raise Exception(
                     f"Trouble with my_channels_event_from_scada: {e}"
                 ) from e
-        elif payload.type_name == ReportEvent.type_name_value():
+        elif (
+            payload.type_name == ReportEvent.type_name_value()
+            and payload.version == "020"
+        ):
             try:
                 self.report_event_from_scada(payload)
             except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
+                raise Exception(f"Trouble with report_event_from_scada: {e}") from e
         elif payload.type_name == TicklistReedReport.type_name_value():
             try:
                 self.ticklist_reed_report_from_scada(from_alias, payload)
             except Exception as e:
-                raise Exception(f"Trouble with ticklist_reed_report_from_scada: {e}") from e
+                raise Exception(
+                    f"Trouble with ticklist_reed_report_from_scada: {e}"
+                ) from e
         elif payload.type_name == TicklistHallReport.type_name_value():
             try:
                 self.ticklist_hall_report_from_scada(from_alias, payload)
             except Exception as e:
-                raise Exception(f"Trouble with ticklist_hall_report_from_scada: {e}") from e
+                raise Exception(
+                    f"Trouble with ticklist_hall_report_from_scada: {e}"
+                ) from e
             # todo: create table in database to store data for analysis
 
         # old messages
@@ -155,13 +165,20 @@ class JournalKeeper(ActorBase):
                 self.old_gridworks_event_report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
-        elif payload.type_name == Report.type_name_value():
+        elif (
+            payload.type_name == ReportEvent.type_name_value()
+            and payload.version == "000"
+        ):
             try:
-                self.report_from_scada(payload)
+                self.report_event_000_from_scada(payload)
             except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
+                raise Exception(
+                    f"Trouble with rreport_event_000_from_scada: {e}"
+                ) from e
 
-    def ticklist_hall_report_from_scada(self, from_alias: str, t: TicklistHallReport) -> None:
+    def ticklist_hall_report_from_scada(
+        self, from_alias: str, t: TicklistHallReport
+    ) -> None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
@@ -170,13 +187,16 @@ class JournalKeeper(ActorBase):
             message_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
-        print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks")
+        print(
+            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks"
+        )
         print(f"Inserting as {t.type_name}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
 
-
-    def ticklist_reed_report_from_scada(self, from_alias: str, t: TicklistReedReport) -> None:
+    def ticklist_reed_report_from_scada(
+        self, from_alias: str, t: TicklistReedReport
+    ) -> None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
@@ -185,7 +205,9 @@ class JournalKeeper(ActorBase):
             message_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
-        print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks")
+        print(
+            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks"
+        )
         print(f"Inserting as {t.type_name}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
@@ -225,9 +247,6 @@ class JournalKeeper(ActorBase):
                 channels = [pyd_to_sql(ch) for ch in my_channels.channel_list]
                 bulk_insert_datachannels(db, channels)
 
-    def report_event_from_scada(self, t: ReportEvent) -> None:
-        self.report_from_scada(t.report)
-
     def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
         msg = Message(
             message_id=t.message_id,
@@ -241,47 +260,80 @@ class JournalKeeper(ActorBase):
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
 
-    def report_from_scada(self, t: Report) -> None:
+    def report_event_000_from_scada(self, t: ReportEvent000) -> None:
+        """
+        Has unused FsmActionList, does not have StateList
+        """
+        report = t.report
         msg = Message(
-            message_id=t.id,
-            from_alias=t.from_g_node_alias,
+            message_id=t.message_id,
+            from_alias=t.src,
             message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
+            payload=report.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.time_created_ms,
+        )
+        with self.get_db() as db:
+            if insert_single_message(db, pyd_to_sql(msg)):
+                self.insert_channel_readings(
+                    report.channel_reading_list,
+                    report.id,
+                    report.about_g_node_alias,
+                    db,
+                )
+
+    def report_event_from_scada(self, t: ReportEvent) -> None:
+        report = t.report
+        msg = Message(
+            message_id=report.id,
+            from_alias=report.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=report.to_dict(),
             message_type_name=t.type_name,
             message_created_ms=t.message_created_ms,
         )
         with self.get_db() as db:
             if insert_single_message(db, pyd_to_sql(msg)):
-                readings_pyd = []
-                ta_alias = t.about_g_node_alias
-                for ch_readings in t.channel_reading_list:
-                    ch = (
-                        db.query(DataChannelSql)
-                        .filter_by(
-                            name=ch_readings.channel_name, terminal_asset_alias=ta_alias
-                        )
-                        .first()
-                    )
-                    if ch is None:
-                        raise Exception(
-                            f"Did not find channel {ch_readings.channel_name} (see msg id {msg.message_id})"
-                        )
-                    readings_pyd.extend([
-                        Reading(
-                            value=ch_readings.value_list[i],
-                            time_ms=ch_readings.scada_read_time_unix_ms_list[i],
-                            message_id=msg.message_id,
-                            data_channel=sql_to_pyd(ch),
-                        )
-                        for i in range(len(ch_readings.value_list))
-                    ])
-                # Insert the readings that go along with the message
-                readings = [pyd_to_sql(r) for r in readings_pyd]
-                bulk_insert_readings(db, readings)
-                short_alias = t.from_g_node_alias.split(".")[-2]
-                print(
-                    f"Inserted {len(readings)} from {short_alias}, msg id {msg.message_id}"
+                self.insert_channel_readings(
+                    report.channel_reading_list,
+                    report.id,
+                    report.about_g_node_alias,
+                    db,
                 )
+
+    def insert_channel_readings(
+        self,
+        readings: List[ChannelReadings],
+        message_id: str,
+        ta_alias: str,
+        db: Session,
+    ) -> None:
+        readings_pyd = []
+        ta_alias = t.about_g_node_alias
+        for ch_readings in readings:
+            ch = (
+                db.query(DataChannelSql)
+                .filter_by(name=ch_readings.channel_name, terminal_asset_alias=ta_alias)
+                .first()
+            )
+            if ch is None:
+                raise Exception(
+                    f"Did not find channel {ch_readings.channel_name} ({ta_alias}))"
+                )
+            readings_pyd.extend([
+                Reading(
+                    value=ch_readings.value_list[i],
+                    time_ms=ch_readings.scada_read_time_unix_ms_list[i],
+                    message_id=message_id,
+                    data_channel=sql_to_pyd(ch),
+                )
+                for i in range(len(ch_readings.value_list))
+            ])
+        # Insert the readings that go along with the message
+        readings = [pyd_to_sql(r) for r in readings_pyd]
+        bulk_insert_readings(db, readings)
+        short_alias = ta_alias(".")[-2]
+        print(f"Inserted {len(readings)} from {short_alias}, msg id {message_id}")
 
     def old_gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
         msg = Message(

@@ -15,6 +15,8 @@ from gjk.old_types.gt_sh_multipurpose_telemetry_status import (
 from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.report_000 import Report000
+from gjk.old_types.report_001 import Report001
+from gjk.old_types.report_event_001 import ReportEvent000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
@@ -30,6 +32,8 @@ __all__ = [
     "GtShSimpleTelemetryStatus",
     "GtShStatus",
     "Report000",
+    "Report001",
+    "ReportEvent000",
     "SnapshotSpaceheat000",
     "TelemetrySnapshotSpaceheat",
 ]

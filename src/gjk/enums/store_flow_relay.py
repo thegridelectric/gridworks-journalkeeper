@@ -4,30 +4,33 @@ from typing import List, Optional
 from gw.enums import GwStrEnum
 
 
-class ProblemType(GwStrEnum):
+class StoreFlowRelay(GwStrEnum):
     """
+    Used for a double-throw relay that can toggle between a thermal store heating up (flow is
+    in the charging direction) or cooling down (flow is in the discharging direction). Events
+    in the StoreFlowDirection finite state machine
 
-
-    Enum problem.type version 000 in the GridWorks Type registry.
+    Enum store.flow.relay version 000 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
-      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
+      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
 
     Values (with symbols in parens):
-      - error (c3c751ae)
-      - warning (ee32663d)
+      - DischargingStore (00000000): Thermal store is discharging (and heating the building)
+      - ChargingStore (00b3ec5e): Thermal store is charging from an external source (like a heat
+        pump or oil boiler).
     """
 
-    error = auto()
-    warning = auto()
+    DischargingStore = auto()
+    ChargingStore = auto()
 
     @classmethod
-    def default(cls) -> "ProblemType":
+    def default(cls) -> "StoreFlowRelay":
         """
-        Returns default value (in this case error)
+        Returns default value (in this case DischargingStore)
         """
-        return cls.error
+        return cls.DischargingStore
 
     @classmethod
     def values(cls) -> List[str]:
@@ -65,9 +68,9 @@ class ProblemType(GwStrEnum):
     @classmethod
     def enum_name(cls) -> str:
         """
-        The name in the GridWorks Type Registry (problem.type)
+        The name in the GridWorks Type Registry (store.flow.relay)
         """
-        return "problem.type"
+        return "store.flow.relay"
 
     @classmethod
     def enum_version(cls) -> str:
@@ -87,7 +90,7 @@ class ProblemType(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "error".
+            a later version of this enum, returns the default value of "DischargingStore".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -96,7 +99,7 @@ class ProblemType(GwStrEnum):
     @classmethod
     def value_to_symbol(cls, value: str) -> str:
         """
-        Provides the encoding symbol for a ProblemType enum to send in seriliazed messages.
+        Provides the encoding symbol for a StoreFlowRelay enum to send in seriliazed messages.
 
         Args:
             symbol (str): The candidate value.
@@ -105,7 +108,7 @@ class ProblemType(GwStrEnum):
             str: The symbol encoding that value. If the value is not recognized -
             which could happen if the actor making the message used a later version
             of this enum than the actor decoding the message, returns the default
-            symbol of "c3c751ae".
+            symbol of "00000000".
         """
         if value not in value_to_symbol.keys():
             return value_to_symbol[cls.default().value]
@@ -117,19 +120,19 @@ class ProblemType(GwStrEnum):
         Returns a list of the enum symbols
         """
         return [
-            "c3c751ae",
-            "ee32663d",
+            "00000000",
+            "00b3ec5e",
         ]
 
 
 symbol_to_value = {
-    "c3c751ae": "error",
-    "ee32663d": "warning",
+    "00000000": "DischargingStore",
+    "00b3ec5e": "ChargingStore",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
-    "error": "000",
-    "warning": "000",
+    "DischargingStore": "000",
+    "ChargingStore": "000",
 }

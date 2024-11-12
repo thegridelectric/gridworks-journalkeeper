@@ -34,15 +34,15 @@ def test_report_event_generated() -> None:
                     "Version": "002",
                 },
             ],
-            "FsmActionList": [],
+            "StateList": [],
             "FsmReportList": [],
             "MessageCreatedMs": 1656945600044,
             "Id": "4dab57dd-8b4e-4ea4-90a3-d63df9eeb061",
             "TypeName": "report",
-            "Version": "001",
+            "Version": "002",
         },
         "TypeName": "report.event",
-        "Version": "000",
+        "Version": "002",
     }
 
     assert ReportEvent.from_dict(d).to_dict() == d
