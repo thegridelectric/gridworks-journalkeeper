@@ -13,6 +13,7 @@ ON_PEAK_HOURS = [7,8,9,10,11] + [16,17,18,19]
 MIN_POWER_KW = 1
 RUN_EVERY_MIN = 10
 warnings = {}
+alert_sent = {}
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
@@ -71,6 +72,8 @@ def check_onpeak():
         print(f"\n{house_alias}\n")
         if house_alias not in warnings:
             warnings[house_alias] = {}
+        if house_alias not in alert_sent:
+            alert_sent[house_alias] = False
         channels = {}
 
         # Store times and values for every channel
@@ -127,10 +130,12 @@ def check_onpeak():
                 print(f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!")
                 need_to_alert += 1
         
-        if need_to_alert>0:
+        if need_to_alert>0 and not alert_sent[house_alias]:
             send_opsgenie_alert(house_alias, need_to_alert)
+            alert_sent[house_alias] = True
         else:
             print('Everything is OK')
+            alert_sent[house_alias] = False
 
 
 if __name__ == "__main__":
