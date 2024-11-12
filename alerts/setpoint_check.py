@@ -40,6 +40,27 @@ def send_opsgenie_alert(house_alias, zone):
             f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}"
         )
 
+def send_opsgenie_warning(message):
+    url = "https://api.opsgenie.com/v2/alerts"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"GenieKey {settings.ops_genie_api_key.get_secret_value()}",
+    }
+    responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
+    payload = {
+        "message": message,
+        "alias": "dist-flow",
+        "priority": "P5",
+        "responders": responders,
+    }
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    if response.status_code == 202:
+        print("Warning sent successfully")
+    else:
+        print(
+            f"Failed to send warning. Status code: {response.status_code}, Response: {response.text}"
+        )
+
 
 def check_setpoint():
     global warnings
@@ -58,6 +79,10 @@ def check_setpoint():
         .order_by(asc(MessageSql.message_persisted_ms))
         .all()
     )
+
+    if not messages:
+        print(f"No messages found.")
+        return
 
     # For every house
     all_house_aliases = list({x.from_alias for x in messages})
@@ -122,6 +147,9 @@ def check_setpoint():
                 print(f'Potential problem! {setpoint} >= {temperature}+{MAX_DIFFERENCE_F}')
             elif setpoint <= temperature and zone in warnings[house_alias]:
                 print(f"[Ok] Setpoint in {zone} has now been reached")
+                # send_opsgenie_warning(
+                #     f"[{house_alias}] Setpoint in {zone} has now been reached."
+                # )
                 del warnings[house_alias][zone]
             
             # Check if the user turned up the thermostat recently
@@ -149,6 +177,9 @@ def check_setpoint():
                         # Warn that the setpoit has not been reached yet
                         if time_since_increased > 2*RUN_EVERY_MIN and zone not in warnings[house_alias]:
                             print(f"[Warning] Setpoint in {zone} increased at {time_increased}, and has not been reached yet")
+                            # send_opsgenie_warning(
+                            #     f"[{house_alias}] Setpoint in {zone} increased at {time_increased}, and has not been reached yet."
+                            # )
                             warnings[house_alias][zone] = True
                     # There was no increase in thermostat: alert immediately
                     else:
