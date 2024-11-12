@@ -41,6 +41,8 @@ from gjk.old_types.gt_sh_multipurpose_telemetry_status import (
 from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.report_000 import Report000
+from gjk.old_types.report_001 import Report001
+from gjk.old_types.report_event_001 import ReportEvent000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 from gw.named_types import GwBase
@@ -78,6 +80,8 @@ def types() -> List[GwBase]:
         GtShSimpleTelemetryStatus,
         GtShStatus,
         Report000,
+        Report001,
+        ReportEvent000,
         SnapshotSpaceheat000,
         TelemetrySnapshotSpaceheat,
         </xsl:text>
@@ -106,9 +110,12 @@ def types() -> List[GwBase]:
 
 
 for t in types():
+    version = t.model_fields["version"].default
+    versioned_type_name = f"{t.type_name_value()}.{version}"
+
     try:
-        TypeByName[t.type_name_value()] = t
-    except:
+        TypeByName[versioned_type_name] = t
+    except Exception:
         print(f"Problem w {t}")
 </xsl:text>
 

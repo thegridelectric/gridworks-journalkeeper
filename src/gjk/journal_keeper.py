@@ -309,7 +309,6 @@ class JournalKeeper(ActorBase):
         db: Session,
     ) -> None:
         readings_pyd = []
-        ta_alias = t.about_g_node_alias
         for ch_readings in readings:
             ch = (
                 db.query(DataChannelSql)
