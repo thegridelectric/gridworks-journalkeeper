@@ -28,7 +28,7 @@ def send_opsgenie_alert(house_alias, zone):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] {zone} is getting cold!",
-        "alias": "dist-flow",
+        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-setpoint",
         "priority": "P1",
         "responders": responders,
     }

@@ -30,7 +30,7 @@ def send_opsgenie_alert(house_alias, heat_call_time):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] No dist-flow has been recorded after a heat call at {heat_call_time}.",
-        "alias": "dist-flow",
+        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-distflow",
         "priority": "P1",
         "responders": responders,
     }
