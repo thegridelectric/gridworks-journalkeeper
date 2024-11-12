@@ -679,13 +679,13 @@ python-dotenv = ">=1.0.0"
 
 [[package]]
 name = "gridworks-base"
-version = "0.2.4"
+version = "0.3.0"
 description = "Gridworks Base"
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "gridworks_base-0.2.4-py3-none-any.whl", hash = "sha256:43f3578b06e67a66f5835fb7d81db5137e8aa123861efabce8ceb9986243cdac"},
-    {file = "gridworks_base-0.2.4.tar.gz", hash = "sha256:4275f6a9819dedf448d14ddb2efaabac69b3152dd322452e88d2a72180f3a1e5"},
+    {file = "gridworks_base-0.3.0-py3-none-any.whl", hash = "sha256:5fdef5966caf2d6b7c8ccd3e5b165324364d5964ee803d50b4d56fe4b27cfb4c"},
+    {file = "gridworks_base-0.3.0.tar.gz", hash = "sha256:3f915a775a360989de6945714e18b106d1a28c84fc1d6f32f6221570b11fc301"},
 ]
 
 [package.dependencies]
@@ -2622,4 +2622,4 @@ tests-strict = ["pytest (==4.6.0)", "pytest (==6.2.5)", "pytest-cov (==3.0.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.12,<4.0"
-content-hash = "26e6408b233ee30477ab4bce92d415c43ad8b6f94baaea029515aa1a59e5f6ee"
+content-hash = "073a1febea37685b92981fdf5376a366ffe9e099123da07298f333019d2a2297"
