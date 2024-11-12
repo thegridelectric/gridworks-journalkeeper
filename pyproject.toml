@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gridworks-journalkeeper"
-version = "0.0.0"
+version = "0.1.0"
 description = "Gridworks Journal Keeper"
 authors = ["GridWorks <gridworks@gridworks-consulting.com>"]
 license = "MIT"
@@ -23,7 +23,7 @@ python = ">=3.12,<4.0"
 click = ">=8.0.1"
 boto3 = "^1.26.3"
 
-gridworks-base = "^0.2.4"
+gridworks-base = "^0.3.0"
 sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"
