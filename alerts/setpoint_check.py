@@ -12,6 +12,7 @@ GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 MAX_DIFFERENCE_F = 2
 RUN_EVERY_MIN = 10
 warnings = {}
+alerts_sent = {}
 
 settings = Settings(_env_file=dotenv.find_dotenv())
 engine = create_engine(settings.db_url.get_secret_value())
@@ -91,6 +92,7 @@ def check_setpoint():
         print(f"\n{house_alias}\n")
         if house_alias not in warnings:
             warnings[house_alias] = {}
+            alerts_sent[house_alias] = []
         channels = {}
 
         # Store times and values for every channel
@@ -151,6 +153,9 @@ def check_setpoint():
                 #     f"[{house_alias}] Setpoint in {zone} has now been reached."
                 # )
                 del warnings[house_alias][zone]
+            elif setpoint <= temperature and zone in alerts_sent[house_alias]:
+                print(f"[Ok] No more alert on {zone}")
+                del alerts_sent[house_alias][zone]
             
             # Check if the user turned up the thermostat recently
             if temp_much_lower_than_set:
@@ -162,11 +167,14 @@ def check_setpoint():
 
                 # No thermostat change: alert immediately
                 if len(set(channels[setpoint_channel]['values'])) == 1:
-                    print('[ALERT] Not caused by a thermostat change!')
-                    send_opsgenie_alert(
-                        house_alias,
-                        setpoint_channel.replace('-set',''),
-                    )
+                    if zone not in alerts_sent[house_alias]:
+                        alerts_sent[house_alias][zone] = True
+                        print('[ALERT] Not caused by a thermostat change!')
+                        send_opsgenie_alert(
+                            house_alias,
+                            setpoint_channel.replace('-set',''),
+                        )
+                    
                 else:
                     # Find the latest thermostat increase
                     lower_setpoints = [(t,s) for t,s in zip(times,setpoints) if s<last_setpoint]
