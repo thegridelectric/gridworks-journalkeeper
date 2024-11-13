@@ -4,30 +4,40 @@ from typing import List, Optional
 from gw.enums import GwStrEnum
 
 
-class ProblemType(GwStrEnum):
+class PicoCyclerState(GwStrEnum):
     """
+    
 
-
-    Enum problem.type version 000 in the GridWorks Type registry.
+    Enum pico.cycler.state version 000 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
-      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
+      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#picocyclerstate)
 
     Values (with symbols in parens):
-      - error (c3c751ae)
-      - warning (ee32663d)
+      - Dormant (a92b2faf)
+      - PicosLive (a0d08717)
+      - RelayOpening (38018df2)
+      - RelayOpen (e4a9faed)
+      - RelayClosing (6d260096)
+      - PicosRebooting (79f188b6)
+      - AllZombies (79df6fde)
     """
 
-    error = auto()
-    warning = auto()
+    Dormant = auto()
+    PicosLive = auto()
+    RelayOpening = auto()
+    RelayOpen = auto()
+    RelayClosing = auto()
+    PicosRebooting = auto()
+    AllZombies = auto()
 
     @classmethod
-    def default(cls) -> "ProblemType":
+    def default(cls) -> "PicoCyclerState":
         """
-        Returns default value (in this case error)
+        Returns default value (in this case PicosLive)
         """
-        return cls.error
+        return cls.PicosLive
 
     @classmethod
     def values(cls) -> List[str]:
@@ -65,9 +75,9 @@ class ProblemType(GwStrEnum):
     @classmethod
     def enum_name(cls) -> str:
         """
-        The name in the GridWorks Type Registry (problem.type)
+        The name in the GridWorks Type Registry (pico.cycler.state)
         """
-        return "problem.type"
+        return "pico.cycler.state"
 
     @classmethod
     def enum_version(cls) -> str:
@@ -87,7 +97,7 @@ class ProblemType(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "error".
+            a later version of this enum, returns the default value of "PicosLive".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -96,7 +106,7 @@ class ProblemType(GwStrEnum):
     @classmethod
     def value_to_symbol(cls, value: str) -> str:
         """
-        Provides the encoding symbol for a ProblemType enum to send in seriliazed messages.
+        Provides the encoding symbol for a PicoCyclerState enum to send in seriliazed messages.
 
         Args:
             symbol (str): The candidate value.
@@ -105,7 +115,7 @@ class ProblemType(GwStrEnum):
             str: The symbol encoding that value. If the value is not recognized -
             which could happen if the actor making the message used a later version
             of this enum than the actor decoding the message, returns the default
-            symbol of "c3c751ae".
+            symbol of "a0d08717".
         """
         if value not in value_to_symbol.keys():
             return value_to_symbol[cls.default().value]
@@ -117,19 +127,34 @@ class ProblemType(GwStrEnum):
         Returns a list of the enum symbols
         """
         return [
-            "c3c751ae",
-            "ee32663d",
+            "a92b2faf",
+            "a0d08717",
+            "38018df2",
+            "e4a9faed",
+            "6d260096",
+            "79f188b6",
+            "79df6fde",
         ]
 
 
 symbol_to_value = {
-    "c3c751ae": "error",
-    "ee32663d": "warning",
+    "a92b2faf": "Dormant",
+    "a0d08717": "PicosLive",
+    "38018df2": "RelayOpening",
+    "e4a9faed": "RelayOpen",
+    "6d260096": "RelayClosing",
+    "79f188b6": "PicosRebooting",
+    "79df6fde": "AllZombies",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
-    "error": "000",
-    "warning": "000",
+    "Dormant": "000",
+    "PicosLive": "000",
+    "RelayOpening": "000",
+    "RelayOpen": "000",
+    "RelayClosing": "000",
+    "PicosRebooting": "000",
+    "AllZombies": "000",
 }

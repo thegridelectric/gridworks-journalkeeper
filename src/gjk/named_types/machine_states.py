@@ -34,7 +34,7 @@ class MachineStates(GwBase):
     def check_axiom_2(self) -> Self:
         """
         Axiom 2: If StateEnum is a recognized GridWorks enum, then the StateList elements are all values of that enum..
-        
+
         """
         # Implement check for axiom 2"
         return self

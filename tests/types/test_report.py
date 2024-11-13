@@ -1,4 +1,4 @@
-"""Tests report type, version 001"""
+"""Tests report type, version 002"""
 
 from gjk.named_types import Report
 

@@ -6,11 +6,12 @@ from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
-from gjk.enums import FsmActionType, FsmEventType, FsmName, FsmReportType
+from gjk.enums import FsmActionType, FsmName, FsmReportType
 from gjk.property_format import (
     HandleName,
     UTCMilliseconds,
     UUID4Str,
+    LeftRightDot
 )
 
 
@@ -24,12 +25,12 @@ class FsmAtomicReport(GwBase):
     [More info](https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html)
     """
 
-    from_handle: HandleName
-    about_fsm: FsmName
+    machine_handle: HandleName
+    state_enum: LeftRightDot
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
     action: Optional[StrictInt] = None
-    event_type: Optional[FsmEventType] = None
+    event_enum: LeftRightDot
     event: Optional[str] = None
     from_state: Optional[str] = None
     to_state: Optional[str] = None

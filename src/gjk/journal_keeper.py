@@ -1,8 +1,9 @@
 """JournalKeeper"""
-import uuid
+
 import logging
 import threading
 import time
+import uuid
 from contextlib import contextmanager
 
 import pendulum
@@ -141,12 +142,16 @@ class JournalKeeper(ActorBase):
             try:
                 self.ticklist_reed_report_from_scada(from_alias, payload)
             except Exception as e:
-                raise Exception(f"Trouble with ticklist_reed_report_from_scada: {e}") from e
+                raise Exception(
+                    f"Trouble with ticklist_reed_report_from_scada: {e}"
+                ) from e
         elif payload.type_name == TicklistHallReport.type_name_value():
             try:
                 self.ticklist_hall_report_from_scada(from_alias, payload)
             except Exception as e:
-                raise Exception(f"Trouble with ticklist_hall_report_from_scada: {e}") from e
+                raise Exception(
+                    f"Trouble with ticklist_hall_report_from_scada: {e}"
+                ) from e
             # todo: create table in database to store data for analysis
 
         # old messages
@@ -161,7 +166,9 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
 
-    def ticklist_hall_report_from_scada(self, from_alias: str, t: TicklistHallReport) -> None:
+    def ticklist_hall_report_from_scada(
+        self, from_alias: str, t: TicklistHallReport
+    ) -> None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
@@ -170,13 +177,16 @@ class JournalKeeper(ActorBase):
             message_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
-        print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks")
+        print(
+            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks"
+        )
         print(f"Inserting as {t.type_name}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
 
-
-    def ticklist_reed_report_from_scada(self, from_alias: str, t: TicklistReedReport) -> None:
+    def ticklist_reed_report_from_scada(
+        self, from_alias: str, t: TicklistReedReport
+    ) -> None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
@@ -185,7 +195,9 @@ class JournalKeeper(ActorBase):
             message_type_name=t.type_name,
             message_created_ms=t.scada_received_unix_ms,
         )
-        print(f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks")
+        print(
+            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks"
+        )
         print(f"Inserting as {t.type_name}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))

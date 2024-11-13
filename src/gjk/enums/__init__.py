@@ -33,15 +33,12 @@ on these ideas:
 from gjk.enums.change_aquastat_control import ChangeAquastatControl
 from gjk.enums.change_heat_pump_control import ChangeHeatPumpControl
 from gjk.enums.change_heatcall_source import ChangeHeatcallSource
-from gjk.enums.change_lg_operating_mode import ChangeLgOperatingMode
 from gjk.enums.change_primary_pump_control import ChangePrimaryPumpControl
-from gjk.enums.change_primary_pump_state import ChangePrimaryPumpState
 from gjk.enums.change_relay_pin import ChangeRelayPin
 from gjk.enums.change_relay_state import ChangeRelayState
-from gjk.enums.change_store_flow_direction import ChangeStoreFlowDirection
+from gjk.enums.change_store_flow_relay import ChangeStoreFlowRelay
 from gjk.enums.change_valve_state import ChangeValveState
 from gjk.enums.fsm_action_type import FsmActionType
-from gjk.enums.fsm_event_type import FsmEventType
 from gjk.enums.fsm_name import FsmName
 from gjk.enums.fsm_report_type import FsmReportType
 from gjk.enums.g_node_role import GNodeRole
@@ -50,27 +47,28 @@ from gjk.enums.gpm_from_hz_method import GpmFromHzMethod
 from gjk.enums.hz_calc_method import HzCalcMethod
 from gjk.enums.kind_of_param import KindOfParam
 from gjk.enums.make_model import MakeModel
+from gjk.enums.pico_cycler_state import PicoCyclerState
 from gjk.enums.problem_type import ProblemType
 from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.enums.relay_pin_set import RelayPinSet
-from gjk.enums.store_flow_direction import StoreFlowDirection
+from gjk.enums.store_flow_relay import StoreFlowRelay
 from gjk.enums.telemetry_name import TelemetryName
 from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
 
 __all__ = [
+    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
+    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
+    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
     "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)
-    "ChangeLgOperatingMode",  # [change.lg.operating.mode.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changelgoperatingmode)
     "ChangePrimaryPumpControl",  # [change.primary.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeprimarypumpcontrol)
-    "ChangePrimaryPumpState",  # [change.primary.pump.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeprimarypumpstate)
     "ChangeRelayPin",  # [change.relay.pin.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changerelaypin)
     "ChangeRelayState",  # [change.relay.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changerelaystate)
-    "ChangeStoreFlowDirection",  # [change.store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changestoreflowdirection)
+    "ChangeStoreFlowRelay",  # [change.store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changestoreflowrelay)
     "ChangeValveState",  # [change.valve.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changevalvestate)
     "FsmActionType",  # [sh.fsm.action.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmactiontype)
-    "FsmEventType",  # [sh.fsm.event.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmeventtype)
     "FsmName",  # [sh.fsm.name.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shfsmname)
     "FsmReportType",  # [fsm.report.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#fsmreporttype)
     "GNodeRole",  # [g.node.role.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnoderole)
@@ -80,10 +78,11 @@ __all__ = [
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
     "MakeModel",  # [spaceheat.make.model.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatmakemodel)
+    "PicoCyclerState",  # [pico.cycler.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#picocyclerstate)
     "ProblemType",  # [problem.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
     "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
-    "StoreFlowDirection",  # [store.flow.direction.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowdirection)
+    "StoreFlowRelay",  # [store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
     "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)

@@ -5,7 +5,10 @@ from typing import Literal
 from gw.named_types import GwBase
 
 from gjk.named_types.report import Report
-from gjk.property_format import UTCMilliseconds, UUID4Str
+from gjk.property_format import (
+    UTCMilliseconds,
+    UUID4Str,
+)
 
 
 class ReportEvent(GwBase):
