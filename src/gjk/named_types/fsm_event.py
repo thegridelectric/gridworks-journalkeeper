@@ -12,19 +12,16 @@ from gjk.enums import (
     ChangeAquastatControl,
     ChangeHeatcallSource,
     ChangeHeatPumpControl,
-    ChangeLgOperatingMode,
     ChangePrimaryPumpControl,
-    ChangePrimaryPumpState,
     ChangeRelayPin,
     ChangeRelayState,
-    ChangeStoreFlowDirection,
     ChangeValveState,
-    FsmEventType,
 )
 from gjk.property_format import (
     HandleName,
     UTCMilliseconds,
     UUID4Str,
+    LeftRightDot
 )
 
 
@@ -41,7 +38,7 @@ class FsmEvent(GwBase):
 
     from_handle: HandleName
     to_handle: HandleName
-    event_type: FsmEventType
+    event_type:LeftRightDot
     event_name: str
     trigger_id: UUID4Str
     send_time_unix_ms: UTCMilliseconds
@@ -54,56 +51,4 @@ class FsmEvent(GwBase):
         Axiom 1: EventName must belong to the enum selected in the EventType.
 
         """
-        if (
-            self.event_type == FsmEventType.ChangeRelayPin
-            and self.event_name not in ChangeRelayPin.values()
-        ) or (
-            self.event_type == FsmEventType.ChangeRelayState
-            and self.event_name not in ChangeRelayState.values()
-        ):
-            raise ValueError(
-                f"EventName {self.event_name} must belong to {self.event_type} values!"
-            )
-
-        if (
-            self.event_type == FsmEventType.ChangeValveState
-            and self.event_name not in ChangeValveState.values()
-        ) or (
-            self.event_type == FsmEventType.ChangeStoreFlowDirection
-            and self.event_name not in ChangeStoreFlowDirection.values()
-        ):
-            raise ValueError(
-                f"EventName {self.event_name} must belong to {self.event_type} values!"
-            )
-        if (
-            self.event_type == FsmEventType.ChangeHeatcallSource
-            and self.event_name not in ChangeHeatcallSource.values()
-        ) or (
-            self.event_type == FsmEventType.ChangeAquastatControl
-            and self.event_name not in ChangeAquastatControl.values()
-        ):
-            raise ValueError(
-                f"EventName {self.event_name} must belong to {self.event_type} values!"
-            )
-        if (
-            self.event_type == FsmEventType.ChangeHeatPumpControl
-            and self.event_name not in ChangeHeatPumpControl.values()
-        ) or (
-            self.event_type == FsmEventType.ChangeLgOperatingMode
-            and self.event_name not in ChangeLgOperatingMode.values()
-        ):
-            raise ValueError(
-                f"EventName {self.event_name} must belong to {self.event_type} values!"
-            )
-        if (
-            self.event_type == FsmEventType.ChangePrimaryPumpState
-            and self.event_name not in ChangePrimaryPumpState.values()
-        ) or (
-            self.event_type == FsmEventType.ChangePrimaryPumpControl
-            and self.event_name not in ChangePrimaryPumpControl.values()
-        ):
-            raise ValueError(
-                f"EventName {self.event_name} must belong to {self.event_type} values!"
-            )
-
         return self
