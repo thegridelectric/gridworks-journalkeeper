@@ -30,7 +30,7 @@ class FsmAtomicReport(GwBase):
     report_type: FsmReportType
     action_type: Optional[FsmActionType] = None
     action: Optional[StrictInt] = None
-    event_enum: LeftRightDot
+    event_enum: Optional[LeftRightDot] = None
     event: Optional[str] = None
     from_state: Optional[str] = None
     to_state: Optional[str] = None
