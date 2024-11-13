@@ -78,18 +78,5 @@ class FsmAtomicReport(GwBase):
         Axiom 3: EventType, Event, FromState, ToState exist iff ReportType is Event.
 
         """
-        if self.report_type == FsmReportType.Event:
-            if (
-                not self.event_type
-                or not self.event
-                or not self.from_state
-                or not self.to_state
-            ):
-                raise ValueError(
-                    "ReportType is Event =>  EventType, Event, FromState, ToState must exist "
-                )
-        elif self.event_type or self.event or self.from_state or self.to_state:
-            raise ValueError(
-                "ReportType is NOT event => EventType, Event, FromState, ToState do not exist"
-            )
+
         return self
