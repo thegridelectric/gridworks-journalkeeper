@@ -8,21 +8,7 @@ from pydantic import (
 )
 from typing_extensions import Self
 
-from gjk.enums import (
-    ChangeAquastatControl,
-    ChangeHeatcallSource,
-    ChangeHeatPumpControl,
-    ChangePrimaryPumpControl,
-    ChangeRelayPin,
-    ChangeRelayState,
-    ChangeValveState,
-)
-from gjk.property_format import (
-    HandleName,
-    UTCMilliseconds,
-    UUID4Str,
-    LeftRightDot
-)
+from gjk.property_format import HandleName, LeftRightDot, UTCMilliseconds, UUID4Str
 
 
 class FsmEvent(GwBase):
@@ -38,7 +24,7 @@ class FsmEvent(GwBase):
 
     from_handle: HandleName
     to_handle: HandleName
-    event_type:LeftRightDot
+    event_type: LeftRightDot
     event_name: str
     trigger_id: UUID4Str
     send_time_unix_ms: UTCMilliseconds

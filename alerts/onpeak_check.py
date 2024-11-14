@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -9,7 +10,7 @@ from sqlalchemy import asc, create_engine, or_
 from sqlalchemy.orm import sessionmaker
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
-ON_PEAK_HOURS = [7,8,9,10,11] + [16,17,18,19]
+ON_PEAK_HOURS = [7, 8, 9, 10, 11] + [16, 17, 18, 19]
 MIN_POWER_KW = 1
 RUN_EVERY_MIN = 10
 warnings = {}
@@ -61,7 +62,7 @@ def check_onpeak():
     )
 
     if not messages:
-        print(f"No messages found.")
+        print("No messages found.")
         return
 
     # For every house
@@ -84,7 +85,7 @@ def check_onpeak():
                         if dc["Id"] == channel["ChannelId"]:
                             channel_name = dc["Name"]
                 # Store the times and values
-                if ("hp" in channel_name):
+                if "hp" in channel_name:
                     if channel_name not in channels:
                         channels[channel_name] = {
                             "values": channel["ValueList"],
@@ -105,16 +106,16 @@ def check_onpeak():
             channels[key]["times"] = list(sorted_times)
 
         # Find all times where the HP was on
-        if 'hp-odu-pwr' in channels:
-            times = channels['hp-odu-pwr']['times']
-            values = [x/1000 for x in channels['hp-odu-pwr']['values']]
-            on_times_odu = [t for t,v in zip(times,values) if v>=MIN_POWER_KW]
+        if "hp-odu-pwr" in channels:
+            times = channels["hp-odu-pwr"]["times"]
+            values = [x / 1000 for x in channels["hp-odu-pwr"]["values"]]
+            on_times_odu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
         else:
             on_times_odu = []
-        if 'hp-idu-pwr' in channels:
-            times = channels['hp-idu-pwr']['times']
-            values = [x/1000 for x in channels['hp-idu-pwr']['values']]
-            on_times_idu = [t for t,v in zip(times,values) if v>=MIN_POWER_KW]
+        if "hp-idu-pwr" in channels:
+            times = channels["hp-idu-pwr"]["times"]
+            values = [x / 1000 for x in channels["hp-idu-pwr"]["values"]]
+            on_times_idu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
         else:
             on_times_idu = []
         on_times = sorted(on_times_odu + on_times_idu)
@@ -122,15 +123,17 @@ def check_onpeak():
         # Check if any of them was on during onpeak
         need_to_alert = 0
         for time_ms in on_times:
-            time_dt = pendulum.from_timestamp(time_ms/1000, tz="America/New_York")
+            time_dt = pendulum.from_timestamp(time_ms / 1000, tz="America/New_York")
             if time_dt.hour in ON_PEAK_HOURS and time_dt.day_of_week < 5:
-                print(f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!")
+                print(
+                    f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!"
+                )
                 need_to_alert += 1
-        
-        if need_to_alert>0:
+
+        if need_to_alert > 0:
             send_opsgenie_alert(house_alias, need_to_alert)
         else:
-            print('Everything is OK')
+            print("Everything is OK")
 
 
 if __name__ == "__main__":

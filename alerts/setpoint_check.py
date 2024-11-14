@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -39,6 +40,7 @@ def send_opsgenie_alert(house_alias, zone):
         print(
             f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}"
         )
+
 
 def send_opsgenie_warning(message):
     url = "https://api.opsgenie.com/v2/alerts"
@@ -81,7 +83,7 @@ def check_setpoint():
     )
 
     if not messages:
-        print(f"No messages found.")
+        print("No messages found.")
         return
 
     # For every house
@@ -104,7 +106,7 @@ def check_setpoint():
                         if dc["Id"] == channel["ChannelId"]:
                             channel_name = dc["Name"]
                 # Store the times and values
-                if ("zone" in channel_name):
+                if "zone" in channel_name:
                     if channel_name not in channels:
                         channels[channel_name] = {
                             "values": channel["ValueList"],
@@ -137,56 +139,74 @@ def check_setpoint():
             print(zone)
             temp_much_lower_than_set = False
             for temp in zones[zone]:
-                if 'set' in temp:
-                    setpoint = channels[temp]['values'][-1]/1000
-                    setpoint = round(setpoint) if round(setpoint)==setpoint else setpoint
-                if 'temp' in temp and 'gw' not in temp:
-                    temperature = channels[temp]['values'][-1]/1000
-            if setpoint - temperature >= MAX_DIFFERENCE_F and zone not in warnings[house_alias]:
+                if "set" in temp:
+                    setpoint = channels[temp]["values"][-1] / 1000
+                    setpoint = (
+                        round(setpoint) if round(setpoint) == setpoint else setpoint
+                    )
+                if "temp" in temp and "gw" not in temp:
+                    temperature = channels[temp]["values"][-1] / 1000
+            if (
+                setpoint - temperature >= MAX_DIFFERENCE_F
+                and zone not in warnings[house_alias]
+            ):
                 temp_much_lower_than_set = True
-                print(f'Potential problem! {setpoint} >= {temperature}+{MAX_DIFFERENCE_F}')
+                print(
+                    f"Potential problem! {setpoint} >= {temperature}+{MAX_DIFFERENCE_F}"
+                )
             elif setpoint <= temperature and zone in warnings[house_alias]:
                 print(f"[Ok] Setpoint in {zone} has now been reached")
                 # send_opsgenie_warning(
                 #     f"[{house_alias}] Setpoint in {zone} has now been reached."
                 # )
                 del warnings[house_alias][zone]
-            
+
             # Check if the user turned up the thermostat recently
             if temp_much_lower_than_set:
-                setpoint_channel = [x for x in zones[zone] if 'set' in x][0]
-                setpoints = channels[setpoint_channel]['values']
-                times = channels[setpoint_channel]['times']
+                setpoint_channel = [x for x in zones[zone] if "set" in x][0]
+                setpoints = channels[setpoint_channel]["values"]
+                times = channels[setpoint_channel]["times"]
                 last_setpoint = setpoints[-1]
                 last_setpoint_time = times[-1]
 
                 # No thermostat change: alert immediately
-                if len(set(channels[setpoint_channel]['values'])) == 1:
-                    print('[ALERT] Not caused by a thermostat change!')
+                if len(set(channels[setpoint_channel]["values"])) == 1:
+                    print("[ALERT] Not caused by a thermostat change!")
                     send_opsgenie_alert(
                         house_alias,
-                        setpoint_channel.replace('-set',''),
+                        setpoint_channel.replace("-set", ""),
                     )
                 else:
                     # Find the latest thermostat increase
-                    lower_setpoints = [(t,s) for t,s in zip(times,setpoints) if s<last_setpoint]
+                    lower_setpoints = [
+                        (t, s) for t, s in zip(times, setpoints) if s < last_setpoint
+                    ]
                     if lower_setpoints:
                         last_lower_setpoints = lower_setpoints[-1]
-                        time_increased = pendulum.from_timestamp(last_lower_setpoints[0]/1000)
-                        time_since_increased = round((last_setpoint_time - last_lower_setpoints[0])/1000/60)
+                        time_increased = pendulum.from_timestamp(
+                            last_lower_setpoints[0] / 1000
+                        )
+                        time_since_increased = round(
+                            (last_setpoint_time - last_lower_setpoints[0]) / 1000 / 60
+                        )
                         # Warn that the setpoit has not been reached yet
-                        if time_since_increased > 2*RUN_EVERY_MIN and zone not in warnings[house_alias]:
-                            print(f"[Warning] Setpoint in {zone} increased at {time_increased}, and has not been reached yet")
+                        if (
+                            time_since_increased > 2 * RUN_EVERY_MIN
+                            and zone not in warnings[house_alias]
+                        ):
+                            print(
+                                f"[Warning] Setpoint in {zone} increased at {time_increased}, and has not been reached yet"
+                            )
                             # send_opsgenie_warning(
                             #     f"[{house_alias}] Setpoint in {zone} increased at {time_increased}, and has not been reached yet."
                             # )
                             warnings[house_alias][zone] = True
                     # There was no increase in thermostat: alert immediately
                     else:
-                        print('[ALERT] Not caused by a thermostat increase!')
+                        print("[ALERT] Not caused by a thermostat increase!")
                         send_opsgenie_alert(
                             house_alias,
-                            setpoint_channel.replace('-set',''),
+                            setpoint_channel.replace("-set", ""),
                         )
 
 

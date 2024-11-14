@@ -6,13 +6,8 @@ from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
 from typing_extensions import Self
 
-from gjk.enums import FsmActionType, FsmName, FsmReportType
-from gjk.property_format import (
-    HandleName,
-    UTCMilliseconds,
-    UUID4Str,
-    LeftRightDot
-)
+from gjk.enums import FsmActionType, FsmReportType
+from gjk.property_format import HandleName, LeftRightDot, UTCMilliseconds, UUID4Str
 
 
 class FsmAtomicReport(GwBase):

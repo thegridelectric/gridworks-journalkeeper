@@ -62,7 +62,7 @@ def check_distflow():
     )
 
     if not messages:
-        print(f"No messages found.")
+        print("No messages found.")
         return
 
     # For every house

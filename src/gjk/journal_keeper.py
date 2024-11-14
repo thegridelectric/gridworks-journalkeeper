@@ -102,7 +102,7 @@ class JournalKeeper(ActorBase):
         finally:
             session.close()  # Always close the session
 
-    ########################
+    ########################f
     ## Receives
     ########################
 
