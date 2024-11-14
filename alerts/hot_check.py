@@ -73,7 +73,7 @@ def check_hot_temps():
     for house_alias in all_house_aliases:
         if house_alias != 'beech': 
             continue
-        # print(f"\n{house_alias}\n")
+        print(f"\n{house_alias}\n")
         if house_alias not in warnings:
             warnings[house_alias] = {}
         if house_alias not in alert_sent:
@@ -115,7 +115,7 @@ def check_hot_temps():
         # Check for too hot temperatures
         for channel in channels.keys():
             latest_temp = to_fahrenheit(channels[channel]['values'][-1]/1000)
-            # print(f"{channel} - {round(latest_temp,1)}")
+            print(f"{channel} - {round(latest_temp,1)}")
             if latest_temp > MAX_TEMP_F and not alert_sent[house_alias]:
                 print(f"[ALERT] {channel} is hotter than {MAX_TEMP_F} F ({round(latest_temp,1)})")
                 msg = f"[{house_alias}] {channel} is hotter than {MAX_TEMP_F} F"
