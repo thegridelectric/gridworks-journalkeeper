@@ -127,6 +127,8 @@ def check_onpeak():
         for time_ms in on_times:
             time_dt = pendulum.from_timestamp(time_ms/1000, tz="America/New_York")
             if time_dt.hour in ON_PEAK_HOURS and time_dt.day_of_week < 5:
+                if (time_dt.hour==7 or time_dt.hour==16) and time_dt.minute==0:
+                    continue
                 print(f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!")
                 need_to_alert += 1
         
