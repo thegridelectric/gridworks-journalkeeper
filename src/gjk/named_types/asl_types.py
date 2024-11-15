@@ -23,6 +23,7 @@ from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponen
 from gjk.named_types.power_watts import PowerWatts
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
+from gjk.named_types.scada_params import ScadaParams
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.named_types.ticklist_hall import TicklistHall
 from gjk.named_types.ticklist_hall_report import TicklistHallReport
@@ -42,6 +43,7 @@ from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatu
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.report_000 import Report000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
+from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
 TypeByName: Dict[str, GwBase] = {}
@@ -62,6 +64,7 @@ def types() -> List[GwBase]:
         GtShStatus,
         Report000,
         SnapshotSpaceheat000,
+        SnapshotSpaceheat001,
         TelemetrySnapshotSpaceheat,
         ChannelConfig,
         ChannelReadings,
@@ -82,6 +85,7 @@ def types() -> List[GwBase]:
         PowerWatts,
         Report,
         ReportEvent,
+        ScadaParams,
         SnapshotSpaceheat,
         TicklistHall,
         TicklistHallReport,

@@ -42,6 +42,7 @@ from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatu
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.report_000 import Report000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
+from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 from gw.named_types import GwBase
 </xsl:text>
@@ -79,6 +80,7 @@ def types() -> List[GwBase]:
         GtShStatus,
         Report000,
         SnapshotSpaceheat000,
+        SnapshotSpaceheat001,
         TelemetrySnapshotSpaceheat,
         </xsl:text>
 <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk') and (normalize-space(VersionedTypeName)!='') and (TypeStatus = 'Active' or TypeStatus = 'Pending')]">

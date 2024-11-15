@@ -57,9 +57,6 @@ from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
 
 __all__ = [
-    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
-    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
-    "",  # [.](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#)
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
     "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)

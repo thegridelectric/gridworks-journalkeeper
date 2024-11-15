@@ -16,6 +16,7 @@ from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatu
 from gjk.old_types.gt_sh_status import GtShStatus
 from gjk.old_types.report_000 import Report000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
+from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
 __all__ = [
@@ -31,5 +32,6 @@ __all__ = [
     "GtShStatus",
     "Report000",
     "SnapshotSpaceheat000",
+    "SnapshotSpaceheat001",
     "TelemetrySnapshotSpaceheat",
 ]

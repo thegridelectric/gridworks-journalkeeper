@@ -19,6 +19,7 @@ from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponen
 from gjk.named_types.power_watts import PowerWatts
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
+from gjk.named_types.scada_params import ScadaParams
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.named_types.ticklist_hall import TicklistHall
 from gjk.named_types.ticklist_hall_report import TicklistHallReport
@@ -45,6 +46,7 @@ __all__ = [
     "PowerWatts",
     "Report",
     "ReportEvent",
+    "ScadaParams",
     "SnapshotSpaceheat",
     "TicklistHall",
     "TicklistHallReport",

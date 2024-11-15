@@ -5,8 +5,8 @@ from gjk.named_types import FsmAtomicReport
 
 def test_fsm_atomic_report_generated() -> None:
     d = {
-        "FromHandle": "h.admin.store-charge-discharge.relay3",
-        "AboutFsm": "RelayState",
+        "MachineHandle": "h.admin.store-charge-discharge.relay3",
+        "StateEnum": "relay.pin.state",
         "ReportType": "Action",
         "ActionType": "RelayPinSet",
         "Action": 0,
@@ -19,5 +19,3 @@ def test_fsm_atomic_report_generated() -> None:
     d2 = FsmAtomicReport.from_dict(d).to_dict()
 
     assert d2 == d
-
-    assert type(d2["AboutFsm"]) is str

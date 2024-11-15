@@ -1,4 +1,4 @@
-"""Tests snapshot.spaceheat type, version 001"""
+"""Tests snapshot.spaceheat type, version 002"""
 
 from gjk.named_types import SnapshotSpaceheat
 
@@ -9,8 +9,9 @@ def test_snapshot_spaceheat_generated() -> None:
         "FromGNodeInstanceId": "0384ef21-648b-4455-b917-58a1172d7fc1",
         "SnapshotTimeUnixMs": 1709915800472,
         "LatestReadingList": [],
+        "LatestStateList": [],
         "TypeName": "snapshot.spaceheat",
-        "Version": "001",
+        "Version": "002",
     }
 
     assert SnapshotSpaceheat.from_dict(d).to_dict() == d
