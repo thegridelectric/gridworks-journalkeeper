@@ -308,14 +308,14 @@ class JournalKeeper(ActorBase):
                 )
 
     def snapshot_from_scada(self, t: SnapshotSpaceheat) -> None:
-        #print(f"Just got a snapshot from {t.from_g_node_alias}")
+        # print(f"Just got a snapshot from {t.from_g_node_alias}")
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=t.from_g_node_alias,
             message_persisted_ms=int(time.time() * 1000),
             payload=t.to_dict(),
             message_type_name=t.type_name,
-            message_created_ms=t.snapshot_time_unix_ms
+            message_created_ms=t.snapshot_time_unix_ms,
         )
         with self.get_db() as db:
             try:
@@ -331,7 +331,7 @@ class JournalKeeper(ActorBase):
             message_persisted_ms=int(time.time() * 1000),
             payload=t.to_dict(),
             message_type_name=t.type_name,
-            message_created_ms=t.unix_time_ms
+            message_created_ms=t.unix_time_ms,
         )
         with self.get_db() as db:
             try:
