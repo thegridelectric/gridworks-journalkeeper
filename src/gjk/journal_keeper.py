@@ -27,6 +27,8 @@ from gjk.named_types import (
     MyChannelsEvent,
     Report,
     ReportEvent,
+    ScadaParams,
+    SnapshotSpaceheat,
     TicklistHallReport,
     TicklistReedReport,
 )
@@ -138,6 +140,16 @@ class JournalKeeper(ActorBase):
                 self.report_event_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == SnapshotSpaceheat.type_name_value():
+            try:
+                self.snapshot_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with snapshot_from_scada: {e}") from e
+        elif payload.type_name == ScadaParams.type_name_value():
+            try:
+                self.process_scada_params(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with process_scada_params: {e}") from e
         elif payload.type_name == TicklistReedReport.type_name_value():
             try:
                 self.ticklist_reed_report_from_scada(from_alias, payload)
@@ -237,9 +249,6 @@ class JournalKeeper(ActorBase):
                 channels = [pyd_to_sql(ch) for ch in my_channels.channel_list]
                 bulk_insert_datachannels(db, channels)
 
-    def report_event_from_scada(self, t: ReportEvent) -> None:
-        self.report_from_scada(t.report)
-
     def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
         msg = Message(
             message_id=t.message_id,
@@ -252,6 +261,9 @@ class JournalKeeper(ActorBase):
         print(f"Got problem: {t}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
+
+    def report_event_from_scada(self, t: ReportEvent) -> None:
+        self.report_from_scada(t.report)
 
     def report_from_scada(self, t: Report) -> None:
         msg = Message(
@@ -294,6 +306,38 @@ class JournalKeeper(ActorBase):
                 print(
                     f"Inserted {len(readings)} from {short_alias}, msg id {msg.message_id}"
                 )
+
+    def snapshot_from_scada(self, t: SnapshotSpaceheat) -> None:
+        #print(f"Just got a snapshot from {t.from_g_node_alias}")
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=t.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.snapshot_time_unix_ms
+        )
+        with self.get_db() as db:
+            try:
+                insert_single_message(db, pyd_to_sql(msg))
+            except Exception as e:
+                print(f"Trouble inserting snapshot: {e}")
+
+    def process_scada_params(self, t: ScadaParams):
+        print(f"Just got scada params: {t}")
+        msg = Message(
+            message_id=t.message_id,
+            from_alias=t.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.unix_time_ms
+        )
+        with self.get_db() as db:
+            try:
+                insert_single_message(db, pyd_to_sql(msg))
+            except Exception as e:
+                print(f"Trouble inserting scada params: {e}")
 
     def old_gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
         msg = Message(
