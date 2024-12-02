@@ -30,6 +30,7 @@ on these ideas:
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
 """
 
+from gjk.enums.actor_class import ActorClass
 from gjk.enums.change_aquastat_control import ChangeAquastatControl
 from gjk.enums.change_heat_pump_control import ChangeHeatPumpControl
 from gjk.enums.change_heatcall_source import ChangeHeatcallSource
@@ -57,6 +58,7 @@ from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
 
 __all__ = [
+    "ActorClass",  # [sh.actor.class.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
     "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)

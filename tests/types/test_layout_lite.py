@@ -1,4 +1,4 @@
-"""Tests layout.lite type, version 000"""
+"""Tests layout.lite type, version 001"""
 
 from gjk.named_types import LayoutLite
 
@@ -12,6 +12,36 @@ def test_layout_lite_generated() -> None:
         "Strategy": "House0",
         "ZoneList": ["Down", "Up"],
         "TotalStoreTanks": 3,
+        "ShNodes": [
+            {
+                "ActorClass": "Scada",
+                "DisplayName": "Keene Beech Scada",
+                "Name": "s",
+                "ShNodeId": "da9a0427-d6c0-44c0-b51c-492c1e580dc5",
+                "TypeName": "spaceheat.node.gt",
+                "Version": "200",
+            },
+            {
+                "ActorClass": "PowerMeter",
+                "ActorHierarchyName": "s.power-meter",
+                "ComponentId": "9633adef-2373-422d-8a0e-dfbd16ae081c",
+                "DisplayName": "Primary Power Meter",
+                "Name": "power-meter",
+                "ShNodeId": "6c0563b7-5171-4b1c-bba3-de156bea4b95",
+                "TypeName": "spaceheat.node.gt",
+                "Version": "200",
+            },
+            {
+                "ActorClass": "NoActor",
+                "DisplayName": "Hp Idu",
+                "InPowerMetering": True,
+                "Name": "hp-idu",
+                "NameplatePowerW": 4000,
+                "ShNodeId": "07b8ca98-12c4-4510-8d0f-14fda2331215",
+                "TypeName": "spaceheat.node.gt",
+                "Version": "200",
+            },
+        ],
         "DataChannels": [
             {
                 "Name": "hp-idu-pwr",
@@ -170,8 +200,21 @@ def test_layout_lite_generated() -> None:
                 "Version": "000",
             }
         ],
+        "Ha1Params": {
+            "AlphaTimes10": 120,
+            "BetaTimes100": -22,
+            "GammaEx6": 0,
+            "IntermediatePowerKw": 1.5,
+            "IntermediateRswtF": 100,
+            "DdPowerKw": 12,
+            "DdRswtF": 160,
+            "DdDeltaTF": 20,
+            "HpMaxKwTh": 6,
+            "TypeName": "ha1.params",
+            "Version": "000",
+        },
         "TypeName": "layout.lite",
-        "Version": "000",
+        "Version": "001",
     }
 
     assert LayoutLite.from_dict(d).to_dict() == d
