@@ -23,7 +23,7 @@ from gjk.models import (
 )
 from gjk.named_types import (
     GridworksEventProblem,
-    LayoutEvent,
+    LayoutLite,
     MyChannelsEvent,
     Report,
     ReportEvent,
@@ -33,7 +33,7 @@ from gjk.named_types import (
     TicklistReedReport,
 )
 from gjk.named_types.asl_types import TypeByName
-from gjk.old_types import GridworksEventReport
+from gjk.old_types import GridworksEventReport, LayoutEvent
 from gjk.type_helpers import Message, Reading
 
 LOG_FORMAT = (
@@ -41,6 +41,8 @@ LOG_FORMAT = (
     "-35s %(lineno) -5d: %(message)s"
 )
 LOGGER = logging.getLogger(__name__)
+
+SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
@@ -58,6 +60,7 @@ class JournalKeeper(ActorBase):
         Meant for adding addtional bindings"""
         type_names = [
             GridworksEventProblem.type_name_value(),
+            LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
             MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
@@ -123,11 +126,6 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(f"Trouble with problem_event_from_scada: {e}") from e
 
-        elif payload.type_name == LayoutEvent.type_name_value():
-            try:
-                self.layout_event_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with layout_event_from_scada: {e}") from e
         elif payload.type_name == MyChannelsEvent.type_name_value():
             try:
                 self.my_channels_event_from_scada(payload)
@@ -147,7 +145,7 @@ class JournalKeeper(ActorBase):
                 raise Exception(f"Trouble with snapshot_from_scada: {e}") from e
         elif payload.type_name == ScadaParams.type_name_value():
             try:
-                self.process_scada_params(payload)
+                self.params_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with process_scada_params: {e}") from e
         elif payload.type_name == TicklistReedReport.type_name_value():
@@ -177,6 +175,11 @@ class JournalKeeper(ActorBase):
                 self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name == LayoutEvent.type_name_value():
+            try:
+                self.old_layout_event_from_scada(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with layout_event_from_scada: {e}") from e
 
     def ticklist_hall_report_from_scada(
         self, from_alias: str, t: TicklistHallReport
@@ -213,26 +216,6 @@ class JournalKeeper(ActorBase):
         print(f"Inserting as {t.type_name}")
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
-
-    def layout_event_from_scada(self, t: LayoutEvent) -> None:
-        layout = t.layout
-        msg = Message(
-            message_id=layout.message_id,
-            from_alias=layout.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=layout.to_dict(),
-            message_type_name=layout.type_name,
-            message_created_ms=layout.message_created_ms,
-        )
-        print("Got layout event")
-        for c in layout.flow_module_components:
-            print(
-                f"{c.flow_node_name}: {c.flow_meter_type}, {c.hz_calc_method}, {c.constant_gallons_per_tick} ticks per gallon"
-            )
-        with self.get_db() as db:
-            if insert_single_message(db, pyd_to_sql(msg)):
-                channels = [pyd_to_sql(ch) for ch in layout.data_channels]
-                bulk_insert_datachannels(db, channels)
 
     def my_channels_event_from_scada(self, t: MyChannelsEvent) -> None:
         my_channels = t.my_channels
@@ -323,7 +306,7 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 print(f"Trouble inserting snapshot: {e}")
 
-    def process_scada_params(self, t: ScadaParams):
+    def params_from_scada(self, t: ScadaParams):
         print(f"Just got scada params: {t}")
         msg = Message(
             message_id=t.message_id,
@@ -333,11 +316,16 @@ class JournalKeeper(ActorBase):
             message_type_name=t.type_name,
             message_created_ms=t.unix_time_ms,
         )
-        with self.get_db() as db:
-            try:
-                insert_single_message(db, pyd_to_sql(msg))
-            except Exception as e:
-                print(f"Trouble inserting scada params: {e}")
+        # when scada params from the SCADA, record the new ones
+        if t.from_name == SCADA_NAME:
+            with self.get_db() as db:
+                try:
+                    insert_single_message(db, pyd_to_sql(msg))
+                except Exception as e:
+                    print(f"Trouble inserting scada params: {e}")
+                t.new_params.alpha_times10
+                t.new_params.model_dump
+                # TODO: insert
 
     def old_gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
         msg = Message(
@@ -350,6 +338,26 @@ class JournalKeeper(ActorBase):
         )
         self.msg = msg
         print("Set this up when loading old data")
+
+    def old_layout_event_from_scada(self, t: LayoutEvent) -> None:
+        layout = t.layout
+        msg = Message(
+            message_id=layout.message_id,
+            from_alias=layout.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=layout.to_dict(),
+            message_type_name=layout.type_name,
+            message_created_ms=layout.message_created_ms,
+        )
+        print("Got layout event")
+        for c in layout.flow_module_components:
+            print(
+                f"{c.flow_node_name}: {c.flow_meter_type}, {c.hz_calc_method}, {c.constant_gallons_per_tick} ticks per gallon"
+            )
+        with self.get_db() as db:
+            if insert_single_message(db, pyd_to_sql(msg)):
+                channels = [pyd_to_sql(ch) for ch in layout.data_channels]
+                bulk_insert_datachannels(db, channels)
 
     def main(self) -> None:
         while True:
