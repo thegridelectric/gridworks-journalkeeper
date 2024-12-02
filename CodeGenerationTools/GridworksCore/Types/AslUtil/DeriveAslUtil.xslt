@@ -40,6 +40,8 @@ from gjk.old_types.gt_sh_multipurpose_telemetry_status import (
 )
 from gjk.old_types.gt_sh_simple_telemetry_status import GtShSimpleTelemetryStatus
 from gjk.old_types.gt_sh_status import GtShStatus
+from gjk.old_types.layout_event import LayoutEvent
+from gjk.old_types.layout_lite_000 import LayoutLite000
 from gjk.old_types.report_000 import Report000
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
@@ -78,6 +80,8 @@ def types() -> List[GwBase]:
         GtShMultipurposeTelemetryStatus,
         GtShSimpleTelemetryStatus,
         GtShStatus,
+        LayoutEvent,
+        LayoutLite000,
         Report000,
         SnapshotSpaceheat000,
         SnapshotSpaceheat001,

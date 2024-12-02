@@ -53,6 +53,7 @@ from gjk.enums.problem_type import ProblemType
 from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.enums.relay_pin_set import RelayPinSet
 from gjk.enums.store_flow_relay import StoreFlowRelay
+from gjk.enums.strategy import Strategy
 from gjk.enums.telemetry_name import TelemetryName
 from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
@@ -82,6 +83,7 @@ __all__ = [
     "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
     "StoreFlowRelay",  # [store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
+    "Strategy",  # [spaceheat.strategy.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatstrategy)
     "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
     "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
