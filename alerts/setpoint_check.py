@@ -94,7 +94,7 @@ def check_setpoint():
         print(f"\n{house_alias}\n")
         if house_alias not in warnings:
             warnings[house_alias] = {}
-            alerts_sent[house_alias] = []
+            alerts_sent[house_alias] = {}
         channels = {}
 
         # Store times and values for every channel
