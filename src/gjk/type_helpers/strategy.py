@@ -5,19 +5,11 @@ from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from gjk.enums import Strategy
-from gjk.property_format import (
-    LeftRightDot,
-    UTCMilliseconds,
-    UUID4Str,
-)
 
 
-class Param(BaseModel):
-    id: UUID4Str
-    strategy: Strategy
-    from_alias: LeftRightDot
-    payload: Dict
-    unix_ms: UTCMilliseconds
+class Strategy(BaseModel):
+    name: Strategy
+    description: str
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -25,7 +17,7 @@ class Param(BaseModel):
     )
 
     @classmethod
-    def from_dict(cls, d: dict) -> "Param":
+    def from_dict(cls, d: dict) -> "Strategy":
         for key in d:
             if not is_pascal_case(key):
                 raise GwTypeError(f"Key '{key}' is not PascalCase")
@@ -40,12 +32,12 @@ class Param(BaseModel):
         Handles lists of enums differently than model_dump
         """
         d = self.model_dump(exclude_none=True, by_alias=True)
-        d["Strategy"] = d["Strategy"].value
+        d["Name"] = d["Name"].value
         return d
 
     def to_sql_dict(self) -> Dict[str, Any]:
         d = self.model_dump(exclude_none=True)
-        d["strategy"] = d["strategy"].value
+        d["name"] = d["name"].value
         d.pop("type_name", None)
         d.pop("version", None)
         return d
