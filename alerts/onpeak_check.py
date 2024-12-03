@@ -22,7 +22,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def send_opsgenie_alert(house_alias, num_points):
+def send_opsgenie_alert(house_alias):
     url = "https://api.opsgenie.com/v2/alerts"
     headers = {
         "Content-Type": "application/json",
@@ -30,7 +30,7 @@ def send_opsgenie_alert(house_alias, num_points):
     }
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
-        "message": f"[{house_alias}] The HP is on during onpeak! (as suggested by {num_points} data points)",
+        "message": f"[{house_alias}] The HP is on during onpeak!",
         "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-hponpeak",
         "priority": "P1",
         "responders": responders,
@@ -48,7 +48,7 @@ def check_onpeak():
     global warnings
 
     # Get the data
-    start_ms = pendulum.now(tz="America/New_York").add(hours=-3).timestamp() * 1000
+    start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
     messages = (
         session.query(MessageSql)
         .filter(
@@ -74,7 +74,7 @@ def check_onpeak():
         if house_alias not in warnings:
             warnings[house_alias] = {}
         if house_alias not in alert_sent:
-            alert_sent[house_alias] = False
+            alert_sent[house_alias] = {}
         channels = {}
 
         # Store times and values for every channel
@@ -124,23 +124,24 @@ def check_onpeak():
         on_times = sorted(on_times_odu + on_times_idu)
 
         # Check if any of them was on during onpeak
-        need_to_alert = 0
+        need_to_alert = False
+        count_points_during_onpeak = 0
         for time_ms in on_times:
             time_dt = pendulum.from_timestamp(time_ms / 1000, tz="America/New_York")
             if time_dt.hour in ON_PEAK_HOURS and time_dt.day_of_week < 5:
                 if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute == 0:
                     continue
-                print(
-                    f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!"
-                )
-                need_to_alert += 1
+                count_points_during_onpeak += 1
+                if time_ms not in alert_sent[house_alias]:
+                    print(f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!")
+                    need_to_alert = True
+                    alert_sent[house_alias][time_ms] = True
 
-        if need_to_alert > 0 and not alert_sent[house_alias]:
+        if need_to_alert:
             send_opsgenie_alert(house_alias, need_to_alert)
-            alert_sent[house_alias] = True
-        else:
+        if count_points_during_onpeak == 0:
             print("Everything is OK")
-            alert_sent[house_alias] = False
+            alert_sent[house_alias] = {}
 
 
 if __name__ == "__main__":
