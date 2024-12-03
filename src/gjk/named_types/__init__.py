@@ -7,9 +7,9 @@ from gjk.named_types.fsm_atomic_report import FsmAtomicReport
 from gjk.named_types.fsm_event import FsmEvent
 from gjk.named_types.fsm_full_report import FsmFullReport
 from gjk.named_types.gridworks_event_problem import GridworksEventProblem
+from gjk.named_types.ha1_params import Ha1Params
 from gjk.named_types.heartbeat_a import HeartbeatA
 from gjk.named_types.keyparam_change_log import KeyparamChangeLog
-from gjk.named_types.layout_event import LayoutEvent
 from gjk.named_types.layout_lite import LayoutLite
 from gjk.named_types.machine_states import MachineStates
 from gjk.named_types.my_channels import MyChannels
@@ -21,6 +21,7 @@ from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
 from gjk.named_types.scada_params import ScadaParams
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
+from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.named_types.ticklist_hall import TicklistHall
 from gjk.named_types.ticklist_hall_report import TicklistHallReport
 from gjk.named_types.ticklist_reed import TicklistReed
@@ -34,9 +35,9 @@ __all__ = [
     "FsmEvent",
     "FsmFullReport",
     "GridworksEventProblem",
+    "Ha1Params",
     "HeartbeatA",
     "KeyparamChangeLog",
-    "LayoutEvent",
     "LayoutLite",
     "MachineStates",
     "MyChannels",
@@ -48,6 +49,7 @@ __all__ = [
     "ReportEvent",
     "ScadaParams",
     "SnapshotSpaceheat",
+    "SpaceheatNodeGt",
     "TicklistHall",
     "TicklistHallReport",
     "TicklistReed",
