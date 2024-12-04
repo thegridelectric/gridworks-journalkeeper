@@ -1,7 +1,6 @@
 import dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from contextlib import contextmanager
 from gjk.config import Settings
 
 # Load settings from environment or .env file
@@ -24,7 +23,6 @@ SessionLocal = sessionmaker(
     autoflush=False,  # Prevent auto-flush of transactions
 )
 
-@contextmanager
 def get_db():
     db = SessionLocal()
     try:
