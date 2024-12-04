@@ -44,7 +44,7 @@ def check_distflow():
 
     try:
         # Use the get_db generator to create a new session
-        with get_db() as session:
+        with next(get_db()) as session:
 
             # Get the data
             start_ms = pendulum.now(tz="America/New_York").add(days=-1).timestamp() * 1000
