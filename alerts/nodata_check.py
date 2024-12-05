@@ -68,6 +68,7 @@ def check_nodata():
 
             # For every house
             all_house_aliases = list({x.from_alias for x in messages})
+            all_house_aliases = [alias for alias in all_house_aliases if alias.split(".")[0] == "hw1"]
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
                 print(f"\n{house_alias}\n")
