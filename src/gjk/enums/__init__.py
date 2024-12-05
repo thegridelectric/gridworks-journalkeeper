@@ -28,7 +28,7 @@ on these ideas:
   - [GridWorks Enums](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [GridWorks Types](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
-"""
+ """
 
 from gjk.enums.actor_class import ActorClass
 from gjk.enums.change_aquastat_control import ChangeAquastatControl
@@ -52,6 +52,7 @@ from gjk.enums.pico_cycler_state import PicoCyclerState
 from gjk.enums.problem_type import ProblemType
 from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.enums.relay_pin_set import RelayPinSet
+from gjk.enums.relay_wiring_config import RelayWiringConfig
 from gjk.enums.store_flow_relay import StoreFlowRelay
 from gjk.enums.strategy import Strategy
 from gjk.enums.telemetry_name import TelemetryName
@@ -59,7 +60,7 @@ from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
 
 __all__ = [
-    "ActorClass",  # [sh.actor.class.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
+    "ActorClass",  # [sh.actor.class.004](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
     "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)
@@ -82,9 +83,10 @@ __all__ = [
     "ProblemType",  # [problem.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
     "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
+    "RelayWiringConfig",  # [relay.wiring.config.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaywiringconfig)
     "StoreFlowRelay",  # [store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
     "Strategy",  # [spaceheat.strategy.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatstrategy)
-    "TelemetryName",  # [spaceheat.telemetry.name.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
+    "TelemetryName",  # [spaceheat.telemetry.name.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
     "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
 ]

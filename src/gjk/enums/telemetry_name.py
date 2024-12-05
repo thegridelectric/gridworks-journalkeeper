@@ -8,7 +8,7 @@ class TelemetryName(GwStrEnum):
     """
     Specifies the name of sensed data reported by a Spaceheat SCADA
 
-    Enum spaceheat.telemetry.name version 001 in the GridWorks Type registry.
+    Enum spaceheat.telemetry.name version 003 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
@@ -39,6 +39,8 @@ class TelemetryName(GwStrEnum):
       - ThermostatState (00002000): Thermostat State: 0 means idle, 1 means heating, 2 means pending
         heat
       - MicroVolts (b664ac55): Microvolts RMS
+      - VoltsTimesTen (b69eae1a)
+      - WattHours (e76bc037)
     """
 
     Unknown = auto()
@@ -56,6 +58,8 @@ class TelemetryName(GwStrEnum):
     AirTempFTimes1000 = auto()
     ThermostatState = auto()
     MicroVolts = auto()
+    VoltsTimesTen = auto()
+    WattHours = auto()
 
     @classmethod
     def default(cls) -> "TelemetryName":
@@ -90,7 +94,7 @@ class TelemetryName(GwStrEnum):
             value) OR the earliest version of the enum containing the value.
         """
         if value is None:
-            return "001"
+            return "003"
         if not isinstance(value, str):
             raise ValueError("This method applies to strings, not enums")
         if value not in value_to_version.keys():
@@ -107,9 +111,9 @@ class TelemetryName(GwStrEnum):
     @classmethod
     def enum_version(cls) -> str:
         """
-        The version in the GridWorks Type Registry (001)
+        The version in the GridWorks Type Registry (003)
         """
-        return "001"
+        return "003"
 
     @classmethod
     def symbol_to_value(cls, symbol: str) -> str:
@@ -167,6 +171,8 @@ class TelemetryName(GwStrEnum):
             "4c3f8c78",
             "00002000",
             "b664ac55",
+            "b69eae1a",
+            "e76bc037",
         ]
 
 
@@ -186,6 +192,8 @@ symbol_to_value = {
     "4c3f8c78": "AirTempFTimes1000",
     "00002000": "ThermostatState",
     "b664ac55": "MicroVolts",
+    "b69eae1a": "VoltsTimesTen",
+    "e76bc037": "WattHours",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -206,4 +214,6 @@ value_to_version = {
     "AirTempFTimes1000": "001",
     "ThermostatState": "001",
     "MicroVolts": "001",
+    "VoltsTimesTen": "002",
+    "WattHours": "003",
 }

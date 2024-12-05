@@ -1,4 +1,4 @@
-"""Type scada.params, version 002"""
+"""Type scada.params, version 001"""
 
 from typing import Literal, Optional
 
@@ -15,7 +15,7 @@ from gjk.property_format import (
 )
 
 
-class ScadaParams(GwBase):
+class ScadaParams001(GwBase):
     from_g_node_alias: LeftRightDot
     from_name: SpaceheatName
     to_name: SpaceheatName
@@ -24,7 +24,7 @@ class ScadaParams(GwBase):
     new_params: Optional[Ha1Params] = None
     old_params: Optional[Ha1Params] = None
     type_name: Literal["scada.params"] = "scada.params"
-    version: Literal["002"] = "002"
+    version: Literal["001"] = "001"
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,

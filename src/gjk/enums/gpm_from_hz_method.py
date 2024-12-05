@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class GpmFromHzMethod(GwStrEnum):
     """
-
+    
 
     Enum gpm.from.hz.method version 000 in the GridWorks Type registry.
 

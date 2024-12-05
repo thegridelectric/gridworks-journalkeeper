@@ -8,7 +8,7 @@ class ActorClass(GwStrEnum):
     """
     Determines the code running Spaceheat Nodes supervised by Spaceheat SCADA software
 
-    Enum sh.actor.class version 003 in the GridWorks Type registry.
+    Enum sh.actor.class version 004 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
@@ -78,6 +78,9 @@ class ActorClass(GwStrEnum):
       - PicoCycler (99aa2b9b)
       - I2cDfrMultiplexer (adb77b99)
       - ZeroTenOutputer (2807d1af)
+      - AtomicAlly (8cd3f430): Direct report of Atn when the Scada is in Atn mode.
+      - SynthGenerator (7618a470)
+      - FakeAtn (5399bec8)
     """
 
     NoActor = auto()
@@ -105,6 +108,9 @@ class ActorClass(GwStrEnum):
     PicoCycler = auto()
     I2cDfrMultiplexer = auto()
     ZeroTenOutputer = auto()
+    AtomicAlly = auto()
+    SynthGenerator = auto()
+    FakeAtn = auto()
 
     @classmethod
     def default(cls) -> "ActorClass":
@@ -139,7 +145,7 @@ class ActorClass(GwStrEnum):
             value) OR the earliest version of the enum containing the value.
         """
         if value is None:
-            return "003"
+            return "004"
         if not isinstance(value, str):
             raise ValueError("This method applies to strings, not enums")
         if value not in value_to_version.keys():
@@ -156,9 +162,9 @@ class ActorClass(GwStrEnum):
     @classmethod
     def enum_version(cls) -> str:
         """
-        The version in the GridWorks Type Registry (003)
+        The version in the GridWorks Type Registry (004)
         """
-        return "003"
+        return "004"
 
     @classmethod
     def symbol_to_value(cls, symbol: str) -> str:
@@ -226,6 +232,9 @@ class ActorClass(GwStrEnum):
             "99aa2b9b",
             "adb77b99",
             "2807d1af",
+            "8cd3f430",
+            "7618a470",
+            "5399bec8",
         ]
 
 
@@ -255,6 +264,9 @@ symbol_to_value = {
     "99aa2b9b": "PicoCycler",
     "adb77b99": "I2cDfrMultiplexer",
     "2807d1af": "ZeroTenOutputer",
+    "8cd3f430": "AtomicAlly",
+    "7618a470": "SynthGenerator",
+    "5399bec8": "FakeAtn",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -285,4 +297,7 @@ value_to_version = {
     "PicoCycler": "002",
     "I2cDfrMultiplexer": "003",
     "ZeroTenOutputer": "003",
+    "AtomicAlly": "004",
+    "SynthGenerator": "004",
+    "FakeAtn": "004",
 }

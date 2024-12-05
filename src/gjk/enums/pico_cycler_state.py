@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class PicoCyclerState(GwStrEnum):
     """
-
+    
 
     Enum pico.cycler.state version 000 in the GridWorks Type registry.
 

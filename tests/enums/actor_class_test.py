@@ -1,5 +1,5 @@
 """
-Tests for enum sh.actor.class.003 from the GridWorks Type Registry.
+Tests for enum sh.actor.class.004 from the GridWorks Type Registry.
 """
 
 from gjk.enums import ActorClass
@@ -32,11 +32,14 @@ def test_actor_class() -> None:
         "PicoCycler",
         "I2cDfrMultiplexer",
         "ZeroTenOutputer",
+        "AtomicAlly",
+        "SynthGenerator",
+        "FakeAtn",
     }
 
     assert ActorClass.default() == ActorClass.NoActor
     assert ActorClass.enum_name() == "sh.actor.class"
-    assert ActorClass.enum_version() == "003"
+    assert ActorClass.enum_version() == "004"
 
     assert ActorClass.version("NoActor") == "000"
     assert ActorClass.version("Scada") == "000"
@@ -63,6 +66,9 @@ def test_actor_class() -> None:
     assert ActorClass.version("PicoCycler") == "002"
     assert ActorClass.version("I2cDfrMultiplexer") == "003"
     assert ActorClass.version("ZeroTenOutputer") == "003"
+    assert ActorClass.version("AtomicAlly") == "004"
+    assert ActorClass.version("SynthGenerator") == "004"
+    assert ActorClass.version("FakeAtn") == "004"
 
     for value in ActorClass.values():
         symbol = ActorClass.value_to_symbol(value)

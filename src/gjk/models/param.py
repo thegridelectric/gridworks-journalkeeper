@@ -41,10 +41,10 @@ class ParamSql(Base):
         return d
 
     def __repr__(self):
-        return f"<ParamSql({self.strategy}, {self.from_alias}, {pendulum.from_timestamp(self.unix_ms/1000)})>"
+        return f"<ParamSql({self.strategy}, {self.from_alias}, {pendulum.from_timestamp(self.unix_ms / 1000)})>"
 
     def __str__(self):
-        return f"<ParamSql({self.strategy}, {self.from_alias}, {pendulum.from_timestamp(self.unix_ms/1000)})>"
+        return f"<ParamSql({self.strategy}, {self.from_alias}, {pendulum.from_timestamp(self.unix_ms / 1000)})>"
 
 
 def bulk_insert_param_values(db: Session, params_list: List[ParamSql]):

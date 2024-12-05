@@ -6,7 +6,7 @@ from gw.named_types import GwBase
 from pydantic import model_validator
 from typing_extensions import Self
 
-from gjk.named_types.my_channels import MyChannels
+from gjk.old_types.my_channels import MyChannels
 from gjk.property_format import (
     UTCMilliseconds,
     UUID4Str,

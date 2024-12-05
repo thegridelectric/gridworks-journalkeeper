@@ -1,5 +1,5 @@
 """
-Tests for enum spaceheat.telemetry.name.001 from the GridWorks Type Registry.
+Tests for enum spaceheat.telemetry.name.003 from the GridWorks Type Registry.
 """
 
 from gjk.enums import TelemetryName
@@ -22,11 +22,13 @@ def test_telemetry_name() -> None:
         "AirTempFTimes1000",
         "ThermostatState",
         "MicroVolts",
+        "VoltsTimesTen",
+        "WattHours",
     }
 
     assert TelemetryName.default() == TelemetryName.Unknown
     assert TelemetryName.enum_name() == "spaceheat.telemetry.name"
-    assert TelemetryName.enum_version() == "001"
+    assert TelemetryName.enum_version() == "003"
 
     assert TelemetryName.version("Unknown") == "000"
     assert TelemetryName.version("PowerW") == "000"
@@ -43,6 +45,8 @@ def test_telemetry_name() -> None:
     assert TelemetryName.version("AirTempFTimes1000") == "001"
     assert TelemetryName.version("ThermostatState") == "001"
     assert TelemetryName.version("MicroVolts") == "001"
+    assert TelemetryName.version("VoltsTimesTen") == "002"
+    assert TelemetryName.version("WattHours") == "003"
 
     for value in TelemetryName.values():
         symbol = TelemetryName.value_to_symbol(value)

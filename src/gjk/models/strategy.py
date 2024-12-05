@@ -61,9 +61,7 @@ def bulk_insert_params(db: Session, params_list: List[StrategySql]):
             }
 
             new_strategies = [
-                strategy
-                for strategy in batch
-                if strategy.name not in existing_pks
+                strategy for strategy in batch if strategy.name not in existing_pks
             ]
             print(f"Inserting {len(new_strategies)} out of {len(batch)}")
 

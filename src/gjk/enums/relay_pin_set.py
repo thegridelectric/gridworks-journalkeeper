@@ -1,5 +1,5 @@
-"""Old School enum (uses integers)"""
 
+"""Old School enum (uses integers)"""
 from enum import Enum
 from typing import List
 
@@ -10,7 +10,6 @@ class RelayPinSet(Enum):
     read by the same driver). It is an old-school enum, where DeEnergized encodes 0 and Energized
     encodes 1.
     """
-
     DeEnergized = 0
     Energized = 1
 

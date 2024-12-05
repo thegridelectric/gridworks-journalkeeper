@@ -14,7 +14,7 @@ from gjk.property_format import (
 
 
 class PicoTankModuleComponentGt(GwBase):
-    enabled: float
+    enabled: bool
     pico_a_hw_uid: Optional[str] = None
     pico_b_hw_uid: Optional[str] = None
     temp_calc_method: TempCalcMethod

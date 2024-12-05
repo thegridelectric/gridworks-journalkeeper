@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class HzCalcMethod(GwStrEnum):
     """
-
+    
 
     Enum hz.calc.method version 000 in the GridWorks Type registry.
 

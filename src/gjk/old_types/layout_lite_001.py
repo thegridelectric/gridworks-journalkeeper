@@ -1,4 +1,4 @@
-"""Type layout.lite, version 002"""
+"""Type layout.lite, version 001"""
 
 from typing import List, Literal
 
@@ -7,14 +7,10 @@ from pydantic import PositiveInt, model_validator
 from typing_extensions import Self
 
 from gjk.named_types.data_channel_gt import DataChannelGt
-from gjk.named_types.ha1_params import Ha1Params
-from gjk.named_types.i2c_multichannel_dt_relay_component_gt import (
-    I2cMultichannelDtRelayComponentGt,
-)
 from gjk.named_types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponentGt
 from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
-from gjk.named_types.synth_channel_gt import SynthChannelGt
+from gjk.old_types.ha1_params_000 import Ha1Params000
 from gjk.property_format import (
     LeftRightDot,
     UTCMilliseconds,
@@ -22,7 +18,7 @@ from gjk.property_format import (
 )
 
 
-class LayoutLite(GwBase):
+class LayoutLite001(GwBase):
     from_g_node_alias: LeftRightDot
     from_g_node_instance_id: UUID4Str
     message_created_ms: UTCMilliseconds
@@ -32,13 +28,11 @@ class LayoutLite(GwBase):
     total_store_tanks: PositiveInt
     sh_nodes: List[SpaceheatNodeGt]
     data_channels: List[DataChannelGt]
-    synth_channels: List[SynthChannelGt]
     tank_module_components: List[PicoTankModuleComponentGt]
     flow_module_components: List[PicoFlowModuleComponentGt]
-    ha1_params: Ha1Params
-    i2c_relay_component: I2cMultichannelDtRelayComponentGt
+    ha1_params: Ha1Params000
     type_name: Literal["layout.lite"] = "layout.lite"
-    version: Literal["002"] = "002"
+    version: Literal["001"] = "001"
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

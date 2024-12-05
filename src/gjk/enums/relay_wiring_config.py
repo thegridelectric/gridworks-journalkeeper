@@ -4,33 +4,41 @@ from typing import List, Optional
 from gw.enums import GwStrEnum
 
 
-class FsmReportType(GwStrEnum):
+class RelayWiringConfig(GwStrEnum):
     """
-    
+    While some relays come with only two terminals and a default configuration, many come with
+    a common terminal (COM), normally open terminal (NO) and normally closed terminal (NC).
+    When the relay is de-energized, the circuit between COM and Normally Closed is closed. When
+    the relay is energized, the circuit between COM and Normally Open is closed. This enum is
+    about how one wires such a relay into a circuit.
 
-    Enum fsm.report.type version 000 in the GridWorks Type registry.
+    Enum relay.wiring.config version 000 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
-      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#fsmreporttype)
-      - [More Info](https://gridworks-protocol.readthedocs.io/en/latest/finite-state-machines.html)
+      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaywiringconfig)
+      - [More Info](https://gridworks-protocol.readthedocs.io/en/latest/relays.html)
 
     Values (with symbols in parens):
-      - Other (00000000)
-      - Event (6fe49bc1)
-      - Action (490d4e1d)
+      - NormallyClosed (00000000): When the relay is de-energized, the circuit is closed (circuit
+        is wired through COM and NC).
+      - NormallyOpen (63f5da41): When the relay is de-energized, the circuit is open (circuit is
+        wired through COM and NC).
+      - DoubleThrow (8b15ff3f): COM, NC, and NO are all connected to parts of the circuit. For example,
+        NC could activate a heat pump and NO could activate a backup oil boiler. The Double
+        Throw configuration allows for switching between these two.
     """
 
-    Other = auto()
-    Event = auto()
-    Action = auto()
+    NormallyClosed = auto()
+    NormallyOpen = auto()
+    DoubleThrow = auto()
 
     @classmethod
-    def default(cls) -> "FsmReportType":
+    def default(cls) -> "RelayWiringConfig":
         """
-        Returns default value (in this case Other)
+        Returns default value (in this case NormallyClosed)
         """
-        return cls.Other
+        return cls.NormallyClosed
 
     @classmethod
     def values(cls) -> List[str]:
@@ -68,9 +76,9 @@ class FsmReportType(GwStrEnum):
     @classmethod
     def enum_name(cls) -> str:
         """
-        The name in the GridWorks Type Registry (fsm.report.type)
+        The name in the GridWorks Type Registry (relay.wiring.config)
         """
-        return "fsm.report.type"
+        return "relay.wiring.config"
 
     @classmethod
     def enum_version(cls) -> str:
@@ -90,7 +98,7 @@ class FsmReportType(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "Other".
+            a later version of this enum, returns the default value of "NormallyClosed".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -99,7 +107,7 @@ class FsmReportType(GwStrEnum):
     @classmethod
     def value_to_symbol(cls, value: str) -> str:
         """
-        Provides the encoding symbol for a FsmReportType enum to send in seriliazed messages.
+        Provides the encoding symbol for a RelayWiringConfig enum to send in seriliazed messages.
 
         Args:
             symbol (str): The candidate value.
@@ -121,21 +129,21 @@ class FsmReportType(GwStrEnum):
         """
         return [
             "00000000",
-            "6fe49bc1",
-            "490d4e1d",
+            "63f5da41",
+            "8b15ff3f",
         ]
 
 
 symbol_to_value = {
-    "00000000": "Other",
-    "6fe49bc1": "Event",
-    "490d4e1d": "Action",
+    "00000000": "NormallyClosed",
+    "63f5da41": "NormallyOpen",
+    "8b15ff3f": "DoubleThrow",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
-    "Other": "000",
-    "Event": "000",
-    "Action": "000",
+    "NormallyClosed": "000",
+    "NormallyOpen": "000",
+    "DoubleThrow": "000",
 }

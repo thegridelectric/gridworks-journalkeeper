@@ -5,6 +5,7 @@ import threading
 import time
 import uuid
 from contextlib import contextmanager
+from typing import List
 
 import pendulum
 from gw.named_types import GwBase
@@ -35,6 +36,7 @@ from gjk.named_types import (
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport, LayoutEvent
 from gjk.type_helpers import Message, Reading
+from gjk.utils import FileNameMeta, str_from_ms
 
 LOG_FORMAT = (
     "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
@@ -46,6 +48,14 @@ SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
+    tracked_types: List[GwBase] = [
+        GridworksEventProblem,
+        LayoutLite,
+        ReportEvent,
+        TicklistHallReport,
+        TicklistReedReport,
+    ]
+
     def __init__(self, settings: Settings):
         # use our knwon types
         super().__init__(settings=settings, codec=GwCodec(type_by_name=TypeByName))
@@ -363,3 +373,74 @@ class JournalKeeper(ActorBase):
         while True:
             time.sleep(3600)
             # Once a day check S3 for missed messages?
+
+    ###########################################
+    # S3 related
+    ###########################################
+
+    def get_single_asset_filenames(
+        self,
+        start_s: int,
+        duration_hrs: int,
+        short_alias: str,
+    ) -> List[FileNameMeta]:
+        date_list = self.get_date_folder_list(start_s, duration_hrs)
+        print(f"Loading filenames from folders {date_list}")
+        all_fns: List[FileNameMeta] = self.get_all_filenames(date_list)
+        start_ms = start_s * 1000
+        end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
+        ta_list: List[FileNameMeta] = [
+            fn
+            for fn in all_fns
+            if (
+                ("status" in fn.type_name)
+                or ("report" in fn.type_name)
+                or ("snapshot" in fn.type_name)
+                or ("power.watts" in fn.type_name)
+                or ("keyparam.change.log" in fn.type_name)
+            )
+            and (short_alias in fn.from_alias)
+            and (start_ms <= fn.message_persisted_ms < end_ms)
+        ]
+
+        ta_list.sort(key=lambda x: x.message_persisted_ms)
+        print(f"total filenames to: {len(ta_list)}")
+        print(
+            f"First file persisted {str_from_ms(ta_list[0].message_persisted_ms)} America/NY"
+        )
+        print(
+            f"Last file persisted at {str_from_ms(ta_list[-1].message_persisted_ms)} America/NY"
+        )
+        return ta_list
+
+    def get_all_filenames(
+        self,
+        date_folder_list: List[str],
+    ):
+        fn_list: List[FileNameMeta] = []
+        for date_folder in date_folder_list:
+            prefix = f"{self.world_instance_name}/eventstore/{date_folder}/"
+            paginator = self.s3.get_paginator("list_objects_v2")
+            pages = paginator.paginate(Bucket=self.aws_bucket_name, Prefix=prefix)
+            file_name_list = []
+            for page in pages:
+                for obj in page["Contents"]:
+                    file_name_list.append(obj["Key"])
+
+            for file_name in file_name_list:
+                try:
+                    from_alias = file_name.split("/")[-1].split("-")[0]
+                    type_name = file_name.split("/")[-1].split("-")[1]
+                    message_persisted_ms = int(file_name.split("/")[-1].split("-")[2])
+                except Exception as e:
+                    raise Exception(f"Failed file name parsing with {file_name}") from e
+                fn_list.append(
+                    FileNameMeta(
+                        from_alias=from_alias,
+                        type_name=type_name,
+                        message_persisted_ms=message_persisted_ms,
+                        file_name=file_name,
+                    )
+                )
+
+        return fn_list

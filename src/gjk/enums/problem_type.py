@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class ProblemType(GwStrEnum):
     """
-
+    
 
     Enum problem.type version 000 in the GridWorks Type registry.
 
