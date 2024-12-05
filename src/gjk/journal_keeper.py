@@ -53,7 +53,7 @@ class JournalKeeper(ActorBase):
         ReportEvent,
         TicklistHallReport,
         TicklistReedReport,
-    ]
+    ]s
 
     def __init__(self, settings: Settings):
         # use our knwon types
@@ -138,13 +138,6 @@ class JournalKeeper(ActorBase):
                 self.layout_lite_received(payload)
             except Exception as e:
                 raise Exception(f"Trouble with layout_lite_from_scada: {e}") from e
-        elif payload.type_name == MyChannelsEvent.type_name_value():
-            try:
-                self.my_channels_event_from_scada(payload)
-            except Exception as e:
-                raise Exception(
-                    f"Trouble with my_channels_event_from_scada: {e}"
-                ) from e
         elif payload.type_name == ReportEvent.type_name_value():
             try:
                 self.report_event_from_scada(payload)
@@ -244,20 +237,6 @@ class JournalKeeper(ActorBase):
                 channels = [pyd_to_sql(ch) for ch in layout.data_channels]
                 bulk_insert_datachannels(db, channels)
 
-    def my_channels_event_from_scada(self, t: MyChannelsEvent) -> None:
-        my_channels = t.my_channels
-        msg = Message(
-            message_id=my_channels.message_id,
-            from_alias=my_channels.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=my_channels.to_dict(),
-            message_type_name=my_channels.type_name,
-            message_created_ms=my_channels.message_created_ms,
-        )
-        with self.get_db() as db:
-            if insert_single_message(db, pyd_to_sql(msg)):
-                channels = [pyd_to_sql(ch) for ch in my_channels.channel_list]
-                bulk_insert_datachannels(db, channels)
 
     def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
         msg = Message(
