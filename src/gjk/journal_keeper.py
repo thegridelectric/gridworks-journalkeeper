@@ -53,7 +53,7 @@ class JournalKeeper(ActorBase):
         ReportEvent,
         TicklistHallReport,
         TicklistReedReport,
-    ]s
+    ]
 
     def __init__(self, settings: Settings):
         # use our knwon types
