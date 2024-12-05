@@ -25,7 +25,6 @@ from gjk.models import (
 from gjk.named_types import (
     GridworksEventProblem,
     LayoutLite,
-    MyChannelsEvent,
     Report,
     ReportEvent,
     ScadaParams,
@@ -72,7 +71,6 @@ class JournalKeeper(ActorBase):
             GridworksEventProblem.type_name_value(),
             LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
-            MyChannelsEvent.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
             TicklistReedReport.type_name_value(),
