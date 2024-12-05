@@ -276,18 +276,19 @@ class JournalKeeper(ActorBase):
                         .first()
                     )
                     if ch is None:
-                        raise Exception(
+                        print(
                             f"Did not find channel {ch_readings.channel_name} (see msg id {msg.message_id})"
                         )
-                    readings_pyd.extend([
-                        Reading(
-                            value=ch_readings.value_list[i],
-                            time_ms=ch_readings.scada_read_time_unix_ms_list[i],
-                            message_id=msg.message_id,
-                            data_channel=sql_to_pyd(ch),
-                        )
-                        for i in range(len(ch_readings.value_list))
-                    ])
+                    else:
+                        readings_pyd.extend([
+                            Reading(
+                                value=ch_readings.value_list[i],
+                                time_ms=ch_readings.scada_read_time_unix_ms_list[i],
+                                message_id=msg.message_id,
+                                data_channel=sql_to_pyd(ch),
+                            )
+                            for i in range(len(ch_readings.value_list))
+                        ])
                 # Insert the readings that go along with the message
                 readings = [pyd_to_sql(r) for r in readings_pyd]
                 bulk_insert_readings(db, readings)
