@@ -83,7 +83,7 @@ def check_storeflow():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if channel_name=='store-flow':
+                        if channel_name=='store-pump-pwr':
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
@@ -132,7 +132,7 @@ def check_storeflow():
                             print(f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min")
                             
                             store_flow_since_switch = sum([
-                                y for x,y in zip(channels['store-flow']['times'], channels['store-flow']['values'])
+                                y if y>1 else 0 for x,y in zip(channels['store-pump-pwr']['times'], channels['store-pump-pwr']['values'])
                                 if x/1000 >= time_of_last_switch.timestamp()
                             ])
 
