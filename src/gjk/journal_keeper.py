@@ -73,6 +73,7 @@ class JournalKeeper(ActorBase):
             LayoutEvent.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
+            SnapshotSpaceheat.type_name_value(),
             TicklistReedReport.type_name_value(),
             TicklistHallReport.type_name_value(),
         ]
