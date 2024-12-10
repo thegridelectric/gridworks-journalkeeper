@@ -25,6 +25,7 @@ from gjk.models import (
 from gjk.named_types import (
     GridworksEventProblem,
     LayoutLite,
+    PowerWatts,
     Report,
     ReportEvent,
     ScadaParams,
@@ -47,13 +48,6 @@ SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
-    tracked_types: List[GwBase] = [
-        GridworksEventProblem,
-        LayoutLite,
-        ReportEvent,
-        TicklistHallReport,
-        TicklistReedReport,
-    ]
 
     def __init__(self, settings: Settings):
         # use our knwon types
@@ -71,6 +65,7 @@ class JournalKeeper(ActorBase):
             GridworksEventProblem.type_name_value(),
             LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
+            PowerWatts.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
             SnapshotSpaceheat.type_name_value(),
@@ -139,6 +134,11 @@ class JournalKeeper(ActorBase):
                 self.layout_lite_received(payload)
             except Exception as e:
                 raise Exception(f"Trouble with layout_lite_from_scada: {e}") from e
+        elif payload.type_name == PowerWatts.type_name_value():
+            try:
+                self.power_watts_received(from_alias, payload)
+            except Exception as e:
+                raise Exception(f"Trouble with power_watts_received: {e}") from e
         elif payload.type_name == ReportEvent.type_name_value():
             try:
                 self.report_event_from_scada(payload)
@@ -238,6 +238,16 @@ class JournalKeeper(ActorBase):
                 channels = [pyd_to_sql(ch) for ch in layout.data_channels]
                 bulk_insert_datachannels(db, channels)
 
+    def power_watts_received(self, from_alias: str, t: PowerWatts) ->None:
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=from_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+        )
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
 
     def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
         msg = Message(
