@@ -113,21 +113,31 @@ def check_storeflow():
                     # Position of relay 9
                     relays = {}
                     for message in [m for m in messages if house_alias in m.from_alias]:
-                        if "StateList" in message.payload:
-                            for state in message.payload["StateList"]:
-                                if "relay9" in state["MachineHandle"]:
-                                    if state["MachineHandle"] not in relays:
-                                        relays[state["MachineHandle"]] = {}
-                                        relays[state["MachineHandle"]]["times"] = []
-                                        relays[state["MachineHandle"]]["values"] = []
-                                    relays[state["MachineHandle"]]["times"].extend(
-                                        state["UnixMsList"]
-                                    )
-                                    relays[state["MachineHandle"]]["values"].extend(
-                                        state["StateList"]
-                                    )
+                        if 'StateList' in message.payload:
+                            for state in message.payload['StateList']:
+                                if 'relay9' in state['MachineHandle']:
+                                    if state['MachineHandle'] not in relays:
+                                        relays[state['MachineHandle']] = {}
+                                        relays[state['MachineHandle']]['times'] = []
+                                        relays[state['MachineHandle']]['values'] = []
+                                    relays[state['MachineHandle']]['times'].extend(state['UnixMsList'])
+                                    relays[state['MachineHandle']]['values'].extend(state['StateList'])
+
+                    # Keep only the latest actor in control
+                    most_recent_relay9_parent = list(relays.keys())[0]
+                    if len(list(relays.keys()))>1:
+                        most_recent_relay_state = pendulum.datetime(2022,1,1).timestamp()*1000
+                        for r in relays:
+                            latest = max(relays[r]['times'])
+                            if latest > most_recent_relay_state:
+                                most_recent_relay_state = latest
+                                most_recent_relay9_parent = r
+                        print(f"The most recent actor to control relay 9 is {most_recent_relay9_parent}")
+
                     for r in relays:
-                        pairs = list(zip(relays[r]["times"], relays[r]["values"]))
+                        if r!= most_recent_relay9_parent:
+                            continue
+                        pairs = list(zip(relays[r]['times'], relays[r]['values']))
                         time_of_last_switch = next(
                             (
                                 pairs[i + 1][0]
