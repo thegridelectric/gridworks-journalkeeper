@@ -1,7 +1,7 @@
 import uuid
-from typing import Dict
 from datetime import datetime, timezone
-from typing import Annotated
+from typing import Annotated, Dict
+
 from gw.enums import MarketTypeName
 from pydantic import BeforeValidator
 

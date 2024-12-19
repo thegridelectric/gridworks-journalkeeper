@@ -4,9 +4,12 @@ from typing import Dict, List, no_type_check
 
 from gw.named_types import GwBase
 
+from gjk.named_types.atn_bid import AtnBid
 from gjk.named_types.channel_config import ChannelConfig
 from gjk.named_types.channel_readings import ChannelReadings
 from gjk.named_types.data_channel_gt import DataChannelGt
+from gjk.named_types.energy_instruction import EnergyInstruction
+from gjk.named_types.flo_params_house0 import FloParamsHouse0
 from gjk.named_types.fsm_atomic_report import FsmAtomicReport
 from gjk.named_types.fsm_event import FsmEvent
 from gjk.named_types.fsm_full_report import FsmFullReport
@@ -17,11 +20,13 @@ from gjk.named_types.i2c_multichannel_dt_relay_component_gt import (
     I2cMultichannelDtRelayComponentGt,
 )
 from gjk.named_types.keyparam_change_log import KeyparamChangeLog
+from gjk.named_types.latest_price import LatestPrice
 from gjk.named_types.layout_lite import LayoutLite
 from gjk.named_types.machine_states import MachineStates
 from gjk.named_types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponentGt
 from gjk.named_types.power_watts import PowerWatts
+from gjk.named_types.price_quantity_unitless import PriceQuantityUnitless
 from gjk.named_types.relay_actor_config import RelayActorConfig
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
@@ -84,9 +89,12 @@ def types() -> List[GwBase]:
         SnapshotSpaceheat000,
         SnapshotSpaceheat001,
         TelemetrySnapshotSpaceheat,
+        AtnBid,
         ChannelConfig,
         ChannelReadings,
         DataChannelGt,
+        EnergyInstruction,
+        FloParamsHouse0,
         FsmAtomicReport,
         FsmEvent,
         FsmFullReport,
@@ -95,11 +103,13 @@ def types() -> List[GwBase]:
         HeartbeatA,
         I2cMultichannelDtRelayComponentGt,
         KeyparamChangeLog,
+        LatestPrice,
         LayoutLite,
         MachineStates,
         PicoFlowModuleComponentGt,
         PicoTankModuleComponentGt,
         PowerWatts,
+        PriceQuantityUnitless,
         RelayActorConfig,
         Report,
         ReportEvent,
