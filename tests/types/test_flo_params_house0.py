@@ -1,10 +1,9 @@
 """Tests flo.params.house0 type, version 000"""
 
 
-
 def test_flo_params_house0_generated() -> None:
     ...
-    #d = {
+    # d = {
     #     "GNodeAlias": "d1.isone.ver.keene.holly",
     #     "FloParamsUid": "97eba574-bd20-45b5-bf82-9ba2f492d8f6",
     #     "TimezoneStr": ,

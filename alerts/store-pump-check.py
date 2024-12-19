@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -43,9 +44,10 @@ def check_storeflow():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -64,7 +66,9 @@ def check_storeflow():
                 return
 
             # For every house
-            all_house_aliases = list({x.from_alias for x in messages if 'orange' not in x.from_alias})
+            all_house_aliases = list({
+                x.from_alias for x in messages if "orange" not in x.from_alias
+            })
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
                 print(f"\n{house_alias}\n")
@@ -83,18 +87,20 @@ def check_storeflow():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if channel_name=='store-pump-pwr':
+                        if channel_name == "store-pump-pwr":
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
-                if 'store-pump-pwr' in channels:
+                if "store-pump-pwr" in channels:
                     # Sort according to time
                     for key in channels.keys():
                         sorted_times_values = sorted(
@@ -107,37 +113,61 @@ def check_storeflow():
                     # Position of relay 9
                     relays = {}
                     for message in [m for m in messages if house_alias in m.from_alias]:
-                        if 'StateList' in message.payload:
-                            for state in message.payload['StateList']:
-                                if 'relay9' in state['MachineHandle']:
-                                    if state['MachineHandle'] not in relays:
-                                        relays[state['MachineHandle']] = {}
-                                        relays[state['MachineHandle']]['times'] = []
-                                        relays[state['MachineHandle']]['values'] = []
-                                    relays[state['MachineHandle']]['times'].extend(state['UnixMsList'])
-                                    relays[state['MachineHandle']]['values'].extend(state['StateList'])
+                        if "StateList" in message.payload:
+                            for state in message.payload["StateList"]:
+                                if "relay9" in state["MachineHandle"]:
+                                    if state["MachineHandle"] not in relays:
+                                        relays[state["MachineHandle"]] = {}
+                                        relays[state["MachineHandle"]]["times"] = []
+                                        relays[state["MachineHandle"]]["values"] = []
+                                    relays[state["MachineHandle"]]["times"].extend(
+                                        state["UnixMsList"]
+                                    )
+                                    relays[state["MachineHandle"]]["values"].extend(
+                                        state["StateList"]
+                                    )
                     for r in relays:
-                        pairs = list(zip(relays[r]['times'], relays[r]['values']))
+                        pairs = list(zip(relays[r]["times"], relays[r]["values"]))
                         time_of_last_switch = next(
-                            (pairs[i+1][0] for i in range(len(pairs)-2, -1, -1) if pairs[i][1] != pairs[i+1][1]),
-                            pairs[0][0]
+                            (
+                                pairs[i + 1][0]
+                                for i in range(len(pairs) - 2, -1, -1)
+                                if pairs[i][1] != pairs[i + 1][1]
+                            ),
+                            pairs[0][0],
                         )
-                        time_of_last_switch = pendulum.from_timestamp(time_of_last_switch/1000, tz='America/New_York')
-                        print(f"In {relays[r]['values'][-1]} since {time_of_last_switch}")
+                        time_of_last_switch = pendulum.from_timestamp(
+                            time_of_last_switch / 1000, tz="America/New_York"
+                        )
+                        print(
+                            f"In {relays[r]['values'][-1]} since {time_of_last_switch}"
+                        )
 
                         # If it has been more than 10 minutes since the relay is Closed
                         # There must have been flow on the storage pump
-                        if relays[r]['values'][-1] == 'RelayClosed':
-                            if (pendulum.now(tz='America/New_York') - time_of_last_switch).total_seconds() > 10*60:
-                                print(f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min")
-                                
+                        if relays[r]["values"][-1] == "RelayClosed":
+                            if (
+                                pendulum.now(tz="America/New_York")
+                                - time_of_last_switch
+                            ).total_seconds() > 10 * 60:
+                                print(
+                                    f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min"
+                                )
+
                                 store_flow_since_switch = sum([
-                                    y if y>1 else 0 for x,y in zip(channels['store-pump-pwr']['times'], channels['store-pump-pwr']['values'])
-                                    if x/1000 >= time_of_last_switch.timestamp()
+                                    y if y > 1 else 0
+                                    for x, y in zip(
+                                        channels["store-pump-pwr"]["times"],
+                                        channels["store-pump-pwr"]["values"],
+                                    )
+                                    if x / 1000 >= time_of_last_switch.timestamp()
                                 ])
 
-                                if store_flow_since_switch == 0 and not alerts[house_alias]:
-                                    print(f"ALERT: no store flow")
+                                if (
+                                    store_flow_since_switch == 0
+                                    and not alerts[house_alias]
+                                ):
+                                    print("ALERT: no store flow")
                                     alerts[house_alias] = True
                                     send_opsgenie_alert(house_alias)
 
@@ -151,6 +181,7 @@ def check_storeflow():
         print(f"Request error: {str(e)}")
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
+
 
 if __name__ == "__main__":
     while True:

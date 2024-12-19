@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class FsmReportType(GwStrEnum):
     """
-    
+
 
     Enum fsm.report.type version 000 in the GridWorks Type registry.
 

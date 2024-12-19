@@ -1,4 +1,4 @@
-""" List of all the types used by the actor."""
+"""List of all the types used by the actor."""
 
 from typing import Dict, List, no_type_check
 
@@ -111,7 +111,7 @@ def types() -> List[GwBase]:
         TicklistHallReport,
         TicklistReed,
         TicklistReedReport,
-        ]
+    ]
 
 
 for t in types():

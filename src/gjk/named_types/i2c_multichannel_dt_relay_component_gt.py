@@ -18,7 +18,9 @@ class I2cMultichannelDtRelayComponentGt(GwBase):
     config_list: List[RelayActorConfig]
     display_name: Optional[str] = None
     hw_uid: Optional[str] = None
-    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = "i2c.multichannel.dt.relay.component.gt"
+    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = (
+        "i2c.multichannel.dt.relay.component.gt"
+    )
     version: Literal["001"] = "001"
 
     @field_validator("config_list")

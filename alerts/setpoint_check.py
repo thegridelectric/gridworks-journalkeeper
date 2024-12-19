@@ -68,9 +68,10 @@ def check_setpoint():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-2).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-2).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -116,7 +117,9 @@ def check_setpoint():
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -145,7 +148,9 @@ def check_setpoint():
                         if "set" in temp:
                             setpoint = channels[temp]["values"][-1] / 1000
                             setpoint = (
-                                round(setpoint) if round(setpoint) == setpoint else setpoint
+                                round(setpoint)
+                                if round(setpoint) == setpoint
+                                else setpoint
                             )
                         if "temp" in temp and "gw" not in temp:
                             temperature = channels[temp]["values"][-1] / 1000
@@ -188,7 +193,9 @@ def check_setpoint():
                         else:
                             # Find the latest thermostat increase
                             lower_setpoints = [
-                                (t, s) for t, s in zip(times, setpoints) if s < last_setpoint
+                                (t, s)
+                                for t, s in zip(times, setpoints)
+                                if s < last_setpoint
                             ]
                             if lower_setpoints:
                                 last_lower_setpoints = lower_setpoints[-1]
@@ -196,7 +203,9 @@ def check_setpoint():
                                     last_lower_setpoints[0] / 1000
                                 )
                                 time_since_increased = round(
-                                    (last_setpoint_time - last_lower_setpoints[0]) / 1000 / 60
+                                    (last_setpoint_time - last_lower_setpoints[0])
+                                    / 1000
+                                    / 60
                                 )
                                 # Warn that the setpoit has not been reached yet
                                 if (
@@ -217,7 +226,7 @@ def check_setpoint():
                                     house_alias,
                                     setpoint_channel.replace("-set", ""),
                                 )
-    
+
     except SQLAlchemyError as e:
         print(f"Database error: {str(e)}")
     except requests.exceptions.RequestException as e:

@@ -1,4 +1,3 @@
-
 # Literal Enum:
 #  - no additional values can be added over time.
 #  - Sent as-is, not in hex symbol

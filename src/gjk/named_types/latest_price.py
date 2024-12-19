@@ -3,14 +3,10 @@
 from typing import Literal
 
 from gw.named_types import GwBase
-from pydantic import StrictInt, field_validator
+from pydantic import StrictInt
 
 from gjk.enums import MarketPriceUnit
-from gjk.property_format import (
-    LeftRightDot,
-    UUID4Str,
-    MarketSlotName
-)
+from gjk.property_format import LeftRightDot, MarketSlotName, UUID4Str
 
 
 class LatestPrice(GwBase):

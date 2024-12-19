@@ -8,11 +8,7 @@ from typing_extensions import Self
 
 from gjk.enums import MarketPriceUnit, MarketQuantityUnit
 from gjk.named_types.price_quantity_unitless import PriceQuantityUnitless
-from gjk.property_format import (
-    LeftRightDot,
-    MarketSlotName
-
-)
+from gjk.property_format import LeftRightDot, MarketSlotName
 
 
 class AtnBid(GwBase):

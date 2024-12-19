@@ -8,7 +8,7 @@ class ActorClass(GwStrEnum):
     """
     Determines the code running Spaceheat Nodes supervised by Spaceheat SCADA software
 
-    Enum sh.actor.class version 004 in the GridWorks Type registry.
+    Enum sh.actor.class version 005 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
@@ -81,6 +81,8 @@ class ActorClass(GwStrEnum):
       - AtomicAlly (8cd3f430): Direct report of Atn when the Scada is in Atn mode.
       - SynthGenerator (7618a470)
       - FakeAtn (5399bec8)
+      - PumpDoctor (d4ce3ba5): An actor that monitors and resets pumps if necessary
+      - DefrostManager (3ee0e2c2): Actor that handles the defrost cycle of a heat pump.
     """
 
     NoActor = auto()
@@ -111,6 +113,8 @@ class ActorClass(GwStrEnum):
     AtomicAlly = auto()
     SynthGenerator = auto()
     FakeAtn = auto()
+    PumpDoctor = auto()
+    DefrostManager = auto()
 
     @classmethod
     def default(cls) -> "ActorClass":
@@ -145,7 +149,7 @@ class ActorClass(GwStrEnum):
             value) OR the earliest version of the enum containing the value.
         """
         if value is None:
-            return "004"
+            return "005"
         if not isinstance(value, str):
             raise ValueError("This method applies to strings, not enums")
         if value not in value_to_version.keys():
@@ -162,9 +166,9 @@ class ActorClass(GwStrEnum):
     @classmethod
     def enum_version(cls) -> str:
         """
-        The version in the GridWorks Type Registry (004)
+        The version in the GridWorks Type Registry (005)
         """
-        return "004"
+        return "005"
 
     @classmethod
     def symbol_to_value(cls, symbol: str) -> str:
@@ -235,6 +239,8 @@ class ActorClass(GwStrEnum):
             "8cd3f430",
             "7618a470",
             "5399bec8",
+            "d4ce3ba5",
+            "3ee0e2c2",
         ]
 
 
@@ -267,6 +273,8 @@ symbol_to_value = {
     "8cd3f430": "AtomicAlly",
     "7618a470": "SynthGenerator",
     "5399bec8": "FakeAtn",
+    "d4ce3ba5": "PumpDoctor",
+    "3ee0e2c2": "DefrostManager",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -300,4 +308,6 @@ value_to_version = {
     "AtomicAlly": "004",
     "SynthGenerator": "004",
     "FakeAtn": "004",
+    "PumpDoctor": "005",
+    "DefrostManager": "005",
 }

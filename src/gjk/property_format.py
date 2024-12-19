@@ -1,7 +1,8 @@
 import uuid
+from typing import Dict
 from datetime import datetime, timezone
 from typing import Annotated
-
+from gw.enums import MarketTypeName
 from pydantic import BeforeValidator
 
 
@@ -245,9 +246,77 @@ def is_uuid4_str(v: str) -> str:
     return str(u)
 
 
+def is_market_name(v: str) -> None:
+    try:
+        x = v.split(".")
+    except AttributeError as e:
+        raise ValueError(f"{v} failed to split on '.'") from e
+    if len(x) < 3:
+        raise ValueError("MarketNames need at least 3 words")
+    if x[0] not in {"e", "r", "d"}:
+        raise ValueError(
+            f"{v} first word must be e,r or d (energy, regulation, distribution)"
+        )
+    if x[1] not in MarketTypeName.values():
+        raise ValueError(f"{v} not recognized MarketType")
+    g_node_alias = ".".join(x[2:])
+    is_left_right_dot(g_node_alias)
+    return v
+
+
+MarketMinutes: Dict[MarketTypeName, int] = {
+    MarketTypeName.da60: 60,
+    MarketTypeName.rt15gate5: 15,
+    MarketTypeName.rt30gate5: 30,
+    MarketTypeName.rt5gate5: 5,
+    MarketTypeName.rt60gate30: 60,
+    MarketTypeName.rt60gate30b: 60,
+    MarketTypeName.rt60gate5: 60,
+}
+
+
+def is_market_slot_name(v: str) -> None:
+    """
+    MaketSlotNameLrdFormat: the format of a MarketSlotName.
+      - First word must be e, r or d (energy, regulation, distribution)
+      - The second word must be a MarketTypeName
+      - The last word (unix time of market slot start) must
+      be a 10-digit integer divisible by 300 (i.e. all MarketSlots
+      start at the top of 5 minutes)
+      - More strictly, the last word must be the start of a
+      MarketSlot for that MarketType (i.e. divisible by 3600
+      for hourly markets)
+      - The middle words have LeftRightDot format (GNodeAlias
+      of the MarketMaker)
+    Example: e.rt60gate5.d1.isone.ver.keene.1673539200
+
+    """
+    try:
+        x = v.split(".")
+    except AttributeError as e:
+        raise ValueError(f"{v} failed to split on '.'") from e
+    slot_start = x[-1]
+    if len(slot_start) != 10:
+        raise ValueError(f"slot start {slot_start} not of length 10")
+    try:
+        slot_start = int(slot_start)
+    except ValueError as e:
+        raise ValueError(f"slot start {slot_start} not an int") from e
+    is_market_name(".".join(x[:-1]))
+    market_type_name = x[1]
+    market_duration_minutes = MarketMinutes[market_type_name]
+    if not slot_start % (market_duration_minutes * 60) == 0:
+        raise ValueError(
+            f"market_slot_start_s mod {market_duration_minutes * 60} must be 0"
+        )
+    return v
+
+
 HandleName = Annotated[str, BeforeValidator(is_handle_name)]
 HexChar = Annotated[str, BeforeValidator(is_hex_char)]
 LeftRightDot = Annotated[str, BeforeValidator(is_left_right_dot)]
+MarketName = Annotated[str, BeforeValidator(is_market_name)]
+MarketSlotName = Annotated[str, BeforeValidator(is_market_slot_name)]
 UTCMilliseconds = Annotated[int, BeforeValidator(is_utc_milliseconds)]
 UTCSeconds = Annotated[int, BeforeValidator(is_utc_seconds)]
 SpaceheatName = Annotated[str, BeforeValidator(is_spaceheat_name)]

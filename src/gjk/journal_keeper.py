@@ -48,7 +48,6 @@ SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
-
     def __init__(self, settings: Settings):
         # use our knwon types
         super().__init__(settings=settings, codec=GwCodec(type_by_name=TypeByName))
@@ -238,7 +237,7 @@ class JournalKeeper(ActorBase):
                 channels = [pyd_to_sql(ch) for ch in layout.data_channels]
                 bulk_insert_datachannels(db, channels)
 
-    def power_watts_received(self, from_alias: str, t: PowerWatts) ->None:
+    def power_watts_received(self, from_alias: str, t: PowerWatts) -> None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,

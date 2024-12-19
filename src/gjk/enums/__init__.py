@@ -28,7 +28,7 @@ on these ideas:
   - [GridWorks Enums](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [GridWorks Types](https://gridwork-type-registry.readthedocs.io/en/latest/types.html)
   - [ASLs](https://gridwork-type-registry.readthedocs.io/en/latest/asls.html)
- """
+"""
 
 from gjk.enums.actor_class import ActorClass
 from gjk.enums.change_aquastat_control import ChangeAquastatControl
@@ -48,6 +48,8 @@ from gjk.enums.gpm_from_hz_method import GpmFromHzMethod
 from gjk.enums.hz_calc_method import HzCalcMethod
 from gjk.enums.kind_of_param import KindOfParam
 from gjk.enums.make_model import MakeModel
+from gjk.enums.market_price_unit import MarketPriceUnit
+from gjk.enums.market_quantity_unit import MarketQuantityUnit
 from gjk.enums.pico_cycler_state import PicoCyclerState
 from gjk.enums.problem_type import ProblemType
 from gjk.enums.relay_closed_or_open import RelayClosedOrOpen
@@ -60,7 +62,7 @@ from gjk.enums.temp_calc_method import TempCalcMethod
 from gjk.enums.unit import Unit
 
 __all__ = [
-    "ActorClass",  # [sh.actor.class.004](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
+    "ActorClass",  # [sh.actor.class.005](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
     "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
     "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)
@@ -79,6 +81,8 @@ __all__ = [
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
     "MakeModel",  # [spaceheat.make.model.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatmakemodel)
+    "MarketPriceUnit",  # [market.price.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#marketpriceunit)
+    "MarketQuantityUnit",  # [market.quantity.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#marketquantityunit)
     "PicoCyclerState",  # [pico.cycler.state.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#picocyclerstate)
     "ProblemType",  # [problem.type.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#problemtype)
     "RelayClosedOrOpen",  # [relay.closed.or.open.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relayclosedoropen)

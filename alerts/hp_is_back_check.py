@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -45,9 +46,10 @@ def check_hpback():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -68,7 +70,7 @@ def check_hpback():
             # For every house
             all_house_aliases = list({x.from_alias for x in messages})
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
-            all_house_aliases = ['fir'] # just for fir
+            all_house_aliases = ["fir"]  # just for fir
             for house_alias in all_house_aliases:
                 print(f"\n{house_alias}\n")
                 if house_alias not in alert_sent:
@@ -93,7 +95,9 @@ def check_hpback():
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -110,15 +114,19 @@ def check_hpback():
                 if "hp-odu-pwr" in channels:
                     times = channels["hp-odu-pwr"]["times"]
                     values = [x / 1000 for x in channels["hp-odu-pwr"]["values"]]
-                    print(f'Max ODU power: {max(values)}')
-                    on_times_odu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
+                    print(f"Max ODU power: {max(values)}")
+                    on_times_odu = [
+                        t for t, v in zip(times, values) if v >= MIN_POWER_KW
+                    ]
                 else:
                     on_times_odu = []
                 if "hp-idu-pwr" in channels:
                     times = channels["hp-idu-pwr"]["times"]
                     values = [x / 1000 for x in channels["hp-idu-pwr"]["values"]]
-                    print(f'Max IDU power: {max(values)}')
-                    on_times_idu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
+                    print(f"Max IDU power: {max(values)}")
+                    on_times_idu = [
+                        t for t, v in zip(times, values) if v >= MIN_POWER_KW
+                    ]
                 else:
                     on_times_idu = []
                 on_times = sorted(on_times_odu + on_times_idu)
@@ -126,7 +134,7 @@ def check_hpback():
                 # Check if any of them was on during onpeak
                 if on_times and not alert_sent[house_alias]:
                     send_opsgenie_alert(house_alias)
-                    print('Its back!')
+                    print("Its back!")
                     alert_sent[house_alias] = True
                 else:
                     print("Still waiting for power to the HP")
@@ -137,7 +145,7 @@ def check_hpback():
         print(f"Request error: {str(e)}")
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
-        
+
 
 if __name__ == "__main__":
     while True:
