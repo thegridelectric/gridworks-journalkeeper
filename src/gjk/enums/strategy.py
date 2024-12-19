@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class Strategy(GwStrEnum):
     """
-    
+
 
     Enum spaceheat.strategy version 000 in the GridWorks Type registry.
 

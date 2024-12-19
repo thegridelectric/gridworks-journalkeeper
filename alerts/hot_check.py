@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -49,9 +50,10 @@ def check_hot_temps():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -93,7 +95,10 @@ def check_hot_temps():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if ("buffer-depth" in channel_name and "micro" not in channel_name) or (
+                        if (
+                            "buffer-depth" in channel_name
+                            and "micro" not in channel_name
+                        ) or (
                             "tank" in channel_name
                             and "depth" in channel_name
                             and "micro" not in channel_name
@@ -104,7 +109,9 @@ def check_hot_temps():
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -134,7 +141,7 @@ def check_hot_temps():
         print(f"Request error: {str(e)}")
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
-        
+
 
 if __name__ == "__main__":
     while True:

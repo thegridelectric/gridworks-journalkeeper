@@ -4,30 +4,30 @@ from typing import List, Optional
 from gw.enums import GwStrEnum
 
 
-class HzCalcMethod(GwStrEnum):
+class MarketQuantityUnit(GwStrEnum):
     """
+    Quantity unit assigned to MarketMaker MarketType
 
-
-    Enum hz.calc.method version 000 in the GridWorks Type registry.
+    Enum market.quantity.unit version 000 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
-      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
+      - [Global Authority](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#marketquantityunit)
 
     Values (with symbols in parens):
-      - BasicExpWeightedAvg (00000000)
-      - BasicButterWorth (7552194e)
+      - AvgMW (00000000)
+      - AvgkW (c272f3b3)
     """
 
-    BasicExpWeightedAvg = auto()
-    BasicButterWorth = auto()
+    AvgMW = auto()
+    AvgkW = auto()
 
     @classmethod
-    def default(cls) -> "HzCalcMethod":
+    def default(cls) -> "MarketQuantityUnit":
         """
-        Returns default value (in this case BasicExpWeightedAvg)
+        Returns default value (in this case AvgMW)
         """
-        return cls.BasicExpWeightedAvg
+        return cls.AvgMW
 
     @classmethod
     def values(cls) -> List[str]:
@@ -65,9 +65,9 @@ class HzCalcMethod(GwStrEnum):
     @classmethod
     def enum_name(cls) -> str:
         """
-        The name in the GridWorks Type Registry (hz.calc.method)
+        The name in the GridWorks Type Registry (market.quantity.unit)
         """
-        return "hz.calc.method"
+        return "market.quantity.unit"
 
     @classmethod
     def enum_version(cls) -> str:
@@ -87,7 +87,7 @@ class HzCalcMethod(GwStrEnum):
         Returns:
             str: The encoded value associated to that symbol. If the symbol is not
             recognized - which could happen if the actor making the symbol is using
-            a later version of this enum, returns the default value of "BasicExpWeightedAvg".
+            a later version of this enum, returns the default value of "AvgMW".
         """
         if symbol not in symbol_to_value.keys():
             return cls.default().value
@@ -96,7 +96,7 @@ class HzCalcMethod(GwStrEnum):
     @classmethod
     def value_to_symbol(cls, value: str) -> str:
         """
-        Provides the encoding symbol for a HzCalcMethod enum to send in seriliazed messages.
+        Provides the encoding symbol for a MarketQuantityUnit enum to send in seriliazed messages.
 
         Args:
             symbol (str): The candidate value.
@@ -118,18 +118,18 @@ class HzCalcMethod(GwStrEnum):
         """
         return [
             "00000000",
-            "7552194e",
+            "c272f3b3",
         ]
 
 
 symbol_to_value = {
-    "00000000": "BasicExpWeightedAvg",
-    "7552194e": "BasicButterWorth",
+    "00000000": "AvgMW",
+    "c272f3b3": "AvgkW",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
 
 value_to_version = {
-    "BasicExpWeightedAvg": "000",
-    "BasicButterWorth": "000",
+    "AvgMW": "000",
+    "AvgkW": "000",
 }

@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -45,9 +46,10 @@ def check_distflow():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(days=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(days=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -94,7 +96,9 @@ def check_distflow():
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -110,7 +114,9 @@ def check_distflow():
                 # Find the last heat call in the house
                 last_heatcall_time = 0
                 for zone in [
-                    channels[channel] for channel in channels.keys() if "zone" in channel
+                    channels[channel]
+                    for channel in channels.keys()
+                    if "zone" in channel
                 ]:
                     last_heatcall_zone = [
                         zone["times"][i]
@@ -118,7 +124,9 @@ def check_distflow():
                         if zone["values"][i] == 1
                     ]
                     if last_heatcall_zone:
-                        last_heatcall_time = max(last_heatcall_zone[-1], last_heatcall_time)
+                        last_heatcall_time = max(
+                            last_heatcall_zone[-1], last_heatcall_time
+                        )
                 if last_heatcall_time > 0:
                     print(
                         f"Last heat call at {pendulum.from_timestamp(last_heatcall_time / 1000, tz='America/New_York')}"
@@ -140,7 +148,8 @@ def check_distflow():
                             last_flow_before_hc5 = [
                                 flow["values"][i]
                                 for i in range(len(flow["times"]))
-                                if flow["times"][i] <= last_heatcall_time - 5 * 60 * 1000
+                                if flow["times"][i]
+                                <= last_heatcall_time - 5 * 60 * 1000
                             ]
                             if last_flow_before_hc5:
                                 # The dist pump was off
@@ -172,7 +181,9 @@ def check_distflow():
 
                 # Send Opsgenie alert if there have been too many warnings
                 if len(warnings[house_alias]) == MAX_WARNINGS:
-                    print(f"[ALERT] There are 3 unsatisfied heat calls at {house_alias}!")
+                    print(
+                        f"[ALERT] There are 3 unsatisfied heat calls at {house_alias}!"
+                    )
                     send_opsgenie_alert(
                         house_alias,
                         pendulum.from_timestamp(
@@ -188,6 +199,7 @@ def check_distflow():
         print(f"Request error: {str(e)}")
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
+
 
 if __name__ == "__main__":
     while True:

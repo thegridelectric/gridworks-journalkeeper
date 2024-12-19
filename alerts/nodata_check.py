@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -10,7 +11,7 @@ from sqlalchemy import asc, or_
 from sqlalchemy.exc import SQLAlchemyError
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
-ON_PEAK_HOURS = [7,8,9,10,11] + [16,17,18,19]
+ON_PEAK_HOURS = [7, 8, 9, 10, 11] + [16, 17, 18, 19]
 MIN_POWER_KW = 1
 RUN_EVERY_MIN = 10
 warnings = {}
@@ -46,9 +47,10 @@ def check_nodata():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-3).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-3).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -63,12 +65,14 @@ def check_nodata():
             )
 
             if not messages:
-                print(f"No messages found.")
+                print("No messages found.")
                 return
 
             # For every house
             all_house_aliases = list({x.from_alias for x in messages})
-            all_house_aliases = [alias for alias in all_house_aliases if alias.split(".")[0] == "hw1"]
+            all_house_aliases = [
+                alias for alias in all_house_aliases if alias.split(".")[0] == "hw1"
+            ]
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
                 print(f"\n{house_alias}\n")
@@ -89,14 +93,16 @@ def check_nodata():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if ("hp" in channel_name):
+                        if "hp" in channel_name:
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -112,20 +118,20 @@ def check_nodata():
 
                     if most_recent is None:
                         most_recent = channels[key]["times"][-1]
-                    else:
-                        if most_recent < channels[key]["times"][-1]:
-                            most_recent = channels[key]["times"][-1]
+                    elif most_recent < channels[key]["times"][-1]:
+                        most_recent = channels[key]["times"][-1]
 
-                print(f"Most recent: {pendulum.from_timestamp(most_recent/1000, tz='America/New_York')}")
+                print(
+                    f"Most recent: {pendulum.from_timestamp(most_recent / 1000, tz='America/New_York')}"
+                )
 
-                if pendulum.now().timestamp() - most_recent/1000 > 60*60*1:
+                if pendulum.now().timestamp() - most_recent / 1000 > 60 * 60 * 1:
                     if not alert_sent[house_alias]:
                         print("ALERT")
                         send_opsgenie_alert(house_alias)
                         alert_sent[house_alias] = True
-                else:
-                    if alert_sent[house_alias]:
-                        alert_sent[house_alias] = False
+                elif alert_sent[house_alias]:
+                    alert_sent[house_alias] = False
 
     except SQLAlchemyError as e:
         print(f"Database error: {str(e)}")

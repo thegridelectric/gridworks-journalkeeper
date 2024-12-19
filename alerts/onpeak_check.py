@@ -47,9 +47,10 @@ def check_onpeak():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-            
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -96,7 +97,9 @@ def check_onpeak():
                                     "times": channel["ScadaReadTimeUnixMsList"],
                                 }
                             else:
-                                channels[channel_name]["values"].extend(channel["ValueList"])
+                                channels[channel_name]["values"].extend(
+                                    channel["ValueList"]
+                                )
                                 channels[channel_name]["times"].extend(
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
@@ -113,13 +116,17 @@ def check_onpeak():
                 if "hp-odu-pwr" in channels:
                     times = channels["hp-odu-pwr"]["times"]
                     values = [x / 1000 for x in channels["hp-odu-pwr"]["values"]]
-                    on_times_odu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
+                    on_times_odu = [
+                        t for t, v in zip(times, values) if v >= MIN_POWER_KW
+                    ]
                 else:
                     on_times_odu = []
                 if "hp-idu-pwr" in channels:
                     times = channels["hp-idu-pwr"]["times"]
                     values = [x / 1000 for x in channels["hp-idu-pwr"]["values"]]
-                    on_times_idu = [t for t, v in zip(times, values) if v >= MIN_POWER_KW]
+                    on_times_idu = [
+                        t for t, v in zip(times, values) if v >= MIN_POWER_KW
+                    ]
                 else:
                     on_times_idu = []
                 on_times = sorted(on_times_odu + on_times_idu)
@@ -128,13 +135,19 @@ def check_onpeak():
                 need_to_alert = False
                 count_points_during_onpeak = 0
                 for time_ms in on_times:
-                    time_dt = pendulum.from_timestamp(time_ms / 1000, tz="America/New_York")
+                    time_dt = pendulum.from_timestamp(
+                        time_ms / 1000, tz="America/New_York"
+                    )
                     if time_dt.hour in ON_PEAK_HOURS and time_dt.day_of_week < 5:
-                        if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute == 0:
+                        if (
+                            time_dt.hour == 7 or time_dt.hour == 16
+                        ) and time_dt.minute == 0:
                             continue
                         count_points_during_onpeak += 1
                         if time_ms not in alert_sent[house_alias]:
-                            print(f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!")
+                            print(
+                                f"[ALERT] HP was on at {time_dt}, which is during an onpeak period!"
+                            )
                             need_to_alert = True
                             alert_sent[house_alias][time_ms] = True
 
@@ -143,7 +156,7 @@ def check_onpeak():
                 if count_points_during_onpeak == 0:
                     print("Everything is OK")
                     alert_sent[house_alias] = {}
-        
+
     except SQLAlchemyError as e:
         print(f"Database error: {str(e)}")
     except requests.exceptions.RequestException as e:
