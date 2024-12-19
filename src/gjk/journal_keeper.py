@@ -22,8 +22,14 @@ from gjk.models import (
     bulk_insert_readings,
     insert_single_message,
 )
+
+from gw.named_types import GwBase
 from gjk.named_types import (
+    AtnBid,
+    EnergyInstruction,
     GridworksEventProblem,
+    FloParamsHouse0,
+    LatestPrice,
     LayoutLite,
     PowerWatts,
     Report,
@@ -48,6 +54,7 @@ SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
+
     def __init__(self, settings: Settings):
         # use our knwon types
         super().__init__(settings=settings, codec=GwCodec(type_by_name=TypeByName))
@@ -62,6 +69,10 @@ class JournalKeeper(ActorBase):
         Meant for adding addtional bindings"""
         type_names = [
             GridworksEventProblem.type_name_value(),
+            AtnBid.type_name_value(),
+            EnergyInstruction.type_name_value(),
+            FloParamsHouse0.type_name_value(),
+            LatestPrice.type_name_value(),
             LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
             PowerWatts.type_name_value(),
@@ -128,7 +139,27 @@ class JournalKeeper(ActorBase):
                 self.problem_event_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with problem_event_from_scada: {e}") from e
-        if payload.type_name == LayoutLite.type_name_value():
+        elif payload.type_name == AtnBid.type_name_value():
+            try:
+                self.basic_message_received(payload, from_alias=from_alias)
+            except Exception as e:
+                raise Exception(f"Trouble in basic_message_received with AtnBid: {e}") from e
+        elif payload.type_name == EnergyInstruction.type_name_value():
+            try:
+                self.timestamped_message_received(payload, from_alias=from_alias, message_created_ms=payload.send_time_ms)
+            except Exception as e:
+                raise Exception(f"Trouble in timestamped_message_received with EnergyInstruction: {e}") from e
+        elif payload.type_name == FloParamsHouse0.type_name_value():
+            try:
+                self.timestamped_message_received(payload, from_alias=from_alias, message_created_ms=payload.params_generated_s * 1000)
+            except Exception as e:
+                raise Exception(f"Trouble in timestamped_message_received with EnergyInstruction: {e}") from e
+        elif payload.type_name == LatestPrice.type_name_value():
+            try:
+                self.basic_message_received(payload, from_alias=from_alias)
+            except Exception as e:
+                raise Exception(f"Trouble in basic_message_received with LatestPrice: {e}") from e
+        elif payload.type_name == LayoutLite.type_name_value():
             try:
                 self.layout_lite_received(payload)
             except Exception as e:
@@ -222,6 +253,29 @@ class JournalKeeper(ActorBase):
         with self.get_db() as db:
             insert_single_message(db, pyd_to_sql(msg))
 
+    def basic_message_received(self, msg: GwBase, from_alias: str) -> None:
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=from_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=msg.to_dict(),
+            message_type_name=msg.type_name,
+        )
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
+
+    def timestamped_message_received(self, msg: GwBase, from_alias: str, message_created_ms: int) -> None:
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=from_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=msg.to_dict(),
+            message_type_name=msg.type_name,
+            message_created_ms=message_created_ms
+        )
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
+
     def layout_lite_received(self, layout: LayoutLite) -> None:
         msg = Message(
             message_id=layout.message_id,
@@ -231,13 +285,13 @@ class JournalKeeper(ActorBase):
             message_type_name=layout.type_name,
             message_created_ms=layout.message_created_ms,
         )
-        print("Got layout event")
+
         with self.get_db() as db:
             if insert_single_message(db, pyd_to_sql(msg)):
                 channels = [pyd_to_sql(ch) for ch in layout.data_channels]
                 bulk_insert_datachannels(db, channels)
 
-    def power_watts_received(self, from_alias: str, t: PowerWatts) -> None:
+    def power_watts_received(self, from_alias: str, t: PowerWatts) ->None:
         msg = Message(
             message_id=str(uuid.uuid4()),
             from_alias=from_alias,
