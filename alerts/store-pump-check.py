@@ -124,6 +124,7 @@ def check_storeflow():
                                     relays[state['MachineHandle']]['values'].extend(state['StateList'])
 
                     # Keep only the latest actor in control
+                    most_recent_relay9_parent = list(relays.keys())[0]
                     if len(list(relays.keys()))>1:
                         most_recent_relay_state = pendulum.datetime(2022,1,1).timestamp()*1000
                         for r in relays:
