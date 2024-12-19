@@ -292,4 +292,3 @@ def test_layout_lite_generated() -> None:
     t = LayoutLite.from_dict(d)
     # TODO : figure out why LayoutLite.from_dict(d).to_dict() == d fails
     assert t.total_store_tanks == 3
-
