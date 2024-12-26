@@ -29,9 +29,8 @@ for house_alias in ['beech','oak','fir']:
             short_alias=house_alias
             )
 
-        print(f"Found {len(pb_event_messages)} messages which are ProblemEvents")
-
-        if pb_event_messages:
+        if pb_event_messages is not None and pb_event_messages != []:
+            print(f"Found {len(pb_event_messages)} messages which are ProblemEvents")
             print(f"Inserting {len(pb_event_messages)} problem event messages...")
             bulk_insert_messages(db=session, message_list=pb_event_messages)
 
