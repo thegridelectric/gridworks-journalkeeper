@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from gjk import codec
+from gjk.utils import tuple_to_msg
 from gjk.codec import pyd_to_sql
 from gjk.config import Settings
 from gjk.first_season import beech_channels, oak_channels
