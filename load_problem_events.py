@@ -13,7 +13,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 timezone = "America/New_York"
-start = pendulum.datetime(2024, 12, 22, 0, 0, tz=timezone)
+start = pendulum.datetime(2024, 12, 28, 0, 0, tz=timezone)
 
 for house_alias in ['beech','oak','fir']:
 

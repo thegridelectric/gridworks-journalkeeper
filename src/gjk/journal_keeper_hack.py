@@ -204,12 +204,13 @@ class JournalKeeperHack:
 
         ta_list.sort(key=lambda x: x.message_persisted_ms)
         print(f"total filenames to: {len(ta_list)}")
-        print(
-            f"First file persisted {str_from_ms(ta_list[0].message_persisted_ms)} America/NY"
-        )
-        print(
-            f"Last file persisted at {str_from_ms(ta_list[-1].message_persisted_ms)} America/NY"
-        )
+        if ta_list:
+            print(
+                f"First file persisted {str_from_ms(ta_list[0].message_persisted_ms)} America/NY"
+            )
+            print(
+                f"Last file persisted at {str_from_ms(ta_list[-1].message_persisted_ms)} America/NY"
+            )
         return ta_list
 
     def load_messages_from_s3(
