@@ -88,9 +88,9 @@ def check_distflow():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if ("zone" in channel_name and "state" in channel_name) or (
-                            channel_name == "dist-pump-pwr"
-                        ):
+                        if (("zone" in channel_name and "state" in channel_name) 
+                            or (channel_name == "dist-pump-pwr") 
+                            or (channel_name == "dist-flow")):
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],

@@ -87,7 +87,7 @@ def check_storeflow():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if channel_name == "store-pump-pwr":
+                        if channel_name == "store-pump-pwr" or channel_name == "store-flow":
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
@@ -173,7 +173,7 @@ def check_storeflow():
                                     if x / 1000 >= time_of_last_switch.timestamp()
                                 ])
 
-                                if store_flow_since_switch == 0:
+                                if store_flow_since_switch == 0 and "store-flow" in channels:
                                     store_flow_since_switch = sum([
                                         y if y > 0.5*100 else 0
                                         for x, y in zip(
