@@ -189,8 +189,9 @@ def check_distflow():
                             if flow["times"][i] >= last_heatcall_time - 5 * 60 * 1000
                         ]
                         # Reset the warnings if there was flow around the last heat call
-                        if flow_around_heatcall and max(flow_around_heatcall) >= MIN_FLOW_GPM*100:
+                        if flow_around_heatcall:
                             print(f"Max flow: {max(flow_around_heatcall)/100} GPM")
+                        if flow_around_heatcall and max(flow_around_heatcall) >= MIN_FLOW_GPM*100:
                             print(
                                 "[OK] Distribution pump came on during or after that heat call."
                             )
