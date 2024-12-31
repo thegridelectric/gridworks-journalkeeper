@@ -173,6 +173,16 @@ def check_storeflow():
                                     if x / 1000 >= time_of_last_switch.timestamp()
                                 ])
 
+                                if store_flow_since_switch == 0:
+                                    store_flow_since_switch = sum([
+                                        y if y > 1 else 0
+                                        for x, y in zip(
+                                            channels["store-flow"]["times"],
+                                            channels["store-flow"]["values"],
+                                        )
+                                        if x / 1000 >= time_of_last_switch.timestamp()
+                                    ])
+
                                 if (
                                     store_flow_since_switch == 0
                                     and not alerts[house_alias]

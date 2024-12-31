@@ -176,6 +176,23 @@ def check_distflow():
                                 "[OK] Distribution pump came on during or after that heat call."
                             )
                             warnings[house_alias] = []
+                    # Try the same with flow
+                    for flow in [
+                        channels[channel]
+                        for channel in channels.keys()
+                        if "dist-flow" in channel
+                    ]:
+                        flow_around_heatcall = [
+                            flow["values"][i]
+                            for i in range(len(flow["times"]))
+                            if flow["times"][i] >= last_heatcall_time - 5 * 60 * 1000
+                        ]
+                        # Reset the warnings if there was flow around the last heat call
+                        if flow_around_heatcall:
+                            print(
+                                "[OK] Distribution pump came on during or after that heat call."
+                            )
+                            warnings[house_alias] = []
                 else:
                     print("Last heat call was more than 24 hours ago.")
 
