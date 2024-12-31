@@ -175,7 +175,7 @@ def check_storeflow():
 
                                 if store_flow_since_switch == 0:
                                     store_flow_since_switch = sum([
-                                        y if y > 1 else 0
+                                        y if y > 0.5*100 else 0
                                         for x, y in zip(
                                             channels["store-flow"]["times"],
                                             channels["store-flow"]["values"],

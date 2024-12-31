@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 MIN_POWER_KW = 2
+MIN_FLOW_GPM = 0.5
 MAX_WARNINGS = 3
 RUN_EVERY_MIN = 10
 warnings = {}
@@ -188,7 +189,8 @@ def check_distflow():
                             if flow["times"][i] >= last_heatcall_time - 5 * 60 * 1000
                         ]
                         # Reset the warnings if there was flow around the last heat call
-                        if flow_around_heatcall:
+                        if flow_around_heatcall and max(flow_around_heatcall) >= MIN_FLOW_GPM*100:
+                            print(f"Max flow: {max(flow_around_heatcall)/100} GPM")
                             print(
                                 "[OK] Distribution pump came on during or after that heat call."
                             )
