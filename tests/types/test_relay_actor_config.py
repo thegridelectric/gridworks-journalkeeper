@@ -1,4 +1,4 @@
-"""Tests relay.actor.config type, version 001"""
+"""Tests relay.actor.config type, version 002"""
 
 from gjk.enums import RelayWiringConfig, Unit
 from gjk.named_types import RelayActorConfig
@@ -12,6 +12,9 @@ def test_relay_actor_config_generated() -> None:
         "EventType": "change.relay.state",
         "DeEnergizingEvent": "OpenRelay",
         "EnergizingEvent": "CloseRelay",
+        "StateType": "relay.closed.or.open",
+        "DeEnergizedState": "RelayOpen",
+        "EnergizedState": "RelayClosed",
         "ChannelName": "stat-relay18",
         "PollPeriodS": 200,
         "CapturePeriodS": 60,
@@ -20,7 +23,7 @@ def test_relay_actor_config_generated() -> None:
         "Exponent": 0,
         "Unit": "Unitless",
         "TypeName": "relay.actor.config",
-        "Version": "001",
+        "Version": "002",
     }
 
     assert RelayActorConfig.from_dict(d).to_dict() == d

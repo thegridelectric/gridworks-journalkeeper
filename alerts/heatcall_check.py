@@ -88,9 +88,11 @@ def check_distflow():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if (("zone" in channel_name and "state" in channel_name) 
-                            or (channel_name == "dist-pump-pwr") 
-                            or (channel_name == "dist-flow")):
+                        if (
+                            ("zone" in channel_name and "state" in channel_name)
+                            or (channel_name == "dist-pump-pwr")
+                            or (channel_name == "dist-flow")
+                        ):
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
@@ -187,12 +189,18 @@ def check_distflow():
                             flow_around_heatcall = [
                                 flow["values"][i]
                                 for i in range(len(flow["times"]))
-                                if flow["times"][i] >= last_heatcall_time - 5 * 60 * 1000
+                                if flow["times"][i]
+                                >= last_heatcall_time - 5 * 60 * 1000
                             ]
                             # Reset the warnings if there was flow around the last heat call
                             if flow_around_heatcall:
-                                print(f"Max flow: {max(flow_around_heatcall)/100} GPM")
-                            if flow_around_heatcall and max(flow_around_heatcall) >= MIN_FLOW_GPM*100:
+                                print(
+                                    f"Max flow: {max(flow_around_heatcall) / 100} GPM"
+                                )
+                            if (
+                                flow_around_heatcall
+                                and max(flow_around_heatcall) >= MIN_FLOW_GPM * 100
+                            ):
                                 print(
                                     "[OK] Distribution pump came on during or after that heat call."
                                 )

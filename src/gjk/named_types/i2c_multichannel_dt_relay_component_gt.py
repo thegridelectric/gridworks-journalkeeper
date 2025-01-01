@@ -1,4 +1,4 @@
-"""Type i2c.multichannel.dt.relay.component.gt, version 001"""
+"""Type i2c.multichannel.dt.relay.component.gt, version 002"""
 
 from typing import List, Literal, Optional
 
@@ -18,10 +18,8 @@ class I2cMultichannelDtRelayComponentGt(GwBase):
     config_list: List[RelayActorConfig]
     display_name: Optional[str] = None
     hw_uid: Optional[str] = None
-    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = (
-        "i2c.multichannel.dt.relay.component.gt"
-    )
-    version: Literal["001"] = "001"
+    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = "i2c.multichannel.dt.relay.component.gt"
+    version: Literal["002"] = "002"
 
     @field_validator("config_list")
     @classmethod

@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from gjk import codec
-from gjk.utils import tuple_to_msg
 from gjk.codec import pyd_to_sql
 from gjk.config import Settings
 from gjk.first_season import beech_channels, oak_channels
@@ -19,7 +18,7 @@ from gjk.first_season.oak_batches import oak_br_from_status
 from gjk.models import DataChannelSql, bulk_insert_messages
 from gjk.old_types import GridworksEventGtShStatus
 from gjk.type_helpers import Message
-from gjk.utils import FileNameMeta, str_from_ms
+from gjk.utils import FileNameMeta, str_from_ms, tuple_to_msg
 
 start_time = pendulum.datetime(2024, 2, 12, 0, 0, 0, tz="America/New_York")
 start_s = int(start_time.timestamp())

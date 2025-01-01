@@ -8,7 +8,7 @@ class TelemetryName(GwStrEnum):
     """
     Specifies the name of sensed data reported by a Spaceheat SCADA
 
-    Enum spaceheat.telemetry.name version 003 in the GridWorks Type registry.
+    Enum spaceheat.telemetry.name version 004 in the GridWorks Type registry.
 
     Used by multiple Application Shared Languages (ASLs). For more information:
       - [ASLs](https://gridworks-type-registry.readthedocs.io/en/latest/)
@@ -41,6 +41,7 @@ class TelemetryName(GwStrEnum):
       - MicroVolts (b664ac55): Microvolts RMS
       - VoltsTimesTen (b69eae1a)
       - WattHours (e76bc037)
+      - StorageLayer (ec206598)
     """
 
     Unknown = auto()
@@ -60,6 +61,7 @@ class TelemetryName(GwStrEnum):
     MicroVolts = auto()
     VoltsTimesTen = auto()
     WattHours = auto()
+    StorageLayer = auto()
 
     @classmethod
     def default(cls) -> "TelemetryName":
@@ -94,7 +96,7 @@ class TelemetryName(GwStrEnum):
             value) OR the earliest version of the enum containing the value.
         """
         if value is None:
-            return "003"
+            return "004"
         if not isinstance(value, str):
             raise ValueError("This method applies to strings, not enums")
         if value not in value_to_version.keys():
@@ -111,9 +113,9 @@ class TelemetryName(GwStrEnum):
     @classmethod
     def enum_version(cls) -> str:
         """
-        The version in the GridWorks Type Registry (003)
+        The version in the GridWorks Type Registry (004)
         """
-        return "003"
+        return "004"
 
     @classmethod
     def symbol_to_value(cls, symbol: str) -> str:
@@ -173,6 +175,7 @@ class TelemetryName(GwStrEnum):
             "b664ac55",
             "b69eae1a",
             "e76bc037",
+            "ec206598",
         ]
 
 
@@ -194,6 +197,7 @@ symbol_to_value = {
     "b664ac55": "MicroVolts",
     "b69eae1a": "VoltsTimesTen",
     "e76bc037": "WattHours",
+    "ec206598": "StorageLayer",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -216,4 +220,5 @@ value_to_version = {
     "MicroVolts": "001",
     "VoltsTimesTen": "002",
     "WattHours": "003",
+    "StorageLayer": "004",
 }

@@ -1,4 +1,4 @@
-"""Tests i2c.multichannel.dt.relay.component.gt type, version 001"""
+"""Tests i2c.multichannel.dt.relay.component.gt type, version 002"""
 
 from gjk.named_types import I2cMultichannelDtRelayComponentGt
 
@@ -12,7 +12,7 @@ def test_i2c_multichannel_dt_relay_component_gt_generated() -> None:
         "DisplayName": "relay for first elt in tank",
         "HwUid": "abc123",
         "TypeName": "i2c.multichannel.dt.relay.component.gt",
-        "Version": "001",
+        "Version": "002",
     }
 
     assert I2cMultichannelDtRelayComponentGt.from_dict(d).to_dict() == d

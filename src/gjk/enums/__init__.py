@@ -90,7 +90,7 @@ __all__ = [
     "RelayWiringConfig",  # [relay.wiring.config.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaywiringconfig)
     "StoreFlowRelay",  # [store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
     "Strategy",  # [spaceheat.strategy.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatstrategy)
-    "TelemetryName",  # [spaceheat.telemetry.name.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
+    "TelemetryName",  # [spaceheat.telemetry.name.004](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
     "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
 ]
