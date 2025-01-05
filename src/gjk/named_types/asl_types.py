@@ -58,6 +58,7 @@ from gjk.old_types.layout_event import LayoutEvent
 from gjk.old_types.layout_lite_000 import LayoutLite000
 from gjk.old_types.layout_lite_001 import LayoutLite001
 from gjk.old_types.layout_lite_002 import LayoutLite002
+from gjk.old_types.layout_lite_003 import LayoutLite003
 from gjk.old_types.my_channels import MyChannels
 from gjk.old_types.my_channels_event import MyChannelsEvent
 from gjk.old_types.report_000 import Report000
@@ -88,6 +89,7 @@ def types() -> List[GwBase]:
         LayoutLite000,
         LayoutLite001,
         LayoutLite002,
+        LayoutLite003,
         MyChannels,
         MyChannelsEvent,
         Report000,

@@ -11,7 +11,7 @@ def test_scada_params_generated() -> None:
         "UnixTimeMs": 1731637846788,
         "MessageId": "37b64437-f5b2-4a80-b5fc-3d5a9f6b5b59",
         "TypeName": "scada.params",
-        "Version": "002",
+        "Version": "003",
     }
 
     assert ScadaParams.from_dict(d).to_dict() == d

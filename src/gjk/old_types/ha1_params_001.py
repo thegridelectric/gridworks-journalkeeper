@@ -1,4 +1,4 @@
-"""Type ha1.params, version 002"""
+"""Type ha1.params, version 001"""
 
 from typing import Literal
 
@@ -6,7 +6,7 @@ from gw.named_types import GwBase
 from pydantic import StrictInt
 
 
-class Ha1Params(GwBase):
+class Ha1Params001(GwBase):
     alpha_times10: StrictInt
     beta_times100: StrictInt
     gamma_ex6: StrictInt
@@ -17,6 +17,5 @@ class Ha1Params(GwBase):
     dd_delta_t_f: StrictInt
     hp_max_kw_th: float
     max_ewt_f: StrictInt
-    load_overestimation_percent: StrictInt
     type_name: Literal["ha1.params"] = "ha1.params"
-    version: Literal["002"] = "002"
+    version: Literal["001"] = "001"

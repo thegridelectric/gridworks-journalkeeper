@@ -1,10 +1,8 @@
-"""Type scada.params, version 002"""
+"""Type scada.params, version 003"""
 
 from typing import Literal, Optional
 
 from gw.named_types import GwBase
-from gw.utils import snake_to_pascal
-from pydantic import ConfigDict
 
 from gjk.named_types.ha1_params import Ha1Params
 from gjk.property_format import (
@@ -24,12 +22,4 @@ class ScadaParams(GwBase):
     new_params: Optional[Ha1Params] = None
     old_params: Optional[Ha1Params] = None
     type_name: Literal["scada.params"] = "scada.params"
-    version: Literal["002"] = "002"
-
-    model_config = ConfigDict(
-        alias_generator=snake_to_pascal,
-        extra="allow",
-        frozen=True,
-        populate_by_name=True,
-        use_enum_values=True,
-    )
+    version: Literal["003"] = "003"

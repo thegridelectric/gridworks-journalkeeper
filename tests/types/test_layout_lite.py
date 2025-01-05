@@ -23,8 +23,9 @@ def test_layout_lite_generated() -> None:
             "DdDeltaTF": 20,
             "HpMaxKwTh": 6.0,
             "MaxEwtF": 170,
+            "LoadOverestimationPercent": 10,
             "TypeName": "ha1.params",
-            "Version": "001",
+            "Version": "002",
         },
         "ShNodes": [
             {
@@ -296,7 +297,7 @@ def test_layout_lite_generated() -> None:
             "Version": "002",
         },
         "TypeName": "layout.lite",
-        "Version": "003",
+        "Version": "004",
     }
     t = LayoutLite.from_dict(d)
     # TODO : figure out why LayoutLite.from_dict(d).to_dict() == d fails
