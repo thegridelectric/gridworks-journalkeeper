@@ -5,7 +5,7 @@ from gjk.named_types import MachineStates
 
 def test_machine_states_generated() -> None:
     d = {
-        "MachineHandle": "h.pico-cycler",
+        "MachineHandle": "auto.pico-cycler",
         "StateEnum": "pico.cycler.state",
         "StateList": ["PicosLive"],
         "UnixMsList": [1731168353695],
