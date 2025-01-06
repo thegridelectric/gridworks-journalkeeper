@@ -162,11 +162,9 @@ def check_storeflow():
                                 pendulum.now(tz="America/New_York")
                                 - time_of_last_switch
                             ).total_seconds() > 10 * 60:
-                                print(
-                                    f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min"
-                                )
+                                print(f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min")
 
-                                store_flow_since_switch = sum([
+                                store_pwr_since_switch = sum([
                                     y if y > MIN_POWER_W else 0
                                     for x, y in zip(
                                         channels["store-pump-pwr"]["times"],
@@ -175,7 +173,9 @@ def check_storeflow():
                                     if x / 1000 >= time_of_last_switch.timestamp()
                                 ])
 
-                                if store_flow_since_switch < 2*MIN_POWER_W and "store-flow" in channels:
+                                store_flow_since_switch = 0
+
+                                if store_pwr_since_switch < 2*MIN_POWER_W and "store-flow" in channels:
                                     store_flow_since_switch = sum([
                                         y if y > MIN_GPM_TIMES_100 else 0
                                         for x, y in zip(
@@ -184,16 +184,14 @@ def check_storeflow():
                                         )
                                         if x / 1000 >= time_of_last_switch.timestamp()
                                     ])
+                                
+                                if store_pwr_since_switch < 2*MIN_POWER_W and store_flow_since_switch < 2*MIN_GPM_TIMES_100:
+                                    if not alerts[house_alias]:
+                                        print("ALERT: no store flow")
+                                        alerts[house_alias] = True
+                                        send_opsgenie_alert(house_alias)
 
-                                if (
-                                    store_flow_since_switch < 2*MIN_GPM_TIMES_100
-                                    and not alerts[house_alias]
-                                ):
-                                    print("ALERT: no store flow")
-                                    alerts[house_alias] = True
-                                    send_opsgenie_alert(house_alias)
-
-                                if store_flow_since_switch > 0:
+                                if store_pwr_since_switch >= 2*MIN_POWER_W or store_flow_since_switch >= 2*MIN_GPM_TIMES_100:
                                     print("The store pump came on")
                                     alerts[house_alias] = False
 
