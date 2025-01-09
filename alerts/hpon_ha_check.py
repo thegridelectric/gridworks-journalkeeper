@@ -27,7 +27,7 @@ def send_opsgenie_alert(house_alias):
     }
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
-        "message": f"[{house_alias}] HP is not on even though HA state says HpOn",
+        "message": f"[{house_alias}] HP is not on even though relays say it is",
         "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-hpnoton",
         "priority": "P1",
         "responders": responders,
@@ -48,8 +48,7 @@ def check_hp_on():
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-4).timestamp() * 1000
-            end_ms = pendulum.now(tz="America/New_York").add(hours=-3).timestamp() * 1000
+            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -58,7 +57,6 @@ def check_hp_on():
                         MessageSql.message_type_name == "report",
                     ),
                     MessageSql.message_persisted_ms >= start_ms,
-                    MessageSql.message_persisted_ms <= end_ms,
                 )
                 .order_by(asc(MessageSql.message_persisted_ms))
                 .all()
