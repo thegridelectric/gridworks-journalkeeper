@@ -102,6 +102,7 @@ def check_hp_on():
                                     channel["ScadaReadTimeUnixMsList"]
                                 )
                 if "hp-idu-pwr" and "hp-odu-pwr" not in channels:
+                    print("Missing HP power data!")
                     return
                 # Sort according to time
                 for key in channels.keys():
