@@ -150,13 +150,13 @@ def check_hp_on():
                         time_of_last_switch / 1000, tz="America/New_York"
                     )
                     print(
-                        f"In {relay_5[r]['values'][-1]} since {time_of_last_switch}"
+                        f"Relay 5 is in {relay_5[r]['values'][-1]} since {time_of_last_switch.replace(microsecond=0)}"
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_5[r]["values"][-1] == "Scada":
                         if (pendulum.now(tz="America/New_York") - time_of_last_switch).total_seconds() > 10 * 60:
                             minutes_since_scada_in_ctrl = pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()
-                            print(f"Condition 1: Scada in control since {minutes_since_scada_in_ctrl} minutes")
+                            # print(f"Condition 1: Scada in control since {minutes_since_scada_in_ctrl} minutes")
                 
                 # RELAY 6
                 minutes_since_hp_on = 0
@@ -196,19 +196,19 @@ def check_hp_on():
                         time_of_last_switch / 1000, tz="America/New_York"
                     )
                     print(
-                        f"In {relay_6[r]['values'][-1]} since {time_of_last_switch}"
+                        f"Relay 6 is in {relay_6[r]['values'][-1]} since {time_of_last_switch.replace(microsecond=0)}"
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_6[r]["values"][-1] == "RelayClosed":
                         if (pendulum.now(tz="America/New_York") - time_of_last_switch).total_seconds() > 10 * 60:
                             minutes_since_hp_on = pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()
-                            print(f"Condition 2: RelayClosed (HP on) since {minutes_since_hp_on} minutes")
+                            # print(f"Condition 2: Relay 6 is Closed since {minutes_since_hp_on} minutes")
 
                 if minutes_since_scada_in_ctrl>10 and minutes_since_hp_on>10:
-                    print("HP SHOULD BE ON!")
+                    print("HP should be on.")
                     hp_should_be_on = True
                 else:
-                    print("HP should not be on.")
+                    print("[OK] HP should not be on.")
                     hp_should_be_on = False
                     alerts[house_alias] = False
 
@@ -233,7 +233,7 @@ def check_hp_on():
                     on_times = sorted(on_times_odu + on_times_idu)
                     if on_times:
                         last_hp_on_time = on_times[-1]
-                        print(f"We know that the HP was on at {pendulum.from_timestamp(last_hp_on_time/1000, tz='America/New_York')}")
+                        print(f"The HP was on at {pendulum.from_timestamp(last_hp_on_time/1000, tz='America/New_York').replace(microsecond=0)}")
                     else:
                         last_hp_on_time = 0
                         print("The HP did not come on")
