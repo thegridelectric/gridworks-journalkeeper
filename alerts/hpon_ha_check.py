@@ -241,8 +241,6 @@ def check_hp_on():
 
                     # Check if HP was seen on in the last 15 min
                     if time.time() - last_hp_on_time/1000 < 15*60:
-                        hp_came_on = True
-                    if hp_came_on:
                         print("[OK] The HP was on at some point in the last 15min")
                         alerts[house_alias] = False
                     elif not alerts[house_alias]:
