@@ -231,14 +231,18 @@ def check_hp_on():
                     else:
                         on_times_idu = []
                     on_times = sorted(on_times_odu + on_times_idu)
+                    if on_times:
+                        last_hp_on_time = on_times[-1]
+                        print(f"We know that the HP was on at {pendulum.from_timestamp(last_hp_on_time/1000, tz='America/New_York')}")
+                    else:
+                        last_hp_on_time = 0
+                        print("The HP did not come on")
 
-                    # Check if any of them was in the last 5 min
-                    hp_came_on = False
-                    for time_ms in on_times:
-                        if time.time() - time_ms/1000 < 5*60:
-                            hp_came_on = True
+                    # Check if HP was seen on in the last 11 min
+                    if time.time() - last_hp_on_time/1000 < 11*60:
+                        hp_came_on = True
                     if hp_came_on:
-                        print("[OK] The HP was on at some point in the last 5min")
+                        print("[OK] The HP was on at some point in the last 11min")
                         alerts[house_alias] = False
                     elif not alerts[house_alias]:
                         print("[ALERT] The HP did not come on!")
