@@ -1,4 +1,4 @@
-"""Type flo.params.house0, version 001"""
+"""Type flo.params.house0, version 000"""
 
 from typing import List, Literal, Optional
 
@@ -13,7 +13,7 @@ from gjk.property_format import (
 )
 
 
-class FloParamsHouse0(GwBase):
+class FloParamsHouse0_000(GwBase):
     g_node_alias: LeftRightDot
     flo_params_uid: UUID4Str
     timezone_str: str
@@ -26,14 +26,10 @@ class FloParamsHouse0(GwBase):
     hp_max_elec_kw: float
     cop_intercept: float
     cop_oat_coeff: float
-    cop_min: float
-    cop_min_oat_f: float
     cop_lwt_coeff: float
     initial_top_temp_f: StrictInt
-    hp_is_off: bool
-    hp_turn_on_minutes: StrictInt
-    lmp_forecast: Optional[List[float]] = None
     initial_thermocline: StrictInt
+    lmp_forecast: Optional[List[float]] = None
     dist_price_forecast: Optional[List[float]] = None
     reg_price_forecast: Optional[List[float]] = None
     price_forecast_uid: UUID4Str
@@ -52,4 +48,4 @@ class FloParamsHouse0(GwBase):
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
-    version: Literal["001"] = "001"
+    version: Literal["000"] = "000"

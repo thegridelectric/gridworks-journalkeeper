@@ -3,6 +3,7 @@
 from gjk.old_types.batched_readings import BatchedReadings
 from gjk.old_types.channel_readings_000 import ChannelReadings000
 from gjk.old_types.channel_readings_001 import ChannelReadings001
+from gjk.old_types.flo_params_house0_000 import FloParamsHouse0_000
 from gjk.old_types.gridworks_event_gt_sh_status import GridworksEventGtShStatus
 from gjk.old_types.gridworks_event_report import GridworksEventReport
 from gjk.old_types.gridworks_event_snapshot_spaceheat import (
@@ -34,6 +35,7 @@ __all__ = [
     "BatchedReadings",
     "ChannelReadings000",
     "ChannelReadings001",
+    "FloParamsHouse0_000",
     "GridworksEventGtShStatus",
     "GridworksEventReport",
     "GridworksEventSnapshotSpaceheat",

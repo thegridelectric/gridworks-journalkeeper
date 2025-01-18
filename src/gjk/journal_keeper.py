@@ -1,10 +1,11 @@
 """JournalKeeper"""
+
 import logging
 import threading
 import time
 import uuid
 from contextlib import contextmanager
-from typing import Any, List
+from typing import List
 
 import pendulum
 from gw.named_types import GwBase
@@ -37,7 +38,7 @@ from gjk.named_types import (
     TicklistReedReport,
 )
 from gjk.named_types.asl_types import TypeByName
-from gjk.old_types import GridworksEventReport, LayoutEvent, LayoutLite003
+from gjk.old_types import GridworksEventReport, LayoutEvent
 from gjk.type_helpers import Message, Reading
 from gjk.utils import FileNameMeta, str_from_ms
 
@@ -223,7 +224,6 @@ class JournalKeeper(ActorBase):
                 self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
-
 
     def ticklist_hall_report_from_scada(
         self, from_alias: str, t: TicklistHallReport
