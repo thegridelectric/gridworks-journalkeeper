@@ -17,8 +17,12 @@ def test_flo_params_house0_generated() -> None:
     #     "CopIntercept": ,
     #     "CopOatCoeff": ,
     #     "CopLwtCoeff": ,
+    #     "CopMin": ,
+    #     "CopMinOatF": ,
     #     "InitialTopTempF": ,
     #     "InitialThermocline": ,
+    #     "HpIsOff": False,
+    #     "HpTurnOnMinutes": 10,
     #     "LmpForecast": ,
     #     "DistPriceForecast": ,
     #     "RegPriceForecast": ,
@@ -38,7 +42,7 @@ def test_flo_params_house0_generated() -> None:
     #     "PriceUnit": ,
     #     "ParamsGeneratedS": ,
     #     "TypeName": "flo.params.house0",
-    #     "Version": "000",
+    #     "Version": "001",
     # }
 
     # assert FloParamsHouse0.from_dict(d).to_dict() == d

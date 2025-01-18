@@ -27,7 +27,7 @@
 <xsl:text>""" List of all the types used by the actor."""
 
 from typing import Dict, List, no_type_check
-
+from gjk.old_types.flo_params_house0_000 import FloParamsHouse0_000
 from gjk.old_types import GridworksEventSnapshotSpaceheat
 from gjk.old_types.batched_readings import BatchedReadings
 from gjk.old_types.channel_readings_000 import ChannelReadings000
@@ -83,6 +83,7 @@ def types() -> List[GwBase]:
         BatchedReadings,
         ChannelReadings000,
         ChannelReadings001,
+        FloParamsHouse0_000,
         GridworksEventGtShStatus,
         GridworksEventReport,
         GridworksEventSnapshotSpaceheat,

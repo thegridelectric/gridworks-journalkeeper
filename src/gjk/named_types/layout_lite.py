@@ -7,7 +7,9 @@ from pydantic import PositiveInt
 
 from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.named_types.ha1_params import Ha1Params
-from gjk.named_types.i2c_multichannel_dt_relay_component_gt import I2cMultichannelDtRelayComponentGt
+from gjk.named_types.i2c_multichannel_dt_relay_component_gt import (
+    I2cMultichannelDtRelayComponentGt,
+)
 from gjk.named_types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponentGt
 from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
