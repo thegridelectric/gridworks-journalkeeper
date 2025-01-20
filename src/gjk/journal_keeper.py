@@ -54,7 +54,7 @@ SCADA_NAME = "s"
 class JournalKeeper(ActorBase):
     def __init__(self, settings: Settings):
         # use our knwon types
-        super().__init__(settings=settings, codec=GwCodec(type_by_name=TypeByName))
+        super().__init__(settings=settings, type_by_name=TypeByName)
         self.settings: Settings = settings
         self._consume_exchange = "ear_tx"
         engine = create_engine(settings.db_url.get_secret_value())
