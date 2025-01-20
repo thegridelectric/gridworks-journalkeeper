@@ -3,7 +3,8 @@
 from typing import List, Literal, Optional
 
 from gw.named_types import GwBase
-from pydantic import PositiveInt, StrictInt
+from gw.utils import snake_to_pascal
+from pydantic import ConfigDict, PositiveInt, StrictInt
 
 from gjk.enums import MarketPriceUnit
 from gjk.property_format import (
@@ -53,3 +54,11 @@ class FloParamsHouse0(GwBase):
     params_generated_s: UTCSeconds
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
     version: Literal["001"] = "001"
+
+    model_config = ConfigDict(
+        alias_generator=snake_to_pascal,
+        extra="allow",
+        frozen=True,
+        populate_by_name=True,
+        use_enum_values=True,
+    )
