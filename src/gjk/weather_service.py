@@ -109,7 +109,7 @@ class WeatherService(ActorBase):
             print(f"Error fetching observations data: {observations_response.status_code}")
             return
         observations = observations_response.json()
-        if not observations:
+        if not observations['features']:
             print("Received no observations")
             return
         # Take the latest observation
