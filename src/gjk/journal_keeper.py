@@ -10,7 +10,6 @@ from typing import List
 import pendulum
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
-from gwbase.codec import GwCodec
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -27,6 +26,7 @@ from gjk.named_types import (
     EnergyInstruction,
     FloParamsHouse0,
     GridworksEventProblem,
+    HeatingForecast,
     LatestPrice,
     LayoutLite,
     PowerWatts,
@@ -36,6 +36,8 @@ from gjk.named_types import (
     SnapshotSpaceheat,
     TicklistHallReport,
     TicklistReedReport,
+    Weather,
+    WeatherForecast,
 )
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport, LayoutEvent
@@ -69,6 +71,7 @@ class JournalKeeper(ActorBase):
             AtnBid.type_name_value(),
             EnergyInstruction.type_name_value(),
             FloParamsHouse0.type_name_value(),
+            HeatingForecast.type_name_value(),
             LatestPrice.type_name_value(),
             LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
@@ -78,6 +81,8 @@ class JournalKeeper(ActorBase):
             SnapshotSpaceheat.type_name_value(),
             TicklistReedReport.type_name_value(),
             TicklistHallReport.type_name_value(),
+            Weather.type_name_value(),
+            WeatherForecast.type_name_value(),
         ]
         routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
         for rk in routing_keys:
@@ -224,6 +229,42 @@ class JournalKeeper(ActorBase):
                 self.report_from_scada(payload)
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
+        elif payload.type_name in {
+            HeatingForecast.type_name_value(), WeatherForecast.type_name_value()
+        }:
+            try:
+                self.forecast_received(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with forecast: {e}") from e
+        elif payload.type_name == Weather.type_name_value():
+            try:
+                self.weather_received(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with weater: {e}") from e
+
+    def weather_received(self, t: Weather) -> None:
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=t.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.unix_time_s * 1000,
+        )
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
+
+    def forecast_received(self, t: WeatherForecast) -> None:
+        msg = Message(
+            message_id=str(uuid.uuid4()),
+            from_alias=t.from_g_node_alias,
+            message_persisted_ms=int(time.time() * 1000),
+            payload=t.to_dict(),
+            message_type_name=t.type_name,
+            message_created_ms=t.forecast_created_s * 1000,
+        )
+        with self.get_db() as db:
+            insert_single_message(db, pyd_to_sql(msg))
 
     def ticklist_hall_report_from_scada(
         self, from_alias: str, t: TicklistHallReport

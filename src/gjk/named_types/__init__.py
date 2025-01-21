@@ -12,6 +12,7 @@ from gjk.named_types.fsm_full_report import FsmFullReport
 from gjk.named_types.gridworks_event_problem import GridworksEventProblem
 from gjk.named_types.ha1_params import Ha1Params
 from gjk.named_types.heartbeat_a import HeartbeatA
+from gjk.named_types.heating_forecast import HeatingForecast
 from gjk.named_types.i2c_multichannel_dt_relay_component_gt import (
     I2cMultichannelDtRelayComponentGt,
 )
@@ -34,6 +35,8 @@ from gjk.named_types.ticklist_hall import TicklistHall
 from gjk.named_types.ticklist_hall_report import TicklistHallReport
 from gjk.named_types.ticklist_reed import TicklistReed
 from gjk.named_types.ticklist_reed_report import TicklistReedReport
+from gjk.named_types.weather import Weather
+from gjk.named_types.weather_forecast import WeatherForecast
 
 __all__ = [
     "AtnBid",
@@ -48,6 +51,7 @@ __all__ = [
     "GridworksEventProblem",
     "Ha1Params",
     "HeartbeatA",
+    "HeatingForecast",
     "I2cMultichannelDtRelayComponentGt",
     "KeyparamChangeLog",
     "LatestPrice",
@@ -68,4 +72,6 @@ __all__ = [
     "TicklistHallReport",
     "TicklistReed",
     "TicklistReedReport",
+    "Weather",
+    "WeatherForecast",
 ]
