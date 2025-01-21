@@ -1,13 +1,15 @@
 """Weather Service Hack"""
-import logging
+
 import threading
 import time
 from datetime import datetime, timedelta
 
 import pendulum
+import pytz
+from gw.enums import MessageCategory
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
-from gwbase.enums import GNodeRole, MessageCategory
+from gwbase.enums import GNodeRole
 
 from gjk.config import Settings
 from gjk.named_types import (
@@ -15,11 +17,10 @@ from gjk.named_types import (
 )
 from gjk.named_types.asl_types import TypeByName
 
-LOG_FORMAT = (
-    "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
-LOGGER = logging.getLogger(__name__)
+KMLT_LAT = 45.6573
+KMLT_LON = -68.7098
+WEATHER_CHANNEL = "weather.gov.kmlt"
+
 
 class WeatherService(ActorBase):
     def __init__(self, settings: Settings):
@@ -30,34 +31,12 @@ class WeatherService(ActorBase):
         self._consume_exchange = "ws_tx"
         self.main_thread = threading.Thread(target=self.main)
 
-    def local_rabbit_startup(self) -> None:
-        """Overwrites base class method.
-        Meant for adding addtional bindings"""
-        # Will eventually create types for agents to
-        # ask for the names of weather broadcast channels here
-        type_names = [
-        ]
-        routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
-        for rk in routing_keys:
-            LOGGER.info(
-                "Binding %s to %s with %s",
-                self._consume_exchange,
-                "ear_tx",
-                rk,
-            )
-            self._single_channel.queue_bind(
-                self.queue_name,
-                "ear_tx",
-                routing_key=rk,
-            )
-
     def local_start(self) -> None:
         """This overwrites local_start in actor_base, used for additional threads.
         It cannot assume the rabbit channels are established and that
         messages can be received or sent."""
         self.main_thread.start()
         self._main_loop_running = True
-        print("Just started main thread")
 
     def local_stop(self) -> None:
         self._main_loop_running = False
@@ -79,10 +58,15 @@ class WeatherService(ActorBase):
     def main(self) -> None:
         while True:
             now = datetime.now()
-            next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            next_hour = (now + timedelta(hours=1)).replace(
+                minute=0, second=0, microsecond=0
+            )
             sleep_duration = (next_hour - now).total_seconds() + 1
+            print(
+                f"sleeping for {int(sleep_duration / 60)} minutes before broadcasting weather"
+            )
             time.sleep(sleep_duration)
-            # self.get_and_send_weather()
+            self.get_and_send_weather()
 
     def get_and_send_weather(self):
         """
@@ -92,23 +76,38 @@ class WeatherService(ActorBase):
         But this one only has one task.
         """
         # kmlt is the ICAO code for Millinocket
-        KMLT_LAT = 45.6573
-        KMLT_LON = -68.7098
-        WEATHER_CHANNEL =  "weather.gov.kmlt"
         url = f"https://api.weather.gov/points/{KMLT_LAT},{KMLT_LON}"
 
-        #Hack to send at the top of the hour
+        # Hack to send at the top of the hour
         t = int(time.time())
         forecast_time = t - (t % 3600)
-        payload = Weather(
+        weather = Weather(
             from_g_node_alias=self.alias,
             weather_channel_name=WEATHER_CHANNEL,
             outside_air_temp_f=32.2,
             wind_speed_mph=10.3,
-            unix_time_s=forecast_time
+            unix_time_s=forecast_time,
         )
-        forecast_start = datetime.fromtimestamp(self.weather_forecast.Time[0], tz="America/New_York")
-        LOGGER.info(f"Broadcasting weather {WEATHER_CHANNEL} at {forecast_start.strftime('%Y-%m-%d %H:%M:%S')} ET")
-        self.send_message(payload=payload,
-                          message_category=MessageCategory.RabbitJsonBroadcast,
-                          radio_channel=WEATHER_CHANNEL)
+        forecast_start = datetime.fromtimestamp(
+            forecast_time, tz=pytz.timezone("America/New_York")
+        )
+        ft = f"{forecast_start.strftime('%Y-%m-%d %H:%M:%S')} ET"
+        print(
+            f"[{ft}] {WEATHER_CHANNEL}:  {weather.outside_air_temp_f} F, {weather.wind_speed_mph} mph"
+        )
+
+        # Use this one when you've got the pipes working
+        # self.send_message(
+        #     payload=weather,
+        #     message_category=MessageCategory.RabbitJsonBroadcast,
+        # )
+
+        # # DON'T USE THIS ONE YET.
+        # # TODO for jess: fix brken broadcast radio channel routing key
+        # # from rjb.hw1-isone-ws.ws.weather.weather.gov.kmlt TO
+        # # rjb.hw1-isone-ws.ws.weather.weather-gov-kmlt
+        # # self.send_message(
+        # #     payload=weather,
+        # #     message_category=MessageCategory.RabbitJsonBroadcast,
+        # #     radio_channel=WEATHER_CHANNEL,
+        # # )

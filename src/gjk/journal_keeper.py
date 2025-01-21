@@ -230,7 +230,8 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(f"Trouble with report_from_scada: {e}") from e
         elif payload.type_name in {
-            HeatingForecast.type_name_value(), WeatherForecast.type_name_value()
+            HeatingForecast.type_name_value(),
+            WeatherForecast.type_name_value(),
         }:
             try:
                 self.forecast_received(payload)
