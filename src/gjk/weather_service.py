@@ -139,10 +139,10 @@ class WeatherService(ActorBase):
         )
 
         # Use this one when you've got the pipes working
-        self.send_message(
-            payload=weather,
-            message_category=MessageCategory.RabbitJsonBroadcast,
-        )
+        # self.send_message(
+        #     payload=weather,
+        #     message_category=MessageCategory.RabbitJsonBroadcast,
+        # )
 
         # # DON'T USE THIS ONE YET.
         # # TODO for jess: fix brken broadcast radio channel routing key
