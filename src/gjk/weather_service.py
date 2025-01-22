@@ -3,10 +3,10 @@
 import threading
 import time
 from datetime import datetime, timedelta, timezone
-import requests
+
 import pendulum
 import pytz
-from gw.enums import MessageCategory
+import requests
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
 from gwbase.enums import GNodeRole
@@ -21,8 +21,10 @@ KMLT_LAT = 45.6573
 KMLT_LON = -68.7098
 WEATHER_CHANNEL = "weather.gov.kmlt"
 
+
 def to_fahrenheit(t):
-    return (t * 9/5) + 32
+    return (t * 9 / 5) + 32
+
 
 def to_mph(ws):
     return ws * 0.621371
@@ -64,7 +66,9 @@ class WeatherService(ActorBase):
     def main(self) -> None:
         while True:
             now = datetime.now()
-            next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            next_hour = (now + timedelta(hours=1)).replace(
+                minute=0, second=0, microsecond=0
+            )
             sleep_duration = (next_hour - now).total_seconds() + 1
             print(
                 f"sleeping for {int(sleep_duration / 60)} minutes before broadcasting weather"
@@ -88,35 +92,54 @@ class WeatherService(ActorBase):
 
         # Get the nearest observation station (this will be KMLT)
         grid_data = response.json()
-        station_url = grid_data['properties']['observationStations']
+        station_url = grid_data["properties"]["observationStations"]
         station_response = requests.get(station_url)
         if station_response.status_code != 200:
             print(f"Error fetching station data: {station_response.status_code}")
             return
         stations = station_response.json()
-        station_id = stations['features'][0]['properties']['stationIdentifier']
+        station_id = stations["features"][0]["properties"]["stationIdentifier"]
 
         # Get hourly observations from the station
         observations_url = f"https://api.weather.gov/stations/{station_id}/observations"
-        start_time = time.time() - 60*60
-        end_time = time.time() + 5*60
+        start_time = time.time() - 60 * 60
+        end_time = time.time() + 5 * 60
         params = {
-            'start': datetime.fromtimestamp(start_time, tz=timezone.utc).replace(tzinfo=None).isoformat() + "Z",
-            'end': datetime.fromtimestamp(end_time, tz=timezone.utc).replace(tzinfo=None).isoformat() + "Z"
+            "start": datetime.fromtimestamp(start_time, tz=timezone.utc)
+            .replace(tzinfo=None)
+            .isoformat()
+            + "Z",
+            "end": datetime.fromtimestamp(end_time, tz=timezone.utc)
+            .replace(tzinfo=None)
+            .isoformat()
+            + "Z",
         }
         observations_response = requests.get(observations_url, params=params)
         if observations_response.status_code != 200:
-            print(f"Error fetching observations data: {observations_response.status_code}")
+            print(
+                f"Error fetching observations data: {observations_response.status_code}"
+            )
             return
         observations = observations_response.json()
-        if not observations['features']:
+        if not observations["features"]:
             print("Received no observations")
             return
         # Take the latest observation
-        time_observed = observations['features'][-1]['properties']['timestamp']
-        time_observed = datetime.fromisoformat(time_observed).astimezone(pytz.timezone('America/New_York')).strftime('%Y-%m-%d %H:%M:%S')
-        oat_observed = round(to_fahrenheit(observations['features'][-1]['properties']['temperature']['value']),2)
-        wind_speed_observed = round(to_mph(observations['features'][-1]['properties']['windSpeed']['value']),2)
+        time_observed = observations["features"][-1]["properties"]["timestamp"]
+        time_observed = (
+            datetime.fromisoformat(time_observed)
+            .astimezone(pytz.timezone("America/New_York"))
+            .strftime("%Y-%m-%d %H:%M:%S")
+        )
+        oat_observed = round(
+            to_fahrenheit(
+                observations["features"][-1]["properties"]["temperature"]["value"]
+            ),
+            2,
+        )
+        wind_speed_observed = round(
+            to_mph(observations["features"][-1]["properties"]["windSpeed"]["value"]), 2
+        )
         print(f"\nTime of latest observation: {time_observed}")
         print(f"OAT: {oat_observed}, WS: {wind_speed_observed}")
 

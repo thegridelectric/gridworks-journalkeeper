@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 GRIDWORKS_DEV_OPS_GENIE_TEAM_ID = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
 RUN_EVERY_MIN = 10
-MIN_GPM_TIMES_100 = 0.5*100
+MIN_GPM_TIMES_100 = 0.5 * 100
 MIN_POWER_KW = 1
 
 alerts = {}
@@ -48,7 +48,9 @@ def check_hp_on():
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
             # Get the data
-            start_ms = pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(hours=-1).timestamp() * 1000
+            )
             messages = (
                 session.query(MessageSql)
                 .filter(
@@ -68,7 +70,9 @@ def check_hp_on():
 
             # For every house
             all_house_aliases = list({
-                x.from_alias for x in messages if "orange" not in x.from_alias and "beech" not in x.from_alias
+                x.from_alias
+                for x in messages
+                if "orange" not in x.from_alias and "beech" not in x.from_alias
             })
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
@@ -88,7 +92,7 @@ def check_hp_on():
                                 if dc["Id"] == channel["ChannelId"]:
                                     channel_name = dc["Name"]
                         # Store the times and values
-                        if "hp" in channel_name: 
+                        if "hp" in channel_name:
                             if channel_name not in channels:
                                 channels[channel_name] = {
                                     "values": channel["ValueList"],
@@ -117,28 +121,36 @@ def check_hp_on():
                 minutes_since_scada_in_ctrl = 0
                 relay_5 = {}
                 for message in [m for m in messages if house_alias in m.from_alias]:
-                    if 'StateList' in message.payload:
-                        for state in message.payload['StateList']:
-                            if 'relay5' in state['MachineHandle']:
-                                if state['MachineHandle'] not in relay_5:
-                                    relay_5[state['MachineHandle']] = {}
-                                    relay_5[state['MachineHandle']]['times'] = []
-                                    relay_5[state['MachineHandle']]['values'] = []
-                                relay_5[state['MachineHandle']]['times'].extend(state['UnixMsList'])
-                                relay_5[state['MachineHandle']]['values'].extend(state['StateList'])
+                    if "StateList" in message.payload:
+                        for state in message.payload["StateList"]:
+                            if "relay5" in state["MachineHandle"]:
+                                if state["MachineHandle"] not in relay_5:
+                                    relay_5[state["MachineHandle"]] = {}
+                                    relay_5[state["MachineHandle"]]["times"] = []
+                                    relay_5[state["MachineHandle"]]["values"] = []
+                                relay_5[state["MachineHandle"]]["times"].extend(
+                                    state["UnixMsList"]
+                                )
+                                relay_5[state["MachineHandle"]]["values"].extend(
+                                    state["StateList"]
+                                )
                 most_recent_relay5_parent = list(relay_5.keys())[0]
-                if len(list(relay_5.keys()))>1:
-                    most_recent_relay_state = pendulum.datetime(2022,1,1).timestamp()*1000
+                if len(list(relay_5.keys())) > 1:
+                    most_recent_relay_state = (
+                        pendulum.datetime(2022, 1, 1).timestamp() * 1000
+                    )
                     for r in relay_5:
-                        latest = max(relay_5[r]['times'])
+                        latest = max(relay_5[r]["times"])
                         if latest > most_recent_relay_state:
                             most_recent_relay_state = latest
                             most_recent_relay5_parent = r
-                    print(f"The most recent actor to control relays 5 is {most_recent_relay5_parent}")
+                    print(
+                        f"The most recent actor to control relays 5 is {most_recent_relay5_parent}"
+                    )
                 for r in relay_5:
-                    if r!= most_recent_relay5_parent:
+                    if r != most_recent_relay5_parent:
                         continue
-                    pairs = list(zip(relay_5[r]['times'], relay_5[r]['values']))
+                    pairs = list(zip(relay_5[r]["times"], relay_5[r]["values"]))
                     time_of_last_switch = next(
                         (
                             pairs[i + 1][0]
@@ -155,36 +167,50 @@ def check_hp_on():
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_5[r]["values"][-1] == "Scada":
-                        if (pendulum.now(tz="America/New_York") - time_of_last_switch).total_seconds() > 10 * 60:
-                            minutes_since_scada_in_ctrl = pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()
+                        if (
+                            pendulum.now(tz="America/New_York") - time_of_last_switch
+                        ).total_seconds() > 10 * 60:
+                            minutes_since_scada_in_ctrl = (
+                                pendulum.now(tz="America/New_York")
+                                .diff(time_of_last_switch)
+                                .in_minutes()
+                            )
                             # print(f"Condition 1: Scada in control since {minutes_since_scada_in_ctrl} minutes")
-                
+
                 # RELAY 6
                 minutes_since_hp_on = 0
                 relay_6 = {}
                 for message in [m for m in messages if house_alias in m.from_alias]:
-                    if 'StateList' in message.payload:
-                        for state in message.payload['StateList']:
-                            if 'relay6' in state['MachineHandle']:
-                                if state['MachineHandle'] not in relay_6:
-                                    relay_6[state['MachineHandle']] = {}
-                                    relay_6[state['MachineHandle']]['times'] = []
-                                    relay_6[state['MachineHandle']]['values'] = []
-                                relay_6[state['MachineHandle']]['times'].extend(state['UnixMsList'])
-                                relay_6[state['MachineHandle']]['values'].extend(state['StateList'])
+                    if "StateList" in message.payload:
+                        for state in message.payload["StateList"]:
+                            if "relay6" in state["MachineHandle"]:
+                                if state["MachineHandle"] not in relay_6:
+                                    relay_6[state["MachineHandle"]] = {}
+                                    relay_6[state["MachineHandle"]]["times"] = []
+                                    relay_6[state["MachineHandle"]]["values"] = []
+                                relay_6[state["MachineHandle"]]["times"].extend(
+                                    state["UnixMsList"]
+                                )
+                                relay_6[state["MachineHandle"]]["values"].extend(
+                                    state["StateList"]
+                                )
                 most_recent_relay6_parent = list(relay_6.keys())[0]
-                if len(list(relay_6.keys()))>1:
-                    most_recent_relay_state = pendulum.datetime(2022,1,1).timestamp()*1000
+                if len(list(relay_6.keys())) > 1:
+                    most_recent_relay_state = (
+                        pendulum.datetime(2022, 1, 1).timestamp() * 1000
+                    )
                     for r in relay_6:
-                        latest = max(relay_6[r]['times'])
+                        latest = max(relay_6[r]["times"])
                         if latest > most_recent_relay_state:
                             most_recent_relay_state = latest
                             most_recent_relay6_parent = r
-                    print(f"The most recent actor to control relays 5 is {most_recent_relay6_parent}")
+                    print(
+                        f"The most recent actor to control relays 5 is {most_recent_relay6_parent}"
+                    )
                 for r in relay_6:
-                    if r!= most_recent_relay6_parent:
+                    if r != most_recent_relay6_parent:
                         continue
-                    pairs = list(zip(relay_6[r]['times'], relay_6[r]['values']))
+                    pairs = list(zip(relay_6[r]["times"], relay_6[r]["values"]))
                     time_of_last_switch = next(
                         (
                             pairs[i + 1][0]
@@ -201,11 +227,17 @@ def check_hp_on():
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_6[r]["values"][-1] == "RelayClosed":
-                        if (pendulum.now(tz="America/New_York") - time_of_last_switch).total_seconds() > 10 * 60:
-                            minutes_since_hp_on = pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()
+                        if (
+                            pendulum.now(tz="America/New_York") - time_of_last_switch
+                        ).total_seconds() > 10 * 60:
+                            minutes_since_hp_on = (
+                                pendulum.now(tz="America/New_York")
+                                .diff(time_of_last_switch)
+                                .in_minutes()
+                            )
                             # print(f"Condition 2: Relay 6 is Closed since {minutes_since_hp_on} minutes")
 
-                if minutes_since_scada_in_ctrl>10 and minutes_since_hp_on>10:
+                if minutes_since_scada_in_ctrl > 10 and minutes_since_hp_on > 10:
                     print("HP should be on.")
                     hp_should_be_on = True
                 else:
@@ -234,20 +266,21 @@ def check_hp_on():
                     on_times = sorted(on_times_odu + on_times_idu)
                     if on_times:
                         last_hp_on_time = on_times[-1]
-                        print(f"The HP was on at {pendulum.from_timestamp(last_hp_on_time/1000, tz='America/New_York').replace(microsecond=0)}")
+                        print(
+                            f"The HP was on at {pendulum.from_timestamp(last_hp_on_time / 1000, tz='America/New_York').replace(microsecond=0)}"
+                        )
                     else:
                         last_hp_on_time = 0
                         print("The HP did not come on")
 
                     # Check if HP was seen on in the last 15 min
-                    if time.time() - last_hp_on_time/1000 < 15*60:
+                    if time.time() - last_hp_on_time / 1000 < 15 * 60:
                         print("[OK] The HP was on at some point in the last 15min")
                         alerts[house_alias] = False
                     elif not alerts[house_alias]:
                         print("[ALERT] The HP did not come on!")
                         send_opsgenie_alert(house_alias)
                         alerts[house_alias] = True
-
 
     except SQLAlchemyError as e:
         print(f"Database error: {str(e)}")
