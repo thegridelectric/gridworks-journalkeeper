@@ -13,6 +13,7 @@ from gjk.named_types.flo_params_house0 import FloParamsHouse0
 from gjk.named_types.fsm_atomic_report import FsmAtomicReport
 from gjk.named_types.fsm_event import FsmEvent
 from gjk.named_types.fsm_full_report import FsmFullReport
+from gjk.named_types.glitch import Glitch
 from gjk.named_types.gridworks_event_problem import GridworksEventProblem
 from gjk.named_types.ha1_params import Ha1Params
 from gjk.named_types.heartbeat_a import HeartbeatA
@@ -115,6 +116,7 @@ def types() -> List[GwBase]:
         FsmAtomicReport,
         FsmEvent,
         FsmFullReport,
+        Glitch,
         GridworksEventProblem,
         Ha1Params,
         HeartbeatA,

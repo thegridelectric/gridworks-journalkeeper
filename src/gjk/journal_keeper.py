@@ -25,6 +25,7 @@ from gjk.named_types import (
     AtnBid,
     EnergyInstruction,
     FloParamsHouse0,
+    Glitch,
     GridworksEventProblem,
     HeatingForecast,
     LatestPrice,
@@ -67,10 +68,11 @@ class JournalKeeper(ActorBase):
         """Overwrites base class method.
         Meant for adding addtional bindings"""
         type_names = [
-            GridworksEventProblem.type_name_value(),
             AtnBid.type_name_value(),
             EnergyInstruction.type_name_value(),
             FloParamsHouse0.type_name_value(),
+            Glitch.type_name_value(),
+            GridworksEventProblem.type_name_value(),
             HeatingForecast.type_name_value(),
             LatestPrice.type_name_value(),
             LayoutLite.type_name_value(),
@@ -169,6 +171,17 @@ class JournalKeeper(ActorBase):
             except Exception as e:
                 raise Exception(
                     f"Trouble in timestamped_message_received with EnergyInstruction: {e}"
+                ) from e
+        elif payload.type_name == Glitch.type_name_value():
+            try:
+                self.timestamped_message_received(
+                    payload,
+                    from_alias=from_alias,
+                    message_created_ms=payload.created_ms,
+                )
+            except Exception as e:
+                raise Exception(
+                    f"Trouble in timestamped_message_received with Glitch: {e}"
                 ) from e
         elif payload.type_name == LatestPrice.type_name_value():
             try:
