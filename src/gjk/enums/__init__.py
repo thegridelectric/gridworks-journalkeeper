@@ -47,6 +47,7 @@ from gjk.enums.g_node_status import GNodeStatus
 from gjk.enums.gpm_from_hz_method import GpmFromHzMethod
 from gjk.enums.hz_calc_method import HzCalcMethod
 from gjk.enums.kind_of_param import KindOfParam
+from gjk.enums.log_level import LogLevel
 from gjk.enums.make_model import MakeModel
 from gjk.enums.market_price_unit import MarketPriceUnit
 from gjk.enums.market_quantity_unit import MarketQuantityUnit
@@ -80,6 +81,7 @@ __all__ = [
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
+    "LogLevel",  # [log.level.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#loglevel)
     "MakeModel",  # [spaceheat.make.model.003](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatmakemodel)
     "MarketPriceUnit",  # [market.price.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#marketpriceunit)
     "MarketQuantityUnit",  # [market.quantity.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#marketquantityunit)
