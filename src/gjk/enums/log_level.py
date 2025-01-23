@@ -6,7 +6,7 @@ from gw.enums import GwStrEnum
 
 class LogLevel(GwStrEnum):
     """
-    
+
 
     Enum log.level version 000 in the GridWorks Type registry.
 

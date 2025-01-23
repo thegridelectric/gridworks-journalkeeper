@@ -30,6 +30,7 @@ from gjk.named_types import (
     HeatingForecast,
     LatestPrice,
     LayoutLite,
+    NewCommandTree,
     PowerWatts,
     Report,
     ReportEvent,
@@ -77,6 +78,7 @@ class JournalKeeper(ActorBase):
             LatestPrice.type_name_value(),
             LayoutLite.type_name_value(),
             LayoutEvent.type_name_value(),
+            NewCommandTree.type_name_value(),
             PowerWatts.type_name_value(),
             ReportEvent.type_name_value(),
             Report.type_name_value(),
@@ -195,6 +197,17 @@ class JournalKeeper(ActorBase):
                 self.layout_lite_received(payload)
             except Exception as e:
                 raise Exception(f"Trouble with layout_lite_from_scada: {e}") from e
+        elif payload.type_name ==  NewCommandTree.type_name_value():
+            try:
+                self.timestamped_message_received(
+                    payload,
+                    from_alias=from_alias,
+                    message_created_ms=payload.unix_ms,
+                )
+            except Exception as e:
+                raise Exception(
+                    f"Trouble in timestamped_message_received with NewCommandTree: {e}"
+                ) from e
         elif payload.type_name == PowerWatts.type_name_value():
             try:
                 self.power_watts_received(from_alias, payload)

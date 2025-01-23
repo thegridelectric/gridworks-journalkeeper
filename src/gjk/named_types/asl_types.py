@@ -25,6 +25,7 @@ from gjk.named_types.keyparam_change_log import KeyparamChangeLog
 from gjk.named_types.latest_price import LatestPrice
 from gjk.named_types.layout_lite import LayoutLite
 from gjk.named_types.machine_states import MachineStates
+from gjk.named_types.new_command_tree import NewCommandTree
 from gjk.named_types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.named_types.pico_tank_module_component_gt import PicoTankModuleComponentGt
 from gjk.named_types.power_watts import PowerWatts
@@ -126,6 +127,7 @@ def types() -> List[GwBase]:
         LatestPrice,
         LayoutLite,
         MachineStates,
+        NewCommandTree,
         PicoFlowModuleComponentGt,
         PicoTankModuleComponentGt,
         PowerWatts,
