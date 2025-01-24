@@ -120,8 +120,8 @@ class WeatherService(ActorBase):
         self.main_thread = threading.Thread(target=self.main)
 
     def local_start(self) -> None:
-        self.main_thread.start()
         self._main_loop_running = True
+        self.main_thread.start()
 
     def local_stop(self) -> None:
         self._main_loop_running = False
@@ -181,7 +181,7 @@ class WeatherService(ActorBase):
     def main(self) -> None:
         last_observation_time = None
         CHECK_INTERVAL_SECONDS = 600  # 10 minutes
-
+        time.sleep(1)
         while self._main_loop_running:
             try:
                 observation_result = get_latest_observation()
