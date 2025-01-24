@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from typing import List
 
 import pendulum
+from gwbase.enums import GNodeRole
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
 from sqlalchemy import create_engine
@@ -131,7 +132,22 @@ class JournalKeeper(ActorBase):
     ## Receives
     ########################
 
+    def route_message(self, from_alias: str, from_role: GNodeRole, payload:GwBase) -> None:
+        """
+        Messages received from rabbit-based actors
+        """
+        print(f"Weather received from {from_alias}, role {from_role}")
+        if payload.type_name == Weather.type_name_value:
+            try:
+                self.weather_received(payload)
+            except Exception as e:
+                raise Exception(f"Trouble with weater: {e}") from e
+        super().route_message(from_alias, from_role, payload)
+
     def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
+        """
+        Messages received from Scada (and temporarily from Atns)
+        """
         t = time.time()
         ft = pendulum.from_timestamp(t, tz="America/New_York").format(
             "YYYY-MM-DD HH:mm:ss.SSS"
@@ -263,11 +279,6 @@ class JournalKeeper(ActorBase):
                 self.forecast_received(payload)
             except Exception as e:
                 raise Exception(f"Trouble with forecast: {e}") from e
-        elif payload.type_name == Weather.type_name_value():
-            try:
-                self.weather_received(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with weater: {e}") from e
 
     def weather_received(self, t: Weather) -> None:
         msg = Message(

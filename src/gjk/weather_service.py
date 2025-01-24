@@ -127,12 +127,13 @@ class WeatherService(ActorBase):
         self._main_loop_running = False
         self.main_thread.join()
 
-    def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
+    def route_message(self, from_alias: str, from_role: GNodeRole, payload: GwBase) -> None:
         now = pendulum.now("America/New_York")
         short_alias = from_alias.split(".")[-2]
         print(
             f"[{now.format('YYYY-MM-DD HH:mm:ss.SSS')}] {payload.type_name} from {short_alias}"
         )
+        super().route_message(from_alias, from_role, payload)
 
     def create_weather_payload(self, observation: Dict[str, Any]) -> Optional[Weather]:
         try:

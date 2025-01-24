@@ -24,7 +24,6 @@ click = ">=8.0.1"
 boto3 = "^1.26.3"
 
 # gridworks-base = { path = "../gridworks-base", develop = true }
-gridworks-base = "0.3.4"
 sqlalchemy = "^2.0.31"
 pendulum = "^3.0.0"
 alembic = "^1.13.2"
@@ -36,6 +35,7 @@ uvicorn = "^0.31.1"
 requests = "^2.32.3"
 pytz = "^2024.2"
 result = "^0.17.0"
+gridworks-base = "^0.3.5"
 
 [tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
