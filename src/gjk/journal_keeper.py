@@ -197,7 +197,7 @@ class JournalKeeper(ActorBase):
                 self.layout_lite_received(payload)
             except Exception as e:
                 raise Exception(f"Trouble with layout_lite_from_scada: {e}") from e
-        elif payload.type_name ==  NewCommandTree.type_name_value():
+        elif payload.type_name == NewCommandTree.type_name_value():
             try:
                 self.timestamped_message_received(
                     payload,

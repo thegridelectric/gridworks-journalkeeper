@@ -9,7 +9,7 @@ import pytz
 import requests
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
-from gwbase.enums import GNodeRole
+from gwbase.enums import GNodeRole, MessageCategory
 
 from gjk.config import Settings
 from gjk.named_types import (
@@ -161,11 +161,10 @@ class WeatherService(ActorBase):
             f"[{ft}] {WEATHER_CHANNEL}:  {weather.outside_air_temp_f} F, {weather.wind_speed_mph} mph"
         )
 
-        # Use this one when you've got the pipes working
-        # self.send_message(
-        #     payload=weather,
-        #     message_category=MessageCategory.RabbitJsonBroadcast,
-        # )
+        self.send_message(
+            payload=weather,
+            message_category=MessageCategory.RabbitJsonBroadcast,
+        )
 
         # # DON'T USE THIS ONE YET.
         # # TODO for jess: fix brken broadcast radio channel routing key
