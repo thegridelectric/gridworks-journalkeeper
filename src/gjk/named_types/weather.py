@@ -1,6 +1,6 @@
 """Type weather, version 000"""
 
-from typing import Literal
+from typing import Literal, Optional
 
 from gw.named_types import GwBase
 
@@ -15,6 +15,6 @@ class Weather(GwBase):
     weather_channel_name: LeftRightDot
     unix_time_s: UTCSeconds
     outside_air_temp_f: float
-    wind_speed_mph: float
+    wind_speed_mph: Optional[float] = None
     type_name: Literal["weather"] = "weather"
     version: Literal["000"] = "000"
