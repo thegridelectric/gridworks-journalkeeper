@@ -127,7 +127,9 @@ class WeatherService(ActorBase):
         self._main_loop_running = False
         self.main_thread.join()
 
-    def route_message(self, from_alias: str, from_role: GNodeRole, payload: GwBase) -> None:
+    def route_message(
+        self, from_alias: str, from_role: GNodeRole, payload: GwBase
+    ) -> None:
         now = pendulum.now("America/New_York")
         short_alias = from_alias.split(".")[-2]
         print(

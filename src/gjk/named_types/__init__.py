@@ -30,6 +30,7 @@ from gjk.named_types.relay_actor_config import RelayActorConfig
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
 from gjk.named_types.scada_params import ScadaParams
+from gjk.named_types.single_machine_state import SingleMachineState
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.named_types.synth_channel_gt import SynthChannelGt
@@ -69,6 +70,7 @@ __all__ = [
     "Report",
     "ReportEvent",
     "ScadaParams",
+    "SingleMachineState",
     "SnapshotSpaceheat",
     "SpaceheatNodeGt",
     "SynthChannelGt",
