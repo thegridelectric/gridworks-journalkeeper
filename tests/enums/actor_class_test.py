@@ -36,7 +36,8 @@ def test_actor_class() -> None:
         "SynthGenerator",
         "FakeAtn",
         "PumpDoctor",
-        "DefrostManager",
+        "StratBoss",
+        "HpRelayBoss",
     }
 
     assert ActorClass.default() == ActorClass.NoActor
@@ -72,7 +73,8 @@ def test_actor_class() -> None:
     assert ActorClass.version("SynthGenerator") == "004"
     assert ActorClass.version("FakeAtn") == "004"
     assert ActorClass.version("PumpDoctor") == "005"
-    assert ActorClass.version("DefrostManager") == "005"
+    assert ActorClass.version("StratBoss") == "005"
+    assert ActorClass.version("HpRelayBoss") == "005"
 
     for value in ActorClass.values():
         symbol = ActorClass.value_to_symbol(value)

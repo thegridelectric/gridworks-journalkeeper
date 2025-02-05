@@ -34,6 +34,7 @@ from gjk.named_types.relay_actor_config import RelayActorConfig
 from gjk.named_types.report import Report
 from gjk.named_types.report_event import ReportEvent
 from gjk.named_types.scada_params import ScadaParams
+from gjk.named_types.single_machine_state import SingleMachineState
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.named_types.synth_channel_gt import SynthChannelGt
@@ -73,6 +74,7 @@ from gjk.old_types.scada_params_001 import ScadaParams001
 from gjk.old_types.scada_params_002 import ScadaParams002
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
+from gjk.old_types.snapshot_spaceheat_002 import SnapshotSpaceheat002
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
 TypeByName: Dict[str, GwBase] = {}
@@ -107,6 +109,7 @@ def types() -> List[GwBase]:
         ScadaParams002,
         SnapshotSpaceheat000,
         SnapshotSpaceheat001,
+        SnapshotSpaceheat002,
         TelemetrySnapshotSpaceheat,
         AtnBid,
         ChannelConfig,
@@ -136,6 +139,7 @@ def types() -> List[GwBase]:
         Report,
         ReportEvent,
         ScadaParams,
+        SingleMachineState,
         SnapshotSpaceheat,
         SpaceheatNodeGt,
         SynthChannelGt,

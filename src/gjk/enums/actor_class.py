@@ -82,7 +82,8 @@ class ActorClass(GwStrEnum):
       - SynthGenerator (7618a470)
       - FakeAtn (5399bec8)
       - PumpDoctor (d4ce3ba5): An actor that monitors and resets pumps if necessary
-      - DefrostManager (3ee0e2c2): Actor that handles the defrost cycle of a heat pump.
+      - StratBoss (3ee0e2c2): Protects thermal stratification during heat pump transitions
+      - HpRelayBoss (040dfcec): Responsible for deciding when to close and open the HpScadaOps relay
     """
 
     NoActor = auto()
@@ -114,7 +115,8 @@ class ActorClass(GwStrEnum):
     SynthGenerator = auto()
     FakeAtn = auto()
     PumpDoctor = auto()
-    DefrostManager = auto()
+    StratBoss = auto()
+    HpRelayBoss = auto()
 
     @classmethod
     def default(cls) -> "ActorClass":
@@ -241,6 +243,7 @@ class ActorClass(GwStrEnum):
             "5399bec8",
             "d4ce3ba5",
             "3ee0e2c2",
+            "040dfcec",
         ]
 
 
@@ -274,7 +277,8 @@ symbol_to_value = {
     "7618a470": "SynthGenerator",
     "5399bec8": "FakeAtn",
     "d4ce3ba5": "PumpDoctor",
-    "3ee0e2c2": "DefrostManager",
+    "3ee0e2c2": "StratBoss",
+    "040dfcec": "HpRelayBoss",
 }
 
 value_to_symbol = {value: key for key, value in symbol_to_value.items()}
@@ -309,5 +313,6 @@ value_to_version = {
     "SynthGenerator": "004",
     "FakeAtn": "004",
     "PumpDoctor": "005",
-    "DefrostManager": "005",
+    "StratBoss": "005",
+    "HpRelayBoss": "005",
 }

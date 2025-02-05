@@ -55,6 +55,7 @@ from gjk.old_types.scada_params_001 import ScadaParams001
 from gjk.old_types.scada_params_002 import ScadaParams002
 from gjk.old_types.snapshot_spaceheat_000 import SnapshotSpaceheat000
 from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
+from gjk.old_types.snapshot_spaceheat_002 import SnapshotSpaceheat002
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 from gw.named_types import GwBase
 </xsl:text>
@@ -106,6 +107,7 @@ def types() -> List[GwBase]:
         ScadaParams002,
         SnapshotSpaceheat000,
         SnapshotSpaceheat001,
+        SnapshotSpaceheat002,
         TelemetrySnapshotSpaceheat,
         </xsl:text>
 <xsl:for-each select="$airtable//ProtocolTypes/ProtocolType[(normalize-space(ProtocolName) ='gjk') and (normalize-space(VersionedTypeName)!='') and (TypeStatus = 'Active' or TypeStatus = 'Pending')]">

@@ -1,4 +1,4 @@
-"""Tests snapshot.spaceheat type, version 002"""
+"""Tests snapshot.spaceheat type, version 003"""
 
 from gjk.named_types import SnapshotSpaceheat
 
@@ -11,7 +11,7 @@ def test_snapshot_spaceheat_generated() -> None:
         "LatestReadingList": [],
         "LatestStateList": [],
         "TypeName": "snapshot.spaceheat",
-        "Version": "002",
+        "Version": "003",
     }
 
     assert SnapshotSpaceheat.from_dict(d).to_dict() == d

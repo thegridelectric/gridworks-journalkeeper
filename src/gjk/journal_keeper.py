@@ -8,9 +8,9 @@ from contextlib import contextmanager
 from typing import List
 
 import pendulum
-from gwbase.enums import GNodeRole
 from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
+from gwbase.enums import GNodeRole
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -132,7 +132,9 @@ class JournalKeeper(ActorBase):
     ## Receives
     ########################
 
-    def route_message(self, from_alias: str, from_role: GNodeRole, payload:GwBase) -> None:
+    def route_message(
+        self, from_alias: str, from_role: GNodeRole, payload: GwBase
+    ) -> None:
         """
         Messages received from rabbit-based actors
         """

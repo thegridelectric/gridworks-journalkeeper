@@ -60,6 +60,7 @@ from gjk.enums.store_flow_relay import StoreFlowRelay
 from gjk.enums.strategy import Strategy
 from gjk.enums.telemetry_name import TelemetryName
 from gjk.enums.temp_calc_method import TempCalcMethod
+from gjk.enums.turn_hp_on_off import TurnHpOnOff
 from gjk.enums.unit import Unit
 
 __all__ = [
@@ -94,5 +95,6 @@ __all__ = [
     "Strategy",  # [spaceheat.strategy.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatstrategy)
     "TelemetryName",  # [spaceheat.telemetry.name.004](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
     "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
+    "TurnHpOnOff",  # [turn.hp.on.off.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#turnhponoff)
     "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
 ]
