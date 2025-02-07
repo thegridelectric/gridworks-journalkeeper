@@ -33,7 +33,7 @@ class JournalKeeperHack:
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
         self.alias = alias
-        self.check_data_channel_consistency()
+        # self.check_data_channel_consistency()
 
     @contextmanager
     def get_session(self):
@@ -187,20 +187,28 @@ class JournalKeeperHack:
         all_fns: List[FileNameMeta] = self.get_all_filenames(date_list)
         start_ms = start_s * 1000
         end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
-        ta_list: List[FileNameMeta] = [
-            fn
-            for fn in all_fns
-            if (
-                ("status" in fn.type_name)
-                or ("report" in fn.type_name)
-                or ("snapshot" in fn.type_name)
-                or ("power.watts" in fn.type_name)
-                or ("keyparam.change.log" in fn.type_name)
-            )
-            and (short_alias in fn.from_alias)
-            and (start_ms <= fn.message_persisted_ms < end_ms)
-        ]
-
+        if 'weather' not in short_alias:
+            ta_list: List[FileNameMeta] = [
+                fn
+                for fn in all_fns
+                if (
+                    ("status" in fn.type_name)
+                    or ("report" in fn.type_name)
+                    or ("snapshot" in fn.type_name)
+                    or ("power.watts" in fn.type_name)
+                    or ("keyparam.change.log" in fn.type_name)
+                )
+                and (short_alias in fn.from_alias)
+                and (start_ms <= fn.message_persisted_ms < end_ms)
+            ]
+        else:
+            ta_list: List[FileNameMeta] = [
+                fn
+                for fn in all_fns
+                if fn.type_name == "weather"
+                and (start_ms <= fn.message_persisted_ms < end_ms)
+            ]
+            print(f"There are {len(ta_list)} files with type name 'weather'")
         ta_list.sort(key=lambda x: x.message_persisted_ms)
         print(f"total filenames to: {len(ta_list)}")
         if ta_list:
@@ -263,9 +271,11 @@ class JournalKeeperHack:
                     messages.append(msg)
                 elif t.type_name == "batched.readings":
                     blank_statuses += 1
-
+            
+            print(f"Found {len(messages)} messages that are weather")
             print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
             msg_sql_list = [codec.pyd_to_sql(x) for x in messages]
+            print(f"SQL messages list: {len(msg_sql_list)} messages")
             with self.get_session() as session:
                 bulk_insert_messages(session, msg_sql_list)
                 session.commit()

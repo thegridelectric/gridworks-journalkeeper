@@ -9,6 +9,7 @@ from gjk.named_types import (
     KeyparamChangeLog,
     PowerWatts,
     Report,
+    Weather
 )
 from gjk.old_types import BatchedReadings, GridworksEventGtShStatus
 from gjk.type_helpers import Message
@@ -50,8 +51,21 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Optional[Message]:
         return basic_to_msg(t, fn)
     elif isinstance(t, GridworksEventGtShStatus):
         return gridworkseventgtshstatus_to_msg(t, fn)
+    elif isinstance(t, Weather):
+        return weather_to_msg(t, fn)
     else:
         return None
+    
+
+def weather_to_msg(w: Weather, fn: FileNameMeta) -> Optional[Message]:
+    return Message(
+        message_id=str(uuid.uuid4()),
+        from_alias=w.from_g_node_alias,
+        message_persisted_ms=fn.message_persisted_ms,
+        payload=w.to_dict(),
+        message_type_name=w.type_name,
+        message_created_ms=int(w.unix_time_s * 1000),
+    )
 
 
 def report_to_msg(r: Report, fn: FileNameMeta) -> Optional[Message]:
