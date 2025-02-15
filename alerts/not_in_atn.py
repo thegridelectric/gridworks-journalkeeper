@@ -147,7 +147,7 @@ def check_hp_on():
                     alerts[house_alias] = False
                 elif not alerts[house_alias] == 'auto.h.n.relay5':
                     print("[ALERT] In HomeAlone!")
-                    # send_opsgenie_alert(house_alias)
+                    send_opsgenie_alert(house_alias)
                     alerts[house_alias] = True
 
     except SQLAlchemyError as e:
