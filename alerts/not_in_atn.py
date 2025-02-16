@@ -72,7 +72,7 @@ def check_hp_on():
             all_house_aliases = list({
                 x.from_alias
                 for x in messages
-                if "oak" in x.from_alias or "beech" in x.from_alias
+                if "oak" in x.from_alias or "beech" in x.from_alias or "fir" in x.from_alias
             })
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
