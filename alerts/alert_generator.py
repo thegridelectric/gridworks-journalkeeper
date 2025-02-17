@@ -18,11 +18,14 @@ class AlertGenerator():
         self.ignored_house_aliases = ['maple'] # TODO: put this in the .env file
         self.max_time_no_data = 10*60 #TODO nyquist
         self.main_loop_seconds = 5*60
-        self.hours_back = 1
+        self.hours_back = 3
         self.max_setpoint_violation_f = 2
-        self.min_dist_pump_kw = 2
+        self.min_dist_pump_w = 2
+        self.min_store_pump_w = 5
         self.min_dist_pump_gpm = 0.5
+        self.min_store_pump_gpm = 0.5
         self.data = {}
+        self.relays = {}
         self.alert_status = {}
         self.main()
 
@@ -47,7 +50,7 @@ class AlertGenerator():
             print(f"Failed to send alert. Status code: {response.status_code}, Response: {response.text}")
 
     def unix_ms_to_date(self, time_ms):
-        return pendulum.from_timestamp(time_ms/1000, tz=self.timezone_str).replace(second=0, microsecond=0)
+        return pendulum.from_timestamp(time_ms/1000, tz=self.timezone_str).replace(microsecond=0)
 
     def get_data_from_journaldb(self):
         print("\nFinding data from journaldb...")
@@ -75,6 +78,7 @@ class AlertGenerator():
                 self.alert_status[house_alias] = {}
             
             self.data[house_alias] = {}
+            self.relays[house_alias] = {}
 
             if house_alias not in self.selected_house_aliases:
                 print(f"- {house_alias}: House is not in the selected aliases")
@@ -84,19 +88,37 @@ class AlertGenerator():
                 for channel in message.payload["ChannelReadingList"]:
                     channel_name = channel["ChannelName"]
                     if channel_name not in self.data[house_alias]:
-                        self.data[house_alias][channel_name] = {
-                            "values": channel["ValueList"],
-                            "times": channel["ScadaReadTimeUnixMsList"],
-                        }
-                    else:
-                        self.data[house_alias][channel_name]["values"].extend(channel["ValueList"])
-                        self.data[house_alias][channel_name]["times"].extend(channel["ScadaReadTimeUnixMsList"])
+                        self.data[house_alias][channel_name] = {}
+                        self.data[house_alias][channel_name]['times'] = []
+                        self.data[house_alias][channel_name]['values'] = []
+                    self.data[house_alias][channel_name]["times"].extend(channel["ScadaReadTimeUnixMsList"])
+                    self.data[house_alias][channel_name]["values"].extend(channel["ValueList"])
 
-            for channel in self.data[house_alias].keys():
+                    if "StateList" in message.payload:
+                        for state in message.payload["StateList"]:
+                            if 'relay' in state["MachineHandle"]:
+                                relay_name = state["MachineHandle"].split('.')[-1]
+                                if state["MachineHandle"] not in self.relays[house_alias]:
+                                    self.relays[house_alias][relay_name] = {}
+                                    self.relays[house_alias][relay_name][state["MachineHandle"]] = {}
+                                    self.relays[house_alias][relay_name][state["MachineHandle"]]["times"] = []
+                                    self.relays[house_alias][relay_name][state["MachineHandle"]]["values"] = []
+                                self.relays[house_alias][relay_name][state["MachineHandle"]]["times"].extend(state["UnixMsList"])
+                                self.relays[house_alias][relay_name][state["MachineHandle"]]["values"].extend(state["StateList"])
+
+            for channel in self.data[house_alias]:
                 sorted_times_values = sorted(zip(self.data[house_alias][channel]["times"], self.data[house_alias][channel]["values"]))
                 sorted_times, sorted_values = zip(*sorted_times_values)
                 self.data[house_alias][channel]["times"] = list(sorted_times)
                 self.data[house_alias][channel]["values"] = list(sorted_values)
+
+            for relay in self.relays[house_alias]:
+                for relay_boss in self.relays[house_alias][relay]:
+                    sorted_times_values = sorted(zip(self.relays[house_alias][relay][relay_boss]["times"], 
+                                                     self.relays[house_alias][relay][relay_boss]["values"]))
+                    sorted_times, sorted_values = zip(*sorted_times_values)
+                    self.relays[house_alias][relay][relay_boss]["times"] = list(sorted_times)
+                    self.relays[house_alias][relay][relay_boss]["values"] = list(sorted_values)
 
             if self.data[house_alias]:
                 print(f"- {house_alias}: Found data")
@@ -196,7 +218,7 @@ class AlertGenerator():
                     last_heatcall_time = zone_last_heatcall_time
 
             if (not [x for x in self.data[house_alias] if 'zone' in x and 'state' in x] 
-                or 'dist-pump-pwr' not in self.data[house_alias]):
+                or 'dist-pump-pwr' not in self.data[house_alias] or 'dist-flow' not in self.data[house_alias]):
                 print(f"{house_alias}: Missing data!") # TODO: create an alert?
                 continue
 
@@ -210,10 +232,10 @@ class AlertGenerator():
                 power for time, power in zip(pwr['times'], pwr['values']) 
                 if time >= last_heatcall_time - 5*60*1000
             ]
-            if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_kw:
+            if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
                 print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
                 self.alert_status[house_alias][alert_alias] += 1
-            elif max(power_around_heatcall) <= self.min_dist_pump_kw:
+            elif max(power_around_heatcall) <= self.min_dist_pump_w:
                 print(f"- {house_alias}: No significant pump power around heat call")
                 self.alert_status[house_alias][alert_alias] += 1
             else:
@@ -245,7 +267,96 @@ class AlertGenerator():
         print("\nChecking for store pump activity...")
         for house_alias in self.selected_house_aliases:
             if alert_alias not in self.alert_status[house_alias]:
-                self.alert_status[house_alias][alert_alias] = 0
+                self.alert_status[house_alias][alert_alias] = False
+
+            current_relay9_boss = list(self.relays[house_alias]['relay9'].keys())[0]
+            latest_relay_time = 0
+            for relay9_boss in self.relays[house_alias]['relay9']:
+                boss_latest_time = max(self.relays[house_alias]['relay9'][relay9_boss]['times'])
+                if boss_latest_time > latest_relay_time:
+                    latest_relay_time = boss_latest_time
+                    current_relay9_boss = relay9_boss
+            print(f"The most recent actor to control relay 9 is {current_relay9_boss}")
+
+            r = self.relays[house_alias]['relay9'][current_relay9_boss]
+            pairs = list(zip(r["times"], r["values"]))
+            time_since_in_current_state = next(
+                (pairs[i+1][0] for i in range(len(pairs) - 2, -1, -1) if pairs[i][1] != pairs[i+1][1]),
+                pairs[0][0],
+            )
+            relay9_state = r['values'][-1]
+            print(f"- {house_alias}: Relay 9 is in {relay9_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
+
+            if 'store-pump-pwr' not in self.data[house_alias] or 'store-flow' not in self.data[house_alias]:
+                print(f"{house_alias}: Missing data!") # TODO: create an alert?
+                continue
+
+            if relay9_state == "RelayClosed":
+                if time.time() - time_since_in_current_state/1000 > 10*60:
+                    print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes")
+
+                    # Try to find power
+                    pwr = self.data[house_alias]['store-pump-pwr']
+                    power_since_closed = [
+                        power for time, power in zip(pwr['times'], pwr['values']) 
+                        if time >= time_since_in_current_state
+                    ]
+                    if not power_since_closed and pwr['values'][-1] <= self.min_store_pump_w:
+                        print(f"- {house_alias}: No pump power recorded after relay 9 was closed")
+                    elif max(power_since_closed) <= self.min_store_pump_w:
+                        print(f"- {house_alias}: No significant pump power after relay 9 was closed")
+                    else:
+                        print(f"- {house_alias}: Found store pump power after relay 9 was closed")
+                        self.alert_status[house_alias][alert_alias] = False
+                        continue
+
+                    # Try to find flow
+                    flow = self.data[house_alias]['store-flow']
+                    flow_since_closed = [
+                        flow/100 for time, flow in zip(flow['times'], flow['values']) 
+                        if time >= time_since_in_current_state
+                    ]
+                    if not flow_since_closed and flow['values'][-1] <= self.min_store_pump_gpm:
+                        print(f"- {house_alias}: No pump flow recorded after relay 9 was closed")
+                    elif max(flow_since_closed) <= self.min_store_pump_gpm:
+                        print(f"- {house_alias}: No significant pump flow after relay 9 was closed")
+                    else:
+                        print(f"- {house_alias}: Found store pump flow after relay 9 was closed")
+                        self.alert_status[house_alias][alert_alias] = False
+                        continue
+
+                    if not self.alert_status[house_alias][alert_alias]:
+                        alert_message = f"{house_alias}: No store pump activity recorded since relay 9 was closed"
+                        self.send_opsgenie_alert(alert_message, alert_alias)
+                        self.alert_status[house_alias][alert_alias] = True
+
+    def check_hp(self):
+        ...
+        
+    def check_in_atn(self):
+        alert_alias = "atn"
+        print("\nChecking that ATN is in control...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = False
+
+            current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
+            latest_relay_time = 0
+            for relay9_boss in self.relays[house_alias]['relay5']:
+                boss_latest_time = max(self.relays[house_alias]['relay5'][relay9_boss]['times'])
+                if boss_latest_time > latest_relay_time:
+                    latest_relay_time = boss_latest_time
+                    current_relay5_boss = relay9_boss
+
+            if current_relay5_boss == 'a.aa.relay5':
+                print(f"- {house_alias}: ATN is in control")
+                self.alert_status[house_alias][alert_alias] = False
+
+            elif current_relay5_boss == 'auto.h.n.relay5':
+                self.send_opsgenie_alert(house_alias)
+                self.alert_status[house_alias][alert_alias] = True
+
+
 
 
     def main(self):
@@ -254,9 +365,9 @@ class AlertGenerator():
             self.check_no_data()
             self.check_zone_below_setpoint()
             self.check_dist_pump()
-            # self.check_store_pump()
-            # self.check_hp()
-            # self.check_in_atn()
+            self.check_store_pump()
+            self.check_hp()
+            self.check_in_atn()
             # self.check_hp_on_during_onpeak()
             time.sleep(self.main_loop_seconds)
 
