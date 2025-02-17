@@ -474,14 +474,17 @@ class AlertGenerator():
 
     def main(self):
         while True:
-            self.get_data_from_journaldb()
-            self.check_no_data()
-            self.check_zone_below_setpoint()
-            self.check_dist_pump()
-            self.check_store_pump()
-            self.check_hp()
-            self.check_in_atn()
-            self.check_hp_on_during_onpeak()
+            try:
+                self.get_data_from_journaldb()
+                self.check_no_data()
+                self.check_zone_below_setpoint()
+                self.check_dist_pump()
+                self.check_store_pump()
+                self.check_hp()
+                self.check_in_atn()
+                self.check_hp_on_during_onpeak()
+            except Exception as e:
+                print(e)
             time.sleep(self.main_loop_seconds)
 
 
