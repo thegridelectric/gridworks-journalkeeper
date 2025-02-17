@@ -18,12 +18,14 @@ class AlertGenerator():
         self.ignored_house_aliases = ['maple'] # TODO: put this in the .env file
         self.max_time_no_data = 10*60 #TODO nyquist
         self.main_loop_seconds = 5*60
-        self.hours_back = 3
+        self.hours_back = 2
         self.max_setpoint_violation_f = 2
         self.min_dist_pump_w = 2
         self.min_store_pump_w = 5
         self.min_dist_pump_gpm = 0.5
         self.min_store_pump_gpm = 0.5
+        self.min_hp_kw = 1
+        self.on_peak_hours = [7,8,9,10,11,16,17,18,19]
         self.data = {}
         self.relays = {}
         self.alert_status = {}
@@ -331,7 +333,88 @@ class AlertGenerator():
                         self.alert_status[house_alias][alert_alias] = True
 
     def check_hp(self):
-        ...
+        alert_alias = "hp_on"
+        print("\nChecking for HP activity...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = False
+
+            if 'hp-idu-pwr' not in self.data[house_alias] or 'hp-odu-pwr' not in self.data[house_alias]:
+                print(f"{house_alias}: Missing data!") # TODO: create an alert?
+                continue
+
+            current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
+            latest_relay_time = 0
+            for relay5_boss in self.relays[house_alias]['relay5']:
+                boss_latest_time = max(self.relays[house_alias]['relay5'][relay5_boss]['times'])
+                if boss_latest_time > latest_relay_time:
+                    latest_relay_time = boss_latest_time
+                    current_relay5_boss = relay5_boss
+
+            r = self.relays[house_alias]['relay5'][current_relay5_boss]
+            pairs = list(zip(r["times"], r["values"]))
+            time_since_in_current_state = next(
+                (pairs[i+1][0] for i in range(len(pairs) - 2, -1, -1) if pairs[i][1] != pairs[i+1][1]),
+                pairs[0][0],
+            )
+            relay5_state = r['values'][-1]
+            print(f"- {house_alias}: Relay 5 is in {relay5_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
+
+            if relay5_state == "Scada":
+                if time.time() - time_since_in_current_state/1000 > 10*60:
+                    print(f"- {house_alias}: Relay 5 is in Scada since more than 10 minutes")
+                else:
+                    self.alert_status[house_alias][alert_alias] = False
+                    print(f"- {house_alias}: The HP should not be on")
+                    continue
+            else:
+                self.alert_status[house_alias][alert_alias] = False
+                print(f"- {house_alias}: The HP should not be on")
+                continue
+
+            current_relay6_boss = list(self.relays[house_alias]['relay6'].keys())[0]
+            latest_relay_time = 0
+            for relay6_boss in self.relays[house_alias]['relay6']:
+                boss_latest_time = max(self.relays[house_alias]['relay6'][relay6_boss]['times'])
+                if boss_latest_time > latest_relay_time:
+                    latest_relay_time = boss_latest_time
+                    current_relay6_boss = relay6_boss
+
+            r = self.relays[house_alias]['relay6'][current_relay6_boss]
+            pairs = list(zip(r["times"], r["values"]))
+            time_since_in_current_state = next(
+                (pairs[i+1][0] for i in range(len(pairs) - 2, -1, -1) if pairs[i][1] != pairs[i+1][1]),
+                pairs[0][0],
+            )
+            relay6_state = r['values'][-1]
+            print(f"- {house_alias}: Relay 6 is in {relay6_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
+
+            if relay6_state == "RelayClosed":
+                if time.time() - time_since_in_current_state/1000 > 10*60:
+                    print(f"- {house_alias}: Relay 6 is Closed since more than 10 minutes")
+                else:
+                    self.alert_status[house_alias][alert_alias] = False
+                    print(f"- {house_alias}: The HP should not be on")
+                    continue
+            else: 
+                self.alert_status[house_alias][alert_alias] = False
+                print(f"- {house_alias}: The HP should not be on")
+                continue
+
+            odu_channel = self.data[house_alias]['hp-odu-pwr']
+            on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
+            idu_channel = self.data[house_alias]['hp-idu-pwr']
+            on_times_idu = [t for t, v in zip(idu_channel['times'], idu_channel['values']) if v/1000 >= self.min_hp_kw]
+            on_times = sorted(on_times_odu + on_times_idu)
+            on_times = [x for x in on_times if time.time() - x/1000 < 15*60]
+            
+            if on_times:
+                self.alert_status[house_alias][alert_alias] = False
+                print(f"- {house_alias}: The HP is on")
+            elif not self.alert_status[house_alias][alert_alias]:
+                alert_message = f"{house_alias}: The HP is not coming on"
+                self.send_opsgenie_alert(alert_message, alert_alias)
+                self.alert_status[house_alias][alert_alias] = True
         
     def check_in_atn(self):
         alert_alias = "atn"
@@ -356,8 +439,38 @@ class AlertGenerator():
                 self.send_opsgenie_alert(house_alias)
                 self.alert_status[house_alias][alert_alias] = True
 
+    def check_hp_on_during_onpeak(self):
+        alert_alias = "hp_onpeak"
+        print("\nChecking that the HP is not on during onpeak...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = False
 
+            if "hp-odu-pwr" not in self.data[house_alias] or "hp-odu-pwr" not in self.data[house_alias]:
+                print(f"{house_alias}: Missing data!") # TODO: create an alert?
+                continue
 
+            odu_channel = self.data[house_alias]['hp-odu-pwr']
+            on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
+            idu_channel = self.data[house_alias]['hp-idu-pwr']
+            on_times_idu = [t for t, v in zip(idu_channel['times'], idu_channel['values']) if v/1000 >= self.min_hp_kw]
+            on_times = sorted(on_times_odu + on_times_idu)
+
+            sent_alert = False
+            for time_ms in on_times:
+                time_dt = self.unix_ms_to_date(time_ms)
+                if time_dt.hour in self.on_peak_hours and time_dt.day_of_week < 5:
+                    if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute == 0:
+                        continue
+                    if self.alert_status[house_alias][alert_alias]:
+                        alert_message = f"{house_alias}: HP was seen on at {time_dt}, which is during onpeak"
+                        self.send_opsgenie_alert(alert_message, alert_alias)
+                        self.alert_status[house_alias][alert_alias] = True
+                        sent_alert = True
+            
+            if not sent_alert:
+                print(f"{house_alias}: HP is not on during onpeak")
+                self.alert_status[house_alias][alert_alias] = False
 
     def main(self):
         while True:
@@ -368,7 +481,7 @@ class AlertGenerator():
             self.check_store_pump()
             self.check_hp()
             self.check_in_atn()
-            # self.check_hp_on_during_onpeak()
+            self.check_hp_on_during_onpeak()
             time.sleep(self.main_loop_seconds)
 
 
