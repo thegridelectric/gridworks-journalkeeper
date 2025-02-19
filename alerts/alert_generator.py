@@ -31,7 +31,7 @@ class AlertGenerator():
         self.alert_status = {}
         self.main()
 
-    def send_opsgenie_alert(self, message, alias, priority="P1"):
+    def send_opsgenie_alert(self, message, house_alias, alert_alias, priority="P1"):
         print(f"- [ALERT] {message}")
         url = "https://api.opsgenie.com/v2/alerts"
         headers = {
@@ -41,7 +41,7 @@ class AlertGenerator():
         responders = [{"type": "team", "id": self.opsgenie_team_id}]
         payload = {
             "message": message,
-            "alias": f"{pendulum.now(tz=self.timezone_str)}-{alias}",
+            "alias": f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD')}-{house_alias}-{alert_alias}",
             "priority": priority,
             "responders": responders,
         }
@@ -143,13 +143,13 @@ class AlertGenerator():
             if not self.data[house_alias]:
                 if not self.alert_status[house_alias][alert_alias]:
                     alert_message = f"{house_alias}: No data found in the last {self.hours_back} hour(s)"
-                    self.send_opsgenie_alert(alert_message, alert_alias)
+                    self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
 
             elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
                 if not self.alert_status[house_alias][alert_alias]:
                     alert_message = f"{house_alias}: No data coming in since {round((time.time()-most_recent_ms/1000)/60,1)} minutes"
-                    self.send_opsgenie_alert(alert_message, alert_alias)
+                    self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
 
             else:
@@ -189,7 +189,7 @@ class AlertGenerator():
                     if len(set(self.data[house_alias][setpoint_channel]["values"])) == 1:
                         if not self.alert_status[house_alias][alert_alias][zone]:
                             alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                            self.send_opsgenie_alert(alert_message, alert_alias)
+                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                             self.alert_status[house_alias][alert_alias][zone] = True
                     else:
                         setpoint_values = self.data[house_alias][setpoint_channel]["values"]
@@ -198,7 +198,7 @@ class AlertGenerator():
                         else:
                             if not self.alert_status[house_alias][alert_alias][zone]:
                                 alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                                self.send_opsgenie_alert(alert_message, alert_alias)
+                                self.send_opsgenie_alert(alert_message, house_alias, alert_alais)
                                 self.alert_status[house_alias][alert_alias][zone] = True
 
     def check_dist_pump(self):
@@ -262,7 +262,7 @@ class AlertGenerator():
 
             if self.alert_status[house_alias][alert_alias] == 3:
                 alert_message = f"{house_alias}: No distribution pump activity recorded since the last heat call"
-                self.send_opsgenie_alert(alert_message, alert_alias)
+                self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
     
     def check_store_pump(self):
         alert_alias = "store_pump"
@@ -329,7 +329,7 @@ class AlertGenerator():
 
                     if not self.alert_status[house_alias][alert_alias]:
                         alert_message = f"{house_alias}: No store pump activity recorded since relay 9 was closed"
-                        self.send_opsgenie_alert(alert_message, alert_alias)
+                        self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias] = True
 
     def check_hp(self):
@@ -413,11 +413,11 @@ class AlertGenerator():
                 print(f"- {house_alias}: The HP is on")
             elif not self.alert_status[house_alias][alert_alias]:
                 alert_message = f"{house_alias}: The HP is not coming on"
-                self.send_opsgenie_alert(alert_message, alert_alias)
+                self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                 self.alert_status[house_alias][alert_alias] = True
         
     def check_in_atn(self):
-        alert_alias = "atn"
+        alert_alias = "not_in_atn"
         print("\nChecking that ATN is in control...")
         for house_alias in self.selected_house_aliases:
             if alert_alias not in self.alert_status[house_alias]:
@@ -436,7 +436,7 @@ class AlertGenerator():
                 self.alert_status[house_alias][alert_alias] = False
 
             elif current_relay5_boss == 'auto.h.n.relay5':
-                self.send_opsgenie_alert(house_alias)
+                self.send_opsgenie_alert(f"{house_alias}: Not in Atn!", house_alias, alert_alias)
                 self.alert_status[house_alias][alert_alias] = True
 
     def check_hp_on_during_onpeak(self):
@@ -464,7 +464,7 @@ class AlertGenerator():
                         continue
                     if self.alert_status[house_alias][alert_alias]:
                         alert_message = f"{house_alias}: HP was seen on at {time_dt}, which is during onpeak"
-                        self.send_opsgenie_alert(alert_message, alert_alias)
+                        self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias] = True
                         sent_alert = True
             
