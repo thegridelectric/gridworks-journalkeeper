@@ -100,8 +100,9 @@ class AlertGenerator():
                         for state in message.payload["StateList"]:
                             if 'relay' in state["MachineHandle"]:
                                 relay_name = state["MachineHandle"].split('.')[-1]
-                                if state["MachineHandle"] not in self.relays[house_alias]:
+                                if relay_name not in self.relays[house_alias]:
                                     self.relays[house_alias][relay_name] = {}
+                                if state["MachineHandle"] not in self.relays[house_alias][relay_name]:
                                     self.relays[house_alias][relay_name][state["MachineHandle"]] = {}
                                     self.relays[house_alias][relay_name][state["MachineHandle"]]["times"] = []
                                     self.relays[house_alias][relay_name][state["MachineHandle"]]["values"] = []
@@ -198,7 +199,7 @@ class AlertGenerator():
                         else:
                             if not self.alert_status[house_alias][alert_alias][zone]:
                                 alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                                self.send_opsgenie_alert(alert_message, house_alias, alert_alais)
+                                self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                                 self.alert_status[house_alias][alert_alias][zone] = True
 
     def check_dist_pump(self):
