@@ -182,7 +182,7 @@ class AlertGenerator():
                         temperature = self.data[house_alias][channel]["values"][-1] / 1000
 
                 if setpoint - temperature < self.max_setpoint_violation_f:
-                    print(f"-- {zone} is close to or above setpoint")
+                    print(f"-- {zone} is ok")
                     self.alert_status[house_alias][alert_alias][zone] = False
                 else:                    
                     # Check for a recent setpoint increase 
@@ -279,7 +279,6 @@ class AlertGenerator():
                 if boss_latest_time > latest_relay_time:
                     latest_relay_time = boss_latest_time
                     current_relay9_boss = relay9_boss
-            print(f"The most recent actor to control relay 9 is {current_relay9_boss}")
 
             r = self.relays[house_alias]['relay9'][current_relay9_boss]
             pairs = list(zip(r["times"], r["values"]))
@@ -288,7 +287,6 @@ class AlertGenerator():
                 pairs[0][0],
             )
             relay9_state = r['values'][-1]
-            print(f"- {house_alias}: Relay 9 is in {relay9_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
 
             if 'store-pump-pwr' not in self.data[house_alias] or 'store-flow' not in self.data[house_alias]:
                 print(f"{house_alias}: Missing data!") # TODO: create an alert?
@@ -296,7 +294,7 @@ class AlertGenerator():
 
             if relay9_state == "RelayClosed":
                 if time.time() - time_since_in_current_state/1000 > 10*60:
-                    print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes")
+                    print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes, expecting store flow")
 
                     # Try to find power
                     pwr = self.data[house_alias]['store-pump-pwr']
@@ -332,11 +330,16 @@ class AlertGenerator():
                         alert_message = f"{house_alias}: No store pump activity recorded since relay 9 was closed"
                         self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias] = True
+            
+            elif relay9_state == "RelayOpen":
+                print(f"- {house_alias}: Relay 9 is open, not expecting any store flow at the moment")
+                self.alert_status[house_alias][alert_alias] = False
 
     def check_hp(self):
         alert_alias = "hp_on"
         print("\nChecking for HP activity...")
         for house_alias in self.selected_house_aliases:
+            print(f"- {house_alias}:")
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
@@ -359,18 +362,17 @@ class AlertGenerator():
                 pairs[0][0],
             )
             relay5_state = r['values'][-1]
-            print(f"- {house_alias}: Relay 5 is in {relay5_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
 
             if relay5_state == "Scada":
                 if time.time() - time_since_in_current_state/1000 > 10*60:
-                    print(f"- {house_alias}: Relay 5 is in Scada since more than 10 minutes")
+                    print(f"-- Relay 5 is in Scada since more than 10 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
-                    print(f"- {house_alias}: The HP should not be on")
+                    print(f"-- The HP should not be on")
                     continue
             else:
                 self.alert_status[house_alias][alert_alias] = False
-                print(f"- {house_alias}: The HP should not be on")
+                print(f"-- The HP should not be on")
                 continue
 
             current_relay6_boss = list(self.relays[house_alias]['relay6'].keys())[0]
@@ -388,20 +390,20 @@ class AlertGenerator():
                 pairs[0][0],
             )
             relay6_state = r['values'][-1]
-            print(f"- {house_alias}: Relay 6 is in {relay6_state} since {self.unix_ms_to_date(time_since_in_current_state)}")
 
             if relay6_state == "RelayClosed":
                 if time.time() - time_since_in_current_state/1000 > 10*60:
-                    print(f"- {house_alias}: Relay 6 is Closed since more than 10 minutes")
+                    print(f"-- Relay 6 is Closed since more than 10 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
-                    print(f"- {house_alias}: The HP should not be on")
+                    print(f"-- The HP should not be on")
                     continue
             else: 
                 self.alert_status[house_alias][alert_alias] = False
-                print(f"- {house_alias}: The HP should not be on")
+                print(f"-- The HP should not be on")
                 continue
 
+            print(f"-- The HP should be on")
             odu_channel = self.data[house_alias]['hp-odu-pwr']
             on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
             idu_channel = self.data[house_alias]['hp-idu-pwr']
@@ -411,7 +413,7 @@ class AlertGenerator():
             
             if on_times:
                 self.alert_status[house_alias][alert_alias] = False
-                print(f"- {house_alias}: The HP is on")
+                print(f"-- The HP is on")
             elif not self.alert_status[house_alias][alert_alias]:
                 alert_message = f"{house_alias}: The HP is not coming on"
                 self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
@@ -470,7 +472,7 @@ class AlertGenerator():
                         sent_alert = True
             
             if not sent_alert:
-                print(f"{house_alias}: HP is not on during onpeak")
+                print(f"- {house_alias}: HP is not on during onpeak")
                 self.alert_status[house_alias][alert_alias] = False
 
     def main(self):
