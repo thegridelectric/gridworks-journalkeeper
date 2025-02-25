@@ -31,7 +31,7 @@ class AlertGenerator():
         self.alert_status = {}
         self.main()
 
-    def send_opsgenie_alert(self, message, house_alias, alert_alias, priority="P1"):
+    def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=True, priority="P1"):
         print(f"- [ALERT] {message}")
         url = "https://api.opsgenie.com/v2/alerts"
         headers = {
@@ -39,9 +39,12 @@ class AlertGenerator():
             "Authorization": f"GenieKey {self.settings.ops_genie_api_key.get_secret_value()}",
         }
         responders = [{"type": "team", "id": self.opsgenie_team_id}]
+        alias = f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD')}-{house_alias}-{alert_alias}"
+        if unique_alias:
+            alias = f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD-HH-mm')}-{house_alias}-{alert_alias}"
         payload = {
             "message": message,
-            "alias": f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD')}-{house_alias}-{alert_alias}",
+            "alias": alias,
             "priority": priority,
             "responders": responders,
         }
@@ -190,7 +193,7 @@ class AlertGenerator():
                     if len(set(self.data[house_alias][setpoint_channel]["values"])) == 1:
                         if not self.alert_status[house_alias][alert_alias][zone]:
                             alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
+                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias, unique_alias=False)
                             self.alert_status[house_alias][alert_alias][zone] = True
                     else:
                         setpoint_values = self.data[house_alias][setpoint_channel]["values"]
@@ -199,7 +202,7 @@ class AlertGenerator():
                         else:
                             if not self.alert_status[house_alias][alert_alias][zone]:
                                 alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                                self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
+                                self.send_opsgenie_alert(alert_message, house_alias, alert_alias, unique_alias=False)
                                 self.alert_status[house_alias][alert_alias][zone] = True
 
     def check_dist_pump(self):
