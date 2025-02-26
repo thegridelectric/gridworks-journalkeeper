@@ -15,7 +15,7 @@ class AlertGenerator():
         self.opsgenie_team_id = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
         self.settings = Settings(_env_file=dotenv.find_dotenv())
         self.timezone_str = 'America/New_York'
-        self.ignored_house_aliases = ['maple'] # TODO: put this in the .env file
+        self.ignored_house_aliases = ['maple', 'moss'] # TODO: put this in the .env file
         self.max_time_no_data = 10*60 #TODO nyquist
         self.main_loop_seconds = 5*60
         self.hours_back = 2
