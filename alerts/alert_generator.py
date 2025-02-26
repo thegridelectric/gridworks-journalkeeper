@@ -89,7 +89,7 @@ class AlertGenerator():
                 print(f"- {house_alias}: House is not in the selected aliases")
                 continue
 
-            for message in [m for m in self.messages if house_alias in m.from_alias]:
+            for message in [m for m in self.messages if m.from_alias.split(".")[-2] == house_alias]:
                 for channel in message.payload["ChannelReadingList"]:
                     channel_name = channel["ChannelName"]
                     if channel_name not in self.data[house_alias]:
