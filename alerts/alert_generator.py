@@ -193,7 +193,7 @@ class AlertGenerator():
                     if len(set(self.data[house_alias][setpoint_channel]["values"])) == 1:
                         if not self.alert_status[house_alias][alert_alias][zone]:
                             alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
+                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias+f"_{zone}")
                             self.alert_status[house_alias][alert_alias][zone] = True
                     else:
                         setpoint_values = self.data[house_alias][setpoint_channel]["values"]
@@ -202,7 +202,7 @@ class AlertGenerator():
                         else:
                             if not self.alert_status[house_alias][alert_alias][zone]:
                                 alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
-                                self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
+                                self.send_opsgenie_alert(alert_message, house_alias, alert_alias+f"_{zone}")
                                 self.alert_status[house_alias][alert_alias][zone] = True
 
     def check_dist_pump(self):
