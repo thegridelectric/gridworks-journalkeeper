@@ -196,7 +196,7 @@ class AlertGenerator():
                             self.send_opsgenie_alert(alert_message, house_alias, alert_alias+f"_{zone}")
                             self.alert_status[house_alias][alert_alias][zone] = True
                     else:
-                        setpoint_values = self.data[house_alias][setpoint_channel]["values"]
+                        setpoint_values = [x/1000 for x in self.data[house_alias][setpoint_channel]["values"]]
                         if min(setpoint_values) < setpoint_values[-1] and min(setpoint_values)-temperature < self.max_setpoint_violation_f:
                             print(f"-- {zone} is significantly below setpoint but the setpoint was increased recently")
                         else:
