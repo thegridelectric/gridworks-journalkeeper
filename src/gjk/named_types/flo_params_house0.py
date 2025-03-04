@@ -1,64 +1,60 @@
-"""Type flo.params.house0, version 001"""
-
+"""Type flo.params.house0, version 000"""
+import time
+import uuid
 from typing import List, Literal, Optional
 
-from gw.named_types import GwBase
-from gw.utils import snake_to_pascal
-from pydantic import ConfigDict, PositiveInt, StrictInt
-
-from gjk.enums import MarketPriceUnit
-from gjk.property_format import (
-    LeftRightDot,
-    UTCSeconds,
-    UUID4Str,
-)
+from enums import MarketPriceUnit
+from gwproto.property_format import LeftRightDotStr, UTCSeconds, UUID4Str
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, StrictInt
 
 
-class FloParamsHouse0(GwBase):
-    g_node_alias: LeftRightDot
-    flo_params_uid: UUID4Str
-    timezone_str: str
-    start_unix_s: UTCSeconds
-    num_layers: PositiveInt
-    horizon_hours: PositiveInt
-    storage_volume_gallons: PositiveInt
-    storage_losses_percent: float
-    hp_min_elec_kw: float
-    hp_max_elec_kw: float
-    cop_intercept: float
-    cop_oat_coeff: float
-    cop_min: float
-    cop_min_oat_f: float
-    cop_lwt_coeff: float
-    initial_top_temp_f: StrictInt
-    hp_is_off: bool
-    hp_turn_on_minutes: StrictInt
-    lmp_forecast: Optional[List[float]] = None
-    initial_thermocline: StrictInt
-    dist_price_forecast: Optional[List[float]] = None
-    reg_price_forecast: Optional[List[float]] = None
-    price_forecast_uid: UUID4Str
-    oat_forecast_f: Optional[List[float]] = None
-    wind_speed_forecast_mph: Optional[List[float]] = None
-    weather_uid: UUID4Str
-    alpha_times10: StrictInt
-    beta_times100: StrictInt
-    gamma_ex6: StrictInt
-    intermediate_power_kw: float
-    intermediate_rswt_f: StrictInt
-    dd_power_kw: float
-    dd_rswt_f: StrictInt
-    dd_delta_t_f: StrictInt
-    max_ewt_f: StrictInt
-    price_unit: MarketPriceUnit
-    params_generated_s: UTCSeconds
-    type_name: Literal["flo.params.house0"] = "flo.params.house0"
-    version: Literal["001"] = "001"
+class FloParamsHouse0(BaseModel):
+    GNodeAlias: LeftRightDotStr
+    FloParamsUid: UUID4Str = Field(default_factory=lambda: str(uuid.uuid4()))
+    TimezoneStr: str = "America/New_York"
+    StartUnixS: UTCSeconds
+    HorizonHours: PositiveInt = 48
+    NumLayers: PositiveInt = 24
+    # Equipment
+    StorageVolumeGallons: PositiveInt = 360
+    StorageLossesPercent: float = 0.5
+    HpMinElecKw: float = -0.5
+    HpMaxElecKw: float = 11
+    CopIntercept: float = 1.02
+    CopOatCoeff: float = 0.0257
+    CopLwtCoeff: float = 0
+    CopMin: float = 1.4
+    CopMinOatF: float = 15
+    HpTurnOnMinutes: int = 10
+    # Initial state
+    InitialTopTempF: StrictInt
+    InitialBottomTempF: StrictInt
+    InitialThermocline: StrictInt
+    HpIsOff: bool = False
+    BufferAvailableKwh: float = 0
+    HouseAvailableKwh: float = 0
+    # Forecasts
+    LmpForecast: Optional[List[float]] = None
+    DistPriceForecast: Optional[List[float]] = None
+    RegPriceForecast: Optional[List[float]] = None
+    PriceForecastUid: UUID4Str = Field(default_factory=lambda: str(uuid.uuid4()))
+    OatForecastF: Optional[List[float]] = None
+    WindSpeedForecastMph: Optional[List[float]] = None
+    WeatherUid: UUID4Str = Field(default_factory=lambda: str(uuid.uuid4()))
+    # House parameters
+    AlphaTimes10: StrictInt
+    BetaTimes100: StrictInt
+    GammaEx6: StrictInt
+    IntermediatePowerKw: float
+    IntermediateRswtF: StrictInt
+    DdPowerKw: float
+    DdRswtF: StrictInt
+    DdDeltaTF: StrictInt
+    MaxEwtF: StrictInt
+    DischargingDdDeltaTF: StrictInt = 45
+    PriceUnit: MarketPriceUnit = MarketPriceUnit.USDPerMWh
+    ParamsGeneratedS: UTCSeconds = Field(default_factory=lambda: int(time.time()))
+    TypeName: Literal["flo.params.house0"] = "flo.params.house0"
+    Version: Literal["001"] = "001"
 
-    model_config = ConfigDict(
-        alias_generator=snake_to_pascal,
-        extra="allow",
-        frozen=True,
-        populate_by_name=True,
-        use_enum_values=True,
-    )
+    model_config = ConfigDict(extra="allow", use_enum_values=True)
