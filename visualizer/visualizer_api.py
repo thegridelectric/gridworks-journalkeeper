@@ -25,8 +25,8 @@ import plotly.graph_objects as go
 import plotly.colors as pc
 from src.gjk.config import Settings
 from src.gjk.models import MessageSql
-from flo import DGraph
-from hinge import FloHinge
+from visualizer.flo import DGraph
+from visualizer.hinge import FloHinge
 from src.gjk.named_types import FloParamsHouse0
     
 class BaseRequest(BaseModel):
