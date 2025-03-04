@@ -1,4 +1,4 @@
-from visualizer.flo import DGraph, DParams, DNode, DEdge, to_kelvin
+from flo import DGraph, DParams, DNode, DEdge, to_kelvin
 from src.gjk.named_types import FloParamsHouse0, PriceQuantityUnitless
 from src.gjk.models import MessageSql
 import json
