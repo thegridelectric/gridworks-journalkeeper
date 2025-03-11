@@ -15,7 +15,7 @@ class AlertGenerator():
         self.opsgenie_team_id = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
         self.settings = Settings(_env_file=dotenv.find_dotenv())
         self.timezone_str = 'America/New_York'
-        self.ignored_house_aliases = ['moss'] # TODO: put this in the .env file
+        self.ignored_house_aliases = ['maple', 'moss'] # TODO: put this in the .env file
         self.max_time_no_data = 10*60 #TODO nyquist
         self.main_loop_seconds = 5*60
         self.hours_back = 2
@@ -131,6 +131,30 @@ class AlertGenerator():
             else:
                 print(f"- {house_alias}: Did not find any data")
                 self.check_no_data()
+
+    def check_for_glitches(self):
+        print("\nChecking for glitches...")
+        try:
+            with next(get_db()) as session:
+                start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
+                glitches = (
+                    session.query(MessageSql).filter(
+                        MessageSql.message_type_name == "glitch",
+                        MessageSql.message_persisted_ms >= start_ms,
+                        ).order_by(asc(MessageSql.message_persisted_ms)).all()
+                    )
+                if not glitches:
+                    return
+                for message in glitches:
+                    type = str(message.payload['Type']).lower()
+                    source = message.payload['FromGNodeAlias']
+                    if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
+                        source = source.split('.scada')[0].split('.')[-1]
+                    if type=="critical":
+                        self.send_opsgenie_alert("Received a critical glitch", source, "critical_glitch")
+        except Exception as e:
+            print(f"An error occured while checking for glitches: {e}")
+            return
 
     def check_no_data(self):
         alert_alias = "no_data"
@@ -482,6 +506,7 @@ class AlertGenerator():
         while True:
             try:
                 self.get_data_from_journaldb()
+                self.check_for_glitches()
                 self.check_no_data()
                 self.check_zone_below_setpoint()
                 self.check_dist_pump()
