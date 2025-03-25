@@ -53,6 +53,7 @@ class FloParamsHouse0(GwBase):
     dd_rswt_f: StrictInt
     dd_delta_t_f: StrictInt
     max_ewt_f: StrictInt
+    discharging_dd_delta_t_f: StrictInt
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
     flo_alias: str
