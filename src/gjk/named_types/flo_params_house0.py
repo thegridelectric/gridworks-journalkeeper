@@ -25,12 +25,15 @@ class FloParamsHouse0(GwBase):
     storage_losses_percent: float
     hp_min_elec_kw: float
     hp_max_elec_kw: float
+    buffer_available_kwh: float
+    house_available_kwh: float
     cop_intercept: float
     cop_oat_coeff: float
     cop_min: float
     cop_min_oat_f: float
     cop_lwt_coeff: float
     initial_top_temp_f: StrictInt
+    initial_bottom_temp_f: StrictInt
     hp_is_off: bool
     hp_turn_on_minutes: StrictInt
     lmp_forecast: Optional[List[float]] = None
