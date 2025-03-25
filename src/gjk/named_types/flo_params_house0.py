@@ -56,7 +56,7 @@ class FloParamsHouse0(GwBase):
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
     flo_alias: str
-    flo_git_commmit: str
+    flo_git_commit: str
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
     version: Literal["002"] = "002"
 
