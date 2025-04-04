@@ -62,10 +62,12 @@ class AlertGenerator():
         try:
             with next(get_db()) as session:
                 start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
+                end_ms = pendulum.now(tz="America/New_York").add(minutes=-10).timestamp() * 1000
                 self.messages = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "report",
                         MessageSql.message_persisted_ms >= start_ms,
+                        MessageSql.message_persisted_ms >= end_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
                 if not self.messages:
