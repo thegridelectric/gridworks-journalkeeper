@@ -241,7 +241,7 @@ class AlertGenerator():
                 channel = self.data[house_alias][zone_state]
                 zone_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==1]
                 if zone_heatcall_times:
-                    zone_last_heatcall_time = zone_heatcall_times[-1]
+                    zone_last_heatcall_time = sorted(zone_heatcall_times)[-1]
                 else:
                     continue
                 if zone_last_heatcall_time > last_heatcall_time:
@@ -256,12 +256,15 @@ class AlertGenerator():
                 print(f"{house_alias}: No recent heat call")
                 continue
 
+            print(f"Last heat call time: {last_heatcall_time}")
+
             # Try to find power around the latest heat call
             pwr = self.data[house_alias]['dist-pump-pwr']
             power_around_heatcall = [
                 power for time, power in zip(pwr['times'], pwr['values']) 
                 if time >= last_heatcall_time - 5*60*1000
             ]
+            print(f"Power around heatcall: {power_around_heatcall}")
             if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
                 print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
                 self.alert_status[house_alias][alert_alias] += 1
