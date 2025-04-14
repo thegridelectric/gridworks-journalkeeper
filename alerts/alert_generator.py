@@ -26,6 +26,7 @@ class AlertGenerator():
         self.min_store_pump_gpm = 0.5
         self.min_hp_kw = 1
         self.on_peak_hours = [7,8,9,10,11,16,17,18,19]
+        self.whitewire_threshold_watts = {'beech': 100, 'default': 20}
         self.data = {}
         self.relays = {}
         self.alert_status = {}
@@ -236,9 +237,15 @@ class AlertGenerator():
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = 0
 
+            if house_alias in self.whitewire_threshold_watts:
+                threshold = self.whitewire_threshold_watts[house_alias]
+            else:
+                threshold = self.whitewire_threshold_watts['default']
+
             last_heatcall_time = 0
-            for zone_state in [x for x in self.data[house_alias] if 'zone' in x and 'state' in x]:
+            for zone_state in [x for x in self.data[house_alias] if 'zone' in x and 'whitewire' in x]:
                 channel = self.data[house_alias][zone_state]
+                channel['values'] = [int(abs(x)>threshold) for x in channel['values']]
                 zone_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==1]
                 if zone_heatcall_times:
                     zone_last_heatcall_time = sorted(zone_heatcall_times)[-1]
