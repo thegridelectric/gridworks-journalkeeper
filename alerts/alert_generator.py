@@ -429,8 +429,8 @@ class AlertGenerator():
             relay6_state = r['values'][-1]
 
             if relay6_state == "RelayClosed":
-                if time.time() - time_since_in_current_state/1000 > 10*60:
-                    print(f"-- Relay 6 is Closed since more than 10 minutes")
+                if time.time() - time_since_in_current_state/1000 > 15*60:
+                    print(f"-- Relay 6 is Closed since more than 15 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
                     print(f"-- The HP should not be on")
