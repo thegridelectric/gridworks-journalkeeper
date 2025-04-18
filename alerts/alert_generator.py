@@ -73,14 +73,14 @@ class AlertGenerator():
         if clear_alert:
             print("Clearing alert")
             new_house_data = {
-                HouseStatus(
+                "status": HouseStatus(
                     status = "ok",
                 ).to_dict()
             }
         else:
             print(f"Setting alert for {short_alias}: {message}")
             new_house_data = {
-                HouseStatus(
+                "status": HouseStatus(
                     status = "alert",
                     message = message,
                     acked = False
