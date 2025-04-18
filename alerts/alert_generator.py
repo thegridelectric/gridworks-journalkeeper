@@ -67,6 +67,7 @@ class AlertGenerator():
         self.data = {}
         self.relays = {}
         self.alert_status = {}
+        self.houses_wtih_an_active_alert = []
         self.main()
 
     def update_alert_status(self, message, short_alias, clear_alert=False):
@@ -602,9 +603,14 @@ class AlertGenerator():
             house_has_an_active_alert = self.check_dict_for_true(self.alert_status[house_alias])
             if house_has_an_active_alert:
                 print(f"{house_alias}: An alert is active")
-            else:
-                print(f"{house_alias}: No active alert, clearing any existing alerts")
+                if house_alias not in self.houses_wtih_an_active_alert:
+                    self.houses_wtih_an_active_alert.append(house_alias)
+            elif house_alias in self.houses_wtih_an_active_alert:
+                print(f"{house_alias}: No more active alert, clearing any existing alerts")
                 self.update_alert_status(message="", short_alias=house_alias, clear_alert=True)
+                self.houses_wtih_an_active_alert.remove(house_alias)
+            else:
+                print(f"{house_alias}: No active alert")
 
     def check_dict_for_true(self, d):
         if isinstance(d, dict):
