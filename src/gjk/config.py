@@ -19,6 +19,7 @@ class Settings(GNodeSettings):
     db_url: SecretStr = SecretStr(
         "postgresql://journaldb:PASSWD@journaldb.electricity.works/journaldb"
     )
+    gbo_db_url: SecretStr = SecretStr("postgresql://backofficedb:PASSWD@journaldb.electricity.works/backofficedb""")
     aws: AwsClient = AwsClient()
     ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
     g_node_alias: str = "d1.journal"

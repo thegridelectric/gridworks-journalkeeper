@@ -8,6 +8,31 @@ from gjk.config import Settings
 from gjk.models import MessageSql
 from sqlalchemy import asc, or_
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import create_engine, MetaData, Table, select
+from sqlalchemy.orm import sessionmaker
+from pydantic import BaseModel
+from typing import Optional
+
+class HouseStatus(BaseModel):
+    status: str
+    message: Optional[str] = None
+    acked: Optional[bool] = None
+    acked_by: Optional[str] = None
+    acked_at: Optional[str] = None
+
+    def to_dict(self):
+        return {
+            "status": self.status,
+            "message": self.message,
+            "acked": self.acked,
+            "acked_by": self.acked_by,
+            "acked_at": self.acked_at
+        }
+    
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
+    
 
 class AlertGenerator():
 
@@ -32,7 +57,60 @@ class AlertGenerator():
         self.alert_status = {}
         self.main()
 
+    def update_alert_status(self, message, short_alias, clear_alert=False):
+        if clear_alert:
+            print("Clearing alert")
+            new_house_data = HouseStatus(
+                status = "ok",
+            )
+        else:
+            print(f"Setting alert for {short_alias}: {message}")
+            new_house_data = HouseStatus(
+                status = "alert",
+                message = message,
+                acked = False,
+                acked_by = None,
+                acked_at = None
+            )
+
+        backoffice_db_url = self.settings.gbo_db_url.get_secret_value()
+        engine = create_engine(backoffice_db_url)
+        metadata = MetaData()
+        homes = Table('homes', metadata, autoload_with=engine)
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        try:
+            query = select(homes).where(homes.c.short_alias == short_alias)
+            result = session.execute(query).first()
+            
+            if not result:
+                print(f"House '{short_alias}' not found.")
+                return False
+            
+            update_stmt = homes.update().where(homes.c.short_alias == short_alias)
+            
+            valid_fields = {col.name for col in homes.columns}
+            filtered_data = {k: v for k, v in new_house_data.items() if k in valid_fields}
+            if not filtered_data:
+                print("No valid fields to update.")
+                return False
+            
+            session.execute(update_stmt, filtered_data)
+            session.commit()
+            print(f"Successfully updated house '{short_alias}'.")
+            return True
+            
+        except Exception as e:
+            print(f"Error updating house: {e}")
+            session.rollback()
+            return False
+        
+        finally:
+            session.close()
+
     def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=False, priority="P1"):
+        self.update_alert_status(message, house_alias)
         print(f"- [ALERT] {message}")
         url = "https://api.opsgenie.com/v2/alerts"
         headers = {
@@ -512,7 +590,25 @@ class AlertGenerator():
                 print(f"- {house_alias}: HP is not on during onpeak")
                 self.alert_status[house_alias][alert_alias] = False
 
+    def check_alert_status(self):
+        for house_alias in self.selected_house_aliases:
+            house_has_an_active_alert = self.check_dict_for_true(self.alert_status[house_alias])
+            if house_has_an_active_alert:
+                print(f"{house_alias}: An alert is active")
+            else:
+                print(f"{house_alias}: No active alert, clearing any existing alerts")
+                self.update_alert_status(message="", short_alias=house_alias, clear_alert=True)
+
+    def check_dict_for_true(self, d):
+        if isinstance(d, dict):
+            return any(self.check_dict_for_true(v) for v in d.values())
+        return bool(d)
+
     def main(self):
+
+        # Add a test update to the database
+        self.update_alert_status(message="123 this is a test", short_alias="oak", clear_alert=False)
+
         while True:
             try:
                 self.get_data_from_journaldb()
@@ -524,6 +620,7 @@ class AlertGenerator():
                 self.check_hp()
                 self.check_in_atn()
                 self.check_hp_on_during_onpeak()
+                self.check_alert_status()
             except Exception as e:
                 print(e)
             time.sleep(self.main_loop_seconds)
