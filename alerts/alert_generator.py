@@ -72,18 +72,20 @@ class AlertGenerator():
     def update_alert_status(self, message, short_alias, clear_alert=False):
         if clear_alert:
             print("Clearing alert")
-            new_house_data = HouseStatus(
-                status = "ok",
-            ).to_dict()
+            new_house_data = {
+                HouseStatus(
+                    status = "ok",
+                ).to_dict()
+            }
         else:
             print(f"Setting alert for {short_alias}: {message}")
-            new_house_data = HouseStatus(
-                status = "alert",
-                message = message,
-                acked = False,
-                acked_by = None,
-                acked_at = None
-            ).to_dict()
+            new_house_data = {
+                HouseStatus(
+                    status = "alert",
+                    message = message,
+                    acked = False
+                ).to_dict()
+            }
 
         backoffice_db_url = self.settings.gbo_db_url.get_secret_value()
         engine = create_engine(backoffice_db_url)
