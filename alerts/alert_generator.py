@@ -619,9 +619,6 @@ class AlertGenerator():
 
     def main(self):
 
-        # Add a test update to the database
-        self.update_alert_status(message="123 this is a test", short_alias="oak", clear_alert=False)
-
         while True:
             try:
                 self.get_data_from_journaldb()
