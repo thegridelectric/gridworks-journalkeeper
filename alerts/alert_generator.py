@@ -600,6 +600,7 @@ class AlertGenerator():
                 self.alert_status[house_alias][alert_alias] = False
 
     def check_alert_status(self):
+        print("\nChecking alert status...")
         for house_alias in self.selected_house_aliases:
             house_has_an_active_alert = self.check_dict_for_true(self.alert_status[house_alias])
             if house_has_an_active_alert:
