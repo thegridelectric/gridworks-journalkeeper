@@ -71,14 +71,12 @@ class AlertGenerator():
 
     def update_alert_status(self, message, short_alias, clear_alert=False):
         if clear_alert:
-            print("Clearing alert")
             new_house_data = {
                 "status": HouseStatus(
                     status = "ok",
                 ).to_dict()
             }
         else:
-            print(f"Setting alert for {short_alias}: {message}")
             new_house_data = {
                 "status": HouseStatus(
                     status = "alert",
@@ -107,7 +105,6 @@ class AlertGenerator():
             
             # Commit the changes
             session.commit()
-            print(f"Successfully updated house with short_alias '{short_alias}'.")
             return True
             
         except Exception as e:
