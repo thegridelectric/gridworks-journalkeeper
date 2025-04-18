@@ -8,10 +8,22 @@ from gjk.config import Settings
 from gjk.models import MessageSql
 from sqlalchemy import asc, or_
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import create_engine, MetaData, Table, select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, MetaData, Table, select, Column, String, JSON, Integer
+from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel
 from typing import Optional
+
+Base = declarative_base()
+
+class House(Base):
+    __tablename__ = 'homes'
+    short_alias = Column(String, nullable=False)
+    address = Column(JSON, nullable=False)
+    owner_contact = Column(JSON, nullable=False)
+    hardware_layout = Column(JSON, nullable=True)
+    unique_id = Column(Integer, primary_key=True)
+    g_node_alias = Column(String, nullable=False)
+    status = Column(JSON, nullable=False)
 
 class HouseStatus(BaseModel):
     status: str
@@ -75,30 +87,25 @@ class AlertGenerator():
 
         backoffice_db_url = self.settings.gbo_db_url.get_secret_value()
         engine = create_engine(backoffice_db_url)
-        metadata = MetaData()
-        homes = Table('homes', metadata, autoload_with=engine)
         Session = sessionmaker(bind=engine)
         session = Session()
 
         try:
-            query = select(homes).where(homes.c.short_alias == short_alias)
-            result = session.execute(query).first()
+            # Find the house by short_alias
+            house = session.query(House).filter(House.short_alias == short_alias).first()
             
-            if not result:
-                print(f"House '{short_alias}' not found.")
+            if not house:
+                print(f"House with short_alias '{short_alias}' not found.")
                 return False
             
-            update_stmt = homes.update().where(homes.c.short_alias == short_alias)
+            # Update the house with new data
+            for key, value in new_house_data.items():
+                if hasattr(house, key):
+                    setattr(house, key, value)
             
-            valid_fields = {col.name for col in homes.columns}
-            filtered_data = {k: v for k, v in new_house_data.items() if k in valid_fields}
-            if not filtered_data:
-                print("No valid fields to update.")
-                return False
-            
-            session.execute(update_stmt, filtered_data)
+            # Commit the changes
             session.commit()
-            print(f"Successfully updated house '{short_alias}'.")
+            print(f"Successfully updated house with short_alias '{short_alias}'.")
             return True
             
         except Exception as e:
