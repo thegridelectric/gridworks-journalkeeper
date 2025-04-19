@@ -19,7 +19,8 @@ class House(Base):
     __tablename__ = 'homes'
     short_alias = Column(String, nullable=False)
     address = Column(JSON, nullable=False)
-    owner_contact = Column(JSON, nullable=False)
+    primary_contact = Column(JSON, nullable=False)
+    secondary_contact = Column(JSON, nullable=False)
     hardware_layout = Column(JSON, nullable=True)
     unique_id = Column(Integer, primary_key=True)
     g_node_alias = Column(String, nullable=False)
