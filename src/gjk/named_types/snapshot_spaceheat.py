@@ -20,4 +20,4 @@ class SnapshotSpaceheat(GwBase):
     latest_reading_list: List[SingleReading]
     latest_state_list: List[SingleMachineState]
     type_name: Literal["snapshot.spaceheat"] = "snapshot.spaceheat"
-    version: Literal["003"] = "003"
+    version: str = "003"
