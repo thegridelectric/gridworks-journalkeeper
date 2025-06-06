@@ -146,6 +146,6 @@ It's a security best practice to create a dedicated user account rather than usi
 To verify your setup:
 1. Try connecting to the database from your local machine:
    ```bash
-   psql "postgresql://journaldb:<password>@<server_ip>/journaldb"
+   psql postgresql://journaldb:<password>@<server_ip>/journaldb
    ```
 2. Check that you can access the database and run queries
