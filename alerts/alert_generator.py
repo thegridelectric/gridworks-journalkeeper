@@ -117,8 +117,37 @@ class AlertGenerator():
         finally:
             session.close()
 
+    def send_email_alert(self, message, house_alias):
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        
+        sender_email = self.settings.email_sender.get_secret_value()
+        sender_password = self.settings.email_password.get_secret_value()
+        receiver_email = self.settings.email_sender.get_secret_value()
+        
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = f"ALERT - {message}"
+        
+        body = f"{message}"
+        msg.attach(MIMEText(body, 'plain'))
+        
+        try:
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            text = msg.as_string()
+            server.sendmail(sender_email, receiver_email, text)
+            server.quit()
+            print(f"Email alert sent successfully to {receiver_email}")
+        except Exception as e:
+            print(f"Failed to send email alert: {e}")
+
     def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=False, priority="P1"):
         self.update_alert_status(message, house_alias)
+        # self.send_email_alert(message, house_alias)
         print(f"- [ALERT] {message}")
         url = "https://api.opsgenie.com/v2/alerts"
         headers = {
@@ -333,8 +362,9 @@ class AlertGenerator():
                 channel = self.data[house_alias][zone_state]
                 channel['values'] = [int(abs(x)>threshold) for x in channel['values']]
                 zone_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==1]
-                if zone_heatcall_times:
-                    zone_last_heatcall_time = sorted(zone_heatcall_times)[-1]
+                valid_zone_heatcall_times = [t for t in zone_heatcall_times if time.time()-t/1000 >= 5*60]
+                if valid_zone_heatcall_times:
+                    zone_last_heatcall_time = max(valid_zone_heatcall_times)
                 else:
                     continue
                 if zone_last_heatcall_time > last_heatcall_time:
@@ -346,7 +376,7 @@ class AlertGenerator():
                 continue
 
             if last_heatcall_time == 0:
-                print(f"{house_alias}: No recent heat call")
+                print(f"{house_alias}: No recent heat call or too recent heat call to tell")
                 continue
 
             print(f"Last heat call time: {last_heatcall_time}")
@@ -561,7 +591,7 @@ class AlertGenerator():
                 print(f"- {house_alias}: ATN is in control")
                 self.alert_status[house_alias][alert_alias] = False
 
-            elif current_relay5_boss == 'auto.h.n.relay5':
+            elif current_relay5_boss == 'auto.h.n.relay5' and not self.alert_status[house_alias][alert_alias]:
                 self.send_opsgenie_alert(f"{house_alias}: Not in Atn!", house_alias, alert_alias)
                 self.alert_status[house_alias][alert_alias] = True
 
@@ -625,11 +655,11 @@ class AlertGenerator():
                 self.get_data_from_journaldb()
                 self.check_for_glitches()
                 self.check_no_data()
-                self.check_zone_below_setpoint()
+                # self.check_zone_below_setpoint()
                 self.check_dist_pump()
                 self.check_store_pump()
                 self.check_hp()
-                self.check_in_atn()
+                # self.check_in_atn()
                 self.check_hp_on_during_onpeak()
                 self.check_alert_status()
             except Exception as e:

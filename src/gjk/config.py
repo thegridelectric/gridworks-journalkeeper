@@ -27,6 +27,8 @@ class Settings(GNodeSettings):
     world_instance_alias: str = "d1__1"
     my_fqdn: str = "localhost"
     visualizer_api_password: SecretStr = SecretStr("ThermostatAPIKey")
+    email_sender: SecretStr = SecretStr("email_sender")
+    email_password: SecretStr = SecretStr("email_password")
 
     model_config = ConfigDict(
         env_prefix="GJK_",
