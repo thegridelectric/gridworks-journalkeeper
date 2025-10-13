@@ -175,9 +175,10 @@ class AlertGenerator():
 
     def get_data_from_journaldb(self):
         print("\nFinding data from journaldb...")
+        time_now = pendulum.now(tz=self.timezone_str)
         try:
             with next(get_db()) as session:
-                start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
+                start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
                 self.messages = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "report",
