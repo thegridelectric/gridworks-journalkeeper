@@ -146,7 +146,7 @@ class AlertGenerator():
             print(f"Failed to send email alert: {e}")
 
     def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=False, priority="P1"):
-        self.update_alert_status(message, house_alias)
+        # self.update_alert_status(message, house_alias)
         # self.send_email_alert(message, house_alias)
         print(f"- [ALERT] {message}")
         url = "https://api.opsgenie.com/v2/alerts"
@@ -661,7 +661,7 @@ class AlertGenerator():
                     self.houses_wtih_an_active_alert.append(house_alias)
             elif house_alias in self.houses_wtih_an_active_alert:
                 print(f"{house_alias}: No more active alert, clearing any existing alerts")
-                self.update_alert_status(message="", short_alias=house_alias, clear_alert=True)
+                # self.update_alert_status(message="", short_alias=house_alias, clear_alert=True)
                 self.houses_wtih_an_active_alert.remove(house_alias)
             else:
                 print(f"{house_alias}: No active alert")
