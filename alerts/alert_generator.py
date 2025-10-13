@@ -146,6 +146,7 @@ class AlertGenerator():
             print(f"Failed to send email alert: {e}")
 
     def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=False, priority="P1"):
+        return
         # self.update_alert_status(message, house_alias)
         # self.send_email_alert(message, house_alias)
         print(f"- [ALERT] {message}")
@@ -396,6 +397,8 @@ class AlertGenerator():
                 no_heatcall_times_since_heatcall = [t for t in no_heatcall_times if t>zone_last_heatcall_time]
                 if no_heatcall_times_since_heatcall:
                     end_of_heatcall = min(no_heatcall_times_since_heatcall)
+                    print(f"Start of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
+                    print(f"End of heatcall: {self.unix_ms_to_date(end_of_heatcall)}")
                     last_heatcall_length = end_of_heatcall - zone_last_heatcall_time
                     print(f"Heat call length: {round(last_heatcall_length/60,1)} minutes")
                     if last_heatcall_length < 5*60:
