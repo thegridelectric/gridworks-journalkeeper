@@ -393,7 +393,6 @@ class AlertGenerator():
                 if valid_zone_heatcall_times:
                     zone_last_heatcall_time = max(valid_zone_heatcall_times)
                 else:
-                    print(f"{zone_state}: No heat calls in the last 5 minutes")
                     continue
                 no_heatcall_times_before_heatcall = [t for t in no_heatcall_times if t<=zone_last_heatcall_time]
                 if no_heatcall_times_before_heatcall:
@@ -403,13 +402,13 @@ class AlertGenerator():
                         start_of_heatcall = min(heatcall_on)
                     else:
                         start_of_heatcall = last_no_heatcall_time_before_heatcall
-                    print(f"{zone_state}:")
-                    print(f"-- Start of heatcall: {self.unix_ms_to_date(start_of_heatcall)}")
-                    print(f"-- End of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
-                    last_heatcall_length = zone_last_heatcall_time - start_of_heatcall
-                    print(f"-- Heat call length: {round(last_heatcall_length/60,1)} minutes")
+                    print(f":")
+                    print(f"-- {zone_state} Start of heatcall: {self.unix_ms_to_date(start_of_heatcall)}")
+                    print(f"-- {zone_state} End of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
+                    last_heatcall_length = max(0, zone_last_heatcall_time - start_of_heatcall)
+                    print(f"-- {zone_state} Heat call length: {round(last_heatcall_length/60,1)} minutes")
                     if last_heatcall_length < 5*60:
-                        print("-- Heat call was less than 5 minutes long. Skip.")
+                        print(f"-- {zone_state} Heat call was less than 5 minutes long. Skip.")
                         continue
                 if zone_last_heatcall_time > last_heatcall_time:
                     last_heatcall_time = zone_last_heatcall_time
