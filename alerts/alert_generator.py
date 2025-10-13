@@ -146,7 +146,6 @@ class AlertGenerator():
             print(f"Failed to send email alert: {e}")
 
     def send_opsgenie_alert(self, message, house_alias, alert_alias, unique_alias=False, priority="P1"):
-        return
         # self.update_alert_status(message, house_alias)
         # self.send_email_alert(message, house_alias)
         print(f"- [ALERT] {message}")
@@ -418,7 +417,7 @@ class AlertGenerator():
                 continue
 
             if last_heatcall_time == 0:
-                print(f"{house_alias}: No recent heat call or too recent heat call to tell")
+                print(f"{house_alias}: No recent heat call or too short/recent heat call to tell")
                 continue
 
             print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
