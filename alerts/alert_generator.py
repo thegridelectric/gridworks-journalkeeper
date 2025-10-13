@@ -427,7 +427,7 @@ class AlertGenerator():
             if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
                 print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
                 self.alert_status[house_alias][alert_alias] += 1
-            elif max(power_around_heatcall) <= self.min_dist_pump_w:
+            elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
                 print(f"- {house_alias}: No significant pump power around heat call")
                 self.alert_status[house_alias][alert_alias] += 1
             else:
