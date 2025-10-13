@@ -326,6 +326,9 @@ class AlertGenerator():
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = {}
             print(f"- {house_alias}:")
+            if house_alias=='oak':
+                print("TEMPORARY SKIP FOR OAK, IS IN SUMMER MODE")
+                continue
 
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
