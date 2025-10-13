@@ -394,9 +394,9 @@ class AlertGenerator():
                     zone_last_heatcall_time = max(valid_zone_heatcall_times)
                 else:
                     continue
-                no_heatcall_times_since_heatcall = [t for t in no_heatcall_times if t>zone_last_heatcall_time]
-                if no_heatcall_times_since_heatcall:
-                    end_of_heatcall = min(no_heatcall_times_since_heatcall)
+                no_heatcall_times_before_heatcall = [t for t in no_heatcall_times if t<=zone_last_heatcall_time]
+                if no_heatcall_times_before_heatcall:
+                    end_of_heatcall = max(no_heatcall_times_before_heatcall)
                     print(f"Start of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
                     print(f"End of heatcall: {self.unix_ms_to_date(end_of_heatcall)}")
                     last_heatcall_length = end_of_heatcall - zone_last_heatcall_time
