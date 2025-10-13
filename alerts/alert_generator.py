@@ -249,7 +249,19 @@ class AlertGenerator():
                 self.check_no_data()
 
     def check_for_glitches(self):
+        alert_alias = "critical_glitch"
         print("\nChecking for glitches...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = {}
+
+            expired_glitches = []
+            for active_critical_glitch in self.alert_status[house_alias][alert_alias]:
+                if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
+                    expired_glitches.append(active_critical_glitch)
+            for active_critical_glitch in expired_glitches:
+                self.alert_status[house_alias][alert_alias].pop(active_critical_glitch)
+
         try:
             with next(get_db()) as session:
                 start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
@@ -264,10 +276,17 @@ class AlertGenerator():
                 for message in glitches:
                     type = str(message.payload['Type']).lower()
                     source = message.payload['FromGNodeAlias']
+                    summary = message.payload['Summary']
+                    time_received = int(message.message_persisted_ms/1000)
+                    unique_id = message.message_id
                     if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
-                        source = source.split('.scada')[0].split('.')[-1]
-                    if type=="critical":
-                        self.send_opsgenie_alert("Received a critical glitch", source, "critical_glitch")
+                        house_alias = source.split('.scada')[0].split('.')[-1]
+                    else:
+                        print(f"Unknown source: {source}")
+                        continue
+                    if type=="critical" and unique_id not in self.alert_status[house_alias][alert_alias]:
+                        self.send_opsgenie_alert(f"Critical glitch: {summary}", house_alias, alert_alias)
+                        self.alert_status[house_alias][alert_alias][unique_id] = time_received
         except Exception as e:
             print(f"An error occured while checking for glitches: {e}")
             return
