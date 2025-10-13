@@ -402,10 +402,9 @@ class AlertGenerator():
                         start_of_heatcall = min(heatcall_on)
                     else:
                         start_of_heatcall = last_no_heatcall_time_before_heatcall
-                    print(f":")
                     print(f"-- {zone_state} Start of heatcall: {self.unix_ms_to_date(start_of_heatcall)}")
                     print(f"-- {zone_state} End of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
-                    last_heatcall_length = max(0, zone_last_heatcall_time - start_of_heatcall)
+                    last_heatcall_length = max(0, zone_last_heatcall_time - start_of_heatcall)/1000
                     print(f"-- {zone_state} Heat call length: {round(last_heatcall_length/60,1)} minutes")
                     if last_heatcall_length < 5*60:
                         print(f"-- {zone_state} Heat call was less than 5 minutes long. Skip.")
@@ -422,7 +421,7 @@ class AlertGenerator():
                 print(f"{house_alias}: No recent heat call or too recent heat call to tell")
                 continue
 
-            print(f"Last heat call time: {last_heatcall_time}")
+            print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
 
             # Try to find power around the latest heat call
             pwr = self.data[house_alias]['dist-pump-pwr']
