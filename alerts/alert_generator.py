@@ -286,6 +286,8 @@ class AlertGenerator():
                         print(f"Unknown source: {source}")
                         continue
                     if type=="critical" and unique_id not in self.alert_status[house_alias][alert_alias]:
+                        if 'strategy' in summary and house_alias=='maple':
+                            continue
                         self.send_opsgenie_alert(f"Critical glitch: {summary}", house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias][unique_id] = time_received
         except Exception as e:
@@ -327,6 +329,9 @@ class AlertGenerator():
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = {}
             print(f"- {house_alias}:")
+            if house_alias in ['oak', 'beech']:
+                print("TEMPORARY SKIP")
+                continue
 
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
@@ -382,11 +387,20 @@ class AlertGenerator():
                 channel = self.data[house_alias][zone_state]
                 channel['values'] = [int(abs(x)>threshold) for x in channel['values']]
                 zone_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==1]
+                no_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==0]
                 valid_zone_heatcall_times = [t for t in zone_heatcall_times if time.time()-t/1000 >= 5*60]
                 if valid_zone_heatcall_times:
                     zone_last_heatcall_time = max(valid_zone_heatcall_times)
                 else:
                     continue
+                no_heatcall_times_since_heatcall = [t for t in no_heatcall_times if t>zone_last_heatcall_time]
+                if no_heatcall_times_since_heatcall:
+                    end_of_heatcall = min(no_heatcall_times_since_heatcall)
+                    last_heatcall_length = end_of_heatcall - zone_last_heatcall_time
+                    print(f"Heat call length: {round(last_heatcall_length/60,1)} minutes")
+                    if last_heatcall_length < 5*60:
+                        print("Heat call was less than 5 minutes long. Skip.")
+                        continue
                 if zone_last_heatcall_time > last_heatcall_time:
                     last_heatcall_time = zone_last_heatcall_time
 
