@@ -655,7 +655,7 @@ class AlertGenerator():
                 self.get_data_from_journaldb()
                 self.check_for_glitches()
                 self.check_no_data()
-                # self.check_zone_below_setpoint()
+                self.check_zone_below_setpoint()
                 self.check_dist_pump()
                 self.check_store_pump()
                 self.check_hp()
