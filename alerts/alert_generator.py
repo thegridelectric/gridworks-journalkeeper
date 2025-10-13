@@ -64,7 +64,7 @@ class AlertGenerator():
         self.min_store_pump_gpm = 0.5
         self.min_hp_kw = 1
         self.on_peak_hours = [7,8,9,10,11,16,17,18,19]
-        self.whitewire_threshold_watts = {'beech': 100, 'default': 20}
+        self.whitewire_threshold_watts = {'beech': 100, 'default': 20, 'elm': 0.9}
         self.data = {}
         self.relays = {}
         self.alert_status = {}
