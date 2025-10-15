@@ -340,6 +340,10 @@ class AlertGenerator():
                 channels_by_zone[channel[:5]].append(channel)
 
             for zone in channels_by_zone:
+
+                if house_alias == 'maple' and 'zone2' in zone:
+                    continue
+
                 if zone not in self.alert_status[house_alias][alert_alias]:
                     self.alert_status[house_alias][alert_alias][zone] = False
 
