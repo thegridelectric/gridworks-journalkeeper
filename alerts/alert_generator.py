@@ -258,7 +258,10 @@ class AlertGenerator():
 
             expired_glitches = []
             for active_critical_glitch in self.alert_status[house_alias][alert_alias]:
-                if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
+                if 'strategy' in active_critical_glitch:
+                    if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > 31*24*60*60:
+                        expired_glitches.append(active_critical_glitch)
+                elif time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
                     expired_glitches.append(active_critical_glitch)
             for active_critical_glitch in expired_glitches:
                 self.alert_status[house_alias][alert_alias].pop(active_critical_glitch)
@@ -280,6 +283,8 @@ class AlertGenerator():
                     summary = message.payload['Summary']
                     time_received = int(message.message_persisted_ms/1000)
                     unique_id = message.message_id
+                    if 'strategy' in summary:
+                        unique_id = f'{house_alias}-{summary}'
                     if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
                         house_alias = source.split('.scada')[0].split('.')[-1]
                     else:
