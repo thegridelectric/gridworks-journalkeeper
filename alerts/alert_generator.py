@@ -288,7 +288,7 @@ class AlertGenerator():
                     if type=="critical" and unique_id not in self.alert_status[house_alias][alert_alias]:
                         if 'strategy' in summary and house_alias=='maple':
                             continue
-                        self.send_opsgenie_alert(f"Critical glitch: {summary}", house_alias, alert_alias)
+                        self.send_opsgenie_alert(f"{house_alias} - critical glitch: {summary}", house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias][unique_id] = time_received
         except Exception as e:
             print(f"An error occured while checking for glitches: {e}")
