@@ -566,8 +566,8 @@ class AlertGenerator():
             relay5_state = r['values'][-1]
 
             if relay5_state == "Scada":
-                if time.time() - time_since_in_current_state/1000 > 10*60:
-                    print(f"-- Relay 5 is in Scada since more than 10 minutes")
+                if time.time() - time_since_in_current_state/1000 > 15*60:
+                    print(f"-- Relay 5 is in Scada since more than 15 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
                     print(f"-- The HP should not be on")
@@ -606,13 +606,19 @@ class AlertGenerator():
                 continue
 
             print(f"-- The HP should be on")
+
             odu_channel = self.data[house_alias]['hp-odu-pwr']
-            on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
             idu_channel = self.data[house_alias]['hp-idu-pwr']
+            latest_reading_time_ms = max(max(odu_channel['times']), max(idu_channel['times']))
+            if time.time() - latest_reading_time_ms/1000 > 15*60:
+                print("There is no recent HP power data available")
+                continue
+
+            on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
             on_times_idu = [t for t, v in zip(idu_channel['times'], idu_channel['values']) if v/1000 >= self.min_hp_kw]
             on_times = sorted(on_times_odu + on_times_idu)
             on_times = [x for x in on_times if time.time() - x/1000 < 15*60]
-            
+
             if on_times:
                 self.alert_status[house_alias][alert_alias] = False
                 print(f"-- The HP is on")
