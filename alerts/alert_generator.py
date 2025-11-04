@@ -258,10 +258,7 @@ class AlertGenerator():
 
             expired_glitches = []
             for active_critical_glitch in self.alert_status[house_alias][alert_alias]:
-                if 'strategy' in active_critical_glitch:
-                    if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > 31*24*60*60:
-                        expired_glitches.append(active_critical_glitch)
-                elif time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
+                if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
                     expired_glitches.append(active_critical_glitch)
             for active_critical_glitch in expired_glitches:
                 self.alert_status[house_alias][alert_alias].pop(active_critical_glitch)
@@ -282,17 +279,13 @@ class AlertGenerator():
                     source = message.payload['FromGNodeAlias']
                     summary = message.payload['Summary']
                     time_received = int(message.message_persisted_ms/1000)
-                    unique_id = message.message_id
-                    if 'strategy' in summary:
-                        unique_id = f'{house_alias}-{summary}'
                     if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
                         house_alias = source.split('.scada')[0].split('.')[-1]
                     else:
                         print(f"Unknown source: {source}")
                         continue
+                    unique_id = f'{house_alias}-{summary}'
                     if type=="critical" and unique_id not in self.alert_status[house_alias][alert_alias]:
-                        if 'strategy' in summary and house_alias=='maple':
-                            continue
                         self.send_opsgenie_alert(f"{house_alias} - critical glitch: {summary}", house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias][unique_id] = time_received
         except Exception as e:
