@@ -334,9 +334,6 @@ class AlertGenerator():
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = {}
             print(f"- {house_alias}:")
-            if house_alias in ['oak', 'beech']:
-                print("TEMPORARY SKIP")
-                continue
 
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
@@ -346,7 +343,7 @@ class AlertGenerator():
 
             for zone in channels_by_zone:
 
-                if house_alias == 'maple' and 'zone2' in zone:
+                if house_alias == 'maple' and 'zone2' in zone: # TODO: remove when changed
                     continue
 
                 if zone not in self.alert_status[house_alias][alert_alias]:
