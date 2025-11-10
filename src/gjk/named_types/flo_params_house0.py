@@ -57,10 +57,10 @@ class FloParamsHouse0(GwBase):
     max_ewt_f: StrictInt
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
-    flo_alias: str
-    flo_git_commit: str
+    flo_alias: Optional[str] = None
+    flo_git_commit: Optional[str] = None
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
-    version: Literal["003"] = "003"
+    version: str = "003"
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
