@@ -7,7 +7,7 @@ from pydantic import StrictInt
 
 
 class PriceQuantityUnitless(GwBase):
-    price_times1000: StrictInt
-    quantity_times1000: StrictInt
+    price_x1000: StrictInt
+    quantity_x1000: StrictInt
     type_name: Literal["price.quantity.unitless"] = "price.quantity.unitless"
-    version: Literal["000"] = "000"
+    version: Literal["000", "001"] = "001"
