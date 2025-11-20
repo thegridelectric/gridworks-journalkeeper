@@ -421,21 +421,19 @@ class AlertGenerator():
             print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
 
             # Try to find power around the latest heat call
-            # pwr = self.data[house_alias]['dist-pump-pwr']
-            # power_around_heatcall = [
-            #     power for time, power in zip(pwr['times'], pwr['values']) 
-            #     if time >= last_heatcall_time - 5*60*1000
-            # ]
-            # if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
-            #     print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
-            #     self.alert_status[house_alias][alert_alias] += 1
-            # elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
-            #     print(f"- {house_alias}: No significant pump power around heat call")
-            #     self.alert_status[house_alias][alert_alias] += 1
-            # else:
-            #     print(f"- {house_alias}: Found dist pump power after last heat call")
-            #     self.alert_status[house_alias][alert_alias] = 0
-            #     continue
+            pwr = self.data[house_alias]['dist-pump-pwr']
+            power_around_heatcall = [
+                power for time, power in zip(pwr['times'], pwr['values']) 
+                if time >= last_heatcall_time - 5*60*1000
+            ]
+            found_power_after_heatcall = False
+            if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
+                print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
+            elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
+                print(f"- {house_alias}: No significant pump power around heat call")
+            else:
+                print(f"- {house_alias}: Found dist pump power after last heat call")
+                found_power_after_heatcall = True
 
             # Try to find flow around the latest heat call
             flow = self.data[house_alias]['dist-flow']
@@ -445,15 +443,21 @@ class AlertGenerator():
             ]
             if not flow_around_heatcall and flow['values'][-1] <= self.min_dist_pump_gpm:
                 print(f"- {house_alias}: No pump flow recorded around heat call and latest flow is low")
+                self.alert_status[house_alias][alert_alias] += 1
             elif max(flow_around_heatcall) <= self.min_dist_pump_gpm:
                 print(f"- {house_alias}: No significant pump flow around heat call")
+                self.alert_status[house_alias][alert_alias] += 1
             else:
                 print(f"- {house_alias}: Found dist pump flow after last heat call")
                 self.alert_status[house_alias][alert_alias] = 0
                 continue
 
             if self.alert_status[house_alias][alert_alias] == 3:
-                alert_message = f"{house_alias}: No distribution pump activity recorded since the last heat call"
+                alert_message = f"{house_alias}: No distribution pump flow recorded since the last heat call"
+                if found_power_after_heatcall:
+                    alert_message += ", but found pump power"
+                else:
+                    alert_message += ", and no pump power found"
                 self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
     
     def check_store_pump(self):
@@ -488,19 +492,19 @@ class AlertGenerator():
                     print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes, expecting store flow")
 
                     # Try to find power
-                    # pwr = self.data[house_alias]['store-pump-pwr']
-                    # power_since_closed = [
-                    #     power for time, power in zip(pwr['times'], pwr['values']) 
-                    #     if time >= time_since_in_current_state
-                    # ]
-                    # if not power_since_closed and pwr['values'][-1] <= self.min_store_pump_w:
-                    #     print(f"- {house_alias}: No pump power recorded after relay 9 was closed")
-                    # elif max(power_since_closed) <= self.min_store_pump_w:
-                    #     print(f"- {house_alias}: No significant pump power after relay 9 was closed")
-                    # else:
-                    #     print(f"- {house_alias}: Found store pump power after relay 9 was closed")
-                    #     self.alert_status[house_alias][alert_alias] = False
-                    #     continue
+                    pwr = self.data[house_alias]['store-pump-pwr']
+                    power_since_closed = [
+                        power for time, power in zip(pwr['times'], pwr['values']) 
+                        if time >= time_since_in_current_state
+                    ]
+                    found_power_after_closed = False
+                    if not power_since_closed and pwr['values'][-1] <= self.min_store_pump_w:
+                        print(f"- {house_alias}: No pump power recorded after relay 9 was closed")
+                    elif max(power_since_closed) <= self.min_store_pump_w:
+                        print(f"- {house_alias}: No significant pump power after relay 9 was closed")
+                    else:
+                        print(f"- {house_alias}: Found store pump power after relay 9 was closed")
+                        found_power_after_closed = True
 
                     # Try to find flow
                     flow = self.data[house_alias]['store-flow']
@@ -518,7 +522,11 @@ class AlertGenerator():
                         continue
 
                     if not self.alert_status[house_alias][alert_alias]:
-                        alert_message = f"{house_alias}: No store pump activity recorded since relay 9 was closed"
+                        alert_message = f"{house_alias}: No store pump flow since relay 9 was closed"
+                        if found_power_after_closed:
+                            alert_message += ", but found pump power"
+                        else:
+                            alert_message += ", and no pump power found"
                         self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias] = True
             
