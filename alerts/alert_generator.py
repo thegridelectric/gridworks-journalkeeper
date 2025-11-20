@@ -6,7 +6,8 @@ import requests
 from gjk.api_db import get_db
 from gjk.config import Settings
 from gjk.models import MessageSql
-from sqlalchemy import asc, or_
+from gjk.named_types import LayoutLite
+from sqlalchemy import asc, desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine, MetaData, Table, select, Column, String, JSON, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -67,6 +68,7 @@ class AlertGenerator():
         self.whitewire_threshold_watts = {'beech': 100, 'default': 20, 'elm': 0.9}
         self.data = {}
         self.relays = {}
+        self.critical_zones_list = {}
         self.alert_status = {}
         self.houses_wtih_an_active_alert = []
         self.main()
@@ -336,9 +338,6 @@ class AlertGenerator():
 
             for zone in channels_by_zone:
 
-                if house_alias == 'maple' and 'zone2' in zone: # TODO: remove when changed
-                    continue
-
                 if zone not in self.alert_status[house_alias][alert_alias]:
                     self.alert_status[house_alias][alert_alias][zone] = False
 
@@ -422,21 +421,21 @@ class AlertGenerator():
             print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
 
             # Try to find power around the latest heat call
-            pwr = self.data[house_alias]['dist-pump-pwr']
-            power_around_heatcall = [
-                power for time, power in zip(pwr['times'], pwr['values']) 
-                if time >= last_heatcall_time - 5*60*1000
-            ]
-            if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
-                print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
-                self.alert_status[house_alias][alert_alias] += 1
-            elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
-                print(f"- {house_alias}: No significant pump power around heat call")
-                self.alert_status[house_alias][alert_alias] += 1
-            else:
-                print(f"- {house_alias}: Found dist pump power after last heat call")
-                self.alert_status[house_alias][alert_alias] = 0
-                continue
+            # pwr = self.data[house_alias]['dist-pump-pwr']
+            # power_around_heatcall = [
+            #     power for time, power in zip(pwr['times'], pwr['values']) 
+            #     if time >= last_heatcall_time - 5*60*1000
+            # ]
+            # if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
+            #     print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
+            #     self.alert_status[house_alias][alert_alias] += 1
+            # elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
+            #     print(f"- {house_alias}: No significant pump power around heat call")
+            #     self.alert_status[house_alias][alert_alias] += 1
+            # else:
+            #     print(f"- {house_alias}: Found dist pump power after last heat call")
+            #     self.alert_status[house_alias][alert_alias] = 0
+            #     continue
 
             # Try to find flow around the latest heat call
             flow = self.data[house_alias]['dist-flow']
@@ -489,19 +488,19 @@ class AlertGenerator():
                     print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes, expecting store flow")
 
                     # Try to find power
-                    pwr = self.data[house_alias]['store-pump-pwr']
-                    power_since_closed = [
-                        power for time, power in zip(pwr['times'], pwr['values']) 
-                        if time >= time_since_in_current_state
-                    ]
-                    if not power_since_closed and pwr['values'][-1] <= self.min_store_pump_w:
-                        print(f"- {house_alias}: No pump power recorded after relay 9 was closed")
-                    elif max(power_since_closed) <= self.min_store_pump_w:
-                        print(f"- {house_alias}: No significant pump power after relay 9 was closed")
-                    else:
-                        print(f"- {house_alias}: Found store pump power after relay 9 was closed")
-                        self.alert_status[house_alias][alert_alias] = False
-                        continue
+                    # pwr = self.data[house_alias]['store-pump-pwr']
+                    # power_since_closed = [
+                    #     power for time, power in zip(pwr['times'], pwr['values']) 
+                    #     if time >= time_since_in_current_state
+                    # ]
+                    # if not power_since_closed and pwr['values'][-1] <= self.min_store_pump_w:
+                    #     print(f"- {house_alias}: No pump power recorded after relay 9 was closed")
+                    # elif max(power_since_closed) <= self.min_store_pump_w:
+                    #     print(f"- {house_alias}: No significant pump power after relay 9 was closed")
+                    # else:
+                    #     print(f"- {house_alias}: Found store pump power after relay 9 was closed")
+                    #     self.alert_status[house_alias][alert_alias] = False
+                    #     continue
 
                     # Try to find flow
                     flow = self.data[house_alias]['store-flow']
