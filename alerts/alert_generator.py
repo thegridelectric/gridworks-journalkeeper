@@ -198,21 +198,22 @@ class AlertGenerator:
         for house_alias in all_house_aliases:
 
             # Find latest layout lite
-            try:
-                with next(get_db()) as session:
-                    start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
-                    last_layout_lite: LayoutLite = (
-                        session.query(MessageSql).filter(
-                            MessageSql.message_type_name == "layout.lite",
-                            MessageSql.from_alias == f"hw1.isone.me.versant.keene.{house_alias}.scada",
-                            ).order_by(desc(MessageSql.message_persisted_ms)).first()
-                        )
-                    if not last_layout_lite:
-                        raise Exception("No layout lite found.")
-                    self.critical_zones_list[house_alias] = last_layout_lite.critical_zones_list
-            except Exception as e:
-                print(f"An error occured while getting data from journaldb: {e}")
-                self.critical_zones_list[house_alias] = []
+            # try:
+            #     with next(get_db()) as session:
+            #         start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
+            #         last_layout_lite: LayoutLite = (
+            #             session.query(MessageSql).filter(
+            #                 MessageSql.message_type_name == "layout.lite",
+            #                 MessageSql.from_alias == f"hw1.isone.me.versant.keene.{house_alias}.scada",
+            #                 ).order_by(desc(MessageSql.message_persisted_ms)).first()
+            #             )
+            #         if not last_layout_lite:
+            #             raise Exception(f"No layout lite found for {house_alias}.")
+            #         print(f"- {house_alias}: Layout lite found:\n{last_layout_lite.to_dict().keys()}")
+            #         self.critical_zones_list[house_alias] = last_layout_lite.critical_zones_list
+            # except Exception as e:
+            #     print(f"An error occured while getting data from journaldb: {e}")
+            #     self.critical_zones_list[house_alias] = []
             
             self.data[house_alias] = {}
             self.relays[house_alias] = {}
