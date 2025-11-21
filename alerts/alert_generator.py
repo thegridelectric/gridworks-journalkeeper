@@ -48,8 +48,7 @@ class HouseStatus(BaseModel):
         return cls(**data)
     
 
-class AlertGenerator():
-
+class AlertGenerator:
     def __init__(self):
         self.opsgenie_team_id = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
         self.settings = Settings(_env_file=dotenv.find_dotenv())
@@ -70,7 +69,7 @@ class AlertGenerator():
         self.relays = {}
         self.critical_zones_list = {}
         self.alert_status = {}
-        self.houses_wtih_an_active_alert = []
+        self.houses_with_an_active_alert = []
         self.main()
 
     def update_alert_status(self, message, short_alias, clear_alert=False):
@@ -197,12 +196,28 @@ class AlertGenerator():
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases]
 
         for house_alias in all_house_aliases:
-                        
-            if house_alias not in self.alert_status:
-                self.alert_status[house_alias] = {}
+
+            # Find latest layout lite
+            try:
+                with next(get_db()) as session:
+                    start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
+                    last_layout_lite: LayoutLite = (
+                        session.query(MessageSql).filter(
+                            MessageSql.message_type_name == "layout.lite",
+                            MessageSql.from_alias == f"hw1.isone.me.versant.keene.{house_alias}.scada",
+                            ).order_by(desc(MessageSql.message_persisted_ms)).first()
+                        )
+                    if not last_layout_lite:
+                        raise Exception("No layout lite found.")
+                    self.critical_zones_list[house_alias] = last_layout_lite.critical_zones_list
+            except Exception as e:
+                print(f"An error occured while getting data from journaldb: {e}")
+                self.critical_zones_list[house_alias] = []
             
             self.data[house_alias] = {}
             self.relays[house_alias] = {}
+            if house_alias not in self.alert_status:
+                self.alert_status[house_alias] = {}
 
             if house_alias not in self.selected_house_aliases:
                 print(f"- {house_alias}: House is not in the selected aliases")
@@ -686,12 +701,12 @@ class AlertGenerator():
             house_has_an_active_alert = self.check_dict_for_true(self.alert_status[house_alias])
             if house_has_an_active_alert:
                 print(f"{house_alias}: An alert is active")
-                if house_alias not in self.houses_wtih_an_active_alert:
-                    self.houses_wtih_an_active_alert.append(house_alias)
-            elif house_alias in self.houses_wtih_an_active_alert:
+                if house_alias not in self.houses_with_an_active_alert:
+                    self.houses_with_an_active_alert.append(house_alias)
+            elif house_alias in self.houses_with_an_active_alert:
                 print(f"{house_alias}: No more active alert, clearing any existing alerts")
                 # self.update_alert_status(message="", short_alias=house_alias, clear_alert=True)
-                self.houses_wtih_an_active_alert.remove(house_alias)
+                self.houses_with_an_active_alert.remove(house_alias)
             else:
                 print(f"{house_alias}: No active alert")
 
@@ -711,7 +726,7 @@ class AlertGenerator():
                 self.check_dist_pump()
                 self.check_store_pump()
                 self.check_hp()
-                # self.check_in_atn()
+                self.check_in_atn()
                 self.check_hp_on_during_onpeak()
                 self.check_alert_status()
             except Exception as e:
