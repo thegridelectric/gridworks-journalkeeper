@@ -197,6 +197,7 @@ class AlertGenerator:
         
         self.messages = [m for m in sql_messages if m.message_type_name == "report"]
         self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
+        print(f"Found {len(self.layout_lites)} layout.lite messages")
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases]
 
