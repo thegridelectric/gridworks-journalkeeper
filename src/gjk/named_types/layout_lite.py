@@ -37,4 +37,4 @@ class LayoutLite(GwBase):
     ha1_params: Ha1Params
     i2c_relay_component: I2cMultichannelDtRelayComponentGt
     type_name: Literal["layout.lite"] = "layout.lite"
-    version: Literal["004"] = "004"
+    version: Literal["001","002","003","004"] = "004"
