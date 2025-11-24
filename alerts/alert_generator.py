@@ -7,7 +7,7 @@ from gjk.api_db import get_db
 from gjk.config import Settings
 from gjk.models import MessageSql
 from gjk.named_types import LayoutLite
-from sqlalchemy import asc, desc
+from sqlalchemy import asc, desc, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import create_engine, MetaData, Table, select, Column, String, JSON, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -180,18 +180,23 @@ class AlertGenerator:
         try:
             with next(get_db()) as session:
                 start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
-                self.messages = (
+                sql_messages = (
                     session.query(MessageSql).filter(
-                        MessageSql.message_type_name == "report",
+                        or_(
+                            MessageSql.message_type_name == "report",
+                            MessageSql.message_type_name == "layout.lite",
+                        ),
                         MessageSql.message_persisted_ms >= start_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
-                if not self.messages:
+                if not sql_messages:
                     raise Exception("No messages found.")
         except Exception as e:
             print(f"An error occured while getting data from journaldb: {e}")
             return
         
+        self.messages = [m for m in sql_messages if m.message_type_name == "report"]
+        self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases]
 
@@ -695,6 +700,38 @@ class AlertGenerator:
             if not sent_alert:
                 print(f"- {house_alias}: HP is not on during onpeak")
                 self.alert_status[house_alias][alert_alias] = False
+    
+    def check_rebooting(self):
+        alert_alias = "rebooting"
+        print("\nChecking for rebooting...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = False
+                
+            layouts_for_house = [m for m in self.layout_lites if m.from_alias.split(".")[-2] == house_alias]
+            layout_times_for_house = [m.message_persisted_ms for m in layouts_for_house]
+            # Check for more than 5 layout records in the same 5-minute window
+            if layout_times_for_house:
+                rounded_times = [int(t//(5*60*1000)) for t in layout_times_for_house]
+                time_counts = {}
+                for t in rounded_times:
+                    if t in time_counts:
+                        time_counts[t] += 1
+                    else:
+                        time_counts[t] = 1
+                reboot_detected = False
+                for count in time_counts.values():
+                    if count > 5:
+                        reboot_detected = True
+                        print(f"- {house_alias}: Rebooting detected")
+                        alert_message = f"{house_alias}: Rebooting detected"
+                        if not self.alert_status[house_alias][alert_alias]:
+                            self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
+                            self.alert_status[house_alias][alert_alias] = True
+                        break
+                if not reboot_detected:
+                    print(f"- {house_alias}: No alert: No rebooting detected")
+                    self.alert_status[house_alias][alert_alias] = False
 
     def check_alert_status(self):
         print("\nChecking alert status...")
@@ -729,6 +766,7 @@ class AlertGenerator:
                 self.check_hp()
                 self.check_in_atn()
                 self.check_hp_on_during_onpeak()
+                self.check_rebooting()
                 self.check_alert_status()
             except Exception as e:
                 print(e)
