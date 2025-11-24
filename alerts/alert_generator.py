@@ -707,7 +707,7 @@ class AlertGenerator:
         for house_alias in self.selected_house_aliases:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
-                
+
             layouts_for_house = [m for m in self.layout_lites if m.from_alias.split(".")[-2] == house_alias]
             layout_times_for_house = [m.message_persisted_ms for m in layouts_for_house]
             # Check for more than 5 layout records in the same 5-minute window
@@ -732,6 +732,9 @@ class AlertGenerator:
                 if not reboot_detected:
                     print(f"- {house_alias}: No alert: No rebooting detected")
                     self.alert_status[house_alias][alert_alias] = False
+            else:
+                print(f"- {house_alias}: No layout.lite messages found")
+                self.alert_status[house_alias][alert_alias] = False
 
     def check_alert_status(self):
         print("\nChecking alert status...")
