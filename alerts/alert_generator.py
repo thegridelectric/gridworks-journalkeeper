@@ -180,6 +180,7 @@ class AlertGenerator:
         try:
             with next(get_db()) as session:
                 start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
+                end_ms = time_now.timestamp() * 1000
                 sql_messages = (
                     session.query(MessageSql).filter(
                         or_(
@@ -187,6 +188,7 @@ class AlertGenerator:
                             MessageSql.message_type_name == "layout.lite",
                         ),
                         MessageSql.message_persisted_ms >= start_ms,
+                        MessageSql.message_persisted_ms <= end_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
                 if not sql_messages:
@@ -692,7 +694,7 @@ class AlertGenerator:
                 if time_dt.hour in self.on_peak_hours and time_dt.day_of_week < 5:
                     if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute == 0:
                         continue
-                    if self.alert_status[house_alias][alert_alias]:
+                    if not self.alert_status[house_alias][alert_alias]:
                         alert_message = f"{house_alias}: HP was seen on at {time_dt}, which is during onpeak"
                         self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                         self.alert_status[house_alias][alert_alias] = True
