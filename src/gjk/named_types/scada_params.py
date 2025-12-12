@@ -1,6 +1,6 @@
 """Type scada.params, version 003"""
 
-from typing import Literal, Optional
+from typing import Literal
 
 from gw.named_types import GwBase
 
