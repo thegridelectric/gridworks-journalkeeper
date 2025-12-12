@@ -62,22 +62,22 @@ class PicoTankModuleComponentGt(GwBase):
 
         return self
 
-    # @model_validator(mode="after")
-    # def check_axiom_2(self) -> Self:
-    #     """
-    #     Axiom 2: PicoKOhms exists iff TempCalcMethod is TempCalcMethod.SimpleBetaForPico
-    #     # note this is a known incorrect method, but there are a few in the field
-    #     # that do this.
-    #     """
-    #     is_simple_beta = self.temp_calc_method == TempCalcMethod.SimpleBetaForPico
-    #     has_kohms = self.pico_k_ohms is not None
+    @model_validator(mode="after")
+    def check_axiom_2(self) -> Self:
+        """
+        Axiom 2: PicoKOhms exists iff TempCalcMethod is TempCalcMethod.SimpleBetaForPico
+        # note this is a known incorrect method, but there are a few in the field
+        # that do this.
+        """
+        is_simple_beta = self.temp_calc_method == TempCalcMethod.SimpleBetaForPico
+        has_kohms = self.pico_k_ohms is not None
 
-    #     if is_simple_beta != has_kohms:
-    #         raise ValueError(
-    #             "PicoKOhms must be provided if and only if TempCalcMethod is SimpleBetaForPico"
-    #         )
+        if is_simple_beta != has_kohms:
+            raise ValueError(
+                "PicoKOhms must be provided if and only if TempCalcMethod is SimpleBetaForPico"
+            )
 
-    #     return self
+        return self
 
     def check_axiom_3(self) -> None:
         """

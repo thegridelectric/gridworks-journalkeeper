@@ -14,12 +14,10 @@ from gwbase.enums import GNodeRole
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from gjk.codec import pyd_to_sql, sql_to_pyd
+from gjk.codec import pyd_to_sql
 from gjk.config import Settings
 from gjk.models import (
-    DataChannelSql,
     bulk_insert_datachannels,
-    bulk_insert_readings,
     insert_single_message,
 )
 from gjk.named_types import (
@@ -44,7 +42,7 @@ from gjk.named_types import (
 )
 from gjk.named_types.asl_types import TypeByName
 from gjk.old_types import GridworksEventReport, LayoutEvent
-from gjk.type_helpers import Message, Reading
+from gjk.type_helpers import Message
 from gjk.utils import FileNameMeta, str_from_ms
 
 LOG_FORMAT = (
@@ -423,38 +421,7 @@ class JournalKeeper(ActorBase):
             message_created_ms=t.message_created_ms,
         )
         with self.get_db() as db:
-            if insert_single_message(db, pyd_to_sql(msg)):
-                readings_pyd = []
-                ta_alias = t.about_g_node_alias
-                for ch_readings in t.channel_reading_list:
-                    ch = (
-                        db.query(DataChannelSql)
-                        .filter_by(
-                            name=ch_readings.channel_name, terminal_asset_alias=ta_alias
-                        )
-                        .first()
-                    )
-                    if ch is None:
-                        print(
-                            f"Did not find channel {ch_readings.channel_name} (see msg id {msg.message_id})"
-                        )
-                    else:
-                        readings_pyd.extend([
-                            Reading(
-                                value=ch_readings.value_list[i],
-                                time_ms=ch_readings.scada_read_time_unix_ms_list[i],
-                                message_id=msg.message_id,
-                                data_channel=sql_to_pyd(ch),
-                            )
-                            for i in range(len(ch_readings.value_list))
-                        ])
-                # Insert the readings that go along with the message
-                readings = [pyd_to_sql(r) for r in readings_pyd]
-                bulk_insert_readings(db, readings)
-                short_alias = t.from_g_node_alias.split(".")[-2]
-                print(
-                    f"Inserted {len(readings)} from {short_alias}, msg id {msg.message_id}"
-                )
+            insert_single_message(db, pyd_to_sql(msg))
 
     def snapshot_from_scada(self, t: SnapshotSpaceheat) -> None:
         # print(f"Just got a snapshot from {t.from_g_node_alias}")
