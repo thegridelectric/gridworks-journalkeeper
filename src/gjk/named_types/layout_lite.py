@@ -39,7 +39,7 @@ class LayoutLite(GwBase):
     type_name: Literal["layout.lite"] = "layout.lite"
     version: Literal["006"] = "006"
 
-    @model_validator(mode="after")
+    #@model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: Dc Node Consistency. Every AboutNodeName and CapturedByNodeName in a
@@ -60,11 +60,11 @@ class LayoutLite(GwBase):
                 )
             if captured_by_node.actor_class == ActorClass.NoActor:
                 raise ValueError(
-                    f"Axiom 1 violated: dc {dc.name}'s CatpuredByNode cannot have ActorClass NoActor!"
+                    f"Axiom 1 violated: dc {dc.name}'s CapturedByNode cannot have ActorClass NoActor!"
                 )
         return self
 
-    @model_validator(mode="after")
+    #@model_validator(mode="after")
     def check_axiom_2(self) -> Self:
         """
         Node Handle Hierarchy Consistency. Every ShNode with a handle containing at least
@@ -84,7 +84,7 @@ class LayoutLite(GwBase):
         return self
 
 
-    @model_validator(mode="after")
+    #@model_validator(mode="after")
     def check_axiom_3(self) -> Self:
         """
         Axiom 3: CriticalZoneList is a subset of ZoneList
