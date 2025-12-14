@@ -5,10 +5,10 @@
   "copyright_year": "2023",
   "development_status": "Development Status :: 2 - Pre-Alpha",
   "email": "gridworks@gridworks-consulting.com",
-  "friendly_name": "Gridworks Persister",
+  "friendly_name": "Gridworks Journal Keeper",
   "github_user": "thegridelectric",
   "license": "MIT",
-  "package_name": "gwp",
-  "project_name": "gridworks-persister",
+  "package_name": "gjk",
+  "project_name": "gridworks-journalkeeper",
   "version": "0.0.0"
 }

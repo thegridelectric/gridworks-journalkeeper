@@ -1,5 +1,6 @@
 """Sphinx configuration."""
-project = "Gridworks Persister"
+
+project = "Gridworks Journal Keeper"
 author = "GridWorks"
 copyright = "2023, GridWorks"
 extensions = [

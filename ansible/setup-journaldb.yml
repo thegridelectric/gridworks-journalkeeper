@@ -1,0 +1,146 @@
+---
+- name: Configure JournalDB Server
+  hosts: all
+  become: yes
+  vars:
+    ubuntu_username: "ubuntu"
+    ubuntu_password: "{{ lookup('env', 'UBUNTU_PASSWORD') }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
+    python_version: "3.12"
+    repo_url: "https://github.com/thegridelectric/gridworks-journalkeeper.git"
+    repo_path: "/home/{{ ubuntu_username }}/gridworks-journalkeeper"
+
+  tasks:
+    - name: Update hostname
+      hostname:
+        name: journaldb
+
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - postgresql
+          - python{{ python_version }}-venv
+          - git
+          - python3-psycopg2
+          - alembic
+        state: present
+
+    - name: Ensure PostgreSQL is running
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+
+    - name: Create ubuntu user
+      user:
+        name: "{{ ubuntu_username }}"
+        password: "{{ ubuntu_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+
+    - name: Set up SSH directory for ubuntu user
+      file:
+        path: "/home/{{ ubuntu_username }}/.ssh"
+        state: directory
+        mode: '0700'
+        owner: "{{ ubuntu_username }}"
+        group: "{{ ubuntu_username }}"
+
+    - name: Copy local SSH public key
+      copy:
+        src: "~/.ssh/id_rsa.pub"
+        dest: "/home/{{ ubuntu_username }}/.ssh/authorized_keys"
+        mode: '0600'
+        owner: "{{ ubuntu_username }}"
+        group: "{{ ubuntu_username }}"
+
+    - name: Create PostgreSQL user
+      postgresql_user:
+        name: journaldb
+        password: "{{ db_password }}"
+        state: present
+      become_user: postgres
+
+    - name: Create PostgreSQL database
+      postgresql_db:
+        name: journaldb
+        owner: journaldb
+        state: present
+      become_user: postgres
+
+    - name: Configure PostgreSQL to accept external connections
+      lineinfile:
+        path: /etc/postgresql/16/main/postgresql.conf
+        regexp: '^#?listen_addresses\s*='
+        line: "listen_addresses = '*'"
+      notify: restart postgresql
+
+    - name: Configure PostgreSQL client authentication
+      lineinfile:
+        path: /etc/postgresql/16/main/pg_hba.conf
+        line: "host    journaldb    journaldb    0.0.0.0/0    md5"
+      notify: restart postgresql
+
+    - name: Add GitHub to known hosts
+      shell: |
+        mkdir -p /home/{{ ubuntu_username }}/.ssh
+        ssh-keyscan github.com >> /home/{{ ubuntu_username }}/.ssh/known_hosts
+        chown -R {{ ubuntu_username }}:{{ ubuntu_username }} /home/{{ ubuntu_username }}/.ssh
+        chmod 600 /home/{{ ubuntu_username }}/.ssh/known_hosts
+
+    - name: Clone JournalDB repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ repo_path }}"
+        version: dev
+      become_user: "{{ ubuntu_username }}"
+
+    - name: Create Python virtual environment
+      command:
+        cmd: "python{{ python_version }} -m venv venv"
+        chdir: "{{ repo_path }}"
+      become_user: "{{ ubuntu_username }}"
+
+    - name: Install Python dependencies
+      pip:
+        name:
+          - alembic
+          - sqlalchemy
+          - psycopg2-binary
+          - pendulum
+          - dotenv
+        virtualenv: "{{ repo_path }}/venv"
+      become_user: "{{ ubuntu_username }}"
+
+    - name: Create .env file
+      copy:
+        content: |
+          GJK_DB_URL = "postgresql://journaldb:{{ db_password }}@localhost/journaldb"
+        dest: "{{ repo_path }}/.env"
+        mode: '0600'
+      become_user: "{{ ubuntu_username }}"
+
+    - name: Run database migrations
+      shell:
+        cmd: "source venv/bin/activate && export PYTHONPATH=./src && alembic upgrade head"
+        chdir: "{{ repo_path }}"
+        executable: /bin/bash
+      become_user: "{{ ubuntu_username }}"
+
+    - name: Restart PostgreSQL service
+      systemd:
+        name: postgresql
+        state: restarted
+
+  handlers:
+    - name: restart postgresql
+      service:
+        name: postgresql
+        state: restarted 
