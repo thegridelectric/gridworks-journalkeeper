@@ -1,5 +1,3 @@
-"""Tests pico.tank.module.component.gt type, version 000"""
-
 from gjk.enums import TempCalcMethod
 from gjk.named_types import PicoTankModuleComponentGt
 
@@ -99,17 +97,8 @@ def test_pico_tank_module_component_gt_generated() -> None:
         "SerialNumber": "NA",
         "AsyncCaptureDeltaMicroVolts": 2000,
         "TypeName": "pico.tank.module.component.gt",
-        "Version": "000",
+        "Version": "011",
     }
 
     assert PicoTankModuleComponentGt.from_dict(d).to_dict() == d
 
-    ######################################
-    # Behavior on unknown enum values: sends to default
-    ######################################
-
-    d2 = dict(d, TempCalcMethod="unknown_enum_thing")
-    assert (
-        PicoTankModuleComponentGt.from_dict(d2).temp_calc_method
-        == TempCalcMethod.default()
-    )

@@ -17,7 +17,7 @@ def test_ha1_params_generated() -> None:
         "MaxEwtF": 170,
         "LoadOverestimationPercent": 10,
         "TypeName": "ha1.params",
-        "Version": "002",
+        "Version": "004",
     }
 
     assert Ha1Params.from_dict(d).to_dict() == d

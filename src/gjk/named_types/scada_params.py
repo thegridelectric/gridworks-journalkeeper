@@ -1,6 +1,6 @@
 """Type scada.params, version 003"""
 
-from typing import Literal, Optional
+from typing import Literal
 
 from gw.named_types import GwBase
 
@@ -19,7 +19,7 @@ class ScadaParams(GwBase):
     to_name: SpaceheatName
     unix_time_ms: UTCMilliseconds
     message_id: UUID4Str
-    new_params: Optional[Ha1Params] = None
-    old_params: Optional[Ha1Params] = None
+    new_params: Ha1Params | None = None
+    old_params: Ha1Params | None = None
     type_name: Literal["scada.params"] = "scada.params"
-    version: Literal["003"] = "003"
+    version: Literal["004"] = "004"
