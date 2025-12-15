@@ -30,8 +30,6 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from gjk.models.message import Base
 
-# from gjk.models import ReadingSql
-
 
 target_metadata = Base.metadata
 

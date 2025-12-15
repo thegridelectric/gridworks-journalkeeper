@@ -43,8 +43,6 @@ class DataChannelSql(Base):
         ),
     )
 
-    # Define the one-to-many relationships with other objects
-    readings = relationship("ReadingSql", back_populates="data_channel")
     nodal_hourly_energies = relationship(
         "NodalHourlyEnergySql", back_populates="power_channel"
     )
