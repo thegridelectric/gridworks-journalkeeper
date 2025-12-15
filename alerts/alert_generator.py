@@ -65,6 +65,7 @@ class AlertGenerator:
         self.min_hp_kw = 1
         self.on_peak_hours = [7,8,9,10,11,16,17,18,19]
         self.whitewire_threshold_watts = {'beech': 100, 'default': 20, 'elm': 0.9}
+        self.critical_zones_by_house = {}
         self.data = {}
         self.relays = {}
         self.critical_zones_list = {}
@@ -199,34 +200,19 @@ class AlertGenerator:
         
         self.messages = [m for m in sql_messages if m.message_type_name == "report"]
         self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
-        print(f"Found {len(self.layout_lites)} layout.lite messages")
+        for layout_lite_message in self.layout_lites:
+            llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
+            self.critical_zones_by_house[llm_house_alias] = {'known': True, 'list': layout_lite_message.payload["CriticalZoneList"]}
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases]
 
         for house_alias in all_house_aliases:
-
-            # Find latest layout lite
-            # try:
-            #     with next(get_db()) as session:
-            #         start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
-            #         last_layout_lite: LayoutLite = (
-            #             session.query(MessageSql).filter(
-            #                 MessageSql.message_type_name == "layout.lite",
-            #                 MessageSql.from_alias == f"hw1.isone.me.versant.keene.{house_alias}.scada",
-            #                 ).order_by(desc(MessageSql.message_persisted_ms)).first()
-            #             )
-            #         if not last_layout_lite:
-            #             raise Exception(f"No layout lite found for {house_alias}.")
-            #         print(f"- {house_alias}: Layout lite found:\n{last_layout_lite.to_dict().keys()}")
-            #         self.critical_zones_list[house_alias] = last_layout_lite.critical_zones_list
-            # except Exception as e:
-            #     print(f"An error occured while getting data from journaldb: {e}")
-            #     self.critical_zones_list[house_alias] = []
-            
             self.data[house_alias] = {}
             self.relays[house_alias] = {}
             if house_alias not in self.alert_status:
                 self.alert_status[house_alias] = {}
+            if house_alias not in self.critical_zones_by_house:
+                self.critical_zones_by_house[house_alias] = {'known': False, 'list': []}
 
             if house_alias not in self.selected_house_aliases:
                 print(f"- {house_alias}: House is not in the selected aliases")
@@ -290,16 +276,27 @@ class AlertGenerator:
                 self.alert_status[house_alias][alert_alias].pop(active_critical_glitch)
 
         try:
+            message_aliases = []
+            for house_alias in self.selected_house_aliases:
+                message_aliases.extend([
+                    f"hw1.isone.me.versant.keene.{house_alias}",
+                    f"hw1.isone.me.versant.keene.{house_alias}.scada",
+                    f"hw1.isone.me.versant.keene.{house_alias}.scada.s2",
+                ])
             with next(get_db()) as session:
                 start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
                 glitches = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "glitch",
+                        MessageSql.from_alias.in_(message_aliases),
                         MessageSql.message_persisted_ms >= start_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
                 if not glitches:
-                    return
+                    print(f"No glitches found")
+                else:
+                    critical_glitches = [g for g in glitches if g.payload['Type'] == "Critical"]
+                    print(f"Found {len(glitches)} glitches, of which {len(critical_glitches)} are critical")
                 for message in glitches:
                     type = str(message.payload['Type']).lower()
                     source = message.payload['FromGNodeAlias']
@@ -307,6 +304,8 @@ class AlertGenerator:
                     time_received = int(message.message_persisted_ms/1000)
                     if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
                         house_alias = source.split('.scada')[0].split('.')[-1]
+                    elif len(source.split('.'))>1:
+                        house_alias = source.split('.')[-1]
                     else:
                         print(f"Unknown source: {source}")
                         continue
@@ -356,15 +355,31 @@ class AlertGenerator:
 
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
-                if channel[:5] not in channels_by_zone:
-                    channels_by_zone[channel[:5]] = []
-                channels_by_zone[channel[:5]].append(channel)
+                if len(channel.split("-")) >= 2:
+                    channel_name_short = channel.split("-")[0] + "-" + channel.split("-")[1]
+                else:
+                    channel_name_short = channel[:5]
+                if channel_name_short not in channels_by_zone:
+                    channels_by_zone[channel_name_short] = []
+                channels_by_zone[channel_name_short].append(channel)
 
             for zone in channels_by_zone:
 
                 if zone not in self.alert_status[house_alias][alert_alias]:
                     self.alert_status[house_alias][alert_alias][zone] = False
 
+                zone_is_critical = False
+                if self.critical_zones_by_house[house_alias]['known']:
+                    for critical_zone in self.critical_zones_by_house[house_alias]['list']:
+                        if zone[6:] in critical_zone:
+                            zone_is_critical = True
+                            break
+                    if not zone_is_critical:
+                        print(f"-- {zone} is not a critical zone")
+                        continue
+
+                setpoint = 0
+                temperature = 0
                 for channel in channels_by_zone[zone]:
                     if "set" in channel:
                         setpoint = self.data[house_alias][channel]["values"][-1] / 1000
@@ -396,6 +411,7 @@ class AlertGenerator:
         alert_alias = "dist_pump"
         print("\nChecking for distribution pump activity...")
         for house_alias in self.selected_house_aliases:
+            print(f"- {house_alias}:")
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = 0
 
@@ -423,12 +439,12 @@ class AlertGenerator:
                         start_of_heatcall = min(heatcall_on)
                     else:
                         start_of_heatcall = last_no_heatcall_time_before_heatcall
-                    print(f"-- {zone_state} Start of heatcall: {self.unix_ms_to_date(start_of_heatcall)}")
-                    print(f"-- {zone_state} End of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
+                    # print(f"-- {zone_state} Start of heatcall: {self.unix_ms_to_date(start_of_heatcall)}")
+                    # print(f"-- {zone_state} End of heatcall: {self.unix_ms_to_date(zone_last_heatcall_time)}")
                     last_heatcall_length = max(0, zone_last_heatcall_time - start_of_heatcall)/1000
-                    print(f"-- {zone_state} Heat call length: {round(last_heatcall_length/60,1)} minutes")
+                    # print(f"-- {zone_state} Heat call length: {round(last_heatcall_length/60,1)} minutes")
                     if last_heatcall_length < 5*60:
-                        print(f"-- {zone_state} Heat call was less than 5 minutes long. Skip.")
+                        # print(f"-- {zone_state} Heat call was less than 5 minutes long. Skip.")
                         continue
                 if zone_last_heatcall_time > last_heatcall_time:
                     last_heatcall_time = zone_last_heatcall_time
@@ -439,10 +455,10 @@ class AlertGenerator:
                 continue
 
             if last_heatcall_time == 0:
-                print(f"{house_alias}: No recent heat call or too short/recent heat call to tell")
+                print(f"-- No recent heat call or too short/recent heat call to tell")
                 continue
 
-            print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
+            # print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
 
             # Try to find power around the latest heat call
             pwr = self.data[house_alias]['dist-pump-pwr']
@@ -452,11 +468,11 @@ class AlertGenerator:
             ]
             found_power_after_heatcall = False
             if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
-                print(f"- {house_alias}: No pump power recorded around heat call and latest power is low")
+                print(f"-- No pump power recorded around heat call and latest power is low")
             elif power_around_heatcall and max(power_around_heatcall) <= self.min_dist_pump_w:
-                print(f"- {house_alias}: No significant pump power around heat call")
+                print(f"-- No significant pump power around heat call")
             else:
-                print(f"- {house_alias}: Found dist pump power after last heat call")
+                print(f"-- Found dist pump power after last heat call")
                 found_power_after_heatcall = True
 
             # Try to find flow around the latest heat call
@@ -466,13 +482,13 @@ class AlertGenerator:
                 if time >= last_heatcall_time - 5*60*1000
             ]
             if not flow_around_heatcall and flow['values'][-1] <= self.min_dist_pump_gpm:
-                print(f"- {house_alias}: No pump flow recorded around heat call and latest flow is low")
+                print(f"-- No pump flow recorded around heat call and latest flow is low")
                 self.alert_status[house_alias][alert_alias] += 1
             elif max(flow_around_heatcall) <= self.min_dist_pump_gpm:
-                print(f"- {house_alias}: No significant pump flow around heat call")
+                print(f"-- No significant pump flow around heat call")
                 self.alert_status[house_alias][alert_alias] += 1
             else:
-                print(f"- {house_alias}: Found dist pump flow after last heat call")
+                print(f"-- Found dist pump flow after last heat call")
                 self.alert_status[house_alias][alert_alias] = 0
                 continue
 
@@ -733,10 +749,10 @@ class AlertGenerator:
                             self.alert_status[house_alias][alert_alias] = True
                         break
                 if not reboot_detected:
-                    print(f"- {house_alias}: No alert: No rebooting detected")
+                    print(f"- {house_alias}: No rebooting detected in found layout.lite messages")
                     self.alert_status[house_alias][alert_alias] = False
             else:
-                print(f"- {house_alias}: No layout.lite messages found")
+                print(f"- {house_alias}: No rebooting (no layout.lite messages found)")
                 self.alert_status[house_alias][alert_alias] = False
 
     def check_alert_status(self):
@@ -770,7 +786,7 @@ class AlertGenerator:
                 self.check_dist_pump()
                 self.check_store_pump()
                 self.check_hp()
-                self.check_in_atn()
+                # self.check_in_atn()
                 self.check_hp_on_during_onpeak()
                 self.check_rebooting()
                 self.check_alert_status()
