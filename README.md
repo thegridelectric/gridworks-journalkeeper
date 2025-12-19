@@ -50,44 +50,14 @@ and then enter password
 
 
 
-## Features
+## Quick Start
 
-- TODO
 
-## Requirements
-
-- TODO
-
-## Installation
-
-You can install _Gridworks Journal Keeper_ via [pip] from [PyPI]:
-
-```console
-$ pip install gridworks-journalkeeper
 ```
-
-## Usage
-
-Please see the [Command-line Reference] for details.
-
-## Contributing
-
-Contributions are very welcome.
-To learn more, see the [Contributor Guide].
-
-## License
-
-Distributed under the terms of the [MIT license][license],
-_Gridworks Journal Keeper_ is free and open source software.
-
-## Issues
-
-If you encounter any problems,
-please [file an issue] along with a detailed description.
-
-## Credits
-
-This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
+poetry install
+poetry shell
+python run demo.y
+```
 
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/

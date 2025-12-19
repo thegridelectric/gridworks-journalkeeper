@@ -19,7 +19,7 @@ classifiers = [
 Changelog = "https://github.com/thegridelectric/gridworks-journalkeeper/releases"
 
 [tool.poetry.dependencies]
-python = ">=3.12,<4.0"
+python = ">=3.12,<3.13"
 click = ">=8.0.1"
 boto3 = "^1.26.3"
 
