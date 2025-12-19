@@ -1,5 +1,8 @@
+
 from logging.config import fileConfig
 
+import dotenv
+from gjk.config import Settings
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
@@ -9,13 +12,12 @@ from alembic import context
 config = context.config
 
 # Add the URL
-import os
 
-import dotenv
 
 dotenv.load_dotenv()
+settings = Settings()
 
-DATABASE_URL = os.getenv("GJK_DB_URL")
+DATABASE_URL = settings.db_url.get_secret_value()
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Interpret the config file for Python logging.
@@ -29,7 +31,6 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from gjk.models.message import Base
-
 
 target_metadata = Base.metadata
 

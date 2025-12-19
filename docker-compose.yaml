@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: jk-dev-postgres
+    environment:
+      POSTGRES_USER: journaldb
+      POSTGRES_PASSWORD: journaldb
+      POSTGRES_DB: journaldb_dev
+    ports:
+      - "5433:5432"
+    volumes:
+      - jk_pgdata:/var/lib/postgresql/data
+
+volumes:
+  jk_pgdata:
