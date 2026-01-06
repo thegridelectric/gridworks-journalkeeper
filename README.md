@@ -30,8 +30,9 @@ Right now it is focused on setting up the simplest usable form of storing the 20
 
 ## Dev Quick Start
 
-### Docker database
-Journalkeeper expects a PostgreSQL database. For development, we run this locally using Docker.
+### Set up docker
+Journalkeeper expects a running rabbit broker and a postgres database. We will set these both up
+in docker.
 
 **Prerequisites**
   - Docker Desktop (macOS / Windows) or Docker Engine (Linux)
@@ -39,16 +40,21 @@ Journalkeeper expects a PostgreSQL database. For development, we run this locall
     - docker compose (Compose v2), or
     - docker-compose (legacy Compose v1)
 
-**Start the dev rabbit broker**
+Below we use the `docker compose` command. If you have the legacy version, you should be able to replace
+that with `docker-compose` interchangeablly.
+
+### Set up rabbit broker
+
 
 Follow instructions in [gridworks-base](https://github.com/thegridelectric/gridworks-base)
 
-**Start the dev database**
+### Set up the database
 
+#### Create the database
 From the repository root:
 
 ```
-docker compose up # or docker-compose up if legacy
+docker compose up
 ```
 
 You should see logs ending with:
@@ -74,6 +80,30 @@ password `journaldb`
 
 This will bring you to the psql cli. 
 
+#### Load the database structure via alembic
+
+```
+poetry run alembic current
+```
+Will show that alembic has correct credentials to access the db. Success looks like:
+
+```
+
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+b371e63f0b02 (head)
+```
+
+Then the key command:
+
+```
+poetry run alembic upgrade head
+```
+This will:
+  - 1.  Connect to journaldb_dev using your dev defaults
+  - 2. Create the `alembic_version` table
+  - 3. Run every migration in `alembic/versions`
+  - 4. Mark the database as being at `head`
 
 
 ### Install virtual env
