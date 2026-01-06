@@ -406,6 +406,43 @@ class AlertGenerator:
                                 alert_message = f"{house_alias}: {setpoint_channel.replace('-set','')} is significantly below setpoint"
                                 self.send_opsgenie_alert(alert_message, house_alias, alert_alias+f"_{zone}")
                                 self.alert_status[house_alias][alert_alias][zone] = True
+    
+    def check_zone_freezing(self):
+        alert_alias = "zone_freezing"
+        print("\nChecking for zones freezing...")
+        for house_alias in self.selected_house_aliases:
+            if alert_alias not in self.alert_status[house_alias]:
+                self.alert_status[house_alias][alert_alias] = {}
+            print(f"- {house_alias}:")
+
+            channels_by_zone = {}
+            for channel in [x for x in self.data[house_alias] if 'zone' in x]:
+                if len(channel.split("-")) >= 2:
+                    channel_name_short = channel.split("-")[0] + "-" + channel.split("-")[1]
+                else:
+                    channel_name_short = channel[:5]
+                if channel_name_short not in channels_by_zone:
+                    channels_by_zone[channel_name_short] = []
+                channels_by_zone[channel_name_short].append(channel)
+
+            for zone in channels_by_zone:
+                if zone not in self.alert_status[house_alias][alert_alias]:
+                    self.alert_status[house_alias][alert_alias][zone] = False
+
+                freezing_threshold = 40
+                temperature = 0
+                for channel in channels_by_zone[zone]:
+                    if "temp" in channel and "gw" not in channel:
+                        temperature = self.data[house_alias][channel]["values"][-1] / 1000
+
+                if freezing_threshold <= temperature:
+                    print(f"-- {zone} is ok")
+                    self.alert_status[house_alias][alert_alias][zone] = False
+                else:                    
+                    if not self.alert_status[house_alias][alert_alias][zone]:
+                        alert_message = f"{house_alias}: {zone} is below 40F"
+                        self.send_opsgenie_alert(alert_message, house_alias, alert_alias+f"_{zone}")
+                        self.alert_status[house_alias][alert_alias][zone] = True
 
     def check_dist_pump(self):
         alert_alias = "dist_pump"
@@ -783,6 +820,7 @@ class AlertGenerator:
                 self.check_for_glitches()
                 self.check_no_data()
                 self.check_zone_below_setpoint()
+                self.check_zone_freezing()
                 self.check_dist_pump()
                 self.check_store_pump()
                 self.check_hp()
