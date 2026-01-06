@@ -45,6 +45,7 @@ from gjk.enums.fsm_report_type import FsmReportType
 from gjk.enums.g_node_role import GNodeRole
 from gjk.enums.g_node_status import GNodeStatus
 from gjk.enums.gpm_from_hz_method import GpmFromHzMethod
+from gjk.enums.gw_unit import GwUnit
 from gjk.enums.hz_calc_method import HzCalcMethod
 from gjk.enums.kind_of_param import KindOfParam
 from gjk.enums.log_level import LogLevel
@@ -64,9 +65,9 @@ from gjk.enums.turn_hp_on_off import TurnHpOnOff
 from gjk.enums.unit import Unit
 
 __all__ = [
-    "ActorClass",  # [sh.actor.class.005](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#shactorclass)
-    "ChangeAquastatControl",  # [change.aquastat.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeaquastatcontrol)
-    "ChangeHeatPumpControl",  # [change.heat.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatpumpcontrol)
+    "ActorClass",
+    "ChangeAquastatControl",
+    "ChangeHeatPumpControl",
     "ChangeHeatcallSource",  # [change.heatcall.source.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeheatcallsource)
     "ChangePrimaryPumpControl",  # [change.primary.pump.control.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changeprimarypumpcontrol)
     "ChangeRelayPin",  # [change.relay.pin.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#changerelaypin)
@@ -79,6 +80,7 @@ __all__ = [
     "GNodeRole",  # [g.node.role.001](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnoderole)
     "GNodeStatus",  # [g.node.status.100](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gnodestatus)
     "GpmFromHzMethod",  # [gpm.from.hz.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#gpmfromhzmethod)
+    "GwUnit",
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "HzCalcMethod",  # [hz.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#hzcalcmethod)
     "KindOfParam",  # [spaceheat.kind.of.param.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatkindofparam)
@@ -92,9 +94,9 @@ __all__ = [
     "RelayPinSet",  # [relay.pin.set.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaypinset)
     "RelayWiringConfig",  # [relay.wiring.config.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#relaywiringconfig)
     "StoreFlowRelay",  # [store.flow.relay.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#storeflowrelay)
-    "Strategy",  # [spaceheat.strategy.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatstrategy)
-    "TelemetryName",  # [spaceheat.telemetry.name.004](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheattelemetryname)
-    "TempCalcMethod",  # [temp.calc.method.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#tempcalcmethod)
-    "TurnHpOnOff",  # [turn.hp.on.off.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#turnhponoff)
-    "Unit",  # [spaceheat.unit.000](https://gridworks-type-registry.readthedocs.io/en/latest/enums.html#spaceheatunit)
+    "Strategy", 
+    "TelemetryName",
+    "TempCalcMethod",
+    "TurnHpOnOff",
+    "Unit",
 ]
