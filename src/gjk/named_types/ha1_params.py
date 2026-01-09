@@ -19,4 +19,4 @@ class Ha1Params(GwBase):
     max_ewt_f: StrictInt
     load_overestimation_percent: StrictInt
     type_name: Literal["ha1.params"] = "ha1.params"
-    version: Literal["002"] = "002"
+    version: Literal["004"] = "004"

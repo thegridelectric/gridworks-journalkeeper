@@ -8,20 +8,14 @@ from gjk.models import (
     DataChannelSql,
     MessageSql,
     NodalHourlyEnergySql,
-    ParamSql,
-    ReadingSql,
     ScadaSql,
-    StrategySql,
 )
 from gjk.named_types import DataChannelGt
 from gjk.named_types.asl_types import TypeByName
 from gjk.type_helpers import (
     Message,
     NodalHourlyEnergy,
-    Param,
-    Reading,
     Scada,
-    Strategy,
 )
 
 
@@ -67,15 +61,12 @@ def from_dict(data: dict) -> Optional[GwBase]:
 
 def pyd_to_sql(
     t: Union[
-        DataChannelGt, Message, NodalHourlyEnergy, Param, Strategy, Reading, Scada
+        DataChannelGt, Message, NodalHourlyEnergy, Scada
     ],
 ) -> Union[
     DataChannelSql,
     MessageSql,
     NodalHourlyEnergySql,
-    ParamSql,
-    StrategySql,
-    ReadingSql,
     ScadaSql,
 ]:
     d = t.to_sql_dict()
@@ -89,13 +80,6 @@ def pyd_to_sql(
     elif isinstance(t, NodalHourlyEnergy):
         d["power_channel"] = DataChannelSql(**d["power_channel"])
         return NodalHourlyEnergySql(**d)
-    elif isinstance(t, Param):
-        return ParamSql(**d)
-    elif isinstance(t, Strategy):
-        return StrategySql(**d)
-    elif isinstance(t, Reading):
-        d["data_channel"] = DataChannelSql(**d["data_channel"])
-        return ReadingSql(**d)
     elif isinstance(t, Scada):
         return ScadaSql(**d)
     else:
@@ -107,12 +91,9 @@ def sql_to_pyd(
         DataChannelSql,
         MessageSql,
         NodalHourlyEnergySql,
-        ParamSql,
-        StrategySql,
-        ReadingSql,
         ScadaSql,
     ],
-) -> Union[DataChannelGt, Message, NodalHourlyEnergy, Param, Strategy, Reading, Scada]:
+) -> Union[DataChannelGt, Message, NodalHourlyEnergy, Scada]:
     d = t.to_dict()
     if isinstance(t, DataChannelSql):
         return DataChannelGt(**d)
@@ -120,12 +101,6 @@ def sql_to_pyd(
         return MessageSql(**d)
     elif isinstance(t, NodalHourlyEnergySql):
         return NodalHourlyEnergy(**d)
-    elif isinstance(t, ParamSql):
-        return Param(**d)
-    elif isinstance(t, StrategySql):
-        return Strategy(**d)
-    elif isinstance(t, ReadingSql):
-        return Reading(**d)
     elif isinstance(t, ScadaSql):
         return Scada(**d)
     else:
