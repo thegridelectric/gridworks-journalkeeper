@@ -25,7 +25,96 @@ This is a repository for managing GridWorks storage of GridWorks time series dat
 
 Right now it is focused on setting up the simplest usable form of storing the 2023-2024 Millinocket S3 data in a postgres database.
 
-## journaldb
+
+
+
+## Dev Quick Start
+
+### Set up docker
+Journalkeeper expects a running rabbit broker and a postgres database. We will set these both up
+in docker.
+
+**Prerequisites**
+  - Docker Desktop (macOS / Windows) or Docker Engine (Linux)
+  Either:
+    - docker compose (Compose v2), or
+    - docker-compose (legacy Compose v1)
+
+Below we use the `docker compose` command. If you have the legacy version, you should be able to replace
+that with `docker-compose` interchangeablly.
+
+### Set up rabbit broker
+
+
+Follow instructions in [gridworks-base](https://github.com/thegridelectric/gridworks-base)
+
+### Set up the database
+
+#### Create the database
+From the repository root:
+
+```
+docker compose up
+```
+
+You should see logs ending with:
+```
+database system is ready to accept connections
+```
+
+[Note: `docker compose up -d` will run in the background if you prefer that]
+
+The dev database is exposed on:
+  - Host port: 5433
+  - Database: journaldb_dev
+  - User: journaldb
+  - Password: journaldb
+> Note: The dev container uses port 5433 to avoid conflicts with standard port 5432 in case you already have postgres running locally
+
+
+Test for success:
+```
+psql -h localhost -p 5433 -U journaldb journaldb_dev
+```
+password `journaldb` 
+
+This will bring you to the psql cli. 
+
+#### Load the database structure via alembic
+
+```
+poetry run alembic current
+```
+Will show that alembic has correct credentials to access the db. Success looks like:
+
+```
+
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+b371e63f0b02 (head)
+```
+
+Then the key command:
+
+```
+poetry run alembic upgrade head
+```
+This will:
+  - 1.  Connect to journaldb_dev using your dev defaults
+  - 2. Create the `alembic_version` table
+  - 3. Run every migration in `alembic/versions`
+  - 4. Mark the database as being at `head`
+
+
+### Install virtual env
+```
+poetry install
+poetry shell
+python run demo.y
+```
+
+
+## Production
 
 ### EC2 instance
 Elastic IP 3.221.195.180, key gridworks-hybrid
@@ -49,45 +138,6 @@ psql -h journaldb.electricity.works -U journaldb -d journaldb
 and then enter password
 
 
-
-## Features
-
-- TODO
-
-## Requirements
-
-- TODO
-
-## Installation
-
-You can install _Gridworks Journal Keeper_ via [pip] from [PyPI]:
-
-```console
-$ pip install gridworks-journalkeeper
-```
-
-## Usage
-
-Please see the [Command-line Reference] for details.
-
-## Contributing
-
-Contributions are very welcome.
-To learn more, see the [Contributor Guide].
-
-## License
-
-Distributed under the terms of the [MIT license][license],
-_Gridworks Journal Keeper_ is free and open source software.
-
-## Issues
-
-If you encounter any problems,
-please [file an issue] along with a detailed description.
-
-## Credits
-
-This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/

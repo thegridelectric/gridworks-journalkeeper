@@ -1,16 +1,14 @@
-"""Tests layout.lite type, version 001"""
-
 from gjk.named_types import LayoutLite
 
 
 def test_layout_lite_generated() -> None:
     d = {
         "FromGNodeAlias": "hw1.isone.me.versant.keene.beech.scada",
-        "FromGNodeInstanceId": "98542a17-3180-4f2a-a929-6023f0e7a106",
         "MessageCreatedMs": 1728651445746,
         "MessageId": "1302c0f8-1983-43b2-90d2-61678d731db3",
         "Strategy": "House0",
         "ZoneList": ["Down", "Up"],
+        "CriticalZoneList": ["Down"],
         "TotalStoreTanks": 3,
         "Ha1Params": {
             "AlphaTimes10": 120,
@@ -18,14 +16,14 @@ def test_layout_lite_generated() -> None:
             "GammaEx6": 0,
             "IntermediatePowerKw": 1.5,
             "IntermediateRswtF": 100,
-            "DdPowerKw": 12.0,
+            "DdPowerKw": 12,
             "DdRswtF": 160,
             "DdDeltaTF": 20,
-            "HpMaxKwTh": 6.0,
+            "HpMaxKwTh": 6,
             "MaxEwtF": 170,
             "LoadOverestimationPercent": 10,
             "TypeName": "ha1.params",
-            "Version": "002",
+            "Version": "004",
         },
         "ShNodes": [
             {
@@ -57,19 +55,7 @@ def test_layout_lite_generated() -> None:
                 "Version": "200",
             },
         ],
-        "SynthChannels": [
-            {
-                "Id": "99fb8f0e-3c7c-4b62-be5a-4f7a6376519f",
-                "Name": "required-swt",
-                "CreatedByNodeName": "homealone",
-                "TelemetryName": "WaterTempCTimes1000",
-                "TerminalAssetAlias": "d1.isone.ct.orange.ta",
-                "Strategy": "simple",
-                "SyncReportMinutes": 60,
-                "DisplayName": "Required Source Water Temp",
-                "TypeName": "synth.channel.gt",
-                "Version": "000",
-            }
+        "DerivedChannels": [
         ],
         "DataChannels": [
             {
@@ -120,15 +106,6 @@ def test_layout_lite_generated() -> None:
                     },
                     {
                         "AsyncCapture": True,
-                        "CapturePeriodS": 60,
-                        "ChannelName": "buffer-depth4",
-                        "Exponent": 3,
-                        "TypeName": "channel.config",
-                        "Unit": "Celcius",
-                        "Version": "000",
-                    },
-                    {
-                        "AsyncCapture": True,
                         "AsyncCaptureDelta": 2000,
                         "CapturePeriodS": 60,
                         "ChannelName": "buffer-depth1-micro-v",
@@ -157,31 +134,19 @@ def test_layout_lite_generated() -> None:
                         "Unit": "VoltsRms",
                         "Version": "000",
                     },
-                    {
-                        "AsyncCapture": True,
-                        "AsyncCaptureDelta": 2000,
-                        "CapturePeriodS": 60,
-                        "ChannelName": "buffer-depth4-micro-v",
-                        "Exponent": 6,
-                        "TypeName": "channel.config",
-                        "Unit": "VoltsRms",
-                        "Version": "000",
-                    },
                 ],
                 "DisplayName": "buffer PicoTankModule",
                 "Enabled": True,
                 "SerialNumber": "1030",
                 "NumSampleAverages": 10,
-                "PicoAHwUid": "pico_4c1a21",
-                "PicoBHwUid": "pico_487a22",
-                "PicoKOhms": 30,
+                "PicoHwUid": "pico_aaaaaa",
                 "Samples": 1000,
                 "SendMicroVolts": True,
-                "TempCalcMethod": "SimpleBetaForPico",
+                "TempCalcMethod": "SimpleBeta",
                 "ThermistorBeta": 3977,
                 "AsyncCaptureDeltaMicroVolts": 2000,
                 "TypeName": "pico.tank.module.component.gt",
-                "Version": "000",
+                "Version": "011",
             }
         ],
         "FlowModuleComponents": [
@@ -238,15 +203,15 @@ def test_layout_lite_generated() -> None:
                     "AsyncCapture": True,
                     "CapturePeriodS": 300,
                     "ChannelName": "vdc-relay1",
-                    "DeEnergizingEvent": "CloseRelay",
-                    "EnergizingEvent": "OpenRelay",
                     "DeEnergizedState": "RelayClosed",
+                    "DeEnergizingEvent": "CloseRelay",
                     "EnergizedState": "RelayOpen",
+                    "EnergizingEvent": "OpenRelay",
                     "EventType": "change.relay.state",
-                    "StateType": "relay.closed.or.open",
                     "Exponent": 0,
                     "PollPeriodMs": 200,
                     "RelayIdx": 1,
+                    "StateType": "relay.closed.or.open",
                     "TypeName": "relay.actor.config",
                     "Unit": "Unitless",
                     "Version": "002",
@@ -257,15 +222,15 @@ def test_layout_lite_generated() -> None:
                     "AsyncCapture": True,
                     "CapturePeriodS": 300,
                     "ChannelName": "tstat-common-relay2",
-                    "DeEnergizingEvent": "CloseRelay",
-                    "EnergizingEvent": "OpenRelay",
                     "DeEnergizedState": "RelayClosed",
+                    "DeEnergizingEvent": "CloseRelay",
                     "EnergizedState": "RelayOpen",
+                    "EnergizingEvent": "OpenRelay",
                     "EventType": "change.relay.state",
-                    "StateType": "relay.closed.or.open",
                     "Exponent": 0,
                     "PollPeriodMs": 200,
                     "RelayIdx": 2,
+                    "StateType": "relay.closed.or.open",
                     "TypeName": "relay.actor.config",
                     "Unit": "Unitless",
                     "Version": "002",
@@ -276,15 +241,15 @@ def test_layout_lite_generated() -> None:
                     "AsyncCapture": True,
                     "CapturePeriodS": 300,
                     "ChannelName": "charge-discharge-relay3",
-                    "DeEnergizingEvent": "DischargeStore",
-                    "EnergizingEvent": "ChargeStore",
                     "DeEnergizedState": "DischargingStore",
+                    "DeEnergizingEvent": "DischargeStore",
                     "EnergizedState": "ChargingStore",
+                    "EnergizingEvent": "ChargeStore",
                     "EventType": "change.store.flow.relay",
-                    "StateType": "store.flow.relay",
                     "Exponent": 0,
                     "PollPeriodMs": 200,
                     "RelayIdx": 3,
+                    "StateType": "store.flow.relay",
                     "TypeName": "relay.actor.config",
                     "Unit": "Unitless",
                     "Version": "002",
@@ -297,8 +262,11 @@ def test_layout_lite_generated() -> None:
             "Version": "002",
         },
         "TypeName": "layout.lite",
-        "Version": "004",
+        "Version": "007",
     }
+
+
     t = LayoutLite.from_dict(d)
+
     # TODO : figure out why LayoutLite.from_dict(d).to_dict() == d fails
     assert t.total_store_tanks == 3

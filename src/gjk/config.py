@@ -17,8 +17,10 @@ class AwsClient(BaseModel):
 
 class Settings(GNodeSettings):
     db_url: SecretStr = SecretStr(
-        "postgresql://journaldb:PASSWD@journaldb.electricity.works/journaldb"
+        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/journaldb_dev"
     )
+    gbo_db_url: SecretStr = SecretStr(
+        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/backofficedb_dev""")
     aws: AwsClient = AwsClient()
     ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
     g_node_alias: str = "d1.journal"
@@ -26,6 +28,8 @@ class Settings(GNodeSettings):
     world_instance_alias: str = "d1__1"
     my_fqdn: str = "localhost"
     visualizer_api_password: SecretStr = SecretStr("ThermostatAPIKey")
+    email_sender: SecretStr = SecretStr("email_sender")
+    email_password: SecretStr = SecretStr("email_password")
 
     model_config = ConfigDict(
         env_prefix="GJK_",

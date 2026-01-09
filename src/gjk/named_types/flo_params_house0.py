@@ -25,16 +25,21 @@ class FloParamsHouse0(GwBase):
     storage_losses_percent: float
     hp_min_elec_kw: float
     hp_max_elec_kw: float
+    buffer_available_kwh: float
+    house_available_kwh: float
     cop_intercept: float
     cop_oat_coeff: float
     cop_min: float
     cop_min_oat_f: float
     cop_lwt_coeff: float
     initial_top_temp_f: StrictInt
+    initial_middle_temp_f: StrictInt
+    initial_bottom_temp_f: StrictInt
     hp_is_off: bool
     hp_turn_on_minutes: StrictInt
     lmp_forecast: Optional[List[float]] = None
-    initial_thermocline: StrictInt
+    initial_thermocline1: StrictInt
+    initial_thermocline2: StrictInt
     dist_price_forecast: Optional[List[float]] = None
     reg_price_forecast: Optional[List[float]] = None
     price_forecast_uid: UUID4Str
@@ -52,8 +57,10 @@ class FloParamsHouse0(GwBase):
     max_ewt_f: StrictInt
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
+    flo_alias: Optional[str] = None
+    flo_git_commit: Optional[str] = None
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
-    version: Literal["001"] = "001"
+    version: str = "003"
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,

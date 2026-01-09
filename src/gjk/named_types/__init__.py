@@ -4,6 +4,7 @@ from gjk.named_types.atn_bid import AtnBid
 from gjk.named_types.channel_config import ChannelConfig
 from gjk.named_types.channel_readings import ChannelReadings
 from gjk.named_types.data_channel_gt import DataChannelGt
+from gjk.named_types.derived_channel_gt import DerivedChannelGt
 from gjk.named_types.energy_instruction import EnergyInstruction
 from gjk.named_types.flo_params_house0 import FloParamsHouse0
 from gjk.named_types.fsm_atomic_report import FsmAtomicReport
@@ -34,6 +35,8 @@ from gjk.named_types.single_machine_state import SingleMachineState
 from gjk.named_types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.named_types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.named_types.synth_channel_gt import SynthChannelGt
+from gjk.named_types.tank_temp_calibration import TankTempCalibration
+from gjk.named_types.tank_temp_calibration_map import TankTempCalibrationMap
 from gjk.named_types.ticklist_hall import TicklistHall
 from gjk.named_types.ticklist_hall_report import TicklistHallReport
 from gjk.named_types.ticklist_reed import TicklistReed
@@ -46,6 +49,7 @@ __all__ = [
     "ChannelConfig",
     "ChannelReadings",
     "DataChannelGt",
+    "DerivedChannelGt",
     "EnergyInstruction",
     "FloParamsHouse0",
     "FsmAtomicReport",
@@ -74,6 +78,8 @@ __all__ = [
     "SnapshotSpaceheat",
     "SpaceheatNodeGt",
     "SynthChannelGt",
+    "TankTempCalibration",
+    "TankTempCalibrationMap",
     "TicklistHall",
     "TicklistHallReport",
     "TicklistReed",
