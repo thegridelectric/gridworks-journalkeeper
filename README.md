@@ -26,6 +26,31 @@ This repository is a **work in progress**. Current focus is on importing and man
 * `make`
 * Docker / Docker Compose
 * PostgreSQL client (`psql`) recommended
+* pre-commit (see below)
+
+### One-time tooling setup
+
+This project uses `pre-commit` for local quality checks. The `pre-commit` runner
+must be installed once on your system (outside the project environment).
+
+We recommend installing it with `pipx`:
+
+```bash
+# macOS / Linux
+brew install pipx        # or see https://pipx.pypa.io/installation/
+pipx ensurepath
+pipx install pre-commit
+```
+
+Verify installation:
+
+```
+pre-commit --version
+```
+
+Note: pre-commit manages its own hook environments and does **not** rely on
+the project virtual environment. Once hooks are installed and cached, commits work offline.
+
 
 ---
 
@@ -39,7 +64,6 @@ From the repository root:
 make venv
 make dev
 pre-commit install
-pre-commit migrate-config
 source .venv/bin/activate
 ```
 
@@ -54,6 +78,12 @@ Common commands:
 make lint
 make test
 make pre-commit
+```
+
+To run the test suite:
+
+```
+make test
 ```
 ## Runtime Dependencies (Docker)
 
