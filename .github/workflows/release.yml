@@ -32,4 +32,18 @@ jobs:
           TAG_VERSION="${GITHUB_REF_NAME#v}"
 
           PYPROJECT_VERSION=$(python - <<'EOF'
-          import tomll
+          import tomllib
+          from pathlib import Path
+
+          data = tomllib.loads(Path("pyproject.toml").read_text())
+          print(data["project"]["version"])
+          EOF
+          )
+
+          echo "Tag version: $TAG_VERSION"
+          echo "pyproject.toml version: $PYPROJECT_VERSION"
+
+          if [ "$TAG_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "Version mismatch between tag and pyproject.toml"
+            exit 1
+          fi
