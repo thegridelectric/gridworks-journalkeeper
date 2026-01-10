@@ -1,15 +1,15 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from gw.named_types import GwBase
 
 
-class TankTempCalibration(BaseModel):
-    Depth1M: float = 1.0
-    Depth1B: float = 0.0
-    Depth2M: float = 1.0
-    Depth2B: float = 0.0
-    Depth3M: float = 1.0
-    Depth3B: float = 0.0
+class TankTempCalibration(GwBase):
+    depth1_m: float = 1.0
+    depth1_b: float = 0.0
+    depth2_m: float = 1.0
+    depth2_b: float = 0.0
+    depth3_m: float = 1.0
+    depth3_b: float = 0.0
 
     TypeName: Literal["gw1.tank.temp.calibration"] = "gw1.tank.temp.calibration"
     Version: Literal["000"] = "000"
