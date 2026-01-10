@@ -1,6 +1,6 @@
 [project]
 name = "gridworks-journalkeeper"
-version = "0.1.0"
+version = "0.1.1"
 description = "Gridworks Journal Keeper"
 readme = "README.md"
 license = { file = "LICENSE" }
