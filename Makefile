@@ -24,11 +24,11 @@ activate:
 
 .PHONY: lock
 lock:
-	$(UV) pip compile pyproject.toml -o uv.lock
+	$(UV) lock
 
 .PHONY: sync
 sync:
-	$(UV) pip sync uv.lock
+	$(UV) sync
 
 .PHONY: install
 install:
@@ -48,7 +48,7 @@ dev: sync install-dev
 
 .PHONY: test
 test:
-	pytest
+	$(UV) run pytest
 
 # -------------------------
 #  quality gates
@@ -56,21 +56,21 @@ test:
 
 .PHONY: format
 format:
-	ruff format .
+	$(UV) run ruff format .
 
 .PHONY: lint
 lint:
-	ruff check .
-	mypy src
+	$(UV) ruff check .
+	$(UV) mypy src
 
 pre-commit:
-	pre-commit run --all-files
+	$(UV) run pre-commit run --all-files
 
 check: lint test
 
 ci: lint test
-	coverage run -m pytest
-	coverage report
+	$(UV) run coverage run -m pytest
+	$(UV) run coverage report
 
 
 # -------------------------
