@@ -28,7 +28,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] No data coming to the database! Is the scada running?",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-nodata",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-nodata",
         "priority": "P1",
         "responders": responders,
     }
@@ -122,7 +122,7 @@ def check_nodata():
                         most_recent = channels[key]["times"][-1]
 
                 print(
-                    f"Most recent: {pendulum.from_timestamp(most_recent / 1000, tz='America/New_York')}"
+                    f"Most recent: {pendulum.from_timestamp(most_recent / 1000, tz="America/New_York")}"
                 )
 
                 if pendulum.now().timestamp() - most_recent / 1000 > 60 * 60 * 1:

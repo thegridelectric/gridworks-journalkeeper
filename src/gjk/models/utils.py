@@ -5,7 +5,7 @@ from sqlalchemy.exc import NoSuchTableError, SQLAlchemyError
 from sqlalchemy.orm import Session
 
 
-def bulk_insert_idempotent(session: Session, orm_object_list: List):
+def bulk_insert_idempotent(session: Session, orm_object_list: list):
     """
     Idempotently bulk inserts SQLAlchemy objects into the database, inserting only those whose
     primary keys do not already exist.

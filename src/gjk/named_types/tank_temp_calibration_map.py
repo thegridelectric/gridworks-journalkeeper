@@ -1,7 +1,6 @@
-from typing import Literal
+from typing import Literal, Self
 
 from pydantic import BaseModel, PositiveInt, model_validator
-from typing_extensions import Self
 
 from gjk.named_types.tank_temp_calibration import TankTempCalibration
 

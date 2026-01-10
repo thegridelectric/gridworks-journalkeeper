@@ -16,7 +16,7 @@ class ChangePrimaryPumpControl(GwStrEnum):
     SwitchToHeatPump = auto()
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """

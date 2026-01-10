@@ -1,13 +1,12 @@
 """Type data.channel.gt, version 001"""
 
 import json
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Self
 
 from gw.named_types import GwBase
 from pydantic import (
     model_validator,
 )
-from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.property_format import (
@@ -25,8 +24,8 @@ class DataChannelGt(GwBase):
     captured_by_node_name: SpaceheatName
     telemetry_name: TelemetryName
     terminal_asset_alias: LeftRightDot
-    in_power_metering: Optional[bool] = None
-    start_s: Optional[UTCSeconds] = None
+    in_power_metering: bool | None = None
+    start_s: UTCSeconds | None = None
     id: UUID4Str
     type_name: Literal["data.channel.gt"] = "data.channel.gt"
     version: Literal["001"] = "001"
@@ -54,7 +53,7 @@ class DataChannelGt(GwBase):
             del data["TelemetryNameGtEnumSymbol"]
         return data
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         msg_bytes = self.model_dump_json()  # this translated enums into strings
         d = json.loads(msg_bytes)
         d.pop("type_name", None)

@@ -22,9 +22,9 @@ class Report(GwBase):
     about_g_node_alias: LeftRightDot
     slot_start_unix_s: UTCSeconds
     slot_duration_s: PositiveInt
-    channel_reading_list: List[ChannelReadings]
-    state_list: List[MachineStates]
-    fsm_report_list: List[FsmFullReport]
+    channel_reading_list: list[ChannelReadings]
+    state_list: list[MachineStates]
+    fsm_report_list: list[FsmFullReport]
     message_created_ms: UTCMilliseconds
     id: UUID4Str
     type_name: Literal["report"] = "report"
@@ -33,6 +33,6 @@ class Report(GwBase):
     @field_validator("channel_reading_list")
     @classmethod
     def _check_channel_reading_list(
-        cls, v: List[ChannelReadings]
-    ) -> List[ChannelReadings]:
+        cls, v: list[ChannelReadings]
+    ) -> list[ChannelReadings]:
         return v

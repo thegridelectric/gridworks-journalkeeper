@@ -21,10 +21,10 @@ class LayoutLite000(GwBase):
     message_created_ms: UTCMilliseconds
     message_id: UUID4Str
     strategy: str
-    zone_list: List[str]
+    zone_list: list[str]
     total_store_tanks: PositiveInt
-    data_channels: List[DataChannelGt]
-    tank_module_components: List[PicoTankModuleComponentGt]
-    flow_module_components: List[PicoFlowModuleComponentGt]
+    data_channels: list[DataChannelGt]
+    tank_module_components: list[PicoTankModuleComponentGt]
+    flow_module_components: list[PicoFlowModuleComponentGt]
     type_name: Literal["layout.lite"] = "layout.lite"
     version: Literal["000"] = "000"

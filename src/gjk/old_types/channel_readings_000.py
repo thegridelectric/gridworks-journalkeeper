@@ -1,20 +1,19 @@
 """Type channel.readings, version 000"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.errors import GwTypeError
 from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.property_format import UTCMilliseconds, UUID4Str
 
 
 class ChannelReadings000(GwBase):
     channel_id: UUID4Str
-    value_list: List[StrictInt]
-    scada_read_time_unix_ms_list: List[UTCMilliseconds]
+    value_list: list[StrictInt]
+    scada_read_time_unix_ms_list: list[UTCMilliseconds]
     type_name: Literal["channel.readings"] = "channel.readings"
     version: Literal["000"] = "000"
 

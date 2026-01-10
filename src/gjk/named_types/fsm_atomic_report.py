@@ -1,10 +1,9 @@
 """Type fsm.atomic.report, version 000"""
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Self
 
 from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.enums import FsmActionType, FsmReportType
 from gjk.property_format import HandleName, LeftRightDot, UTCMilliseconds, UUID4Str
@@ -23,12 +22,12 @@ class FsmAtomicReport(GwBase):
     machine_handle: HandleName
     state_enum: LeftRightDot
     report_type: FsmReportType
-    action_type: Optional[FsmActionType] = None
-    action: Optional[StrictInt] = None
-    event_enum: Optional[LeftRightDot] = None
-    event: Optional[str] = None
-    from_state: Optional[str] = None
-    to_state: Optional[str] = None
+    action_type: FsmActionType | None = None
+    action: StrictInt | None = None
+    event_enum: LeftRightDot | None = None
+    event: str | None = None
+    from_state: str | None = None
+    to_state: str | None = None
     unix_time_ms: UTCMilliseconds
     trigger_id: UUID4Str
     type_name: Literal["fsm.atomic.report"] = "fsm.atomic.report"

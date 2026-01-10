@@ -19,10 +19,10 @@ def get_hello():
     return {"hi": "there"}
 
 
-@app.get("/data-channels/{short_alias}", response_model=List[DataChannelGt])
+@app.get("/data-channels/{short_alias}", response_model=list[DataChannelGt])
 def get_data_channels(
     short_alias: str, db: Session = Depends(get_db)
-) -> List[DataChannelGt]:
+) -> list[DataChannelGt]:
     sql_channels = (
         db.query(DataChannelSql)
         .filter(DataChannelSql.terminal_asset_alias.like(f"%{short_alias}%"))

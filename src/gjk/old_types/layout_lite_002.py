@@ -1,10 +1,9 @@
 """Type layout.lite, version 002"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import PositiveInt, model_validator
-from typing_extensions import Self
 
 from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.named_types.ha1_params import Ha1Params
@@ -28,13 +27,13 @@ class LayoutLite002(GwBase):
     message_created_ms: UTCMilliseconds
     message_id: UUID4Str
     strategy: str
-    zone_list: List[str]
+    zone_list: list[str]
     total_store_tanks: PositiveInt
-    sh_nodes: List[SpaceheatNodeGt]
-    data_channels: List[DataChannelGt]
-    synth_channels: List[SynthChannelGt]
-    tank_module_components: List[PicoTankModuleComponentGt]
-    flow_module_components: List[PicoFlowModuleComponentGt]
+    sh_nodes: list[SpaceheatNodeGt]
+    data_channels: list[DataChannelGt]
+    synth_channels: list[SynthChannelGt]
+    tank_module_components: list[PicoTankModuleComponentGt]
+    flow_module_components: list[PicoFlowModuleComponentGt]
     ha1_params: Ha1Params
     i2c_relay_component: I2cMultichannelDtRelayComponentGt001
     type_name: Literal["layout.lite"] = "layout.lite"

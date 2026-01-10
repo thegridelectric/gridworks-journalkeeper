@@ -1,9 +1,8 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Self
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
 from pydantic import BaseModel, ConfigDict, ValidationError, model_validator
-from typing_extensions import Self
 
 from gjk.property_format import (
     LeftRightDot,
@@ -28,8 +27,8 @@ class Scada(BaseModel):
     g_node_id: UUID4Str
     g_node_alias: LeftRightDot
     short_alias: str
-    scada_installed_s: Optional[UTCSeconds]
-    ta_fully_installed_s: Optional[UTCSeconds]
+    scada_installed_s: UTCSeconds | None
+    ta_fully_installed_s: UTCSeconds | None
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -73,7 +72,7 @@ class Scada(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """

@@ -28,7 +28,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] HP is not on even though relays say it is",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-hpnoton",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-hpnoton",
         "priority": "P1",
         "responders": responders,
     }
@@ -70,9 +70,7 @@ def check_hp_on():
 
             # For every house
             all_house_aliases = list({
-                x.from_alias
-                for x in messages
-                if "orange" not in x.from_alias
+                x.from_alias for x in messages if "orange" not in x.from_alias
             })
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
@@ -163,7 +161,7 @@ def check_hp_on():
                         time_of_last_switch / 1000, tz="America/New_York"
                     )
                     print(
-                        f"Relay 5 is in {relay_5[r]['values'][-1]} since {time_of_last_switch.replace(microsecond=0)}"
+                        f"Relay 5 is in {relay_5[r]["values"][-1]} since {time_of_last_switch.replace(microsecond=0)}"
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_5[r]["values"][-1] == "Scada":
@@ -223,7 +221,7 @@ def check_hp_on():
                         time_of_last_switch / 1000, tz="America/New_York"
                     )
                     print(
-                        f"Relay 6 is in {relay_6[r]['values'][-1]} since {time_of_last_switch.replace(microsecond=0)}"
+                        f"Relay 6 is in {relay_6[r]["values"][-1]} since {time_of_last_switch.replace(microsecond=0)}"
                     )
                     # If it has been more than 10 minutes since the relay is Closed
                     if relay_6[r]["values"][-1] == "RelayClosed":
@@ -267,7 +265,7 @@ def check_hp_on():
                     if on_times:
                         last_hp_on_time = on_times[-1]
                         print(
-                            f"The HP was on at {pendulum.from_timestamp(last_hp_on_time / 1000, tz='America/New_York').replace(microsecond=0)}"
+                            f"The HP was on at {pendulum.from_timestamp(last_hp_on_time / 1000, tz="America/New_York").replace(microsecond=0)}"
                         )
                     else:
                         last_hp_on_time = 0

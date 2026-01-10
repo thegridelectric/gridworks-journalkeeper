@@ -1,10 +1,9 @@
 """Type weather.forecast, version 000"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import model_validator
-from typing_extensions import Self
 
 from gjk.property_format import (
     LeftRightDot,
@@ -16,9 +15,9 @@ from gjk.property_format import (
 class WeatherForecast(GwBase):
     from_g_node_alias: LeftRightDot
     weather_channel_name: LeftRightDot
-    time: List[UTCSeconds]
-    oat_f: List[float]
-    wind_speed_mph: List[float]
+    time: list[UTCSeconds]
+    oat_f: list[float]
+    wind_speed_mph: list[float]
     weather_uid: UUID4Str
     forecast_created_s: UTCSeconds
     type_name: Literal["weather.forecast"] = "weather.forecast"

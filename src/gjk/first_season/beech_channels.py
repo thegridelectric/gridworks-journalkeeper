@@ -5,7 +5,7 @@ from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.beech_names import BEECH_TA, BN, BcName
 from gjk.named_types import DataChannelGt
 
-BEECH_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
+BEECH_CHANNELS_BY_NAME: dict[str, DataChannelGt] = {
     BcName.UP_ZONE_STATE: DataChannelGt(
         id="f8f5944f-d1f7-4f82-bca6-ce47aa90cefd",
         name=f"{BN.UP_ZONE}-state",

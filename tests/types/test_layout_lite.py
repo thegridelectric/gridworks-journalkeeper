@@ -55,8 +55,7 @@ def test_layout_lite_generated() -> None:
                 "Version": "200",
             },
         ],
-        "DerivedChannels": [
-        ],
+        "DerivedChannels": [],
         "DataChannels": [
             {
                 "Name": "hp-idu-pwr",
@@ -264,7 +263,6 @@ def test_layout_lite_generated() -> None:
         "TypeName": "layout.lite",
         "Version": "007",
     }
-
 
     t = LayoutLite.from_dict(d)
 

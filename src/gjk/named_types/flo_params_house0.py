@@ -37,14 +37,14 @@ class FloParamsHouse0(GwBase):
     initial_bottom_temp_f: StrictInt
     hp_is_off: bool
     hp_turn_on_minutes: StrictInt
-    lmp_forecast: Optional[List[float]] = None
+    lmp_forecast: list[float] | None = None
     initial_thermocline1: StrictInt
     initial_thermocline2: StrictInt
-    dist_price_forecast: Optional[List[float]] = None
-    reg_price_forecast: Optional[List[float]] = None
+    dist_price_forecast: list[float] | None = None
+    reg_price_forecast: list[float] | None = None
     price_forecast_uid: UUID4Str
-    oat_forecast_f: Optional[List[float]] = None
-    wind_speed_forecast_mph: Optional[List[float]] = None
+    oat_forecast_f: list[float] | None = None
+    wind_speed_forecast_mph: list[float] | None = None
     weather_uid: UUID4Str
     alpha_times10: StrictInt
     beta_times100: StrictInt
@@ -57,8 +57,8 @@ class FloParamsHouse0(GwBase):
     max_ewt_f: StrictInt
     price_unit: MarketPriceUnit
     params_generated_s: UTCSeconds
-    flo_alias: Optional[str] = None
-    flo_git_commit: Optional[str] = None
+    flo_alias: str | None = None
+    flo_git_commit: str | None = None
     type_name: Literal["flo.params.house0"] = "flo.params.house0"
     version: str = "003"
 

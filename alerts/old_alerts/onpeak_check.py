@@ -28,7 +28,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] The HP is on during onpeak!",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-hponpeak",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-hponpeak",
         "priority": "P1",
         "responders": responders,
     }

@@ -39,7 +39,7 @@ class NodalHourlyEnergy(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """
@@ -47,7 +47,7 @@ class NodalHourlyEnergy(BaseModel):
         d["PowerChannel"] = self.power_channel.to_dict()
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump()
         d["power_channel_id"] = self.power_channel.id
         d["power_channel"] = self.power_channel.to_sql_dict()

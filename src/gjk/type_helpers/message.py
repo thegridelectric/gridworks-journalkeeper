@@ -16,8 +16,8 @@ class Message(BaseModel):
     from_alias: LeftRightDot
     message_type_name: LeftRightDot
     message_persisted_ms: UTCMilliseconds
-    payload: Dict
-    message_created_ms: Optional[UTCMilliseconds] = None
+    payload: dict
+    message_created_ms: UTCMilliseconds | None = None
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
@@ -35,10 +35,10 @@ class Message(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         d = self.model_dump(exclude_none=True, by_alias=True)
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump()
         return d

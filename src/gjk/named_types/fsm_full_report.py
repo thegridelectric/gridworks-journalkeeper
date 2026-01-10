@@ -21,6 +21,6 @@ class FsmFullReport(GwBase):
 
     from_name: SpaceheatName
     trigger_id: UUID4Str
-    atomic_list: List[FsmAtomicReport]
+    atomic_list: list[FsmAtomicReport]
     type_name: Literal["fsm.full.report"] = "fsm.full.report"
     version: Literal["000"] = "000"

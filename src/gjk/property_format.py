@@ -264,7 +264,7 @@ def is_market_name(v: str) -> None:
     return v
 
 
-MarketMinutes: Dict[MarketTypeName, int] = {
+MarketMinutes: dict[MarketTypeName, int] = {
     MarketTypeName.da60: 60,
     MarketTypeName.rt15gate5: 15,
     MarketTypeName.rt30gate5: 30,

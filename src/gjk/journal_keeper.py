@@ -483,13 +483,13 @@ class JournalKeeper(ActorBase):
         start_s: int,
         duration_hrs: int,
         short_alias: str,
-    ) -> List[FileNameMeta]:
+    ) -> list[FileNameMeta]:
         date_list = self.get_date_folder_list(start_s, duration_hrs)
         print(f"Loading filenames from folders {date_list}")
-        all_fns: List[FileNameMeta] = self.get_all_filenames(date_list)
+        all_fns: list[FileNameMeta] = self.get_all_filenames(date_list)
         start_ms = start_s * 1000
         end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
-        ta_list: List[FileNameMeta] = [
+        ta_list: list[FileNameMeta] = [
             fn
             for fn in all_fns
             if (
@@ -515,9 +515,9 @@ class JournalKeeper(ActorBase):
 
     def get_all_filenames(
         self,
-        date_folder_list: List[str],
+        date_folder_list: list[str],
     ):
-        fn_list: List[FileNameMeta] = []
+        fn_list: list[FileNameMeta] = []
         for date_folder in date_folder_list:
             prefix = f"{self.world_instance_name}/eventstore/{date_folder}/"
             paginator = self.s3.get_paginator("list_objects_v2")

@@ -16,7 +16,7 @@ class Param(BaseModel):
     id: UUID4Str
     strategy: Strategy
     from_alias: LeftRightDot
-    payload: Dict
+    payload: dict
     unix_ms: UTCMilliseconds
 
     model_config = ConfigDict(
@@ -35,7 +35,7 @@ class Param(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """
@@ -43,7 +43,7 @@ class Param(BaseModel):
         d["Strategy"] = d["Strategy"].value
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump(exclude_none=True)
         d["strategy"] = d["strategy"].value
         d.pop("type_name", None)

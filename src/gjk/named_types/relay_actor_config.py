@@ -1,10 +1,9 @@
 """Type relay.actor.config, version 002"""
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Self
 
 from gw.named_types import GwBase
 from pydantic import PositiveInt, StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.enums import RelayWiringConfig, Unit
 from gjk.property_format import (
@@ -23,10 +22,10 @@ class RelayActorConfig(GwBase):
     de_energized_state: str
     energized_state: str
     channel_name: SpaceheatName
-    poll_period_s: Optional[PositiveInt] = None
+    poll_period_s: PositiveInt | None = None
     capture_period_s: PositiveInt
     async_capture: bool
-    async_capture_delta: Optional[PositiveInt] = None
+    async_capture_delta: PositiveInt | None = None
     exponent: StrictInt
     unit: Unit
     type_name: Literal["relay.actor.config"] = "relay.actor.config"

@@ -1,8 +1,7 @@
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
-from pydantic import  model_validator
-from typing_extensions import Self
+from pydantic import model_validator
 
 from gjk.enums import MarketPriceUnit, MarketQuantityUnit
 from gjk.named_types.price_quantity_unitless import PriceQuantityUnitless
@@ -12,7 +11,7 @@ from gjk.property_format import LeftRightDot, MarketSlotName
 class AtnBid(GwBase):
     bidder_alias: LeftRightDot
     market_slot_name: MarketSlotName
-    pq_pairs: List[PriceQuantityUnitless]
+    pq_pairs: list[PriceQuantityUnitless]
     injection_is_positive: bool
     price_unit: MarketPriceUnit
     quantity_unit: MarketQuantityUnit

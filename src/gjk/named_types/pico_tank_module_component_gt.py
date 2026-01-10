@@ -1,11 +1,10 @@
 """Type pico.tank.module.component.gt, version 000"""
 
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Self
 
 from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, PositiveInt, StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.enums import TempCalcMethod
 from gjk.named_types.channel_config import ChannelConfig
@@ -16,7 +15,7 @@ from gjk.property_format import (
 
 class PicoTankModuleComponentGt(GwBase):
     enabled: bool
-    pico_hw_uid : str | None = None
+    pico_hw_uid: str | None = None
     pico_a_hw_uid: str | None = None
     pico_b_hw_uid: str | None = None
     temp_calc_method: TempCalcMethod
@@ -27,8 +26,8 @@ class PicoTankModuleComponentGt(GwBase):
     pico_k_ohms: PositiveInt | None = None
     component_id: UUID4Str
     component_attribute_class_id: UUID4Str
-    config_list: List[ChannelConfig]
-    display_name: Optional[str] = None
+    config_list: list[ChannelConfig]
+    display_name: str | None = None
     serial_number: str
     async_capture_delta_micro_volts: StrictInt
     sensor_order: list[int] | None = None

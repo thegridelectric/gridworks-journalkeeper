@@ -3,7 +3,7 @@ from typing import Dict
 BEECH_GNI_ID = "98542a17-3180-4f2a-a929-6023f0e7a106"
 OAK_GNI_ID = "2270cca1-1bb6-4c13-ae0d-0ce14575543b"
 
-SCADA_GNI_DICT: Dict = {
+SCADA_GNI_DICT: dict = {
     "hw1.isone.me.versant.keene.beech.scada": BEECH_GNI_ID,
     "hw1.isone.me.versant.keene.oak.scada": OAK_GNI_ID,
 }

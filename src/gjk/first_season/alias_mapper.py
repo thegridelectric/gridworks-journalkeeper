@@ -7,7 +7,7 @@ class AliasMapper:
         self.scada = scada
         self.channel_mappings = {}
 
-    def add_name_mapping(self, name: str, mappings: List[Tuple[int, str]]):
+    def add_name_mapping(self, name: str, mappings: list[tuple[int, str]]):
         self.channel_mappings[name] = mappings
 
     def lookup_name(self, alias: str, timestamp: int) -> str:

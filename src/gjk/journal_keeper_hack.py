@@ -118,8 +118,8 @@ class JournalKeeperHack:
                     f"local and global data channels for {self.alias} do not match"
                 )
 
-    def get_date_folder_list(self, start_s: int, duration_hrs: int) -> List[str]:
-        folder_list: List[str] = []
+    def get_date_folder_list(self, start_s: int, duration_hrs: int) -> list[str]:
+        folder_list: list[str] = []
 
         if self.has_this_days_folder(int(start_s)):
             folder_list.append(pendulum.from_timestamp(start_s).strftime("%Y%m%d"))
@@ -146,9 +146,9 @@ class JournalKeeperHack:
 
     def get_all_filenames(
         self,
-        date_folder_list: List[str],
+        date_folder_list: list[str],
     ):
-        fn_list: List[FileNameMeta] = []
+        fn_list: list[FileNameMeta] = []
         for date_folder in date_folder_list:
             prefix = f"{self.world_instance_name}/eventstore/{date_folder}/"
             paginator = self.s3.get_paginator("list_objects_v2")
@@ -181,14 +181,14 @@ class JournalKeeperHack:
         start_s: int,
         duration_hrs: int,
         short_alias: str,
-    ) -> List[FileNameMeta]:
+    ) -> list[FileNameMeta]:
         date_list = self.get_date_folder_list(start_s, duration_hrs)
         print(f"Loading filenames from folders {date_list}")
-        all_fns: List[FileNameMeta] = self.get_all_filenames(date_list)
+        all_fns: list[FileNameMeta] = self.get_all_filenames(date_list)
         start_ms = start_s * 1000
         end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
-        if 'weather' not in short_alias:
-            ta_list: List[FileNameMeta] = [
+        if "weather" not in short_alias:
+            ta_list: list[FileNameMeta] = [
                 fn
                 for fn in all_fns
                 if (
@@ -202,7 +202,7 @@ class JournalKeeperHack:
                 and (start_ms <= fn.message_persisted_ms < end_ms)
             ]
         else:
-            ta_list: List[FileNameMeta] = [
+            ta_list: list[FileNameMeta] = [
                 fn
                 for fn in all_fns
                 if fn.type_name == "weather"
@@ -222,7 +222,7 @@ class JournalKeeperHack:
 
     def load_messages_from_s3(
         self, start_s: int, duration_hrs: int, short_alias: str
-    ) -> List[Message]:
+    ) -> list[Message]:
         """
         Load messages from S3,in batches of 100
         """
@@ -233,7 +233,7 @@ class JournalKeeperHack:
                 f"loading messages {i * 100} - {i * 100 + 100} [{str_from_ms(first.message_persisted_ms)} America/NY]"
             )
 
-            messages: List[Message] = []
+            messages: list[Message] = []
             blank_statuses = 0
             for fn in blist[i * 100 : i * 100 + 100]:
                 # get the serialized byte string
@@ -271,7 +271,7 @@ class JournalKeeperHack:
                     messages.append(msg)
                 elif t.type_name == "batched.readings":
                     blank_statuses += 1
-            
+
             print(f"Found {len(messages)} messages that are weather")
             print(f"For messages {i * 100} - {i * 100 + 100}: {blank_statuses} blanks")
             msg_sql_list = [codec.pyd_to_sql(x) for x in messages]

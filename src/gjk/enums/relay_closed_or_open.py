@@ -16,7 +16,7 @@ class RelayClosedOrOpen(GwStrEnum):
     RelayOpen = auto()
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """

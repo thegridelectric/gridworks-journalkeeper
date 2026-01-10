@@ -39,10 +39,9 @@ def test_actor_class() -> None:
         "StratBoss",
         "HpRelayBoss",
         "ApiBtuMeter",
-        "DerivedGenerator"
+        "DerivedGenerator",
     }
 
     assert ActorClass.default() == ActorClass.NoActor
     assert ActorClass.enum_name() == "sh.actor.class"
     assert ActorClass.enum_version() == "009"
-

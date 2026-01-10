@@ -54,20 +54,20 @@ class NodalHourlyEnergySql(Base):
     def __repr__(self):
         hs = pendulum.from_timestamp(self.hour_start_s, tz="America/New_York")
         return (
-            f"<[{self.power_channel.name}] {hs.format('MMM DD, HH:mm')}: (Hour Starting)"
+            f"<[{self.power_channel.name}] {hs.format("MMM DD, HH:mm")}: (Hour Starting)"
             f"{self.watt_hours / 1000} kWh>"
         )
 
     def __str__(self):
         hs = pendulum.from_timestamp(self.hour_start_s, tz="America/New_York")
         return (
-            f"[{self.power_channel.name}] {hs.format('MMM DD, HH:mm')}: (Hour Starting)"
+            f"[{self.power_channel.name}] {hs.format("MMM DD, HH:mm")}: (Hour Starting)"
             f"{self.watt_hours / 1000} kWh"
         )
 
 
 def bulk_insert_nodal_hourly_energy(
-    db: Session, hourly_energy_list: List[NodalHourlyEnergySql]
+    db: Session, hourly_energy_list: list[NodalHourlyEnergySql]
 ):
     """
     Idempotently bulk inserts NodalHourlyEnergySql into the journaldb hourly_device_energy table,

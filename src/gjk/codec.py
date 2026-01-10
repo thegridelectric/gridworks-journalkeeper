@@ -19,7 +19,7 @@ from gjk.type_helpers import (
 )
 
 
-def from_type(msg_bytes: bytes) -> Optional[GwBase]:
+def from_type(msg_bytes: bytes) -> GwBase | None:
     """
     Given an instance of the type (i.e., a serialized byte string for sending
     as a message), returns the appropriate instance of the associated pydantic
@@ -38,7 +38,7 @@ def from_type(msg_bytes: bytes) -> Optional[GwBase]:
     return from_dict(data)
 
 
-def from_dict(data: dict) -> Optional[GwBase]:
+def from_dict(data: dict) -> GwBase | None:
     if "TypeName" not in data.keys():
         raise GwTypeError(f"No TypeName - so not a type. Keys: <{data.keys()}>")
     outer_type_name = data["TypeName"]
@@ -60,15 +60,8 @@ def from_dict(data: dict) -> Optional[GwBase]:
 
 
 def pyd_to_sql(
-    t: Union[
-        DataChannelGt, Message, NodalHourlyEnergy, Scada
-    ],
-) -> Union[
-    DataChannelSql,
-    MessageSql,
-    NodalHourlyEnergySql,
-    ScadaSql,
-]:
+    t: (DataChannelGt | Message | NodalHourlyEnergy | Scada),
+) -> DataChannelSql | MessageSql | NodalHourlyEnergySql | ScadaSql:
     d = t.to_sql_dict()
 
     d.pop("type_name", None)
@@ -87,13 +80,8 @@ def pyd_to_sql(
 
 
 def sql_to_pyd(
-    t: Union[
-        DataChannelSql,
-        MessageSql,
-        NodalHourlyEnergySql,
-        ScadaSql,
-    ],
-) -> Union[DataChannelGt, Message, NodalHourlyEnergy, Scada]:
+    t: (DataChannelSql | MessageSql | NodalHourlyEnergySql | ScadaSql),
+) -> DataChannelGt | Message | NodalHourlyEnergy | Scada:
     d = t.to_dict()
     if isinstance(t, DataChannelSql):
         return DataChannelGt(**d)

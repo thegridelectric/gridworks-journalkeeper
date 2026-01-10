@@ -1,143 +1,207 @@
-# Gridworks Journal Keeper
+# GridWorks JournalKeeper
 
-[![PyPI](https://img.shields.io/pypi/v/gridworks-journalkeeper.svg)][pypi_]
-[![Status](https://img.shields.io/pypi/status/gridworks-journalkeeper.svg)][status]
-[![Python Version](https://img.shields.io/pypi/pyversions/gridworks-journalkeeper)][python version]
-[![License](https://img.shields.io/pypi/l/gridworks-journalkeeper)][license]
+[![PyPI](https://img.shields.io/pypi/v/gridworks-journalkeeper.svg)](https://pypi.org/project/gridworks-journalkeeper/)
+[![Status](https://img.shields.io/pypi/status/gridworks-journalkeeper.svg)](https://pypi.org/project/gridworks-journalkeeper/)
+[![Python Version](https://img.shields.io/pypi/pyversions/gridworks-journalkeeper)](https://pypi.org/project/gridworks-journalkeeper/)
+[![License](https://img.shields.io/pypi/l/gridworks-journalkeeper)](https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/LICENSE)
 
-[![Read the documentation at https://gridworks-journalkeeper.readthedocs.io/](https://img.shields.io/readthedocs/gridworks-journalkeeper/latest.svg?label=Read%20the%20Docs)][read the docs]
-[![Tests](https://github.com/thegridelectric/gridworks-journalkeeper/workflows/Tests/badge.svg)][tests]
-[![Codecov](https://codecov.io/gh/thegridelectric/gridworks-journalkeeper/branch/main/graph/badge.svg)][codecov]
+[![Read the Docs](https://img.shields.io/readthedocs/gridworks-journalkeeper/latest.svg)](https://gridworks-journalkeeper.readthedocs.io/)
+[![Tests](https://github.com/thegridelectric/gridworks-journalkeeper/actions/workflows/tests.yml/badge.svg)](https://github.com/thegridelectric/gridworks-journalkeeper/actions)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
-[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)][pre-commit]
-[![Black](https://img.shields.io/badge/code%20style-black-000000.svg)][black]
+---
 
-[pypi_]: https://pypi.org/project/gridworks-journalkeeper/
-[status]: https://pypi.org/project/gridworks-journalkeeper/
-[python version]: https://pypi.org/project/gridworks-journalkeeper
-[read the docs]: https://gridworks-journalkeeper.readthedocs.io/
-[tests]: https://github.com/thegridelectric/gridworks-journalkeeper/actions?workflow=Tests
-[codecov]: https://app.codecov.io/gh/thegridelectric/gridworks-journalkeeper
-[pre-commit]: https://github.com/pre-commit/pre-commit
-[black]: https://github.com/psf/black
+GridWorks JournalKeeper is responsible for **long-term storage and management of GridWorks time-series and message data**, beyond the initial persistence layer.
 
-This is a repository for managing GridWorks storage of GridWorks time series data beyond the initial persistence mechanism. It is a major work in progress
+This repository is a **work in progress**. Current focus is on importing and managing the 2023–2024 Millinocket S3 data in a PostgreSQL database, with Alembic-managed schema migrations.
 
-Right now it is focused on setting up the simplest usable form of storing the 2023-2024 Millinocket S3 data in a postgres database.
+---
 
+## Development Quick Start
 
+### Prerequisites
 
+* Python **3.12**
+* `uv`
+* `make`
+* Docker / Docker Compose
+* PostgreSQL client (`psql`) recommended
 
-## Dev Quick Start
+---
 
-### Set up docker
-Journalkeeper expects a running rabbit broker and a postgres database. We will set these both up
-in docker.
+### Python environment (uv + Make)
 
-**Prerequisites**
-  - Docker Desktop (macOS / Windows) or Docker Engine (Linux)
-  Either:
-    - docker compose (Compose v2), or
-    - docker-compose (legacy Compose v1)
+This project uses **uv** for dependency management and a **Makefile** for workflow orchestration.
 
-Below we use the `docker compose` command. If you have the legacy version, you should be able to replace
-that with `docker-compose` interchangeablly.
-
-### Set up rabbit broker
-
-
-Follow instructions in [gridworks-base](https://github.com/thegridelectric/gridworks-base)
-
-### Set up the database
-
-#### Create the database
 From the repository root:
 
-```
-docker compose up
+```bash
+make venv
+make dev
+pre-commit install
+pre-commit migrate-config
+source .venv/bin/activate
 ```
 
+After changing dependencies:
+```bash
+make lock
+make dev
+```
+
+Common commands:
+```
+make lint
+make test
+make pre-commit
+```
+## Runtime Dependencies (Docker)
+
+JournalKeeper expects:
+  - a running RabbitMQ broker
+  - a PostgreSQL database
+
+We run both locally using Docker.
+
+## RabbitMQ
+
+Follow the RabbitMQ setup instructions in [gridworks-base](https://github.com/thegridelectric/gridworks-base)
+
+## PostgreSQL (development database)
+
+From the repository root:
+```bash
+docker compose up
+```
 You should see logs ending with:
 ```
 database system is ready to accept connections
 ```
 
+
 [Note: `docker compose up -d` will run in the background if you prefer that]
 
 The dev database is exposed on:
-  - Host port: 5433
-  - Database: journaldb_dev
-  - User: journaldb
-  - Password: journaldb
-> Note: The dev container uses port 5433 to avoid conflicts with standard port 5432 in case you already have postgres running locally
+  - Host      `localhost`
+  - Port      `5433`
+  - Database  `journaldb_dev`
+  - User:     `journaldb`
+  - Password:  `journaldb`
 
+  Port 5433 is used to avoid conflicts with a local PostgreSQL instance on 5432.
 
-Test for success:
+Test connectivity:
 ```
 psql -h localhost -p 5433 -U journaldb journaldb_dev
 ```
-password `journaldb` 
 
-This will bring you to the psql cli. 
 
-#### Load the database structure via alembic
+## Database SCcema (Alembic)
+Alembic is used to manage database schema migrations.
+
+### Verify Alembic connectivity
+
+With your dev environment active:
+```bash
+
+alembic current
+```
+Expected output:
 
 ```
-poetry run alembic current
-```
-Will show that alembic has correct credentials to access the db. Success looks like:
-
-```
-
 INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
 INFO  [alembic.runtime.migration] Will assume transactional DDL.
-b371e63f0b02 (head)
+<revision_id>(head)
 ```
 
-Then the key command:
+### Apply migrations
 
 ```
-poetry run alembic upgrade head
+alembic upgrade head
 ```
 This will:
-  - 1.  Connect to journaldb_dev using your dev defaults
-  - 2. Create the `alembic_version` table
-  - 3. Run every migration in `alembic/versions`
+  - 1.  Connect to `journaldb_dev`
+  - 2. Create the `alembic_version` table if needed
+  - 3. Apply all migrations in `alembic/versions`
   - 4. Mark the database as being at `head`
 
+##  Publishing a Release
 
-### Install virtual env
+## Publishing a Release
+
+JournalKeeper uses **tag-driven releases**. The version in `pyproject.toml` is the single source of truth and **must match the Git tag exactly**.
+
+### Release checklist
+
+1. **Update the version**
+
+   Edit `pyproject.toml`:
+
+   ```toml
+   [project]
+   version = "0.1.0"
+   ```
+2. **Commit and merge to `main`**
+
+ do this through standard `branch` -> `dev` -> `main` PRs
+
+3. **Add matching tag on main**
+
 ```
-poetry install
-poetry shell
-python run demo.y
+git checkout main
+git pull origin main
+```
+This ensures:
+  - tag points to the correct commit
+  - the release guard `tag is on main` will pass
+
+4. ** Create and push the tag**
+
+Now tag **locally** on `main`:
+
+```
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
+This triggers the Release workflow.
+## Production Notes
 
-## Production
-
-### EC2 instance
-Elastic IP 3.221.195.180, key gridworks-hybrid
-
-Accessing locally:
+JournalKeeper currently runs on an EC2-hosted PostgreSQL instance.
 
 ```
 ssh ubuntu@journaldb.electricity.works
 psql -U journaldb
 ```
 
-Password is in 1password, look up journaldb
+Credentials are stored in 1Password
 
-Accessing remotely:
+Remote access:
 
-assuming you have psql on your local machine:
 
-```
+```bash
 psql -h journaldb.electricity.works -U journaldb -d journaldb
 ```
-and then enter password
 
 
+## Contributing
+
+This repository uses:
+  - `ruff` for linting and formatting
+  - `mypy` for type checking
+  - `pytest` for tests
+  - `pre-commit` for enforcement
+
+Before committing:
+
+```bash
+
+make pre-commit
+```
+
+## License
+
+MIT -- see [LICENSE](LICENSE)
 
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/

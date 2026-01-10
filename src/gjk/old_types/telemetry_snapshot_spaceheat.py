@@ -1,11 +1,10 @@
 """Type telemetry.snapshot.spaceheat, version 000"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.errors import GwTypeError
 from gw.named_types import GwBase
 from pydantic import StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.property_format import (
@@ -16,9 +15,9 @@ from gjk.property_format import (
 
 class TelemetrySnapshotSpaceheat(GwBase):
     report_time_unix_ms: UTCMilliseconds
-    about_node_alias_list: List[LeftRightDot]
-    value_list: List[StrictInt]
-    telemetry_name_list: List[TelemetryName]
+    about_node_alias_list: list[LeftRightDot]
+    value_list: list[StrictInt]
+    telemetry_name_list: list[TelemetryName]
     type_name: Literal["telemetry.snapshot.spaceheat"] = "telemetry.snapshot.spaceheat"
     version: Literal["000"] = "000"
 

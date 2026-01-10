@@ -13,8 +13,8 @@ from gjk.property_format import (
 
 class GtShBooleanactuatorCmdStatus(GwBase):
     sh_node_name: LeftRightDot
-    relay_state_command_list: List[StrictInt]
-    command_time_unix_ms_list: List[UTCMilliseconds]
+    relay_state_command_list: list[StrictInt]
+    command_time_unix_ms_list: list[UTCMilliseconds]
     type_name: Literal["gt.sh.booleanactuator.cmd.status"] = (
         "gt.sh.booleanactuator.cmd.status"
     )
@@ -22,7 +22,7 @@ class GtShBooleanactuatorCmdStatus(GwBase):
 
     @field_validator("relay_state_command_list")
     @classmethod
-    def check_relay_state_command_list(cls, v: List[int]) -> List[int]:
+    def check_relay_state_command_list(cls, v: list[int]) -> list[int]:
         """
         Axiom : RelayStateCommandLIst must be all 0s and 1s.
         """

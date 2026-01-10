@@ -16,7 +16,7 @@ class ChangeStoreFlowDirection(GwStrEnum):
     Charge = auto()
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """

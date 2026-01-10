@@ -84,8 +84,8 @@ class H0N:
     store_cold_pipe = "store-cold-pipe"
     oat = "oat"
     buffer = TankNodes("buffer")
-    tank: Dict[int, TankNodes] = {}
-    zone: Dict[int, ZoneName] = {}
+    tank: dict[int, TankNodes] = {}
+    zone: dict[int, ZoneName] = {}
 
     # core flow-metered nodes
     dist_flow = "dist-flow"
@@ -94,7 +94,7 @@ class H0N:
 
     hubitat = "hubitat"
 
-    def __init__(self, total_store_tanks: int, zone_list: List[str]):
+    def __init__(self, total_store_tanks: int, zone_list: list[str]):
         for i in range(total_store_tanks):
             self.tank[i + 1] = TankNodes(f"tank{i + 1}")
         for i in range(len(zone_list)):
@@ -124,8 +124,8 @@ class H0CN:
     buffer_cold_pipe = H0N.buffer_cold_pipe
     oat = H0N.oat
     buffer = TankChannelNames("buffer")
-    tank: Dict[int, TankChannelNames] = {}
-    zone: Dict[int, ZoneChannelNames] = {}
+    tank: dict[int, TankChannelNames] = {}
+    zone: dict[int, ZoneChannelNames] = {}
 
     # Flow Channels
     dist_flow = H0N.dist_flow
@@ -135,13 +135,13 @@ class H0CN:
     primary_flow_integrated = f"{H0N.primary_flow}-integrated"
     store_flow_integrated = f"{H0N.store_flow}-integrated"
 
-    def __init__(self, total_store_tanks: int, zone_list: List[str]):
+    def __init__(self, total_store_tanks: int, zone_list: list[str]):
         for i in range(total_store_tanks):
             self.tank[i + 1] = TankChannelNames(f"tank{i + 1}")
         for i in range(len(zone_list)):
             self.zone[i + 1] = ZoneChannelNames(zone=zone_list[i], idx=i + 1)
 
-    def channel_stubs(self) -> Dict[str, ChannelStub]:
+    def channel_stubs(self) -> dict[str, ChannelStub]:
         d = {
             self.hp_odu_pwr: ChannelStub(
                 Name=self.hp_odu_pwr,

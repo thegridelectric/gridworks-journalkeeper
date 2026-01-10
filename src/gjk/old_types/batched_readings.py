@@ -1,6 +1,6 @@
 """Type batched.readings, version 000"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import (
@@ -8,7 +8,6 @@ from pydantic import (
     field_validator,
     model_validator,
 )
-from typing_extensions import Self
 
 from gjk.named_types.data_channel_gt import DataChannelGt
 from gjk.named_types.fsm_atomic_report import FsmAtomicReport
@@ -29,17 +28,17 @@ class BatchedReadings(GwBase):
     slot_start_unix_s: UTCSeconds
     batched_transmission_period_s: PositiveInt
     message_created_ms: UTCMilliseconds
-    data_channel_list: List[DataChannelGt]
-    channel_reading_list: List[ChannelReadings000]
-    fsm_action_list: List[FsmAtomicReport]
-    fsm_report_list: List[FsmFullReport]
+    data_channel_list: list[DataChannelGt]
+    channel_reading_list: list[ChannelReadings000]
+    fsm_action_list: list[FsmAtomicReport]
+    fsm_report_list: list[FsmFullReport]
     id: UUID4Str
     type_name: Literal["batched.readings"] = "batched.readings"
     version: Literal["000"] = "000"
 
     @field_validator("fsm_action_list")
     @classmethod
-    def check_fsm_action_list(cls, v: List[FsmAtomicReport]) -> List[FsmAtomicReport]:
+    def check_fsm_action_list(cls, v: list[FsmAtomicReport]) -> list[FsmAtomicReport]:
         """
         Axiom 1: Each of the fsm.atomic.reports in this list must be actions (i.e.ActionType not None).
         """

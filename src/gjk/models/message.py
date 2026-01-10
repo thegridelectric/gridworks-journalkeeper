@@ -49,7 +49,7 @@ def insert_single_message(db: Session, msg: MessageSql) -> bool:
         return False
 
 
-def bulk_insert_messages(db: Session, message_list: List[MessageSql]):
+def bulk_insert_messages(db: Session, message_list: list[MessageSql]):
     """
     Idempotently bulk inserts MessageSql into the journaldb messages table,
     inserting only those whose primary keys do not already exist AND that

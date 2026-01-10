@@ -15,6 +15,6 @@ class Weather(GwBase):
     weather_channel_name: LeftRightDot
     unix_time_s: UTCSeconds
     outside_air_temp_f: float
-    wind_speed_mph: Optional[float] = None
+    wind_speed_mph: float | None = None
     type_name: Literal["weather"] = "weather"
     version: Literal["000"] = "000"

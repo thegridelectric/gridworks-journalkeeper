@@ -15,7 +15,7 @@ class RelayPinSet(Enum):
     Energized = 1
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """

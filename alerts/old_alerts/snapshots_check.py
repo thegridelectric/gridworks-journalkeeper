@@ -1,5 +1,6 @@
 import json
 import time
+
 import dotenv
 import pendulum
 import requests
@@ -28,7 +29,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] Not receiving snapshots every 30 seconds!",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-nosnapshots",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-nosnapshots",
         "priority": "P1",
         "responders": responders,
     }
@@ -47,11 +48,18 @@ def check_heartbeat():
     try:
         # Use the get_db generator to create a new session
         with next(get_db()) as session:
-            start_ms = pendulum.now(tz="America/New_York").add(minutes=-3).timestamp() * 1000
-            snapshots = session.query(MessageSql).filter(
-                MessageSql.message_type_name == "snapshot.spaceheat",
-                MessageSql.message_persisted_ms >= start_ms,
-            ).order_by(asc(MessageSql.message_persisted_ms)).all()
+            start_ms = (
+                pendulum.now(tz="America/New_York").add(minutes=-3).timestamp() * 1000
+            )
+            snapshots = (
+                session.query(MessageSql)
+                .filter(
+                    MessageSql.message_type_name == "snapshot.spaceheat",
+                    MessageSql.message_persisted_ms >= start_ms,
+                )
+                .order_by(asc(MessageSql.message_persisted_ms))
+                .all()
+            )
 
             all_house_aliases = list({x.from_alias for x in snapshots})
             all_house_aliases = [
@@ -69,12 +77,16 @@ def check_heartbeat():
                     print("No snapshots found!")
                     most_recent = start_ms
                 else:
-                    most_recent = max(snapshots, key= lambda x: x.message_persisted_ms).message_persisted_ms
+                    most_recent = max(
+                        snapshots, key=lambda x: x.message_persisted_ms
+                    ).message_persisted_ms
 
                 # print(f"Most recent: {pendulum.from_timestamp(most_recent / 1000, tz='America/New_York')}")
-                print(f"Most recent was {round(time.time() - most_recent/1000,1)} seconds ago")
+                print(
+                    f"Most recent was {round(time.time() - most_recent / 1000, 1)} seconds ago"
+                )
 
-                if time.time() - most_recent/1000 > MAX_SECONDS_SINCE_LAST_SNAPSHOT:
+                if time.time() - most_recent / 1000 > MAX_SECONDS_SINCE_LAST_SNAPSHOT:
                     if not alert_sent[house_alias]:
                         print("ALERT")
                         send_opsgenie_alert(house_alias)

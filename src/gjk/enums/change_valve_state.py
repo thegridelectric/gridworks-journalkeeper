@@ -16,7 +16,7 @@ class ChangeValveState(GwStrEnum):
     CloseValve = auto()
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """

@@ -23,9 +23,9 @@ class GtShStatus(GwBase):
     about_g_node_alias: LeftRightDot
     slot_start_unix_s: UTCSeconds
     reporting_period_s: StrictInt
-    simple_telemetry_list: List[GtShSimpleTelemetryStatus]
-    multipurpose_telemetry_list: List[GtShMultipurposeTelemetryStatus]
-    booleanactuator_cmd_list: List[GtShBooleanactuatorCmdStatus]
+    simple_telemetry_list: list[GtShSimpleTelemetryStatus]
+    multipurpose_telemetry_list: list[GtShMultipurposeTelemetryStatus]
+    booleanactuator_cmd_list: list[GtShBooleanactuatorCmdStatus]
     status_uid: UUID4Str
     type_name: Literal["gt.sh.status"] = "gt.sh.status"
     version: Literal["110"] = "110"

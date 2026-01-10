@@ -27,7 +27,7 @@ class Strategy(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """
@@ -35,7 +35,7 @@ class Strategy(BaseModel):
         d["Name"] = d["Name"].value
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump(exclude_none=True)
         d["name"] = d["name"].value
         d.pop("type_name", None)

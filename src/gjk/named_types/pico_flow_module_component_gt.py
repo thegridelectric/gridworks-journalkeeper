@@ -1,6 +1,6 @@
 """Type pico.flow.module.component.gt, version 000"""
 
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Self
 
 from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
@@ -10,7 +10,6 @@ from pydantic import (
     StrictInt,
     model_validator,
 )
-from typing_extensions import Self
 
 from gjk.enums import GpmFromHzMethod, HzCalcMethod, MakeModel
 from gjk.named_types.channel_config import ChannelConfig
@@ -33,16 +32,16 @@ class PicoFlowModuleComponentGt(GwBase):
     send_tick_lists: bool
     no_flow_ms: PositiveInt
     async_capture_threshold_gpm_times100: StrictInt
-    publish_empty_ticklist_after_s: Optional[PositiveInt] = None
-    publish_any_ticklist_after_s: Optional[PositiveInt] = None
-    publish_ticklist_period_s: Optional[PositiveInt] = None
-    publish_ticklist_length: Optional[PositiveInt] = None
-    exp_alpha: Optional[float] = None
-    cutoff_frequency: Optional[float] = None
-    component_id: Optional[UUID4Str] = None
-    component_attribute_class_id: Optional[UUID4Str] = None
-    config_list: Optional[List[ChannelConfig]] = None
-    d_isplay_name: Optional[str] = None
+    publish_empty_ticklist_after_s: PositiveInt | None = None
+    publish_any_ticklist_after_s: PositiveInt | None = None
+    publish_ticklist_period_s: PositiveInt | None = None
+    publish_ticklist_length: PositiveInt | None = None
+    exp_alpha: float | None = None
+    cutoff_frequency: float | None = None
+    component_id: UUID4Str | None = None
+    component_attribute_class_id: UUID4Str | None = None
+    config_list: list[ChannelConfig] | None = None
+    d_isplay_name: str | None = None
     type_name: Literal["pico.flow.module.component.gt"] = (
         "pico.flow.module.component.gt"
     )

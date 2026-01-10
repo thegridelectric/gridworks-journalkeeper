@@ -35,7 +35,7 @@ class Reading(BaseModel):
             raise GwTypeError(f"Pydantic validation error: {e}") from e
         return t
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Handles lists of enums differently than model_dump
         """
@@ -43,7 +43,7 @@ class Reading(BaseModel):
         d["DataChannel"] = self.data_channel.to_dict()
         return d
 
-    def to_sql_dict(self) -> Dict[str, Any]:
+    def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump()
         d["data_channel_id"] = self.data_channel.id
         d["data_channel"] = self.data_channel.to_sql_dict()

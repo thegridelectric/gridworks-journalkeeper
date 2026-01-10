@@ -61,14 +61,14 @@ class GNodeRole(GwStrEnum):
         return cls.GNode
 
     @classmethod
-    def values(cls) -> List[str]:
+    def values(cls) -> list[str]:
         """
         Returns enum choices
         """
         return [elt.value for elt in cls]
 
     @classmethod
-    def version(cls, value: Optional[str] = None) -> str:
+    def version(cls, value: str | None = None) -> str:
         """
         Returns the version of the class (default) used by this package or the
         version of a candidate enum value (always less than or equal to the version
@@ -143,7 +143,7 @@ class GNodeRole(GwStrEnum):
         return value_to_symbol[value]
 
     @classmethod
-    def symbols(cls) -> List[str]:
+    def symbols(cls) -> list[str]:
         """
         Returns a list of the enum symbols
         """

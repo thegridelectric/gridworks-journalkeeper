@@ -88,7 +88,7 @@ class DataChannelSql(Base):
         )
 
 
-def bulk_insert_datachannels(db: Session, channels: List[DataChannelSql]):
+def bulk_insert_datachannels(db: Session, channels: list[DataChannelSql]):
     """
     Idempotently bulk inserts DataChannelSql into the journaldb messages table,
     inserting only those whose primary keys do not already exist AND that

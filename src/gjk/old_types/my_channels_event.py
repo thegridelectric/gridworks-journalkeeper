@@ -1,10 +1,9 @@
 """Type my.channels.event, version 000"""
 
-from typing import Literal
+from typing import Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import model_validator
-from typing_extensions import Self
 
 from gjk.old_types.my_channels import MyChannels
 from gjk.property_format import (

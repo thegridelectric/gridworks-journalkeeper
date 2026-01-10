@@ -1,13 +1,12 @@
 """Type gridworks.event.gt.sh.status, version 000"""
 
 import copy
-from typing import Literal
+from typing import Literal, Self
 
 from gw.errors import GwTypeError
 from gw.named_types import GwBase
 from gw.utils import snake_to_pascal
 from pydantic import ConfigDict, StrictInt, model_validator
-from typing_extensions import Self
 
 from gjk.enums import TelemetryName
 from gjk.old_types.gt_sh_status import GtShStatus

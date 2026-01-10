@@ -13,7 +13,7 @@ from gjk.property_format import (
 
 class NewCommandTree(GwBase):
     from_g_node_alias: LeftRightDot
-    sh_nodes: List[SpaceheatNodeGt]
+    sh_nodes: list[SpaceheatNodeGt]
     unix_ms: UTCMilliseconds
     type_name: Literal["new.command.tree"] = "new.command.tree"
     version: Literal["000"] = "000"

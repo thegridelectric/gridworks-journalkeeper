@@ -1,10 +1,9 @@
 """Type machine.states, version 000"""
 
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import model_validator
-from typing_extensions import Self
 
 from gjk.property_format import (
     HandleName,
@@ -16,8 +15,8 @@ from gjk.property_format import (
 class MachineStates(GwBase):
     machine_handle: HandleName
     state_enum: LeftRightDot
-    state_list: List[str]
-    unix_ms_list: List[UTCMilliseconds]
+    state_list: list[str]
+    unix_ms_list: list[UTCMilliseconds]
     type_name: Literal["machine.states"] = "machine.states"
     version: Literal["000"] = "000"
 

@@ -5,6 +5,7 @@ from gw.enums import GwStrEnum
 
 class GwUnit(GwStrEnum):
     """Encoding used for Derived channels"""
+
     Unknown = auto()
     Unitless = auto()
     FahrenheitX100 = auto()
@@ -22,7 +23,7 @@ class GwUnit(GwStrEnum):
     @classmethod
     def values(cls) -> list[str]:
         return [elt.value for elt in cls]
-    
+
     @classmethod
     def enum_name(cls) -> str:
         return "gw1.unit"

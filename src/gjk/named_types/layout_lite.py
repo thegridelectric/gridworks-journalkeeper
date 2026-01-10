@@ -1,8 +1,7 @@
-from typing import List, Literal
+from typing import List, Literal, Self
 
 from gw.named_types import GwBase
 from pydantic import PositiveInt
-from typing_extensions import Self
 
 from gjk.enums import ActorClass
 from gjk.named_types.data_channel_gt import DataChannelGt
@@ -27,21 +26,21 @@ class LayoutLite(GwBase):
     message_created_ms: UTCMilliseconds
     message_id: UUID4Str
     strategy: str
-    zone_list: List[str]
-    critical_zone_list: List[str]
+    zone_list: list[str]
+    critical_zone_list: list[str]
     total_store_tanks: PositiveInt
-    sh_nodes: List[SpaceheatNodeGt]
-    data_channels: List[DataChannelGt]
-    derived_channels: List[DerivedChannelGt]
-    tank_module_components: List[PicoTankModuleComponentGt]
-    flow_module_components: List[PicoFlowModuleComponentGt]
+    sh_nodes: list[SpaceheatNodeGt]
+    data_channels: list[DataChannelGt]
+    derived_channels: list[DerivedChannelGt]
+    tank_module_components: list[PicoTankModuleComponentGt]
+    flow_module_components: list[PicoFlowModuleComponentGt]
     ha1_params: Ha1Params
     i2c_relay_component: I2cMultichannelDtRelayComponentGt
     t_map: TankTempCalibrationMap | None = None
     type_name: Literal["layout.lite"] = "layout.lite"
     version: Literal["007"] = "007"
 
-    #@model_validator(mode="after")
+    # @model_validator(mode="after")
     def check_axiom_1(self) -> Self:
         """
         Axiom 1: Dc Node Consistency. Every AboutNodeName and CapturedByNodeName in a
@@ -66,7 +65,7 @@ class LayoutLite(GwBase):
                 )
         return self
 
-    #@model_validator(mode="after")
+    # @model_validator(mode="after")
     def check_axiom_2(self) -> Self:
         """
         Node Handle Hierarchy Consistency. Every ShNode with a handle containing at least
@@ -85,8 +84,7 @@ class LayoutLite(GwBase):
                     )
         return self
 
-
-    #@model_validator(mode="after")
+    # @model_validator(mode="after")
     def check_axiom_3(self) -> Self:
         """
         Axiom 3: CriticalZoneList is a subset of ZoneList
@@ -98,6 +96,7 @@ class LayoutLite(GwBase):
                     f"Axiom 3 violated: Critical zone '{z}' is not present in ZoneList."
                 )
         return self
+
 
 def get_handle(node: SpaceheatNodeGt) -> str:
     if node.handle:

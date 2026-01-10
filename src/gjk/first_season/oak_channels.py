@@ -5,7 +5,7 @@ from gjk.first_season.alias_mapper import AliasMapper
 from gjk.first_season.oak_names import OAK_TA, OC, ON
 from gjk.named_types import DataChannelGt
 
-OAK_CHANNELS_BY_NAME: Dict[str, DataChannelGt] = {
+OAK_CHANNELS_BY_NAME: dict[str, DataChannelGt] = {
     OC.store_pump_pwr: DataChannelGt(
         id="b4d40404-dc8f-4353-9cd6-3eea4457eae9",
         name=OC.store_pump_pwr,

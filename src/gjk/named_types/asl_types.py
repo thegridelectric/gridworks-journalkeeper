@@ -77,11 +77,11 @@ from gjk.old_types.snapshot_spaceheat_001 import SnapshotSpaceheat001
 from gjk.old_types.snapshot_spaceheat_002 import SnapshotSpaceheat002
 from gjk.old_types.telemetry_snapshot_spaceheat import TelemetrySnapshotSpaceheat
 
-TypeByName: Dict[str, GwBase] = {}
+TypeByName: dict[str, GwBase] = {}
 
 
 @no_type_check
-def types() -> List[GwBase]:
+def types() -> list[GwBase]:
     return [
         BatchedReadings,
         ChannelReadings000,

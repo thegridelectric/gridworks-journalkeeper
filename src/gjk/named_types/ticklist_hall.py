@@ -1,16 +1,15 @@
 """Type ticklist.hall, version 101"""
 
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Self
 
 from gw.named_types import GwBase
 from pydantic import model_validator
-from typing_extensions import Self
 
 
 class TicklistHall(GwBase):
     hw_uid: str
-    first_tick_timestamp_nano_second: Optional[int]
-    relative_microsecond_list: List[int]
+    first_tick_timestamp_nano_second: int | None
+    relative_microsecond_list: list[int]
     pico_before_post_timestamp_nano_second: int
     type_name: Literal["ticklist.hall"] = "ticklist.hall"
     version: Literal["101"] = "101"

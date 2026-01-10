@@ -26,15 +26,15 @@ class WeatherResult:
     def __init__(
         self,
         success: bool,
-        value: Optional[Dict[str, Any]] = None,
-        error: Optional[str] = None,
+        value: dict[str, Any] | None = None,
+        error: str | None = None,
     ):
         self.success = success
         self.value = value
         self.error = error
 
 
-def safe_get_nested(d: Dict[str, Any], *keys: str) -> Optional[Any]:
+def safe_get_nested(d: dict[str, Any], *keys: str) -> Any | None:
     """Safely get nested dictionary value, returning None if any key is missing"""
     curr = d
     for key in keys:
@@ -49,14 +49,14 @@ def safe_get_nested(d: Dict[str, Any], *keys: str) -> Optional[Any]:
     return curr
 
 
-def convert_temp_c_to_f(temp_c: Optional[float]) -> Optional[float]:
+def convert_temp_c_to_f(temp_c: float | None) -> float | None:
     """Convert Celsius to Fahrenheit, handling None values"""
     if temp_c is None:
         return None
     return round((temp_c * 9 / 5) + 32, 2)
 
 
-def convert_kmph_to_mph(speed_kmph: Optional[float]) -> Optional[float]:
+def convert_kmph_to_mph(speed_kmph: float | None) -> float | None:
     """Convert km_h-1 to miles/hour, handling None values"""
     if speed_kmph is None:
         return None
@@ -133,11 +133,11 @@ class WeatherService(ActorBase):
         now = pendulum.now("America/New_York")
         short_alias = from_alias.split(".")[-2]
         print(
-            f"[{now.format('YYYY-MM-DD HH:mm:ss.SSS')}] {payload.type_name} from {short_alias}"
+            f"[{now.format("YYYY-MM-DD HH:mm:ss.SSS")}] {payload.type_name} from {short_alias}"
         )
         super().route_message(from_alias, from_role, payload)
 
-    def create_weather_payload(self, observation: Dict[str, Any]) -> Optional[Weather]:
+    def create_weather_payload(self, observation: dict[str, Any]) -> Weather | None:
         try:
             timestamp_str = safe_get_nested(observation, "timestamp")
             if not timestamp_str:
@@ -207,7 +207,7 @@ class WeatherService(ActorBase):
                         weather.unix_time_s, tz="America/New_York"
                     )
                     print(
-                        f"[{observation_time.format('YYYY-MM-DD HH:mm:ss')} ET] "
+                        f"[{observation_time.format("YYYY-MM-DD HH:mm:ss")} ET] "
                         f"{WEATHER_CHANNEL}: {weather.outside_air_temp_f}°F, "
                         f"{weather.wind_speed_mph} mph"
                     )

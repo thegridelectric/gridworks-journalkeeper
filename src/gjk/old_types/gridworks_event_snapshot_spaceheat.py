@@ -56,7 +56,7 @@ class GridworksEventSnapshotSpaceheat(GwBase):
             raise GwTypeError(f"dict missing Snap: <{d2.keys()}>")
 
         if "Snapshot" not in d2["Snap"].keys():
-            raise GwTypeError(f"dict['Snap'] missing Snapshot: <{d2['Snap'].keys()}>")
+            raise GwTypeError(f"dict['Snap'] missing Snapshot: <{d2["Snap"].keys()}>")
 
         snapshot = d2["Snap"]["Snapshot"]
         # replace values with symbols for TelemetryName in SimpleTelemetryList

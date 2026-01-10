@@ -20,7 +20,7 @@ repos:
         entry: end-of-file-fixer
         language: system
         types: [text]
-        stages: [commit, push, manual]
+        stages: [pre-commit, pre-push, manual]
         exclude: "CodeGenerationTools/.*"
       - id: pyupgrade
         name: pyupgrade
@@ -28,13 +28,13 @@ repos:
         entry: pyupgrade
         language: system
         types: [python]
-        args: [--py37-plus]
+        args: [--py312-plus]
       - id: trailing-whitespace
         name: Trim Trailing Whitespace
         entry: trailing-whitespace-fixer
         language: system
         types: [text]
-        stages: [commit, push, manual]
+        stages: [pre-commit, pre-push, manual]
         exclude: "CodeGenerationTools/.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.6

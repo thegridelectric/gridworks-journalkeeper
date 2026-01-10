@@ -27,7 +27,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] Store flow is zero even though relay 9 is closed",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-storeflow",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-storeflow",
         "priority": "P1",
         "responders": responders,
     }
@@ -163,7 +163,7 @@ def check_storeflow():
                             time_of_last_switch / 1000, tz="America/New_York"
                         )
                         print(
-                            f"In {relays[r]['values'][-1]} since {time_of_last_switch}"
+                            f"In {relays[r]["values"][-1]} since {time_of_last_switch}"
                         )
 
                         # If it has been more than 10 minutes since the relay is Closed
@@ -174,7 +174,7 @@ def check_storeflow():
                                 - time_of_last_switch
                             ).total_seconds() > 10 * 60:
                                 print(
-                                    f"Its been {pendulum.now(tz='America/New_York').diff(time_of_last_switch).in_minutes()}min"
+                                    f"Its been {pendulum.now(tz="America/New_York").diff(time_of_last_switch).in_minutes()}min"
                                 )
 
                                 store_pwr_since_switch = sum([

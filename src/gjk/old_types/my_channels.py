@@ -17,6 +17,6 @@ class MyChannels(GwBase):
     from_g_node_instance_id: UUID4Str
     message_created_ms: UTCMilliseconds
     message_id: UUID4Str
-    channel_list: List[DataChannelGt]
+    channel_list: list[DataChannelGt]
     type_name: Literal["my.channels"] = "my.channels"
     version: Literal["000"] = "000"

@@ -28,7 +28,7 @@ def send_opsgenie_alert(house_alias):
     responders = [{"type": "team", "id": GRIDWORKS_DEV_OPS_GENIE_TEAM_ID}]
     payload = {
         "message": f"[{house_alias}] ATN is not running",
-        "alias": f"{pendulum.now(tz='America/New_York').format('YYYY-MM-DD')}--{house_alias}-not_atn",
+        "alias": f"{pendulum.now(tz="America/New_York").format("YYYY-MM-DD")}--{house_alias}-not_atn",
         "priority": "P1",
         "responders": responders,
     }
@@ -72,7 +72,9 @@ def check_hp_on():
             all_house_aliases = list({
                 x.from_alias
                 for x in messages
-                if "oak" in x.from_alias or "beech" in x.from_alias or "fir" in x.from_alias
+                if "oak" in x.from_alias
+                or "beech" in x.from_alias
+                or "fir" in x.from_alias
             })
             all_house_aliases = [x.split(".")[-2] for x in all_house_aliases]
             for house_alias in all_house_aliases:
@@ -140,12 +142,14 @@ def check_hp_on():
                         if latest > most_recent_relay_state:
                             most_recent_relay_state = latest
                             most_recent_relay5_parent = r
-                print(f"The most recent actor to control relays 5 is {most_recent_relay5_parent}")
-            
-                if most_recent_relay5_parent == 'a.aa.relay5':
+                print(
+                    f"The most recent actor to control relays 5 is {most_recent_relay5_parent}"
+                )
+
+                if most_recent_relay5_parent == "a.aa.relay5":
                     print("[OK] Atomic Ally is in control")
                     alerts[house_alias] = False
-                elif not alerts[house_alias] == 'auto.h.n.relay5':
+                elif not alerts[house_alias] == "auto.h.n.relay5":
                     print("[ALERT] In HomeAlone!")
                     send_opsgenie_alert(house_alias)
                     alerts[house_alias] = True

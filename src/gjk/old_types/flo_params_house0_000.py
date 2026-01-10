@@ -29,12 +29,12 @@ class FloParamsHouse0_000(GwBase):
     cop_lwt_coeff: float
     initial_top_temp_f: StrictInt
     initial_thermocline: StrictInt
-    lmp_forecast: Optional[List[float]] = None
-    dist_price_forecast: Optional[List[float]] = None
-    reg_price_forecast: Optional[List[float]] = None
+    lmp_forecast: list[float] | None = None
+    dist_price_forecast: list[float] | None = None
+    reg_price_forecast: list[float] | None = None
     price_forecast_uid: UUID4Str
-    oat_forecast_f: Optional[List[float]] = None
-    wind_speed_forecast_mph: Optional[List[float]] = None
+    oat_forecast_f: list[float] | None = None
+    wind_speed_forecast_mph: list[float] | None = None
     weather_uid: UUID4Str
     alpha_times10: StrictInt
     beta_times100: StrictInt

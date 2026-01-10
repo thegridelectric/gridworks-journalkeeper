@@ -17,7 +17,7 @@ class SnapshotSpaceheat002(GwBase):
     from_g_node_alias: LeftRightDot
     from_g_node_instance_id: UUID4Str
     snapshot_time_unix_ms: UTCMilliseconds
-    latest_reading_list: List[SingleReading]
-    latest_state_list: List[MachineStates]
+    latest_reading_list: list[SingleReading]
+    latest_state_list: list[MachineStates]
     type_name: Literal["snapshot.spaceheat"] = "snapshot.spaceheat"
     version: Literal["002"] = "002"

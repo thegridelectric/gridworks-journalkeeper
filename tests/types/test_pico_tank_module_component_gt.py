@@ -101,4 +101,3 @@ def test_pico_tank_module_component_gt_generated() -> None:
     }
 
     assert PicoTankModuleComponentGt.from_dict(d).to_dict() == d
-

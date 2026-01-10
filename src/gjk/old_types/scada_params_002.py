@@ -21,8 +21,8 @@ class ScadaParams002(GwBase):
     to_name: SpaceheatName
     unix_time_ms: UTCMilliseconds
     message_id: UUID4Str
-    new_params: Optional[Ha1Params001] = None
-    old_params: Optional[Ha1Params001] = None
+    new_params: Ha1Params001 | None = None
+    old_params: Ha1Params001 | None = None
     type_name: Literal["scada.params"] = "scada.params"
     version: Literal["002"] = "002"
 
