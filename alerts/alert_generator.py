@@ -750,7 +750,7 @@ class AlertGenerator:
             for time_ms in on_times:
                 time_dt = self.unix_ms_to_date(time_ms)
                 if time_dt.hour in self.on_peak_hours and time_dt.day_of_week < 5:
-                    if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute == 0:
+                    if (time_dt.hour == 7 or time_dt.hour == 16) and time_dt.minute < 2:
                         continue
                     if not self.alert_status[house_alias][alert_alias]:
                         alert_message = f"{house_alias}: HP was seen on at {time_dt}, which is during onpeak"
