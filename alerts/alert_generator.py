@@ -365,6 +365,11 @@ class AlertGenerator:
 
             for zone in channels_by_zone:
 
+                # Temporary fix while layout.lite messages are getting to journaldb
+                if 'garage' in zone and 'elm' in house_alias:
+                    print(f"-- {zone} is the garage zone in Elm, skipping")
+                    continue
+
                 if zone not in self.alert_status[house_alias][alert_alias]:
                     self.alert_status[house_alias][alert_alias][zone] = False
 
