@@ -204,7 +204,7 @@ class AlertGenerator:
             llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
             self.critical_zones_by_house[llm_house_alias] = {'known': True, 'list': layout_lite_message.payload["CriticalZoneList"]}
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
-        self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases]
+        self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases and x in ['beech', 'oak', 'fir', 'maple', 'elm']]
 
         for house_alias in all_house_aliases:
             self.data[house_alias] = {}
