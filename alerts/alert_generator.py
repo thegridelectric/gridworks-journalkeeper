@@ -5,7 +5,7 @@ import pendulum
 import requests
 from gjk.api_db import get_db
 from gjk.config import Settings
-from gjk.models import MessageSql
+from gw_data.db.models import MessageSql
 from gjk.named_types import LayoutLite
 from sqlalchemy import asc, desc, or_
 from sqlalchemy.exc import SQLAlchemyError
@@ -52,7 +52,7 @@ class AlertGenerator:
     def __init__(self):
         self.opsgenie_team_id = "edaccf48-a7c9-40b7-858a-7822c6f862a4"
         self.settings = Settings(_env_file=dotenv.find_dotenv())
-        self.timezone_str = 'America/New_York'
+        self.alert_timezone_str = 'America/New_York'
         self.ignored_house_aliases = ['moss', 'orange', 'spruce'] # TODO: put this in the .env file
         self.max_time_no_data = 10*60 #TODO nyquist
         self.main_loop_seconds = 5*60
@@ -157,9 +157,9 @@ class AlertGenerator:
             "Authorization": f"GenieKey {self.settings.ops_genie_api_key.get_secret_value()}",
         }
         responders = [{"type": "team", "id": self.opsgenie_team_id}]
-        alias = f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD')}-{house_alias}-{alert_alias}"
+        alias = f"{pendulum.now(tz=self.alert_timezone_str).format('YYYY-MM-DD')}-{house_alias}-{alert_alias}"
         if unique_alias:
-            alias = f"{pendulum.now(tz=self.timezone_str).format('YYYY-MM-DD-HH-mm')}-{house_alias}-{alert_alias}"
+            alias = f"{pendulum.now(tz=self.alert_timezone_str).format('YYYY-MM-DD-HH-mm')}-{house_alias}-{alert_alias}"
         payload = {
             "message": message,
             "alias": alias,
@@ -180,17 +180,17 @@ class AlertGenerator:
         time_now = pendulum.now(tz=self.timezone_str)
         try:
             with next(get_db()) as session:
-                start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
-                end_ms = time_now.timestamp() * 1000
+                start_time = time_now.add(hours=-self.hours_back)
+                end_time = time_now
                 sql_messages = (
                     session.query(MessageSql).filter(
                         or_(
                             MessageSql.message_type_name == "report",
                             MessageSql.message_type_name == "layout.lite",
                         ),
-                        MessageSql.message_persisted_ms >= start_ms,
-                        MessageSql.message_persisted_ms <= end_ms,
-                        ).order_by(asc(MessageSql.message_persisted_ms)).all()
+                        MessageSql.persisted_at >= start_time,
+                        MessageSql.persisted_at <= end_time,
+                        ).order_by(asc(MessageSql.persisted_at)).all()
                     )
                 if not sql_messages:
                     raise Exception("No messages found.")
@@ -284,13 +284,13 @@ class AlertGenerator:
                     f"hw1.isone.me.versant.keene.{house_alias}.scada.s2",
                 ])
             with next(get_db()) as session:
-                start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
+                start_time = pendulum.now('UTC').add(hours=-self.hours_back)
                 glitches = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "glitch",
                         MessageSql.from_alias.in_(message_aliases),
-                        MessageSql.message_persisted_ms >= start_ms,
-                        ).order_by(asc(MessageSql.message_persisted_ms)).all()
+                        MessageSql.persisted_at >= start_time,
+                        ).order_by(asc(MessageSql.persisted_at)).all()
                     )
                 if not glitches:
                     print(f"No glitches found")
@@ -301,7 +301,7 @@ class AlertGenerator:
                     type = str(message.payload['Type']).lower()
                     source = message.payload['FromGNodeAlias']
                     summary = message.payload['Summary']
-                    time_received = int(message.message_persisted_ms/1000)
+                    time_received = int(message.persisted_at.ctime())
                     if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
                         house_alias = source.split('.scada')[0].split('.')[-1]
                     elif len(source.split('.'))>1:
@@ -770,10 +770,10 @@ class AlertGenerator:
                 self.alert_status[house_alias][alert_alias] = False
 
             layouts_for_house = [m for m in self.layout_lites if m.from_alias.split(".")[-2] == house_alias]
-            layout_times_for_house = [m.message_persisted_ms for m in layouts_for_house]
+            layout_times_for_house = [m.persisted_at for m in layouts_for_house]
             # Check for more than 5 layout records in the same 5-minute window
             if layout_times_for_house:
-                rounded_times = [int(t//(5*60*1000)) for t in layout_times_for_house]
+                rounded_times = [int(t.ctime()//(5*60)) for t in layout_times_for_house]
                 time_counts = {}
                 for t in rounded_times:
                     if t in time_counts:

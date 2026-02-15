@@ -1,7 +1,9 @@
 """Type data.channel.gt, version 001"""
 
+from datetime import datetime, timezone
 import json
 from typing import Any, Dict, Literal, Optional, Self
+import uuid
 
 from gw.named_types import GwBase
 from pydantic import (
@@ -58,4 +60,8 @@ class DataChannelGt(GwBase):
         d = json.loads(msg_bytes)
         d.pop("type_name", None)
         d.pop("version", None)
+
+        d['id'] = uuid.UUID(d['id'])
+        d['timestamp'] = datetime.fromtimestamp(d.pop('start_s'), timezone.utc)
+
         return d

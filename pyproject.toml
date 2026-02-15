@@ -28,6 +28,7 @@ dependencies = [
     "pytz>=2024.2",
     "result>=0.17.0",
     "gridworks-base>=0.3.5",
+    "gw-data>=0.1.5",
 ]
 
 [project.optional-dependencies]
@@ -56,6 +57,8 @@ Repository = "https://github.com/thegridelectric/gridworks-journalkeeper"
 Documentation = "https://gridworks-journalkeeper.readthedocs.io"
 Changelog = "https://github.com/thegridelectric/gridworks-journalkeeper/releases"
 
+[tool.uv.sources]
+gw_data = { path = "../gridworks-data/" }
 
 [tool.setuptools]
 package-dir = { "" = "src" }

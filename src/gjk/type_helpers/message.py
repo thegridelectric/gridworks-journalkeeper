@@ -1,4 +1,6 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
+import uuid
 
 from gw.errors import GwTypeError
 from gw.utils import is_pascal_case, snake_to_pascal
@@ -41,4 +43,18 @@ class Message(BaseModel):
 
     def to_sql_dict(self) -> dict[str, Any]:
         d = self.model_dump()
+
+
+        d['id'] = uuid.UUID(d['id'])
+        d['persisted_at'] = datetime.fromtimestamp(d.pop('message_persisted_ms'), timezone.utc)
+
+        created_ms = d.pop('message_created_ms', None)
+        if created_ms is None:
+            d['created_at'] = None
+            d[['timestamp']] = d['persisted_at']
+        else:
+            d['created_at'] = datetime.fromtimestamp(created_ms / 1000, timezone.utc)
+            d[['timestamp']] = d['created_at']
+
+
         return d

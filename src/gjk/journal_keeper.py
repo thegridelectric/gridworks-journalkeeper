@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk.codec import pyd_to_sql
 from gjk.config import Settings
-from gjk.models import (
+from gjk.db_utils import (
     bulk_insert_datachannels,
     insert_single_message,
 )

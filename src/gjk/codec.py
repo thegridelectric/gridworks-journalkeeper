@@ -4,18 +4,14 @@ from typing import Optional, Union
 from gw.errors import GwTypeError
 from gw.named_types import GwBase
 
-from gjk.models import (
+from gw_data.db.models import (
     DataChannelSql,
     MessageSql,
-    NodalHourlyEnergySql,
-    ScadaSql,
 )
 from gjk.named_types import DataChannelGt
 from gjk.named_types.asl_types import TypeByName
 from gjk.type_helpers import (
-    Message,
-    NodalHourlyEnergy,
-    Scada,
+    Message
 )
 
 
@@ -60,8 +56,9 @@ def from_dict(data: dict) -> GwBase | None:
 
 
 def pyd_to_sql(
-    t: (DataChannelGt | Message | NodalHourlyEnergy | Scada),
-) -> DataChannelSql | MessageSql | NodalHourlyEnergySql | ScadaSql:
+    t: (DataChannelGt | Message),
+) -> DataChannelSql | MessageSql:
+    
     d = t.to_sql_dict()
 
     d.pop("type_name", None)
@@ -70,26 +67,7 @@ def pyd_to_sql(
         return DataChannelSql(**d)
     elif isinstance(t, Message):
         return MessageSql(**d)
-    elif isinstance(t, NodalHourlyEnergy):
-        d["power_channel"] = DataChannelSql(**d["power_channel"])
-        return NodalHourlyEnergySql(**d)
-    elif isinstance(t, Scada):
-        return ScadaSql(**d)
     else:
         raise TypeError(f"Unsupported type: {type(t)}")
 
 
-def sql_to_pyd(
-    t: (DataChannelSql | MessageSql | NodalHourlyEnergySql | ScadaSql),
-) -> DataChannelGt | Message | NodalHourlyEnergy | Scada:
-    d = t.to_dict()
-    if isinstance(t, DataChannelSql):
-        return DataChannelGt(**d)
-    elif isinstance(t, MessageSql):
-        return MessageSql(**d)
-    elif isinstance(t, NodalHourlyEnergySql):
-        return NodalHourlyEnergy(**d)
-    elif isinstance(t, ScadaSql):
-        return Scada(**d)
-    else:
-        raise TypeError(f"Unsupported type: {type(t)}")
