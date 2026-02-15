@@ -16,13 +16,13 @@ class FileNameMeta(BaseModel):
     file_name: str
 
 
-def str_from_ms(epoch_milli_seconds: int) -> str:
-    return (
-        pendulum.from_timestamp(epoch_milli_seconds / 1000)
-        .in_timezone("America/New_York")
-        .format("YYYY-MM-DD HH:mm:ss.SSS")
-        + " America/NY"
-    )
+# def str_from_ms(epoch_milli_seconds: int) -> str:
+#     return (
+#         pendulum.from_timestamp(epoch_milli_seconds / 1000)
+#         .in_timezone("America/New_York")
+#         .format("YYYY-MM-DD HH:mm:ss.SSS")
+#         + " America/NY"
+#     )
 
 
 def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Message | None:
@@ -53,7 +53,7 @@ def tuple_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Message | None:
 
 def weather_to_msg(w: Weather, fn: FileNameMeta) -> Message | None:
     return Message(
-        message_id=str(uuid.uuid4()),
+        id=uuid.uuid4(),
         from_alias=w.from_g_node_alias,
         message_persisted_ms=fn.message_persisted_ms,
         payload=w.to_dict(),
@@ -71,7 +71,7 @@ def report_to_msg(r: Report, fn: FileNameMeta) -> Message | None:
         return None
     else:
         return Message(
-            message_id=r.id,
+            id=r.id,
             from_alias=r.from_g_node_alias,
             message_persisted_ms=fn.message_persisted_ms,
             payload=r.to_dict(),
@@ -85,7 +85,7 @@ def batchedreading_to_msg(t: BatchedReadings, fn: FileNameMeta) -> Message | Non
         return None
     else:
         return Message(
-            message_id=t.id,
+            id=t.id,
             from_alias=t.from_g_node_alias,
             message_persisted_ms=fn.message_persisted_ms,
             payload=t.to_dict(),
@@ -98,7 +98,7 @@ def gridworkseventgtshstatus_to_msg(
     t: GridworksEventGtShStatus, fn: FileNameMeta
 ) -> Message | None:
     return Message(
-        message_id=t.status.status_uid,
+        id=t.status.status_uid,
         from_alias=t.status.from_g_node_alias,
         message_persisted_ms=fn.message_persisted_ms,
         payload=t.to_dict(),
@@ -109,7 +109,7 @@ def gridworkseventgtshstatus_to_msg(
 
 def report_to_msg(t: Report, fn: FileNameMeta) -> Message | None:
     return Message(
-        message_id=t.id,
+        id=t.id,
         from_alias=t.from_g_node_alias,
         message_persisted_ms=fn.message_persisted_ms,
         payload=t.to_dict(),
@@ -120,7 +120,7 @@ def report_to_msg(t: Report, fn: FileNameMeta) -> Message | None:
 
 def basic_to_msg(t: HeartbeatA, fn: FileNameMeta) -> Message:
     return Message(
-        message_id=str(uuid.uuid4()),
+        id=uuid.uuid4(),
         from_alias=fn.from_alias,
         message_type_name=t.type_name,
         message_persisted_ms=fn.message_persisted_ms,
