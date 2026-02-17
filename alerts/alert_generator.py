@@ -721,11 +721,11 @@ class AlertGenerator:
                     latest_relay_time = boss_latest_time
                     current_relay5_boss = relay9_boss
 
-            if current_relay5_boss == 'a.aa.relay5':
+            if current_relay5_boss == 'ltn.la.relay5':
                 print(f"- {house_alias}: ATN is in control")
                 self.alert_status[house_alias][alert_alias] = False
 
-            elif current_relay5_boss == 'auto.h.n.relay5' and not self.alert_status[house_alias][alert_alias]:
+            elif current_relay5_boss == 'auto.lc.n.relay5' and not self.alert_status[house_alias][alert_alias]:
                 self.send_opsgenie_alert(f"{house_alias}: Not in Atn!", house_alias, alert_alias)
                 self.alert_status[house_alias][alert_alias] = True
 
