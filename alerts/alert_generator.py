@@ -435,7 +435,7 @@ class AlertGenerator:
                     self.alert_status[house_alias][alert_alias][zone] = False
 
                 freezing_threshold = 40
-                temperature = 0
+                temperature = 60
                 for channel in channels_by_zone[zone]:
                     if "temp" in channel and "gw" not in channel:
                         temperature = self.data[house_alias][channel]["values"][-1] / 1000
