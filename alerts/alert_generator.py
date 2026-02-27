@@ -385,11 +385,21 @@ class AlertGenerator:
 
                 setpoint = 0
                 temperature = 0
+                found_setpoint = False
+                found_temperature = False
                 for channel in channels_by_zone[zone]:
                     if "set" in channel:
                         setpoint = self.data[house_alias][channel]["values"][-1] / 1000
+                        found_setpoint = True
                     if "temp" in channel and "gw" not in channel:
                         temperature = self.data[house_alias][channel]["values"][-1] / 1000
+                        found_temperature = True
+                if not found_setpoint:
+                    print(f"-- {zone}: Missing setpoint channel")
+                    continue
+                if not found_temperature:
+                    print(f"-- {zone}: Missing temperature channel")
+                    continue
 
                 if setpoint - temperature < self.max_setpoint_violation_f:
                     print(f"-- {zone} is ok")
@@ -436,9 +446,14 @@ class AlertGenerator:
 
                 freezing_threshold = 40
                 temperature = 60
+                found_temperature = False
                 for channel in channels_by_zone[zone]:
                     if "temp" in channel and "gw" not in channel:
                         temperature = self.data[house_alias][channel]["values"][-1] / 1000
+                        found_temperature = True
+                if not found_temperature:
+                    print(f"-- {zone}: Missing temperature channel")
+                    continue
 
                 if freezing_threshold <= temperature:
                     print(f"-- {zone} is ok")
