@@ -636,6 +636,9 @@ class AlertGenerator:
         print("\nChecking for HP activity...")
         for house_alias in self.selected_house_aliases:
             print(f"- {house_alias}:")
+            if 'maple' in house_alias:
+                print(f"-- Skipping for Maple")
+                continue
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
