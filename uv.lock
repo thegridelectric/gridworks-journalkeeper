@@ -451,7 +451,7 @@ provides-extras = ["dev"]
 
 [[package]]
 name = "gw-data"
-version = "0.1.5"
+version = "0.1.7"
 source = { directory = "../gridworks-data" }
 dependencies = [
     { name = "alembic" },
