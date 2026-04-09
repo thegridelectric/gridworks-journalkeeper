@@ -340,7 +340,7 @@ class AlertGenerator:
     def check_no_data(self):
         alert_alias = "no_data"
         print("\nChecking for data...")
-        for house_alias in self.selected_house_aliases + ['spruce']:
+        for house_alias in self.selected_house_aliases:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
