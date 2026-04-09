@@ -344,25 +344,16 @@ class AlertGenerator:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
-            spruce = house_alias=='spruce'
             most_recent_ms = 0
-            if not spruce:
-                for channel in self.data[house_alias]:
-                    if self.data[house_alias][channel]['times'][-1] > most_recent_ms:
-                        most_recent_ms = self.data[house_alias][channel]['times'][-1]
-            else:
-                most_recent_ms = max([x.message_persisted_ms for x in self.spruce_snapshots])
+            for channel in self.data[house_alias]:
+                if self.data[house_alias][channel]['times'][-1] > most_recent_ms:
+                    most_recent_ms = self.data[house_alias][channel]['times'][-1]
 
-            was_there = False
-            if not spruce:
-                if not self.data[house_alias] and not self.alert_status[house_alias][alert_alias]:
+            if not self.data[house_alias]:
+                if not self.alert_status[house_alias][alert_alias]:
                     alert_message = f"{house_alias}: No data found in the last {self.hours_back} hour(s)"
                     self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
-                    was_there = True
-
-            if was_there:
-                print("Already treated")
 
             elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
                 if not self.alert_status[house_alias][alert_alias]:
@@ -373,6 +364,32 @@ class AlertGenerator:
             else:
                 print(f"- {house_alias}: Found data up to {round((time.time()-most_recent_ms/1000)/60,1)} minutes ago")
                 self.alert_status[house_alias][alert_alias] = False
+
+        print("\nChecking for Spruce data...")
+        if 'spruce' not in self.alert_status:
+            self.alert_status['spruce'] = False
+        if alert_alias not in self.alert_status['spruce']:
+            self.alert_status['spruce'][alert_alias] = False
+
+        most_recent_ms = 0
+        if self.spruce_snapshots:
+            most_recent_ms = max([x.message_persisted_ms for x in self.spruce_snapshots])
+
+        if not self.spruce_snapshots:
+            if not self.alert_status['spruce'][alert_alias]:
+                alert_message = f"{'spruce'}: No data found in the last 10 minutes"
+                self.send_opsgenie_alert(alert_message, 'spruce', alert_alias)
+                self.alert_status['spruce'][alert_alias] = True
+            
+        elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
+            if not self.alert_status['spruce'][alert_alias]:
+                alert_message = f"{'spruce'}: No data coming in since {round((time.time()-most_recent_ms/1000)/60,1)} minutes"
+                self.send_opsgenie_alert(alert_message, 'spruce', alert_alias)
+                self.alert_status['spruce'][alert_alias] = True
+
+        else:
+            print(f"- {'spruce'}: Found data up to {round((time.time()-most_recent_ms/1000)/60,1)} minutes ago")
+            self.alert_status['spruce'][alert_alias] = False
 
     def check_zone_below_setpoint(self):
         alert_alias = "zone_setpoint"
