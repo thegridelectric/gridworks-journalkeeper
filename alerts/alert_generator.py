@@ -353,11 +353,16 @@ class AlertGenerator:
             else:
                 most_recent_ms = max([x.message_persisted_ms for x in self.spruce_snapshots])
 
-            if not spruce and not self.data[house_alias]:
-                if not self.alert_status[house_alias][alert_alias]:
+            was_there = False
+            if not spruce:
+                if not self.data[house_alias] and not self.alert_status[house_alias][alert_alias]:
                     alert_message = f"{house_alias}: No data found in the last {self.hours_back} hour(s)"
                     self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
+                    was_there = True
+
+            if was_there:
+                print("Already treated")
 
             elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
                 if not self.alert_status[house_alias][alert_alias]:
