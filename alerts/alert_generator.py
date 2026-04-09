@@ -188,8 +188,8 @@ class AlertGenerator:
                             MessageSql.message_type_name == "report",
                             MessageSql.message_type_name == "layout.lite",
                         ),
-                        MessageSql.message_persisted_ms >= cast(int(start_ms), BigInteger),
-                        MessageSql.message_persisted_ms <= cast(int(end_ms), BigInteger),
+                        MessageSql.message_persisted_ms >= start_ms,
+                        MessageSql.message_persisted_ms <= end_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
                 if not sql_messages:
@@ -272,8 +272,8 @@ class AlertGenerator:
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "snapshot.spaceheat",
                         MessageSql.from_alias == f"hw1.isone.me.versant.keene.spruce.scada",
-                        MessageSql.message_persisted_ms >= cast(int(start_ms), BigInteger),
-                        MessageSql.message_persisted_ms <= cast(int(end_ms), BigInteger),
+                        MessageSql.message_persisted_ms >= start_ms,
+                        MessageSql.message_persisted_ms <= end_ms,
                     ).order_by(asc(MessageSql.message_persisted_ms)).all()
                 )
         except Exception as e:
