@@ -276,6 +276,7 @@ class AlertGenerator:
                         MessageSql.message_persisted_ms <= end_ms,
                     ).order_by(asc(MessageSql.message_persisted_ms)).all()
                 )
+                print(f"Found {len(self.spruce_snapshots)} snapshots")
         except Exception as e:
             print(f"An error occured while getting data from journaldb: {e}")
             return
