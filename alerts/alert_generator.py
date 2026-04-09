@@ -8,8 +8,8 @@ from gjk.config import Settings
 from gjk.models import MessageSql
 from gjk.named_types import LayoutLite
 from sqlalchemy import asc, desc, or_
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import create_engine, MetaData, Table, select, Column, String, JSON, Integer
+from sqlalchemy import create_engine, Column, String, JSON, Integer, BigInteger
+from typing import cast
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel
 from typing import Optional
@@ -188,8 +188,8 @@ class AlertGenerator:
                             MessageSql.message_type_name == "report",
                             MessageSql.message_type_name == "layout.lite",
                         ),
-                        MessageSql.message_persisted_ms >= start_ms,
-                        MessageSql.message_persisted_ms <= end_ms,
+                        MessageSql.message_persisted_ms >= cast(int(start_ms), BigInteger),
+                        MessageSql.message_persisted_ms <= cast(int(end_ms), BigInteger),
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
                 if not sql_messages:
@@ -261,6 +261,25 @@ class AlertGenerator:
                 print(f"- {house_alias}: Did not find any data")
                 self.check_no_data()
 
+    def get_data_from_journaldb_spruce(self):
+        print("\nFinding Spruce data from journaldb...")
+        time_now = pendulum.now(tz=self.timezone_str)
+        try:
+            with next(get_db()) as session:
+                start_ms = time_now.add(minutes=-10).timestamp() * 1000
+                end_ms = time_now.timestamp() * 1000
+                self.spruce_snapshots = (
+                    session.query(MessageSql).filter(
+                        MessageSql.message_type_name == "snapshot.spaceheat",
+                        MessageSql.from_alias == f"hw1.isone.me.versant.keene.spruce.scada",
+                        MessageSql.message_persisted_ms >= cast(int(start_ms), BigInteger),
+                        MessageSql.message_persisted_ms <= cast(int(end_ms), BigInteger),
+                    ).order_by(asc(MessageSql.message_persisted_ms)).all()
+                )
+        except Exception as e:
+            print(f"An error occured while getting data from journaldb: {e}")
+            return
+
     def check_for_glitches(self):
         alert_alias = "critical_glitch"
         print("\nChecking for glitches...")
@@ -325,9 +344,12 @@ class AlertGenerator:
                 self.alert_status[house_alias][alert_alias] = False
 
             most_recent_ms = 0
-            for channel in self.data[house_alias]:
-                if self.data[house_alias][channel]['times'][-1] > most_recent_ms:
-                    most_recent_ms = self.data[house_alias][channel]['times'][-1]
+            if 'spruce' not in house_alias:
+                for channel in self.data[house_alias]:
+                    if self.data[house_alias][channel]['times'][-1] > most_recent_ms:
+                        most_recent_ms = self.data[house_alias][channel]['times'][-1]
+            else:
+                most_recent_ms = max([x.message_persisted_ms for x in self.spruce_snapshots])
 
             if not self.data[house_alias]:
                 if not self.alert_status[house_alias][alert_alias]:
@@ -867,6 +889,7 @@ class AlertGenerator:
         while True:
             try:
                 self.get_data_from_journaldb()
+                self.get_data_from_journaldb_spruce()
                 self.check_for_glitches()
                 self.check_no_data()
                 self.check_zone_below_setpoint()
