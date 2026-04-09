@@ -367,7 +367,7 @@ class AlertGenerator:
 
         print("\nChecking for Spruce data...")
         if 'spruce' not in self.alert_status:
-            self.alert_status['spruce'] = False
+            self.alert_status['spruce'] = {}
         if alert_alias not in self.alert_status['spruce']:
             self.alert_status['spruce'][alert_alias] = False
 
