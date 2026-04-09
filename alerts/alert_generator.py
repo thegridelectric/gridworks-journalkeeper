@@ -337,14 +337,14 @@ class AlertGenerator:
             print(f"An error occured while checking for glitches: {e}")
             return
 
-    def check_no_data(self, spruce=False):
+    def check_no_data(self):
         alert_alias = "no_data"
         print("\nChecking for data...")
-        selected_houses = self.selected_house_aliases if not spruce else ['spruce']
-        for house_alias in selected_houses:
+        for house_alias in self.selected_house_aliases + ['spruce']:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
+            spruce = house_alias=='spruce'
             most_recent_ms = 0
             if not spruce:
                 for channel in self.data[house_alias]:
@@ -894,7 +894,6 @@ class AlertGenerator:
                 self.get_data_from_journaldb_spruce()
                 self.check_for_glitches()
                 self.check_no_data()
-                self.check_no_data(spruce=True)
                 self.check_zone_below_setpoint()
                 self.check_zone_freezing()
                 self.check_dist_pump()
