@@ -17,6 +17,8 @@ from sema.runtime.types import DataChannelGt, DerivedChannelGt, LayoutLite
 from sema.runtime.types.old_versions.data_channel_gt_001 import DataChannelGt001
 from sema.runtime.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
 from sema.runtime.types.old_versions.derived_channel_gt_001 import DerivedChannelGt001
+from sema.runtime.types.old_versions.layout_lite_007 import LayoutLite007
+from sema.runtime.types.old_versions.layout_lite_008 import LayoutLite008
 from sema.runtime.types.old_versions.layout_lite_009 import LayoutLite009
 from sema.runtime.types.old_versions.layout_lite_010 import LayoutLite010
 from sema.runtime.types.old_versions.layout_lite_011 import LayoutLite011
@@ -25,6 +27,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.config import Settings
+from gjk.synthetic_channels import ALL_SYNTHETIC_CHANNELS, SyntheticChannel
 
 
 @dataclass
@@ -32,9 +35,6 @@ class MessagePersistenceInfo:
     id: UUID4Str
     created_at: datetime
     additional_db_operations: Callable[[Session], None]
-
-
-SYNTHETIC_CHANNEL_TYPE = "gjk.synthetic"
 
 
 class SemaMessagePersistor:
@@ -114,14 +114,11 @@ class SemaMessagePersistor:
 
     def generate_synthetic_db_channels(
         self,
-        layout: LayoutLite
-        | LayoutLite012
-        | LayoutLite011
-        | LayoutLite010
-        | LayoutLite009,
+        from_terminal_asset_alias: str,
     ) -> list[ReadingChannelSql]:
-        # TODO
-        return []
+        return [
+            x.to_db_channel(from_terminal_asset_alias) for x in ALL_SYNTHETIC_CHANNELS
+        ]
 
     def sync_reading_channels(
         self,
@@ -131,7 +128,9 @@ class SemaMessagePersistor:
         | LayoutLite012
         | LayoutLite011
         | LayoutLite010
-        | LayoutLite009,
+        | LayoutLite009
+        | LayoutLite008
+        | LayoutLite007,
     ):
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
         db_channels = (
@@ -188,7 +187,7 @@ class SemaMessagePersistor:
 
                 del db_channels_by_name_to_sync[dc.name]
 
-        for sc in self.generate_synthetic_db_channels(layout):
+        for sc in self.generate_synthetic_db_channels(from_terminal_asset_alias):
             db_channel = db_channels_by_name_to_sync.get(sc.name)
             if db_channel is None:
                 new_db_channels.append(sc)
@@ -196,7 +195,7 @@ class SemaMessagePersistor:
                 if (
                     db_channel.unit != sc.unit
                     or db_channel.unit_type != Gw1Unit000.enum_name()
-                    or db_channel.channel_type != SYNTHETIC_CHANNEL_TYPE
+                    or db_channel.channel_type != SyntheticChannel.CHANNEL_TYPE
                 ):
                     self.logger.info(
                         f"Found synthetic channel {sc.name} for {sc} with mismatched unit/type in DB: {db_channel.channel_type}:{db_channel.unit_type}:{db_channel.unit}/{sc.output_unit}"
@@ -214,6 +213,24 @@ class SemaMessagePersistor:
 
         for ch in new_db_channels:
             db.add(ch)
+
+    def process_layout_lite_v007(self, from_alias: str, layout: LayoutLite007):
+        return MessagePersistenceInfo(
+            id=layout.message_id,
+            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
+            additional_db_operations=lambda db: self.sync_reading_channels(
+                db, from_alias, layout
+            ),
+        )
+
+    def process_layout_lite_v008(self, from_alias: str, layout: LayoutLite008):
+        return MessagePersistenceInfo(
+            id=layout.message_id,
+            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
+            additional_db_operations=lambda db: self.sync_reading_channels(
+                db, from_alias, layout
+            ),
+        )
 
     def process_layout_lite_v009(self, from_alias: str, layout: LayoutLite009):
         return MessagePersistenceInfo(
