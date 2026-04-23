@@ -7,14 +7,15 @@ from pathlib import Path
 
 import boto3
 import dotenv
-from sema.runtime import SemaCodec
+from sema.runtime import SemaCodec, SemaType
 from sema.runtime.base import DegradedSemaType
 
 from gjk.config import Settings
+from gjk.sema_message_persistor import SemaMessagePersistor
 
 MSG_TYPES_TO_PARSE = [
     "layout.lite",
-    "report.event",
+    # "report.event",
 ]
 
 ALL_MSG_TYPES = [
@@ -75,9 +76,14 @@ class S3MessageImporter:
         self, start: datetime, end: datetime
     ) -> Iterable[S3MessageInfo]:
         dt = start
-        while dt > end:
-            yield from self.find_messages_on_date(dt)
-            dt = dt - timedelta(days=1)
+        if end < start:
+            while dt >= end:
+                yield from self.find_messages_on_date(dt)
+                dt = dt - timedelta(days=1)
+        else:
+            while dt <= end:
+                yield from self.find_messages_on_date(dt)
+                dt = dt + timedelta(days=1)
 
     def find_messages_on_date(self, dt: datetime) -> Iterable[S3MessageInfo]:
         prefix = f'{self.world_instance_name}/eventstore/{dt.strftime("%Y%m%d")}'
@@ -120,7 +126,7 @@ codec = SemaCodec()
 
 def main():
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
@@ -129,8 +135,8 @@ def main():
     settings = Settings(_env_file=dotenv.find_dotenv())
     importer = S3MessageImporter(settings, logger)
     msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 2, 19),
-        end=datetime(2026, 1, 9),
+        start=datetime(2026, 3, 10),
+        end=datetime(2026, 4, 21),
     )
 
     # msg_infos = importer.find_messages_on_dates([
@@ -141,8 +147,11 @@ def main():
     # ])
 
     # msg_infos = [S3MessageInfo(x) for x in [
-    #     'hw1__1/eventstore/20260220/hw1.isone.me.versant.keene.beech.scada-layout.lite-1771564266449-ear.electricity.works.json'
+    #     'hw1__1/eventstore/20260302/hw1.isone.me.versant.keene.maple.scada-layout.lite-1772493214356-ear.electricity.works.json',
+    #     'hw1__1/eventstore/20260302/hw1.isone.me.versant.keene.maple.scada-layout.lite-1772492313416-ear.electricity.works.json'
     # ]]
+
+    msg_persistor = SemaMessagePersistor(settings, codec, logger)
 
     gb_counter = 0
     byte_counter = 0
@@ -166,19 +175,26 @@ def main():
             byte_counter += msg_length
             msg_text = msg_bytes.decode("utf-8")
             msg_dict = json.loads(msg_text)
-            sema_obj = codec.from_dict(msg_dict["Payload"], mode="degraded")
-            if type(sema_obj) is DegradedSemaType:
+            sema_obj = codec.from_dict(
+                msg_dict["Payload"], auto_upgrade=False, mode="degraded"
+            )
+            if isinstance(sema_obj, SemaType):
+                logger.debug(
+                    f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
+                )
+                msg_persistor.persist_message(
+                    msg_info.from_alias, msg_info.persist_time, sema_obj
+                )
+            else:
                 logger.warning(
                     f"Parsed into degraded SEMA type {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str}"
                 )
                 logger.debug(msg_text)
-            else:
-                logger.debug(
-                    f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
-                )
+
         except Exception as e:
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
-            logger.debug(msg_text)
+            logger.exception(e)
+            # logger.debug(msg_text)
             return
 
 
