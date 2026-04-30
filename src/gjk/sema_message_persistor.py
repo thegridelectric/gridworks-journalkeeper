@@ -3,38 +3,18 @@ import sys
 import uuid
 from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import dataclass
 from datetime import datetime
-from typing import List
 
 import dotenv
-from gw_data.db.models import MessageSql, ReadingChannelSql
+from gw_data.db.models import MessageSql
 from sema.runtime import SemaCodec, SemaType
-from sema.runtime.enums import SpaceheatTelemetryName
-from sema.runtime.enums.old_versions.gw1_unit_000 import Gw1Unit000
-from sema.runtime.property_format import UUID4Str
-from sema.runtime.types import DataChannelGt, DerivedChannelGt, LayoutLite
-from sema.runtime.types.old_versions.data_channel_gt_001 import DataChannelGt001
-from sema.runtime.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
-from sema.runtime.types.old_versions.derived_channel_gt_001 import DerivedChannelGt001
-from sema.runtime.types.old_versions.layout_lite_007 import LayoutLite007
-from sema.runtime.types.old_versions.layout_lite_008 import LayoutLite008
-from sema.runtime.types.old_versions.layout_lite_009 import LayoutLite009
-from sema.runtime.types.old_versions.layout_lite_010 import LayoutLite010
-from sema.runtime.types.old_versions.layout_lite_011 import LayoutLite011
-from sema.runtime.types.old_versions.layout_lite_012 import LayoutLite012
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.config import Settings
-from gjk.synthetic_channels import ALL_SYNTHETIC_CHANNELS, SyntheticChannel
-
-
-@dataclass
-class MessagePersistenceInfo:
-    id: UUID4Str
-    created_at: datetime
-    additional_db_operations: Callable[[Session], None]
+from gjk.layout_lite_persistor import LayoutLitePersistor
+from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.report_event_persistor import ReportEventPersistor
 
 
 class SemaMessagePersistor:
@@ -44,6 +24,14 @@ class SemaMessagePersistor:
         engine = create_engine(settings.db_url.get_secret_value(), echo=False)
         self.Session = sessionmaker(bind=engine)
         self.logger = logger
+
+        self.persistor_lookup = {
+            p.target_message_type: p
+            for p in [
+                LayoutLitePersistor(logger),
+                ReportEventPersistor(logger),
+            ]
+        }
 
     @contextmanager
     def get_db(self):
@@ -58,6 +46,12 @@ class SemaMessagePersistor:
         finally:
             session.close()  # Always close the session
 
+    def persist_message_default(self, from_alias: str, payload: SemaType):
+        self.logger.warn(
+            f"Default persistor called for message type {payload.type_name} v{payload.version}"
+        )
+        raise ValueError("persist_message_default")
+
     def persist_message(
         self, from_alias: str, time_received: datetime, payload: SemaType
     ):
@@ -65,217 +59,36 @@ class SemaMessagePersistor:
             f"persisting message of type {payload.type_name}:{payload.version} from {from_alias} at {time_received.isoformat()}"
         )
 
-        method_name = (
-            f'process_{payload.type_name.replace(".", "_")}_v{payload.version}'
-        )
-        process_fn = getattr(self, method_name)
-        if process_fn:
-            persistence_info: MessagePersistenceInfo = process_fn(from_alias, payload)
-            with self.get_db() as db:
-                msg = MessageSql(
-                    id=uuid.UUID(persistence_info.id),
-                    timestamp=persistence_info.created_at
+        persist_fn: Callable[[str, SemaType], MessagePersistenceInfo] | None = None
+        persistor = self.persistor_lookup.get(payload.type_name, None)
+        if persistor is None:
+            persist_fn = self.persist_message_default
+        else:
+            method_name = f"persist_v{payload.version}"
+            persist_fn = getattr(persistor, method_name, self.persist_message_default)
+
+        if persist_fn is None:
+            raise ValueError("persist_fn is None")
+
+        persistence_info = persist_fn(from_alias, payload)
+        with self.get_db() as db:
+            msg = MessageSql(
+                id=uuid.UUID(persistence_info.id),
+                timestamp=(
+                    persistence_info.created_at
                     if persistence_info.created_at
-                    else time_received,
-                    created_at=persistence_info.created_at,
-                    persisted_at=time_received,
-                    from_alias=from_alias,
-                    message_type_name=payload.type_name,
-                    payload=payload.to_dict(),
-                )
-                db.add(msg)
+                    else time_received
+                ),
+                created_at=persistence_info.created_at,
+                persisted_at=time_received,
+                from_alias=from_alias,
+                message_type_name=payload.type_name,
+                payload=payload.to_dict(),
+            )
+            db.add(msg)
+
+            if persistence_info.additional_db_operations is not None:
                 persistence_info.additional_db_operations(db)
-
-    def data_channel_to_db(
-        self, dc: DataChannelGt | DataChannelGt001
-    ) -> ReadingChannelSql:
-        return ReadingChannelSql(
-            id=uuid.uuid4(),
-            name=dc.name,
-            terminal_asset_alias=dc.terminal_asset_alias,
-            display_name=dc.display_name,
-            unit=dc.telemetry_name,
-            unit_type=SpaceheatTelemetryName.enum_name(),
-            channel_type=DataChannelGt.type_name_value(),
-        )
-
-    def derived_channel_to_db(
-        self, dc: DerivedChannelGt001 | DerivedChannelGt000
-    ) -> ReadingChannelSql:
-        return ReadingChannelSql(
-            id=uuid.uuid4(),
-            name=dc.name,
-            terminal_asset_alias=dc.terminal_asset_alias,
-            display_name=dc.display_name,
-            unit=dc.output_unit if dc.output_unit is not None else "Unknown",
-            unit_type=Gw1Unit000.enum_name(),
-            channel_type=DerivedChannelGt.type_name_value(),
-        )
-
-    def generate_synthetic_db_channels(
-        self,
-        from_terminal_asset_alias: str,
-    ) -> list[ReadingChannelSql]:
-        return [
-            x.to_db_channel(from_terminal_asset_alias) for x in ALL_SYNTHETIC_CHANNELS
-        ]
-
-    def sync_reading_channels(
-        self,
-        db: Session,
-        from_alias: str,
-        layout: LayoutLite
-        | LayoutLite012
-        | LayoutLite011
-        | LayoutLite010
-        | LayoutLite009
-        | LayoutLite008
-        | LayoutLite007,
-    ):
-        from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
-        db_channels = (
-            db.query(ReadingChannelSql)
-            .filter(
-                ReadingChannelSql.deactivated_date.is_(None),
-                ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,
-            )
-            .all()
-        )
-        db_channels_by_name_to_sync = {c.name: c for c in db_channels}
-
-        new_db_channels = []
-
-        msg_timestamp = datetime.fromtimestamp(layout.message_created_ms / 1000)
-
-        # Look at every channel (data, derived, and synthetic)
-        #   If it does not exist in the database, add it
-        #   If it exists with a different unit or unit type, add a new one (do we need to deactivate it?)
-        #   If it exists in the database with the same unit and unit type, reactivate it if necessary
-        for dc in layout.data_channels:
-            db_channel = db_channels_by_name_to_sync.get(dc.name)
-            if db_channel is None:
-                new_db_channels.append(self.data_channel_to_db(dc))
-            else:
-                if (
-                    db_channel.unit != dc.telemetry_name
-                    or db_channel.unit_type != SpaceheatTelemetryName.enum_name()
-                    or db_channel.channel_type != DataChannelGt.type_name_value()
-                ):
-                    self.logger.info(
-                        f"Found data channel {dc.name} for {dc.terminal_asset_alias} with mismatched unit/type in DB: {db_channel.channel_type}:{db_channel.unit_type}:{db_channel.unit}/{dc.telemetry_name}"
-                    )
-                    new_db_channels.append(self.data_channel_to_db(dc))
-                    db_channel.deactivated_date = msg_timestamp
-
-                del db_channels_by_name_to_sync[dc.name]
-
-        for dc in layout.derived_channels:
-            db_channel = db_channels_by_name_to_sync.get(dc.name)
-            if db_channel is None:
-                new_db_channels.append(self.derived_channel_to_db(dc))
-            else:
-                if (
-                    db_channel.unit != dc.output_unit
-                    or db_channel.unit_type != Gw1Unit000.enum_name()
-                    or db_channel.channel_type != DerivedChannelGt.type_name_value()
-                ):
-                    self.logger.info(
-                        f"Found derived channel {dc.name} for {dc.terminal_asset_alias} with mismatched unit/type in DB: {db_channel.channel_type}:{db_channel.unit_type}:{db_channel.unit}/{dc.output_unit}"
-                    )
-                    new_db_channels.append(self.derived_channel_to_db(dc))
-                    db_channel.deactivated_date = msg_timestamp
-
-                del db_channels_by_name_to_sync[dc.name]
-
-        for sc in self.generate_synthetic_db_channels(from_terminal_asset_alias):
-            db_channel = db_channels_by_name_to_sync.get(sc.name)
-            if db_channel is None:
-                new_db_channels.append(sc)
-            else:
-                if (
-                    db_channel.unit != sc.unit
-                    or db_channel.unit_type != Gw1Unit000.enum_name()
-                    or db_channel.channel_type != SyntheticChannel.CHANNEL_TYPE
-                ):
-                    self.logger.info(
-                        f"Found synthetic channel {sc.name} for {sc} with mismatched unit/type in DB: {db_channel.channel_type}:{db_channel.unit_type}:{db_channel.unit}/{sc.output_unit}"
-                    )
-                    new_db_channels.append(sc)
-                    db_channel.deactivated_date = msg_timestamp
-
-                del db_channels_by_name_to_sync[sc.name]
-
-        for db_only_channel in db_channels_by_name_to_sync.values():
-            self.logger.info(
-                f"Data channel {db_only_channel.name} for {db_only_channel.terminal_asset_alias} exists only in the database"
-            )
-            db_only_channel.deactivated_date = msg_timestamp
-
-        for ch in new_db_channels:
-            db.add(ch)
-
-    def process_layout_lite_v007(self, from_alias: str, layout: LayoutLite007):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v008(self, from_alias: str, layout: LayoutLite008):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v009(self, from_alias: str, layout: LayoutLite009):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v010(self, from_alias: str, layout: LayoutLite010):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v011(self, from_alias: str, layout: LayoutLite011):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v012(self, from_alias: str, layout: LayoutLite012):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
-
-    def process_layout_lite_v013(self, from_alias: str, layout: LayoutLite):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
 
 
 def main():

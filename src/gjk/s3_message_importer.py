@@ -4,18 +4,19 @@ import sys
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Literal
 
 import boto3
 import dotenv
 from sema.runtime import SemaCodec, SemaType
-from sema.runtime.base import DegradedSemaType
 
 from gjk.config import Settings
 from gjk.sema_message_persistor import SemaMessagePersistor
 
 MSG_TYPES_TO_PARSE = [
-    "layout.lite",
-    # "report.event",
+    # "weather.forecast",
+    # "layout.lite",
+    "report.event",
 ]
 
 ALL_MSG_TYPES = [
@@ -48,6 +49,7 @@ ALL_MSG_TYPES = [
     "gridworks.event.startup",
     "send.layout",
     "no.new.contract.warning",
+    "ticklist.hall.report",
 ]
 
 
@@ -68,9 +70,11 @@ class S3MessageImporter:
         self.world_instance_name = "hw1__1"
         self.logger = logger
 
-    def find_messages_on_dates(self, dts: list[datetime]) -> Iterable[S3MessageInfo]:
+    def find_messages_on_dates(
+        self, dts: list[datetime], sort: Literal["none", "asc", "desc"] = "none"
+    ) -> Iterable[S3MessageInfo]:
         for dt in dts:
-            yield from self.find_messages_on_date(dt)
+            yield from self.find_messages_on_date(dt, sort=sort)
 
     def find_messages_in_date_range(
         self, start: datetime, end: datetime
@@ -78,14 +82,16 @@ class S3MessageImporter:
         dt = start
         if end < start:
             while dt >= end:
-                yield from self.find_messages_on_date(dt)
+                yield from self.find_messages_on_date(dt, sort="desc")
                 dt = dt - timedelta(days=1)
         else:
             while dt <= end:
-                yield from self.find_messages_on_date(dt)
+                yield from self.find_messages_on_date(dt, sort="asc")
                 dt = dt + timedelta(days=1)
 
-    def find_messages_on_date(self, dt: datetime) -> Iterable[S3MessageInfo]:
+    def find_messages_on_date(
+        self, dt: datetime, sort: Literal["none", "asc", "desc"]
+    ) -> Iterable[S3MessageInfo]:
         prefix = f'{self.world_instance_name}/eventstore/{dt.strftime("%Y%m%d")}'
         paginator = self.s3.get_paginator("list_objects_v2")
         pages = paginator.paginate(Bucket=self.aws_bucket_name, Prefix=prefix)
@@ -106,7 +112,9 @@ class S3MessageImporter:
                     self.logger.warning(f"Failed file name parsing for {key_str}")
                     self.logger.exception(e)
 
-        date_results.sort(key=lambda x: x.persist_time, reverse=True)
+        if sort != "none":
+            date_results.sort(key=lambda x: x.persist_time, reverse=(sort == "desc"))
+
         yield from date_results
         self.logger.debug(f"Completed messages for {dt.isoformat()}")
 
@@ -126,7 +134,7 @@ codec = SemaCodec()
 
 def main():
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
@@ -135,8 +143,9 @@ def main():
     settings = Settings(_env_file=dotenv.find_dotenv())
     importer = S3MessageImporter(settings, logger)
     msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 3, 10),
-        end=datetime(2026, 4, 21),
+        start=datetime(2026, 4, 18),
+        # start=datetime(2026, 1, 9),
+        end=datetime(2026, 4, 22),
     )
 
     # msg_infos = importer.find_messages_on_dates([
@@ -147,8 +156,7 @@ def main():
     # ])
 
     # msg_infos = [S3MessageInfo(x) for x in [
-    #     'hw1__1/eventstore/20260302/hw1.isone.me.versant.keene.maple.scada-layout.lite-1772493214356-ear.electricity.works.json',
-    #     'hw1__1/eventstore/20260302/hw1.isone.me.versant.keene.maple.scada-layout.lite-1772492313416-ear.electricity.works.json'
+    #     'hw1__1/eventstore/20260421/hw1.isone.me.versant.keene.fir.scada-report.event-1776816000486-ear.electricity.works.json',
     # ]]
 
     msg_persistor = SemaMessagePersistor(settings, codec, logger)
