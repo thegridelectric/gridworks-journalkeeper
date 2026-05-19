@@ -3,21 +3,14 @@ import logging
 import sys
 from collections.abc import Iterable
 from datetime import datetime, timedelta
-from pathlib import Path
 from typing import Literal
 
 import boto3
 import dotenv
-from sema.runtime import SemaCodec, SemaType
 
 from gjk.config import Settings
+from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
-
-MSG_TYPES_TO_PARSE = [
-    # "weather.forecast",
-    # "layout.lite",
-    "report.event",
-]
 
 ALL_MSG_TYPES = [
     "",
@@ -63,11 +56,12 @@ class S3MessageInfo:
 
 
 class S3MessageImporter:
-    def __init__(self, settings: Settings, logger):
+    def __init__(self, settings: Settings, msg_types: set[str], logger):
         self.settings = settings
         self.s3 = boto3.client("s3")
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
+        self.msg_types = msg_types
         self.logger = logger
 
     def find_messages_on_dates(
@@ -90,19 +84,22 @@ class S3MessageImporter:
                 dt = dt + timedelta(days=1)
 
     def find_messages_on_date(
-        self, dt: datetime, sort: Literal["none", "asc", "desc"]
+        self,
+        dt: datetime,
+        skip_past: str | None = None,
+        sort: Literal["none", "asc", "desc"] = "none",
     ) -> Iterable[S3MessageInfo]:
         prefix = f'{self.world_instance_name}/eventstore/{dt.strftime("%Y%m%d")}'
         paginator = self.s3.get_paginator("list_objects_v2")
         pages = paginator.paginate(Bucket=self.aws_bucket_name, Prefix=prefix)
 
-        date_results = []
+        date_results: list[S3MessageInfo] = []
         for page in pages:
             for s3_object in page["Contents"]:
                 key_str = s3_object["Key"]
                 try:
                     msg_info = S3MessageInfo(key_str)
-                    if msg_info.msg_type_name in MSG_TYPES_TO_PARSE:
+                    if msg_info.msg_type_name in self.msg_types:
                         date_results.append(msg_info)
                     elif msg_info.msg_type_name not in ALL_MSG_TYPES:
                         self.logger.warning(
@@ -115,8 +112,18 @@ class S3MessageImporter:
         if sort != "none":
             date_results.sort(key=lambda x: x.persist_time, reverse=(sort == "desc"))
 
+        if skip_past is not None:
+            skip_index = -1
+            for i in range(0, len(date_results)):
+                if skip_past == date_results[i].key_str:
+                    skip_index = i
+                    break
+
+            if skip_index >= 0:
+                date_results = date_results[skip_index + 1 :]
+
         yield from date_results
-        self.logger.debug(f"Completed messages for {dt.isoformat()}")
+        self.logger.info(f"Completed messages for {dt.isoformat()}")
 
         # date_list = self.get_date_folder_list(start_s, duration_hrs)
 
@@ -129,41 +136,62 @@ class S3MessageImporter:
         return (s3_object["Body"].read(), s3_object["ContentLength"])
 
 
-codec = SemaCodec()
-
-
 def main():
     logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
-    logger.addHandler(handler)
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setLevel(logging.WARNING)  # Send only WARNING and above to stderr
+    stderr_handler.setFormatter(
+        logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+    )
+    logger.addHandler(stderr_handler)
 
-    settings = Settings(_env_file=dotenv.find_dotenv())
-    importer = S3MessageImporter(settings, logger)
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setLevel(logging.INFO)
+    stdout_handler.setFormatter(
+        logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+    )
+    logger.addHandler(stdout_handler)
+
+    settings = Settings(_env_file=dotenv.find_dotenv())  # type: ignore
+
+    codec = SemaCodec()
+    msg_persistor = SemaMessagePersistor(settings, codec, logger)
+    msg_types = msg_persistor.all_known_message_types()
+
+    logger.info(
+        "Importing the following message types: "
+        + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
+    )
+    importer = S3MessageImporter(settings, msg_types, logger)
+
     msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 4, 18),
-        # start=datetime(2026, 1, 9),
-        end=datetime(2026, 4, 22),
+        start=datetime(2026, 4, 20),
+        #     # start=datetime(2026, 1, 9),
+        end=datetime(2026, 5, 13),
     )
 
+    # msg_infos = importer.find_messages_on_date(
+    #     datetime(2026,4,30),
+    #     skip_past='hw1__1/eventstore/20260430/hw1.isone.me.versant.keene.oak.scada-report.event-1777569193938-ear.electricity.works.json',
+    #     sort="asc"
+    # )
     # msg_infos = importer.find_messages_on_dates([
-    #     datetime(2026, 4, 1),
-    #     datetime(2026, 3, 1),
-    #     datetime(2026, 2, 1),
+    #     datetime(2026, 4, 19),
+    #     # datetime(2026, 3, 1),
+    #     # datetime(2026, 2, 1),
     #     # datetime(2026, 1, 1),
-    # ])
+    # ], sort="asc")
 
     # msg_infos = [S3MessageInfo(x) for x in [
-    #     'hw1__1/eventstore/20260421/hw1.isone.me.versant.keene.fir.scada-report.event-1776816000486-ear.electricity.works.json',
+    #     'hw1__1/eventstore/20260419/hw1.isone.me.versant.keene.maple.scada-new.command.tree-1776603937184-ear.electricity.works.json',
     # ]]
-
-    msg_persistor = SemaMessagePersistor(settings, codec, logger)
 
     gb_counter = 0
     byte_counter = 0
     msg_counter = 0
+    msg_text = "(not yet downloaded)"
     for msg_info in msg_infos:
         msg_counter += 1
         if byte_counter > 1000000000:
@@ -202,13 +230,8 @@ def main():
         except Exception as e:
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
-            # logger.debug(msg_text)
+            logger.debug(msg_text)
             return
-
-
-def parse_file(filename):
-    file_bytes = Path(filename).read_bytes()
-    return codec.from_bytes(file_bytes)
 
 
 if __name__ == "__main__":

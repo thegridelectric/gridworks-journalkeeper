@@ -1,0 +1,819 @@
+# GENERATED FILE - DO NOT EDIT
+# Generated from definitions/registry.yaml
+
+types:
+  atn.bid:
+    '002':
+      enums:
+      - market.price.unit:000
+      - market.quantity.unit:000
+      formats:
+      - left.right.dot
+      - market.slot.name
+      types:
+      - price.quantity.unitless:001
+  channel.config:
+    '000':
+      enums:
+      - spaceheat.unit:001
+      formats:
+      - positive.int
+      - spaceheat.name
+      types: []
+  channel.readings:
+    '002':
+      enums: []
+      formats:
+      - spaceheat.name
+      - utc.milliseconds
+      types: []
+  data.channel.gt:
+    '001':
+      enums:
+      - spaceheat.telemetry.name:006
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.seconds
+      - uuid4.str
+      types: []
+    '002':
+      enums:
+      - gw1.quantity:000
+      - spaceheat.telemetry.name:007
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.seconds
+      - uuid4.str
+      types:
+      - spaceheat.telemetry.quantity.projection:000
+  derived.channel.gt:
+    '000':
+      enums:
+      - gw1.unit:000
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - uuid4.str
+      types: []
+    '001':
+      enums:
+      - gw1.emission.method:000
+      - gw1.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types: []
+  energy.instruction:
+    '000':
+      enums: []
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.milliseconds
+      - utc.seconds
+      types: []
+  flo.params.house0:
+    '003':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.seconds
+      - uuid4.str
+      types: []
+    '004':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.seconds
+      - uuid4.str
+      types: []
+    '005':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.seconds
+      - uuid4.str
+      types: []
+    '006':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.seconds
+      - uuid4.str
+      types: []
+    '007':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - positive.int
+      - utc.seconds
+      - uuid4.str
+      types: []
+  fsm.atomic.report:
+    '000':
+      enums:
+      - fsm.report.type:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - utc.milliseconds
+      - uuid4.str
+      types: []
+    '001':
+      enums:
+      - fsm.report.type:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - utc.milliseconds
+      - uuid4.str
+      types: []
+  fsm.full.report:
+    '000':
+      enums:
+      - fsm.report.type:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - fsm.atomic.report:000
+    '001':
+      enums:
+      - fsm.report.type:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - fsm.atomic.report:001
+  glitch:
+    '000':
+      enums:
+      - log.level:000
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      types: []
+  gridworks.event.problem:
+    '001':
+      enums: []
+      formats:
+      - utc.milliseconds
+      - uuid4.str
+      types: []
+  gw1.tank.temp.calibration:
+    '000':
+      enums: []
+      formats: []
+      types: []
+  gw1.tank.temp.calibration.map:
+    '000':
+      enums: []
+      formats: []
+      types:
+      - gw1.tank.temp.calibration:000
+  ha1.params:
+    '004':
+      enums: []
+      formats: []
+      types: []
+    '005':
+      enums: []
+      formats: []
+      types: []
+    '006':
+      enums: []
+      formats: []
+      types: []
+  heating.forecast:
+    '000':
+      enums: []
+      formats:
+      - left.right.dot
+      - utc.seconds
+      - uuid4.str
+      types: []
+  i2c.multichannel.dt.relay.component.gt:
+    '002':
+      enums:
+      - change.relay.state:000
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.unit:001
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - relay.actor.config:002
+    '003':
+      enums:
+      - change.relay.state:000
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.unit:001
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - relay.actor.config:002
+    '004':
+      enums:
+      - change.relay.state:000
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.unit:001
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - relay.actor.config:003
+  latest.price:
+    '000':
+      enums:
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - market.slot.name
+      - uuid4.str
+      types: []
+  layout.lite:
+    '007':
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:006
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:001
+      - derived.channel.gt:000
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:004
+      - i2c.multichannel.dt.relay.component.gt:002
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - spaceheat.node.gt:200
+    008:
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:009
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:006
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:001
+      - derived.channel.gt:000
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:004
+      - i2c.multichannel.dt.relay.component.gt:002
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:300
+    009:
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:009
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:006
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:001
+      - derived.channel.gt:000
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:004
+      - ha1.params:005
+      - i2c.multichannel.dt.relay.component.gt:002
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:300
+    '010':
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:009
+      - gw1.actor.class:011
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:006
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:001
+      - derived.channel.gt:000
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:005
+      - i2c.multichannel.dt.relay.component.gt:002
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:300
+      - spaceheat.node.gt:301
+    '011':
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:009
+      - gw1.actor.class:011
+      - gw1.emission.method:000
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:006
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:001
+      - derived.channel.gt:000
+      - derived.channel.gt:001
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:006
+      - i2c.multichannel.dt.relay.component.gt:002
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:300
+      - spaceheat.node.gt:301
+    '012':
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:011
+      - gw1.emission.method:000
+      - gw1.quantity:000
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:007
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:002
+      - derived.channel.gt:001
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:006
+      - i2c.multichannel.dt.relay.component.gt:003
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:002
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:301
+      - spaceheat.telemetry.quantity.projection:000
+    '013':
+      enums:
+      - change.relay.state:000
+      - gpm.from.hz.method:000
+      - gw1.actor.class:011
+      - gw1.emission.method:000
+      - gw1.quantity:000
+      - gw1.seasonal.storage.mode:000
+      - gw1.system.mode:000
+      - gw1.unit:000
+      - hz.calc.method:001
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.make.model:003
+      - spaceheat.telemetry.name:007
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.config:000
+      - data.channel.gt:002
+      - derived.channel.gt:001
+      - gw1.tank.temp.calibration.map:000
+      - gw1.tank.temp.calibration:000
+      - ha1.params:006
+      - i2c.multichannel.dt.relay.component.gt:004
+      - pico.flow.module.component.gt:000
+      - pico.tank.module.component.gt:011
+      - relay.actor.config:003
+      - sim.pico.tank.module.component.gt:000
+      - spaceheat.node.gt:301
+      - spaceheat.telemetry.quantity.projection:000
+  machine.states:
+    '000':
+      enums:
+      - relay.closed.or.open:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - utc.milliseconds
+      types: []
+  new.command.tree:
+    '000':
+      enums:
+      - gw1.actor.class:009
+      - gw1.actor.class:011
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - spaceheat.node.gt:200
+      - spaceheat.node.gt:300
+      - spaceheat.node.gt:301
+  pico.flow.module.component.gt:
+    '000':
+      enums:
+      - gpm.from.hz.method:000
+      - hz.calc.method:001
+      - spaceheat.make.model:003
+      - spaceheat.unit:001
+      formats:
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - channel.config:000
+  pico.tank.module.component.gt:
+    '011':
+      enums:
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - channel.config:000
+  power.watts:
+    '000':
+      enums: []
+      formats: []
+      types: []
+  price.quantity.unitless:
+    '001':
+      enums: []
+      formats: []
+      types: []
+  relay.actor.config:
+    '002':
+      enums:
+      - change.relay.state:000
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.unit:001
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      types: []
+    '003':
+      enums:
+      - change.relay.state:000
+      - relay.closed.or.open:000
+      - relay.wiring.config:000
+      - spaceheat.unit:001
+      formats:
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      types: []
+  report:
+    '002':
+      enums:
+      - fsm.report.type:000
+      - relay.closed.or.open:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.readings:002
+      - fsm.atomic.report:000
+      - fsm.atomic.report:001
+      - fsm.full.report:000
+      - fsm.full.report:001
+      - machine.states:000
+    '003':
+      enums:
+      - fsm.report.type:000
+      - relay.closed.or.open:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.readings:002
+      - fsm.atomic.report:001
+      - fsm.full.report:001
+      - machine.states:000
+  report.event:
+    '002':
+      enums:
+      - fsm.report.type:000
+      - relay.closed.or.open:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.readings:002
+      - fsm.atomic.report:000
+      - fsm.atomic.report:001
+      - fsm.full.report:000
+      - fsm.full.report:001
+      - machine.states:000
+      - report:002
+    '003':
+      enums:
+      - fsm.report.type:000
+      - relay.closed.or.open:000
+      - relay.energization.state:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - channel.readings:002
+      - fsm.atomic.report:001
+      - fsm.full.report:001
+      - machine.states:000
+      - report:003
+  scada.params:
+    '004':
+      enums: []
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - ha1.params:004
+      - ha1.params:005
+    '005':
+      enums: []
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - ha1.params:006
+  sim.pico.tank.module.component.gt:
+    '000':
+      enums:
+      - spaceheat.unit:001
+      - temp.calc.method:000
+      formats:
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types:
+      - channel.config:000
+  single.machine.state:
+    '000':
+      enums:
+      - relay.closed.or.open:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - utc.milliseconds
+      types: []
+  single.reading:
+    '000':
+      enums: []
+      formats:
+      - spaceheat.name
+      - utc.milliseconds
+      types: []
+  snapshot.spaceheat:
+    '003':
+      enums:
+      - relay.closed.or.open:000
+      formats:
+      - handle.name
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - single.machine.state:000
+      - single.reading:000
+  spaceheat.node.gt:
+    '200':
+      enums: []
+      formats:
+      - handle.name
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types: []
+    '300':
+      enums:
+      - gw1.actor.class:009
+      formats:
+      - handle.name
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types: []
+    '301':
+      enums:
+      - gw1.actor.class:011
+      formats:
+      - handle.name
+      - positive.int
+      - spaceheat.name
+      - uuid4.str
+      types: []
+  spaceheat.telemetry.quantity.projection:
+    '000':
+      enums:
+      - gw1.quantity:000
+      - spaceheat.telemetry.name:007
+      formats: []
+      types: []
+  ticklist.hall:
+    '101':
+      enums: []
+      formats: []
+      types: []
+  ticklist.hall.report:
+    '000':
+      enums: []
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      types:
+      - ticklist.hall:101
+  ticklist.reed:
+    '101':
+      enums: []
+      formats: []
+      types: []
+  ticklist.reed.report:
+    '000':
+      enums: []
+      formats:
+      - left.right.dot
+      - spaceheat.name
+      - utc.milliseconds
+      types:
+      - ticklist.reed:101
+  weather.forecast:
+    '000':
+      enums: []
+      formats:
+      - left.right.dot
+      - utc.seconds
+      - uuid4.str
+      types: []
