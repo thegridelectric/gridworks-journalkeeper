@@ -601,8 +601,6 @@ class AlertGenerator:
                 power for time, power in zip(pwr['times'], pwr['values']) 
                 if time >= last_heatcall_time - 5*60*1000
             ]
-            if power_around_heatcall:
-                print(f"-- Power around heat call: {power_around_heatcall}")
             found_power_after_heatcall = False
             if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
                 print(f"-- No pump power recorded around heat call and latest power is low")
