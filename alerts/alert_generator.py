@@ -14,6 +14,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel
 from typing import Optional
 
+SIMULATING = False
+
 Base = declarative_base()
 
 class House(Base):
@@ -65,6 +67,7 @@ class AlertGenerator:
         self.min_hp_kw = 1
         self.on_peak_hours = [7,8,9,10,11,16,17,18,19]
         self.whitewire_threshold_watts = {'beech': 100, 'default': 20, 'elm': 0.9}
+        self.simulated_reference_time = pendulum.parse('2026-05-20T04:20:00-04:00')
         self.critical_zones_by_house = {}
         self.data = {}
         self.relays = {}
@@ -175,9 +178,21 @@ class AlertGenerator:
     def unix_ms_to_date(self, time_ms):
         return pendulum.from_timestamp(time_ms/1000, tz=self.timezone_str).replace(microsecond=0)
 
+    def reference_now(self) -> pendulum.DateTime:
+        """Datetime used anywhere we meant 'now' for alert windows (frozen when SIMULATING)."""
+        if SIMULATING:
+            return self.simulated_reference_time
+        return pendulum.now(tz=self.timezone_str)
+
+    def reference_epoch(self) -> float:
+        """Unix seconds aligned with ``reference_now`` (replacement for ``time.time()`` in alert logic)."""
+        if SIMULATING:
+            return float(self.simulated_reference_time.timestamp())
+        return time.time()
+
     def get_data_from_journaldb(self):
         print("\nFinding data from journaldb...")
-        time_now = pendulum.now(tz=self.timezone_str)
+        time_now = self.reference_now()
         try:
             with next(get_db()) as session:
                 start_ms = time_now.add(hours=-self.hours_back).timestamp() * 1000
@@ -263,7 +278,7 @@ class AlertGenerator:
 
     def get_data_from_journaldb_spruce(self):
         print("\nFinding Spruce data from journaldb...")
-        time_now = pendulum.now(tz=self.timezone_str)
+        time_now = self.reference_now()
         try:
             with next(get_db()) as session:
                 start_ms = time_now.add(minutes=-10).timestamp() * 1000
@@ -290,7 +305,7 @@ class AlertGenerator:
 
             expired_glitches = []
             for active_critical_glitch in self.alert_status[house_alias][alert_alias]:
-                if time.time() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
+                if self.reference_epoch() - self.alert_status[house_alias][alert_alias][active_critical_glitch] > self.hours_back*60*60:
                     expired_glitches.append(active_critical_glitch)
             for active_critical_glitch in expired_glitches:
                 self.alert_status[house_alias][alert_alias].pop(active_critical_glitch)
@@ -304,7 +319,7 @@ class AlertGenerator:
                     f"hw1.isone.me.versant.keene.{house_alias}.scada.s2",
                 ])
             with next(get_db()) as session:
-                start_ms = pendulum.now(tz="America/New_York").add(hours=-self.hours_back).timestamp() * 1000
+                start_ms = self.reference_now().add(hours=-self.hours_back).timestamp() * 1000
                 glitches = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "glitch",
@@ -355,14 +370,14 @@ class AlertGenerator:
                     self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
 
-            elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
+            elif self.reference_epoch() - most_recent_ms/1000 > self.max_time_no_data:
                 if not self.alert_status[house_alias][alert_alias]:
-                    alert_message = f"{house_alias}: No data coming in since {round((time.time()-most_recent_ms/1000)/60,1)} minutes"
+                    alert_message = f"{house_alias}: No data coming in since {round((self.reference_epoch()-most_recent_ms/1000)/60,1)} minutes"
                     self.send_opsgenie_alert(alert_message, house_alias, alert_alias)
                     self.alert_status[house_alias][alert_alias] = True
 
             else:
-                print(f"- {house_alias}: Found data up to {round((time.time()-most_recent_ms/1000)/60,1)} minutes ago")
+                print(f"- {house_alias}: Found data up to {round((self.reference_epoch()-most_recent_ms/1000)/60,1)} minutes ago")
                 self.alert_status[house_alias][alert_alias] = False
 
         print("\nChecking for Spruce data...")
@@ -381,14 +396,14 @@ class AlertGenerator:
                 self.send_opsgenie_alert(alert_message, 'spruce', alert_alias)
                 self.alert_status['spruce'][alert_alias] = True
             
-        elif time.time() - most_recent_ms/1000 > self.max_time_no_data:
+        elif self.reference_epoch() - most_recent_ms/1000 > self.max_time_no_data:
             if not self.alert_status['spruce'][alert_alias]:
-                alert_message = f"{'spruce'}: No data coming in since {round((time.time()-most_recent_ms/1000)/60,1)} minutes"
+                alert_message = f"{'spruce'}: No data coming in since {round((self.reference_epoch()-most_recent_ms/1000)/60,1)} minutes"
                 self.send_opsgenie_alert(alert_message, 'spruce', alert_alias)
                 self.alert_status['spruce'][alert_alias] = True
 
         else:
-            print(f"- {'spruce'}: Found data up to {round((time.time()-most_recent_ms/1000)/60,1)} minutes ago")
+            print(f"- {'spruce'}: Found data up to {round((self.reference_epoch()-most_recent_ms/1000)/60,1)} minutes ago")
             self.alert_status['spruce'][alert_alias] = False
 
     def check_zone_below_setpoint(self):
@@ -527,9 +542,26 @@ class AlertGenerator:
             for zone_state in [x for x in self.data[house_alias] if 'zone' in x and 'whitewire' in x]:
                 channel = self.data[house_alias][zone_state]
                 channel['values'] = [int(abs(x)>threshold) for x in channel['values']]
-                zone_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==1]
+                min_heatcall_ms = 3 * 60 * 1000
+                pairs = list(zip(channel['times'], channel['values']))
+                zone_heatcall_times = []
+                i = 0
+                while i < len(pairs):
+                    if pairs[i][1] != 1:
+                        i += 1
+                        continue
+                    run_start_ms = pairs[i][0]
+                    j = i
+                    while j < len(pairs) and pairs[j][1] == 1:
+                        j += 1
+                    cutoff_ms = run_start_ms + min_heatcall_ms
+                    for k in range(i, j):
+                        tk, _ = pairs[k]
+                        if tk >= cutoff_ms:
+                            zone_heatcall_times.append(tk)
+                    i = j
                 no_heatcall_times = [t for t, state in zip(channel['times'], channel['values']) if state==0]
-                valid_zone_heatcall_times = [t for t in zone_heatcall_times if time.time()-t/1000 >= 5*60]
+                valid_zone_heatcall_times = [t for t in zone_heatcall_times if self.reference_epoch()-t/1000 >= 5*60]
                 if valid_zone_heatcall_times:
                     zone_last_heatcall_time = max(valid_zone_heatcall_times)
                 else:
@@ -561,7 +593,7 @@ class AlertGenerator:
                 print(f"-- No recent heat call or too short/recent heat call to tell")
                 continue
 
-            # print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
+            print(f"Last heat call time: {self.unix_ms_to_date(last_heatcall_time)}")
 
             # Try to find power around the latest heat call
             pwr = self.data[house_alias]['dist-pump-pwr']
@@ -569,6 +601,8 @@ class AlertGenerator:
                 power for time, power in zip(pwr['times'], pwr['values']) 
                 if time >= last_heatcall_time - 5*60*1000
             ]
+            if power_around_heatcall:
+                print(f"-- Power around heat call: {power_around_heatcall}")
             found_power_after_heatcall = False
             if not power_around_heatcall and pwr['values'][-1] <= self.min_dist_pump_w:
                 print(f"-- No pump power recorded around heat call and latest power is low")
@@ -631,7 +665,7 @@ class AlertGenerator:
                 continue
 
             if relay9_state == "RelayClosed":
-                if time.time() - time_since_in_current_state/1000 > 10*60:
+                if self.reference_epoch() - time_since_in_current_state/1000 > 10*60:
                     print(f"- {house_alias}: Relay 9 is closed since more than 10 minutes, expecting store flow")
 
                     # Try to find power
@@ -709,7 +743,7 @@ class AlertGenerator:
             relay5_state = r['values'][-1]
 
             if relay5_state == "Scada":
-                if time.time() - time_since_in_current_state/1000 > 15*60:
+                if self.reference_epoch() - time_since_in_current_state/1000 > 15*60:
                     print(f"-- Relay 5 is in Scada since more than 15 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
@@ -737,7 +771,7 @@ class AlertGenerator:
             relay6_state = r['values'][-1]
 
             if relay6_state == "RelayClosed":
-                if time.time() - time_since_in_current_state/1000 > 15*60:
+                if self.reference_epoch() - time_since_in_current_state/1000 > 15*60:
                     print(f"-- Relay 6 is Closed since more than 15 minutes")
                 else:
                     self.alert_status[house_alias][alert_alias] = False
@@ -753,14 +787,14 @@ class AlertGenerator:
             odu_channel = self.data[house_alias]['hp-odu-pwr']
             idu_channel = self.data[house_alias]['hp-idu-pwr']
             latest_reading_time_ms = max(max(odu_channel['times']), max(idu_channel['times']))
-            if time.time() - latest_reading_time_ms/1000 > 15*60:
+            if self.reference_epoch() - latest_reading_time_ms/1000 > 15*60:
                 print("There is no recent HP power data available")
                 continue
 
             on_times_odu = [t for t, v in zip(odu_channel['times'], odu_channel['values']) if v/1000 >= self.min_hp_kw]
             on_times_idu = [t for t, v in zip(idu_channel['times'], idu_channel['values']) if v/1000 >= self.min_hp_kw]
             on_times = sorted(on_times_odu + on_times_idu)
-            on_times = [x for x in on_times if time.time() - x/1000 < 15*60]
+            on_times = [x for x in on_times if self.reference_epoch() - x/1000 < 15*60]
 
             if on_times:
                 self.alert_status[house_alias][alert_alias] = False
@@ -913,19 +947,19 @@ class AlertGenerator:
         while True:
             try:
                 self.get_data_from_journaldb()
-                self.get_data_from_journaldb_spruce()
-                self.check_for_glitches()
-                self.check_no_data()
-                self.check_zone_below_setpoint()
-                self.check_zone_freezing()
+                # self.get_data_from_journaldb_spruce()
+                # self.check_for_glitches()
+                # self.check_no_data()
+                # self.check_zone_below_setpoint()
+                # self.check_zone_freezing()
                 self.check_dist_pump()
-                self.check_store_pump()
-                self.check_hp()
+                # self.check_store_pump()
+                # self.check_hp()
                 # self.check_in_atn()
-                self.check_hp_on_during_onpeak()
-                self.check_rebooting()
+                # self.check_hp_on_during_onpeak()
+                # self.check_rebooting()
                 # self.check_no_more_oil()
-                self.check_alert_status()
+                # self.check_alert_status()
             except Exception as e:
                 print(e)
             time.sleep(self.main_loop_seconds)
