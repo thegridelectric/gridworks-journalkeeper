@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
@@ -41,7 +41,7 @@ class LayoutLitePersistor:
             self.db = db
             self.layout = layout
             self.msg_timestamp = datetime.fromtimestamp(
-                layout.message_created_ms / 1000
+                layout.message_created_ms / 1000, UTC
             )
             self.terminal_asset_alias = terminal_asset_alias
 
@@ -179,65 +179,32 @@ class LayoutLitePersistor:
             self.logger, db, layout, from_alias.split(".scada")[0] + ".ta"
         ).execute()
 
-    def persist_v007(self, from_alias: str, layout: LayoutLite007):
+    def persist(self, from_alias: str, layout: ModernLayout):
         return MessagePersistenceInfo(
             id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
+            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.sync_reading_channels(
                 db, from_alias, layout
             ),
         )
+
+    def persist_v007(self, from_alias: str, layout: LayoutLite007):
+        return self.persist(from_alias, layout)
 
     def persist_v008(self, from_alias: str, layout: LayoutLite008):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)
 
     def persist_v009(self, from_alias: str, layout: LayoutLite009):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)
 
     def persist_v010(self, from_alias: str, layout: LayoutLite010):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)
 
     def persist_v011(self, from_alias: str, layout: LayoutLite011):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)
 
     def persist_v012(self, from_alias: str, layout: LayoutLite012):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)
 
     def persist_v013(self, from_alias: str, layout: LayoutLite):
-        return MessagePersistenceInfo(
-            id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000),
-            additional_db_operations=lambda db: self.sync_reading_channels(
-                db, from_alias, layout
-            ),
-        )
+        return self.persist(from_alias, layout)

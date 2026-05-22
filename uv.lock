@@ -492,7 +492,7 @@ dev = [
 
 [[package]]
 name = "gw-data"
-version = "0.1.14"
+version = "0.2.0"
 source = { directory = "../gridworks-data" }
 dependencies = [
     { name = "alembic" },
@@ -514,6 +514,9 @@ requires-dist = [
     { name = "sqlalchemy-timescaledb", specifier = ">=0.4.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.38.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "passlib", specifier = ">=1.7.4" }]
 
 [[package]]
 name = "h11"

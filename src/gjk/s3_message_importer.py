@@ -2,7 +2,7 @@ import json
 import logging
 import sys
 from collections.abc import Iterable
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 import boto3
@@ -52,7 +52,9 @@ class S3MessageInfo:
         [self.from_alias, self.msg_type_name, message_persisted_ms_str, self.source] = (
             key_str.split("/")[-1].split("-")
         )
-        self.persist_time = datetime.fromtimestamp(int(message_persisted_ms_str) / 1000)
+        self.persist_time = datetime.fromtimestamp(
+            int(message_persisted_ms_str) / 1000, tz=UTC
+        )
 
 
 class S3MessageImporter:
@@ -167,9 +169,9 @@ def main():
     importer = S3MessageImporter(settings, msg_types, logger)
 
     msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 4, 20),
+        start=datetime(2026, 4, 1),
         #     # start=datetime(2026, 1, 9),
-        end=datetime(2026, 5, 13),
+        end=datetime(2026, 5, 17),
     )
 
     # msg_infos = importer.find_messages_on_date(

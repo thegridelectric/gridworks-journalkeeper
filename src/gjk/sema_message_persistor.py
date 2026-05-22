@@ -1,7 +1,7 @@
 import uuid
 from collections.abc import Callable
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import UTC, datetime
 
 from gw_data.db.models import MessageSql
 from sqlalchemy import create_engine
@@ -103,7 +103,7 @@ class SemaMessagePersistor:
         if created_at_ms_field:
             created_at_ms = getattr(payload, created_at_ms_field, None)
             if created_at_ms:
-                created_at = datetime.fromtimestamp(created_at_ms / 1000)
+                created_at = datetime.fromtimestamp(created_at_ms / 1000, tz=UTC)
             else:
                 self.logger.warn(
                     f"No data found for {payload.type_name}.{created_at_ms_field}"
@@ -113,7 +113,7 @@ class SemaMessagePersistor:
         if created_at_s_field:
             created_at_s = getattr(payload, created_at_s_field, None)
             if created_at_s:
-                created_at = datetime.fromtimestamp(created_at_s)
+                created_at = datetime.fromtimestamp(created_at_s, tz=UTC)
             else:
                 self.logger.warn(
                     f"No data found for {payload.type_name}.{created_at_s_field}"
