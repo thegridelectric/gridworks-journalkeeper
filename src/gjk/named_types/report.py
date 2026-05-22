@@ -28,7 +28,7 @@ class Report(GwBase):
     message_created_ms: UTCMilliseconds
     id: UUID4Str
     type_name: Literal["report"] = "report"
-    version: Literal["002"] = "002"
+    version: str = "003"
 
     @field_validator("channel_reading_list")
     @classmethod
