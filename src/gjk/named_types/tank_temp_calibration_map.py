@@ -22,4 +22,19 @@ class TankTempCalibrationMap(GwBase):
         - There are between 1 and 6 tanks
         - Tank indices must be contiguous starting at 1
         """
+        tank_indices = sorted(self.tank.keys())
+
+        num_tanks = len(tank_indices)
+        if num_tanks < 1 or num_tanks > 6:
+            raise ValueError(
+                f"Axiom 1 failed: expected between 1 and 6 tanks, got {num_tanks}"
+            )
+
+        expected_indices = list(range(1, num_tanks + 1))
+        if tank_indices != expected_indices:
+            raise ValueError(
+                "Axiom 1 failed: tank indices must be contiguous starting at 1. "
+                f"Expected {expected_indices}, got {tank_indices}"
+            )
+
         return self
