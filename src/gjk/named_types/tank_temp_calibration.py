@@ -11,5 +11,5 @@ class TankTempCalibration(GwBase):
     depth3_m: float = 1.0
     depth3_b: float = 0.0
 
-    TypeName: Literal["gw1.tank.temp.calibration"] = "gw1.tank.temp.calibration"
-    Version: Literal["000"] = "000"
+    type_name: Literal["gw1.tank.temp.calibration"] = "gw1.tank.temp.calibration"
+    version: Literal["000"] = "000"
