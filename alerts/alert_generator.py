@@ -221,7 +221,11 @@ class AlertGenerator:
             llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
             if "CriticalZoneList" in layout_lite_message.payload:
                 self.critical_zones_by_house[llm_house_alias] = layout_lite_message.payload["CriticalZoneList"]
-            if "SystemMode" in layout_lite_message.payload and layout_lite_message.payload["SystemMode"] == "Standby":
+            if (
+                "SystemMode" in layout_lite_message.payload 
+                and layout_lite_message.payload["SystemMode"] == "Standby"
+                and llm_house_alias not in self.houses_in_standby
+            ):
                 self.houses_in_standby.append(llm_house_alias)
                 print(f"Adding {llm_house_alias} to the list of houses in standby")
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
