@@ -14,6 +14,7 @@ from gjk.property_format import (
 class I2cMultichannelDtRelayComponentGt(GwBase):
     component_id: UUID4Str
     component_attribute_class_id: UUID4Str
+    i2c_bus: str | None = None
     i2c_address_list: list[StrictInt]
     config_list: list[RelayActorConfig]
     display_name: str | None = None
@@ -21,7 +22,7 @@ class I2cMultichannelDtRelayComponentGt(GwBase):
     type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = (
         "i2c.multichannel.dt.relay.component.gt"
     )
-    version: Literal["002"] = "002"
+    version: str = "003"
 
     @field_validator("config_list")
     @classmethod
