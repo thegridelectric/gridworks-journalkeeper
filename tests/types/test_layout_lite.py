@@ -268,3 +268,62 @@ def test_layout_lite_generated() -> None:
 
     # TODO : figure out why LayoutLite.from_dict(d).to_dict() == d fails
     assert t.total_store_tanks == 3
+
+    d_012 = d | {
+        "SystemMode": "Standby",
+        "SeasonalStorageMode": "BufferOnly",
+        "BufferShortCycling": True,
+        "TMap": {
+            "Buffer": {
+                "Depth1B": 1.269,
+                "Depth1M": 1.002,
+                "Depth2B": 0.0,
+                "Depth2M": 1.0,
+                "Depth3B": 1.269,
+                "Depth3M": 1.002,
+                "TypeName": "gw1.tank.temp.calibration",
+                "Version": "000",
+            },
+            "Tank": {
+                "1": {
+                    "Depth1B": -3.466,
+                    "Depth1M": 1.047,
+                    "Depth2B": 0.0,
+                    "Depth2M": 1.0,
+                    "Depth3B": -3.466,
+                    "Depth3M": 1.047,
+                    "TypeName": "gw1.tank.temp.calibration",
+                    "Version": "000",
+                },
+                "2": {
+                    "Depth1B": -1.605,
+                    "Depth1M": 1.03,
+                    "Depth2B": 0.0,
+                    "Depth2M": 1.0,
+                    "Depth3B": -1.605,
+                    "Depth3M": 1.03,
+                    "TypeName": "gw1.tank.temp.calibration",
+                    "Version": "000",
+                },
+                "3": {
+                    "Depth1B": -1.042,
+                    "Depth1M": 1.021,
+                    "Depth2B": 0.0,
+                    "Depth2M": 1.0,
+                    "Depth3B": -1.042,
+                    "Depth3M": 1.021,
+                    "TypeName": "gw1.tank.temp.calibration",
+                    "Version": "000",
+                },
+            },
+            "TypeName": "gw1.tank.temp.calibration.map",
+            "Version": "000",
+        },
+        "Version": "012",
+    }
+
+    t_012 = LayoutLite.from_dict(d_012)
+
+    assert t_012.system_mode == "Standby"
+    assert t_012.t_map is not None
+    assert list(t_012.t_map.tank.keys()) == [1, 2, 3]
