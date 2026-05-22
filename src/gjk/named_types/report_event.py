@@ -17,4 +17,4 @@ class ReportEvent(GwBase):
     src: str
     report: Report
     type_name: Literal["report.event"] = "report.event"
-    version: Literal["002"] = "002"
+    version: str = "003"
