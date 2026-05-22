@@ -216,12 +216,14 @@ class AlertGenerator:
         
         self.messages = [m for m in sql_messages if m.message_type_name == "report"]
         self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
+        print(f"Found {len(self.messages)} reports and {len(self.layout_lites)} layout lites")
         for layout_lite_message in self.layout_lites:
             llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
             if "CriticalZoneList" in layout_lite_message.payload:
                 self.critical_zones_by_house[llm_house_alias] = layout_lite_message.payload["CriticalZoneList"]
             if "SystemMode" in layout_lite_message.payload and layout_lite_message.payload["SystemMode"] == "Standby":
                 self.houses_in_standby.append(llm_house_alias)
+                print(f"Adding {llm_house_alias} to the list of houses in standby")
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases and x in ['beech', 'oak', 'fir', 'maple', 'elm']]
 
