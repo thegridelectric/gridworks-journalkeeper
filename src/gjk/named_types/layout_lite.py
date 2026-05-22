@@ -1,7 +1,8 @@
-from typing import List, Literal, Self
+from typing import Any, List, Literal, Self
 
+from gw.errors import GwTypeError
 from gw.named_types import GwBase
-from pydantic import PositiveInt
+from pydantic import PositiveInt, ValidationError
 
 from gjk.enums import ActorClass
 from gjk.named_types.data_channel_gt import DataChannelGt
@@ -26,19 +27,29 @@ class LayoutLite(GwBase):
     message_created_ms: UTCMilliseconds
     message_id: UUID4Str
     strategy: str
+    system_mode: str | None = None
+    seasonal_storage_mode: str | None = None
+    buffer_short_cycling: bool | None = None
     zone_list: list[str]
     critical_zone_list: list[str]
     total_store_tanks: PositiveInt
     sh_nodes: list[SpaceheatNodeGt]
     data_channels: list[DataChannelGt]
     derived_channels: list[DerivedChannelGt]
-    tank_module_components: list[PicoTankModuleComponentGt]
+    tank_module_components: list[PicoTankModuleComponentGt | dict[str, Any]]
     flow_module_components: list[PicoFlowModuleComponentGt]
     ha1_params: Ha1Params
     i2c_relay_component: I2cMultichannelDtRelayComponentGt
     t_map: TankTempCalibrationMap | None = None
     type_name: Literal["layout.lite"] = "layout.lite"
-    version: Literal["007"] = "007"
+    version: str = "012"
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "LayoutLite":
+        try:
+            return cls.model_validate(d)
+        except ValidationError as e:
+            raise GwTypeError(f"Pydantic validation error: {e}") from e
 
     # @model_validator(mode="after")
     def check_axiom_1(self) -> Self:

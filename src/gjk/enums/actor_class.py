@@ -5,10 +5,14 @@ from gw.enums import GwStrEnum
 
 class ActorClass(GwStrEnum):
     NoActor = auto()
+    PrimaryScada = auto()
+    SecondaryScada = auto()
     Scada = auto()
     HomeAlone = auto()
     BooleanActuator = auto()
     PowerMeter = auto()
+    LocalControl = auto()
+    LeafAlly = auto()
     Atn = auto()
     SimpleSensor = auto()
     MultipurposeSensor = auto()
@@ -28,6 +32,7 @@ class ActorClass(GwStrEnum):
     ApiFlowModule = auto()
     PicoCycler = auto()
     I2cDfrMultiplexer = auto()
+    I2cZeroTenMultiplexer = auto()
     ZeroTenOutputer = auto()
     AtomicAlly = auto()
     SynthGenerator = auto()
@@ -35,8 +40,14 @@ class ActorClass(GwStrEnum):
     PumpDoctor = auto()
     StratBoss = auto()
     HpRelayBoss = auto()
+    HpBoss = auto()
     ApiBtuMeter = auto()
     DerivedGenerator = auto()
+    SiegLoop = auto()
+    GpioSensor = auto()
+    I2cBus = auto()
+    I2cRelayBoard = auto()
+    I2cThermistorReader = auto()
 
     @classmethod
     def default(cls) -> "ActorClass":
