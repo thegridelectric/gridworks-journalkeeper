@@ -69,6 +69,7 @@ class AlertGenerator:
         self.whitewire_threshold_watts = {'beech': 100, 'default': 20, 'elm': 0.9}
         self.simulated_reference_time = pendulum.parse('2026-05-20T04:20:00-04:00')
         self.critical_zones_by_house = {}
+        self.houses_in_standby = []
         self.data = {}
         self.relays = {}
         self.critical_zones_list = {}
@@ -217,7 +218,10 @@ class AlertGenerator:
         self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
         for layout_lite_message in self.layout_lites:
             llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
-            self.critical_zones_by_house[llm_house_alias] = {'known': True, 'list': layout_lite_message.payload["CriticalZoneList"]}
+            if "CriticalZoneList" in layout_lite_message.payload:
+                self.critical_zones_by_house[llm_house_alias] = layout_lite_message.payload["CriticalZoneList"]
+            if "SystemMode" in layout_lite_message.payload and layout_lite_message.payload["SystemMode"] == "Standby":
+                self.houses_in_standby.append(llm_house_alias)
         all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases and x in ['beech', 'oak', 'fir', 'maple', 'elm']]
 
@@ -414,6 +418,10 @@ class AlertGenerator:
                 self.alert_status[house_alias][alert_alias] = {}
             print(f"- {house_alias}:")
 
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
                 if len(channel.split("-")) >= 2:
@@ -491,6 +499,10 @@ class AlertGenerator:
                 self.alert_status[house_alias][alert_alias] = {}
             print(f"- {house_alias}:")
 
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             channels_by_zone = {}
             for channel in [x for x in self.data[house_alias] if 'zone' in x]:
                 if len(channel.split("-")) >= 2:
@@ -530,6 +542,11 @@ class AlertGenerator:
         print("\nChecking for distribution pump activity...")
         for house_alias in self.selected_house_aliases:
             print(f"- {house_alias}:")
+
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = 0
 
@@ -642,6 +659,10 @@ class AlertGenerator:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             current_relay9_boss = list(self.relays[house_alias]['relay9'].keys())[0]
             latest_relay_time = 0
             for relay9_boss in self.relays[house_alias]['relay9']:
@@ -717,6 +738,11 @@ class AlertGenerator:
             if 'maple' in house_alias:
                 print(f"-- Skipping for Maple")
                 continue
+
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
@@ -809,6 +835,10 @@ class AlertGenerator:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
             current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
             latest_relay_time = 0
             for relay9_boss in self.relays[house_alias]['relay5']:
@@ -831,6 +861,10 @@ class AlertGenerator:
         for house_alias in self.selected_house_aliases:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
+
+            if house_alias in self.houses_in_standby:
+                print(f"-- {house_alias} is in Standby, skipping")
+                continue
 
             if "hp-odu-pwr" not in self.data[house_alias] or "hp-odu-pwr" not in self.data[house_alias]:
                 print(f"{house_alias}: Missing data!") # TODO: create an alert?
