@@ -25,7 +25,7 @@ class SpaceheatNodeGt(GwBase):
     in_power_metering: bool | None = None
     sh_node_id: UUID4Str
     type_name: Literal["spaceheat.node.gt"] = "spaceheat.node.gt"
-    version: Literal["200"] = "200"
+    version: str = "300"
 
     model_config = ConfigDict(
         alias_generator=snake_to_pascal,
