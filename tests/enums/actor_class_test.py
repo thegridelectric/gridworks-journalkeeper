@@ -8,10 +8,14 @@ from gjk.enums import ActorClass
 def test_actor_class() -> None:
     assert set(ActorClass.values()) == {
         "NoActor",
+        "PrimaryScada",
+        "SecondaryScada",
         "Scada",
         "HomeAlone",
         "BooleanActuator",
         "PowerMeter",
+        "LocalControl",
+        "LeafAlly",
         "Atn",
         "SimpleSensor",
         "MultipurposeSensor",
@@ -31,6 +35,7 @@ def test_actor_class() -> None:
         "ApiFlowModule",
         "PicoCycler",
         "I2cDfrMultiplexer",
+        "I2cZeroTenMultiplexer",
         "ZeroTenOutputer",
         "AtomicAlly",
         "SynthGenerator",
@@ -38,8 +43,14 @@ def test_actor_class() -> None:
         "PumpDoctor",
         "StratBoss",
         "HpRelayBoss",
+        "HpBoss",
         "ApiBtuMeter",
         "DerivedGenerator",
+        "SiegLoop",
+        "GpioSensor",
+        "I2cBus",
+        "I2cRelayBoard",
+        "I2cThermistorReader",
     }
 
     assert ActorClass.default() == ActorClass.NoActor
