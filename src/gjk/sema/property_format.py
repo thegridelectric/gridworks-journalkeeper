@@ -3,7 +3,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
-from pydantic import BeforeValidator
+from pydantic import BeforeValidator, Field
 
 # --- patterns ---
 HANDLE_NAME_PATTERN = re.compile(
@@ -15,6 +15,8 @@ LEFT_RIGHT_DOT_PATTERN = re.compile(r"^[a-z][a-z0-9]*(\.[a-z0-9]+)*$")
 MARKET_SLOT_NAME_PATTERN = re.compile(
     r"^[erd]\.[a-z0-9]+(?:\.[a-z0-9]+)*(?:\.[a-z0-9]+)+\.[0-9]{10}$"
 )
+
+POSITIVE_INT_AS_STR_PATTERN = re.compile(r"^[1-9][0-9]*$")
 
 SPACEHEAT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 
@@ -121,6 +123,14 @@ def is_positive_int(v: int) -> int:
     return v
 
 
+def is_positive_int_as_str(v: str) -> str:
+    if not isinstance(v, str):
+        raise ValueError(f"<{v}>: positive.int.as.str must be a string.")
+    if not POSITIVE_INT_AS_STR_PATTERN.fullmatch(v):
+        raise ValueError(f"<{v}>: Fails positive.int.as.str format.")
+    return v
+
+
 def is_spaceheat_name(v: str) -> str:
     if not isinstance(v, str):
         raise ValueError(f"<{v}>: SpaceheatName must be a string.")
@@ -205,9 +215,19 @@ MarketSlotName = Annotated[
     BeforeValidator(is_market_slot_name),
 ]
 
+NonEmptyString = Annotated[
+    str,
+    Field(min_length=1),
+]
+
 PositiveInt = Annotated[
     int,
     BeforeValidator(is_positive_int),
+]
+
+PositiveIntAsStr = Annotated[
+    str,
+    BeforeValidator(is_positive_int_as_str),
 ]
 
 SpaceheatName = Annotated[

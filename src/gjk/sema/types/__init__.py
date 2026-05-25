@@ -42,6 +42,7 @@ from gjk.sema.types.ticklist_hall import TicklistHall
 from gjk.sema.types.ticklist_hall_report import TicklistHallReport
 from gjk.sema.types.ticklist_reed import TicklistReed
 from gjk.sema.types.ticklist_reed_report import TicklistReedReport
+from gjk.sema.types.weather import Weather
 from gjk.sema.types.weather_forecast import WeatherForecast
 
 __all__ = [
@@ -83,5 +84,6 @@ __all__ = [
     "TicklistHallReport",
     "TicklistReed",
     "TicklistReedReport",
+    "Weather",
     "WeatherForecast",
 ]

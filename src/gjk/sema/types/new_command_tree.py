@@ -40,9 +40,9 @@ class NewCommandTree(SemaType):
                 segments = value.split(".")
                 for n in range(1, len(segments)):
                     prefix = ".".join(segments[:n])
-        #                    if prefix not in present:
-        #                        raise ValueError(
-        #                            f"Axiom 1 failed: {attr} {value!r} has prefix {prefix!r} "
-        #                            f"that is not the {attr} of any ShNode."
-        #                        )
+                    if prefix not in present:
+                        raise ValueError(
+                            f"Axiom 1 failed: {attr} {value!r} has prefix {prefix!r} "
+                            f"that is not the {attr} of any ShNode."
+                        )
         return self
