@@ -5,9 +5,8 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock
 
-from gwbase.actor_base import ActorBase
-
 from gjk.journal_keeper import JournalKeeper
+from gwbase.actor_base import ActorBase
 
 
 def test_module_imports() -> None:
@@ -51,9 +50,9 @@ def test_dispatch_message_routes_sema_to_persistor() -> None:
     jk.codec.from_dict.return_value = sema_obj
 
     envelope = MagicMock(from_alias="test.alias")
-    body = json.dumps(
-        {"Payload": {"TypeName": "weather.forecast", "Version": "000"}}
-    ).encode()
+    body = json.dumps({
+        "Payload": {"TypeName": "weather.forecast", "Version": "000"}
+    }).encode()
     jk.dispatch_message(envelope=envelope, body=body)
 
     jk.persistor.persist_message.assert_called_once()

@@ -1,0 +1,6 @@
+{
+  "_note": "Transient. journalkeeper is NOT a GNode actor (it persists what crosses the broker, no grid role). This file exists only because gwbase 0.4.x's `ActorBase.__init__` requires GNode identity fields on disk — see F-004 in `wiki/gridworks-base/research/findings.md` (`ActorBase requires GNode identity even for non-GNode services`). Once F-004 lands (`ServiceSettings` split for non-GNode actors), this file SHALL be removed.",
+  "Alias": "d1.journal.dev.bright-frost",
+  "GNodeId": "00000000-0000-0000-0000-000000bf0001",
+  "GNodeClass": "journalkeeper"
+}

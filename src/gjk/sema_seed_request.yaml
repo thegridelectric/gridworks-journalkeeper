@@ -25,6 +25,8 @@ initial_targets:
       include_all_versions: true
     weather.forecast:
       include_all_versions: true
+    weather:
+      include_all_versions: true
     energy.instruction:
       include_all_versions: true
     new.command.tree:

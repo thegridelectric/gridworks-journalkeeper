@@ -52,7 +52,7 @@ class JournalKeeper(ActorBase):
         flow through automatically with no edits here.
         """
         for type_name in sorted(self.persistor.all_known_message_types()):
-            routing_key = f"#.{type_name.replace('.', '-')}"
+            routing_key = f"#.{type_name.replace(".", "-")}"
             self.logger.info(
                 "Binding queue %s to %s with routing key %s",
                 self.queue_name,
@@ -77,9 +77,7 @@ class JournalKeeper(ActorBase):
     # Message dispatch
     # ------------------------------------------------------------------
 
-    def dispatch_message(
-        self, *, envelope: RoutingEnvelope, body: bytes
-    ) -> None:
+    def dispatch_message(self, *, envelope: RoutingEnvelope, body: bytes) -> None:
         """Parse with SemaCodec, hand the SemaType to the persistor.
 
         Live AMQP counterpart to ``s3_message_importer.main()``'s loop.
@@ -103,9 +101,7 @@ class JournalKeeper(ActorBase):
                 payload_dict, auto_upgrade=False, mode="degraded"
             )
         except Exception as e:
-            self.logger.error(
-                f"Codec decode failed from {envelope.from_alias}: {e!r}"
-            )
+            self.logger.error(f"Codec decode failed from {envelope.from_alias}: {e!r}")
             return
 
         if not isinstance(sema_obj, SemaType):
