@@ -32,18 +32,15 @@ jobs:
           python-version: "3.12"
 
       - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
 
-      - name: Create virtual environment
-        run: |
-          make venv
-
-      - name: Sync dependencies and install project
-        run: |
-          make dev
+      - name: Sync dependencies (uv-native; replaces the old `make venv` / `make dev`)
+        # `--all-extras` picks up pytest etc. from [project.optional-dependencies];
+        # `--all-groups` covers [dependency-groups]. gjk's pyproject uses both.
+        run: uv sync --all-extras --all-groups --locked
 
       - name: Run tests
-        run: |
-          make test
+        run: uv run pytest tests/
