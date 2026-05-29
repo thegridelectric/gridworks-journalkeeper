@@ -1,0 +1,1 @@
+{"Header":{"Src":"hw1.isone.me.versant.keene.beech","Dst":"s","MessageType":"gridworks.ack","MessageId":"","AckRequired":false,"TypeName":"gridworks.header","Version":"001"},"Payload":{"AckMessageID":"01599c52-171a-4a08-acfb-4a7c5a3bdce5","TypeName":"gridworks.ack"},"TypeName":"gw"}
