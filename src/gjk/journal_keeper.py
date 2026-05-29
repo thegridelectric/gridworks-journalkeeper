@@ -1,546 +1,132 @@
-"""JournalKeeper"""
+"""JournalKeeper
 
+Persists inbound RabbitMQ AMQP messages into the gw_data postgres schema
+via SemaCodec + SemaMessagePersistor. The live AMQP path mirrors the
+S3 backfill path implemented in :mod:`gjk.s3_message_importer`.
+"""
+
+from __future__ import annotations
+
+import json
 import logging
 import threading
 import time
-import uuid
-from contextlib import contextmanager
-from typing import List
+from datetime import UTC, datetime
 
-import pendulum
-from gw.named_types import GwBase
 from gwbase.actor_base import ActorBase
-from gwbase.enums import GNodeRole
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from gwbase.transport_encoding import RoutingEnvelope
 
-from gjk.codec import pyd_to_sql
 from gjk.config import Settings
-from gjk.models import (
-    bulk_insert_datachannels,
-    insert_single_message,
-)
-from gjk.named_types import (
-    AtnBid,
-    EnergyInstruction,
-    FloParamsHouse0,
-    Glitch,
-    GridworksEventProblem,
-    HeatingForecast,
-    LatestPrice,
-    LayoutLite,
-    NewCommandTree,
-    PowerWatts,
-    Report,
-    ReportEvent,
-    ScadaParams,
-    SnapshotSpaceheat,
-    TicklistHallReport,
-    TicklistReedReport,
-    Weather,
-    WeatherForecast,
-)
-from gjk.named_types.asl_types import TypeByName
-from gjk.old_types import GridworksEventReport, LayoutEvent
-from gjk.type_helpers import Message
-from gjk.utils import FileNameMeta, str_from_ms
+from gjk.sema import SemaCodec, SemaType
+from gjk.sema_message_persistor import SemaMessagePersistor
 
-LOG_FORMAT = (
-    "%(levelname) -10s %(sasctime)s %(name) -30s %(funcName) "
-    "-35s %(lineno) -5d: %(message)s"
-)
 LOGGER = logging.getLogger(__name__)
-
-SCADA_NAME = "s"
 
 
 class JournalKeeper(ActorBase):
-    def __init__(self, settings: Settings):
-        # use our knwon types
-        super().__init__(settings=settings, type_by_name=TypeByName)
+    def __init__(
+        self,
+        settings: Settings,
+        codec: SemaCodec,
+        logger: logging.Logger = LOGGER,
+    ) -> None:
+        super().__init__(settings=settings)
         self.settings: Settings = settings
+        self.codec: SemaCodec = codec
+        self.logger: logging.Logger = logger
+        self.persistor: SemaMessagePersistor = SemaMessagePersistor(
+            settings, codec, logger
+        )
         self._consume_exchange = "ear_tx"
-        engine = create_engine(settings.db_url.get_secret_value())
-        self.Session = sessionmaker(bind=engine)
-        self.main_thread = threading.Thread(target=self.main)
+        self.main_thread = threading.Thread(target=self.main, daemon=True)
+
+    # ------------------------------------------------------------------
+    # Framework hooks
+    # ------------------------------------------------------------------
 
     def local_rabbit_startup(self) -> None:
-        """Overwrites base class method.
-        Meant for adding addtional bindings"""
-        type_names = [
-            AtnBid.type_name_value(),
-            EnergyInstruction.type_name_value(),
-            FloParamsHouse0.type_name_value(),
-            Glitch.type_name_value(),
-            GridworksEventProblem.type_name_value(),
-            HeatingForecast.type_name_value(),
-            LatestPrice.type_name_value(),
-            LayoutLite.type_name_value(),
-            LayoutEvent.type_name_value(),
-            NewCommandTree.type_name_value(),
-            PowerWatts.type_name_value(),
-            ReportEvent.type_name_value(),
-            Report.type_name_value(),
-            SnapshotSpaceheat.type_name_value(),
-            TicklistReedReport.type_name_value(),
-            TicklistHallReport.type_name_value(),
-            Weather.type_name_value(),
-            WeatherForecast.type_name_value(),
-        ]
-        routing_keys = [f"#.{tn.replace(".", "-")}" for tn in type_names]
-        for rk in routing_keys:
-            LOGGER.info(
-                "Binding %s to %s with %s",
+        """Bind one routing key per type the persistor knows how to handle.
+
+        The persistor's ``all_known_message_types()`` is the single
+        source of truth — new types added to the persistor's tables
+        flow through automatically with no edits here.
+        """
+        for type_name in sorted(self.persistor.all_known_message_types()):
+            routing_key = f"#.{type_name.replace(".", "-")}"
+            self.logger.info(
+                "Binding queue %s to %s with routing key %s",
+                self.queue_name,
                 self._consume_exchange,
-                "ear_tx",
-                rk,
+                routing_key,
             )
             self._single_channel.queue_bind(
                 self.queue_name,
-                "ear_tx",
-                routing_key=rk,
+                self._consume_exchange,
+                routing_key=routing_key,
             )
 
     def local_start(self) -> None:
-        """This overwrites local_start in actor_base, used for additional threads.
-        It cannot assume the rabbit channels are established and that
-        messages can be received or sent."""
-        self.main_thread.start()
         self._main_loop_running = True
-        print("Just started main thread")
+        self.main_thread.start()
 
     def local_stop(self) -> None:
         self._main_loop_running = False
         self.main_thread.join()
 
-    @contextmanager
-    def get_db(self):
-        """Context manager to provide a new session for each task."""
-        session = self.Session()
+    # ------------------------------------------------------------------
+    # Message dispatch
+    # ------------------------------------------------------------------
+
+    def dispatch_message(self, *, envelope: RoutingEnvelope, body: bytes) -> None:
+        """Parse with SemaCodec, hand the SemaType to the persistor.
+
+        Live AMQP counterpart to ``s3_message_importer.main()``'s loop.
+        Errors are logged and swallowed — the live path keeps running,
+        unlike the importer (which halts on first failure).
+        """
         try:
-            yield session
-            session.commit()  # Commit if everything went well
-        except Exception:
-            session.rollback()  # Rollback in case of an error
-            raise  # Re-raise the exception after rollback
-        finally:
-            session.close()  # Always close the session
+            msg_dict = json.loads(body.decode("utf-8"))
+        except Exception as e:
+            self.logger.error(
+                f"Failed to decode body as JSON from {envelope.from_alias}: {e!r}"
+            )
+            return
 
-    ########################f
-    ## Receives
-    ########################
+        # Messages on ear_tx come wrapped: { "Payload": {...}, ... }.
+        # Tolerate the rare unwrapped case (incoming dict already a SemaType).
+        payload_dict = msg_dict.get("Payload", msg_dict)
 
-    def route_message(
-        self, from_alias: str, from_role: GNodeRole, payload: GwBase
-    ) -> None:
-        """
-        Messages received from rabbit-based actors
-        """
-        print(f"Weather received from {from_alias}, role {from_role}")
-        if payload.type_name == Weather.type_name_value:
-            try:
-                self.weather_received(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with weater: {e}") from e
-        super().route_message(from_alias, from_role, payload)
+        try:
+            sema_obj = self.codec.from_dict(
+                payload_dict, auto_upgrade=False, mode="degraded"
+            )
+        except Exception as e:
+            self.logger.error(f"Codec decode failed from {envelope.from_alias}: {e!r}")
+            return
 
-    def route_mqtt_message(self, from_alias: str, payload: GwBase) -> None:
-        """
-        Messages received from Scada (and temporarily from Atns)
-        """
-        t = time.time()
-        ft = pendulum.from_timestamp(t, tz="America/New_York").format(
-            "YYYY-MM-DD HH:mm:ss.SSS"
-        )
-        short_alias = from_alias.split(".")[-2]
-        print(f"[{ft}] {payload.type_name} from {short_alias}")
-        self.payload = payload
-        self.from_alias = from_alias
-        if payload.type_name == GridworksEventProblem.type_name_value():
-            try:
-                self.problem_event_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with problem_event_from_scada: {e}") from e
-        elif payload.type_name == AtnBid.type_name_value():
-            try:
-                self.basic_message_received(payload, from_alias=from_alias)
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in basic_message_received with AtnBid: {e}"
-                ) from e
-        elif payload.type_name == EnergyInstruction.type_name_value():
-            try:
-                self.timestamped_message_received(
-                    payload,
-                    from_alias=from_alias,
-                    message_created_ms=payload.send_time_ms,
-                )
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in timestamped_message_received with EnergyInstruction: {e}"
-                ) from e
-        elif payload.type_name == FloParamsHouse0.type_name_value():
-            try:
-                self.timestamped_message_received(
-                    payload,
-                    from_alias=from_alias,
-                    message_created_ms=payload.params_generated_s * 1000,
-                )
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in timestamped_message_received with EnergyInstruction: {e}"
-                ) from e
-        elif payload.type_name == Glitch.type_name_value():
-            try:
-                self.timestamped_message_received(
-                    payload,
-                    from_alias=from_alias,
-                    message_created_ms=payload.created_ms,
-                )
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in timestamped_message_received with Glitch: {e}"
-                ) from e
-        elif payload.type_name == LatestPrice.type_name_value():
-            try:
-                self.basic_message_received(payload, from_alias=from_alias)
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in basic_message_received with LatestPrice: {e}"
-                ) from e
-        elif payload.type_name == LayoutLite.type_name_value():
-            try:
-                self.layout_lite_received(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with layout_lite_from_scada: {e}") from e
-        elif payload.type_name == NewCommandTree.type_name_value():
-            try:
-                self.timestamped_message_received(
-                    payload,
-                    from_alias=from_alias,
-                    message_created_ms=payload.unix_ms,
-                )
-            except Exception as e:
-                raise Exception(
-                    f"Trouble in timestamped_message_received with NewCommandTree: {e}"
-                ) from e
-        elif payload.type_name == PowerWatts.type_name_value():
-            try:
-                self.power_watts_received(from_alias, payload)
-            except Exception as e:
-                raise Exception(f"Trouble with power_watts_received: {e}") from e
-        elif payload.type_name == ReportEvent.type_name_value():
-            try:
-                self.report_event_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
-        elif payload.type_name == SnapshotSpaceheat.type_name_value():
-            try:
-                self.snapshot_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with snapshot_from_scada: {e}") from e
-        elif payload.type_name == ScadaParams.type_name_value():
-            try:
-                self.params_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with process_scada_params: {e}") from e
-        elif payload.type_name == TicklistReedReport.type_name_value():
-            try:
-                self.ticklist_reed_report_from_scada(from_alias, payload)
-            except Exception as e:
-                raise Exception(
-                    f"Trouble with ticklist_reed_report_from_scada: {e}"
-                ) from e
-        elif payload.type_name == TicklistHallReport.type_name_value():
-            try:
-                self.ticklist_hall_report_from_scada(from_alias, payload)
-            except Exception as e:
-                raise Exception(
-                    f"Trouble with ticklist_hall_report_from_scada: {e}"
-                ) from e
-            # todo: create table in database to store data for analysis
+        if not isinstance(sema_obj, SemaType):
+            self.logger.warning(
+                f"Got degraded SEMA type {sema_obj.type_name} "
+                f"(v{sema_obj.version}) from {envelope.from_alias} — not persisting"
+            )
+            return
 
-        # old messages
-        elif payload.type_name == GridworksEventReport.type_name_value():
-            try:
-                self.old_gridworks_event_report_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
-        elif payload.type_name == Report.type_name_value():
-            try:
-                self.report_from_scada(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with report_from_scada: {e}") from e
-        elif payload.type_name in {
-            HeatingForecast.type_name_value(),
-            WeatherForecast.type_name_value(),
-        }:
-            try:
-                self.forecast_received(payload)
-            except Exception as e:
-                raise Exception(f"Trouble with forecast: {e}") from e
+        try:
+            self.persistor.persist_message(
+                envelope.from_alias, datetime.now(UTC), sema_obj
+            )
+        except Exception as e:
+            self.logger.error(
+                f"Persist failed for {sema_obj.type_name} "
+                f"from {envelope.from_alias}: {e!r}"
+            )
 
-    def weather_received(self, t: Weather) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.unix_time_s * 1000,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def forecast_received(self, t: WeatherForecast) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.forecast_created_s * 1000,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def ticklist_hall_report_from_scada(
-        self, from_alias: str, t: TicklistHallReport
-    ) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=from_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.scada_received_unix_ms,
-        )
-        print(
-            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_microsecond_list)} ticks"
-        )
-        print(f"Inserting as {t.type_name}")
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def ticklist_reed_report_from_scada(
-        self, from_alias: str, t: TicklistReedReport
-    ) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=from_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.scada_received_unix_ms,
-        )
-        print(
-            f"Got {t.channel_name} ticklist for {t.terminal_asset_alias} with {len(t.ticklist.relative_millisecond_list)} ticks"
-        )
-        print(f"Inserting as {t.type_name}")
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def basic_message_received(self, msg: GwBase, from_alias: str) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=from_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=msg.to_dict(),
-            message_type_name=msg.type_name,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def timestamped_message_received(
-        self, msg: GwBase, from_alias: str, message_created_ms: int
-    ) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=from_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=msg.to_dict(),
-            message_type_name=msg.type_name,
-            message_created_ms=message_created_ms,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def layout_lite_received(self, layout: GwBase) -> None:
-        """
-        Could be a couple different versions
-        """
-        print(f"Storing LayoutLite Version {layout.version}")
-        msg = Message(
-            message_id=layout.message_id,
-            from_alias=layout.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=layout.to_dict(),
-            message_type_name=layout.type_name,
-            message_created_ms=layout.message_created_ms,
-        )
-
-        with self.get_db() as db:
-            if insert_single_message(db, pyd_to_sql(msg)):
-                channels = [pyd_to_sql(ch) for ch in layout.data_channels]
-                bulk_insert_datachannels(db, channels)
-
-    def power_watts_received(self, from_alias: str, t: PowerWatts) -> None:
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=from_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def problem_event_from_scada(self, t: GridworksEventProblem) -> None:
-        msg = Message(
-            message_id=t.message_id,
-            from_alias=t.src,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.time_created_ms,
-        )
-        # print(f"Got problem: {t}")
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def report_event_from_scada(self, t: ReportEvent) -> None:
-        self.report_from_scada(t.report)
-
-    def report_from_scada(self, t: Report) -> None:
-        msg = Message(
-            message_id=t.id,
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.message_created_ms,
-        )
-        with self.get_db() as db:
-            insert_single_message(db, pyd_to_sql(msg))
-
-    def snapshot_from_scada(self, t: SnapshotSpaceheat) -> None:
-        # print(f"Just got a snapshot from {t.from_g_node_alias}")
-        msg = Message(
-            message_id=str(uuid.uuid4()),
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.snapshot_time_unix_ms,
-        )
-        with self.get_db() as db:
-            try:
-                insert_single_message(db, pyd_to_sql(msg))
-            except Exception as e:
-                print(f"Trouble inserting snapshot: {e}")
-
-    def params_from_scada(self, t: ScadaParams):
-        print(f"Just got scada params: {t}")
-        msg = Message(
-            message_id=t.message_id,
-            from_alias=t.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.to_dict(),
-            message_type_name=t.type_name,
-            message_created_ms=t.unix_time_ms,
-        )
-        # when scada params from the SCADA, record the new ones
-        if t.from_name == SCADA_NAME:
-            with self.get_db() as db:
-                try:
-                    insert_single_message(db, pyd_to_sql(msg))
-                except Exception as e:
-                    print(f"Trouble inserting scada params: {e}")
-
-    def old_gridworks_event_report_from_scada(self, t: GridworksEventReport) -> None:
-        msg = Message(
-            message_id=t.report.id,
-            from_alias=t.report.from_g_node_alias,
-            message_persisted_ms=int(time.time() * 1000),
-            payload=t.report.to_dict(),
-            message_type_name=t.report.type_name,
-            message_created_ms=t.report.message_created_ms,
-        )
-        self.msg = msg
-        print("Set this up when loading old data")
+    # ------------------------------------------------------------------
+    # Background loop (placeholder)
+    # ------------------------------------------------------------------
 
     def main(self) -> None:
-        while True:
+        # Reserved for periodic S3 catch-up of missed messages
+        # (see s3_message_importer for the import shape).
+        while self._main_loop_running:
             time.sleep(3600)
-            # Once a day check S3 for missed messages?
-
-    ###########################################
-    # S3 related
-    ###########################################
-
-    def get_single_asset_filenames(
-        self,
-        start_s: int,
-        duration_hrs: int,
-        short_alias: str,
-    ) -> list[FileNameMeta]:
-        date_list = self.get_date_folder_list(start_s, duration_hrs)
-        print(f"Loading filenames from folders {date_list}")
-        all_fns: list[FileNameMeta] = self.get_all_filenames(date_list)
-        start_ms = start_s * 1000
-        end_ms = (start_s + duration_hrs * 3600) * 1000 + 400
-        ta_list: list[FileNameMeta] = [
-            fn
-            for fn in all_fns
-            if (
-                ("status" in fn.type_name)
-                or ("report" in fn.type_name)
-                or ("snapshot" in fn.type_name)
-                or ("power.watts" in fn.type_name)
-                or ("keyparam.change.log" in fn.type_name)
-            )
-            and (short_alias in fn.from_alias)
-            and (start_ms <= fn.message_persisted_ms < end_ms)
-        ]
-
-        ta_list.sort(key=lambda x: x.message_persisted_ms)
-        print(f"total filenames to: {len(ta_list)}")
-        print(
-            f"First file persisted {str_from_ms(ta_list[0].message_persisted_ms)} America/NY"
-        )
-        print(
-            f"Last file persisted at {str_from_ms(ta_list[-1].message_persisted_ms)} America/NY"
-        )
-        return ta_list
-
-    def get_all_filenames(
-        self,
-        date_folder_list: list[str],
-    ):
-        fn_list: list[FileNameMeta] = []
-        for date_folder in date_folder_list:
-            prefix = f"{self.world_instance_name}/eventstore/{date_folder}/"
-            paginator = self.s3.get_paginator("list_objects_v2")
-            pages = paginator.paginate(Bucket=self.aws_bucket_name, Prefix=prefix)
-            file_name_list = []
-            for page in pages:
-                for obj in page["Contents"]:
-                    file_name_list.append(obj["Key"])
-
-            for file_name in file_name_list:
-                try:
-                    from_alias = file_name.split("/")[-1].split("-")[0]
-                    type_name = file_name.split("/")[-1].split("-")[1]
-                    message_persisted_ms = int(file_name.split("/")[-1].split("-")[2])
-                except Exception as e:
-                    raise Exception(f"Failed file name parsing with {file_name}") from e
-                fn_list.append(
-                    FileNameMeta(
-                        from_alias=from_alias,
-                        type_name=type_name,
-                        message_persisted_ms=message_persisted_ms,
-                        file_name=file_name,
-                    )
-                )
-
-        return fn_list

@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-05-15T01:48:58Z'
+  generated_at: '2026-05-25T11:56:52Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -22,6 +22,7 @@ initial_targets:
 - power.watts:000
 - heating.forecast:000
 - weather.forecast:000
+- weather:000
 - energy.instruction:000
 - new.command.tree:000
 - snapshot.spaceheat:003
@@ -48,8 +49,12 @@ worklist:
       path: definitions/formats/left.right.dot.yaml
     market.slot.name:
       path: definitions/formats/market.slot.name.yaml
+    non.empty.string:
+      path: definitions/formats/non.empty.string.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
+    positive.int.as.str:
+      path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
     utc.milliseconds:
@@ -307,6 +312,9 @@ worklist:
     ticklist.reed.report:
       '000':
         path: definitions/types/ticklist.reed.report/000.yaml
+    weather:
+      '000':
+        path: definitions/types/weather/000.yaml
     weather.forecast:
       '000':
         path: definitions/types/weather.forecast/000.yaml
