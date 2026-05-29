@@ -5,20 +5,27 @@ from typing import Annotated
 
 from pydantic import BeforeValidator, Field
 
+
 # --- patterns ---
 HANDLE_NAME_PATTERN = re.compile(
     r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*$"
 )
 
-LEFT_RIGHT_DOT_PATTERN = re.compile(r"^[a-z][a-z0-9]*(\.[a-z0-9]+)*$")
+LEFT_RIGHT_DOT_PATTERN = re.compile(
+    r"^[a-z][a-z0-9]*(\.[a-z0-9]+)*$"
+)
 
 MARKET_SLOT_NAME_PATTERN = re.compile(
     r"^[erd]\.[a-z0-9]+(?:\.[a-z0-9]+)*(?:\.[a-z0-9]+)+\.[0-9]{10}$"
 )
 
-POSITIVE_INT_AS_STR_PATTERN = re.compile(r"^[1-9][0-9]*$")
+POSITIVE_INT_AS_STR_PATTERN = re.compile(
+    r"^[1-9][0-9]*$"
+)
 
-SPACEHEAT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
+SPACEHEAT_NAME_PATTERN = re.compile(
+    r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+)
 
 UUID4_STR_PATTERN = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -66,7 +73,7 @@ def is_market_name(v: str) -> str:
 
 
 def _market_type_name_enum():
-    from sema.runtime.enums import MarketTypeName  # noqa: PLC0415
+    from gjk.sema.enums import MarketTypeName  # noqa: PLC0415
 
     return MarketTypeName
 
