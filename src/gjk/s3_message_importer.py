@@ -97,7 +97,7 @@ class S3MessageImporter:
 
         date_results: list[S3MessageInfo] = []
         for page in pages:
-            for s3_object in page["Contents"]:
+            for s3_object in page.get("Contents", []):
                 key_str = s3_object["Key"]
                 try:
                     msg_info = S3MessageInfo(key_str)
@@ -233,7 +233,7 @@ def main():
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
-            return
+            continue
 
 
 if __name__ == "__main__":
