@@ -9,6 +9,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import sessionmaker
 
 from gjk.config import Settings
+from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.report_event_persistor import ReportEventPersistor
@@ -30,7 +31,6 @@ class SemaMessagePersistor:
     }
 
     MSG_CREATED_AT_FIELDS_S = {
-        "flo.params.house0": "params_generated_s",
         "heating.forecast": "forecast_created_s",
         "weather.forecast": "forecast_created_s",
     }
@@ -61,6 +61,7 @@ class SemaMessagePersistor:
             for x in [
                 LayoutLitePersistor(logger),
                 ReportEventPersistor(logger),
+                FloParamsHouse0Persistor(logger),
             ]
         }
 
