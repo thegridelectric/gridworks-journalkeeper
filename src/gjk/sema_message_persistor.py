@@ -1,5 +1,4 @@
 import uuid
-from collections.abc import Callable
 from contextlib import contextmanager
 from datetime import UTC, datetime
 
@@ -14,6 +13,10 @@ from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
+
+# Fixed namespace so the default persist path can mint deterministic (uuid5)
+# message ids — making re-imports of the same S3 object idempotent.
+MESSAGE_ID_NAMESPACE = uuid.UUID("3f2504e0-4f89-41d3-9a0c-0305e82c3301")
 
 
 class SemaMessagePersistor:
@@ -89,7 +92,9 @@ class SemaMessagePersistor:
             )
         }
 
-    def persist_message_default(self, from_alias: str, payload: SemaType):
+    def persist_message_default(
+        self, from_alias: str, payload: SemaType, time_received: datetime
+    ):
         id = None
         id_field = self.MSG_ID_FIELDS.get(payload.type_name)
         if id_field:
@@ -97,7 +102,16 @@ class SemaMessagePersistor:
             if id is None:
                 self.logger.warn(f"No data found for {payload.type_name}.{id_field}")
         if not id:
-            id = str(uuid.uuid4())
+            # Deterministic id from the unique-per-object triple (matches the S3
+            # filename), so re-importing a date is a true no-op via the
+            # (id, timestamp) PK + on_conflict_do_nothing.
+            persisted_ms = int(time_received.timestamp() * 1000)
+            id = str(
+                uuid.uuid5(
+                    MESSAGE_ID_NAMESPACE,
+                    f"{from_alias}|{payload.type_name}|{persisted_ms}",
+                )
+            )
 
         created_at = None
         created_at_ms_field = self.MSG_CREATED_AT_FIELDS_MS.get(payload.type_name)
@@ -129,20 +143,18 @@ class SemaMessagePersistor:
             f"persisting message of type {payload.type_name}:{payload.version} from {from_alias} at {time_received.isoformat()}"
         )
 
-        persist_fn: Callable[[str, SemaType], MessagePersistenceInfo] | None = None
         custom_persistor = self.custom_persistor_lookup.get(payload.type_name, None)
-        if custom_persistor is None:
-            persist_fn = self.persist_message_default
+        custom_fn = (
+            getattr(custom_persistor, f"persist_v{payload.version}", None)
+            if custom_persistor is not None
+            else None
+        )
+        if custom_fn is not None:
+            persistence_info = custom_fn(from_alias, payload)
         else:
-            method_name = f"persist_v{payload.version}"
-            persist_fn = getattr(
-                custom_persistor, method_name, self.persist_message_default
+            persistence_info = self.persist_message_default(
+                from_alias, payload, time_received
             )
-
-        if persist_fn is None:
-            raise ValueError("persist_fn is None")
-
-        persistence_info = persist_fn(from_alias, payload)
         with self.get_db() as db:
             msg = MessageSql(
                 id=uuid.UUID(persistence_info.id),
