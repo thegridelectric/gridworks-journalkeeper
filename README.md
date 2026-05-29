@@ -4,242 +4,200 @@
 [![Status](https://img.shields.io/pypi/status/gridworks-journalkeeper.svg)](https://pypi.org/project/gridworks-journalkeeper/)
 [![Python Version](https://img.shields.io/pypi/pyversions/gridworks-journalkeeper)](https://pypi.org/project/gridworks-journalkeeper/)
 [![License](https://img.shields.io/pypi/l/gridworks-journalkeeper)](https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/LICENSE)
-
-[![Read the Docs](https://img.shields.io/readthedocs/gridworks-journalkeeper/latest.svg)](https://gridworks-journalkeeper.readthedocs.io/)
 [![Tests](https://github.com/thegridelectric/gridworks-journalkeeper/actions/workflows/tests.yml/badge.svg)](https://github.com/thegridelectric/gridworks-journalkeeper/actions)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
 ---
 
-GridWorks JournalKeeper is responsible for **long-term storage and management of GridWorks time-series and message data**, beyond the initial persistence layer.
+GridWorks JournalKeeper persists inbound RabbitMQ AMQP messages from the
+GridWorks fleet into a shared PostgreSQL schema. There are two ingestion
+paths:
 
-This repository is a **work in progress**. Current focus is on importing and managing the 2023–2024 Millinocket S3 data in a PostgreSQL database, with Alembic-managed schema migrations.
+- **Live path** — `JournalKeeper(ActorBase)` consumes the broker's
+  `ear_tx` audit exchange, parses payloads with `SemaCodec`, and writes
+  rows via `SemaMessagePersistor` into the `messages` table.
+- **Backfill path** — `S3MessageImporter` walks a date range of
+  S3-archived messages and runs them through the same persistor for
+  catch-up after gaps.
+
+The PostgreSQL schema itself lives in the sibling repo
+[`gridworks-data`](https://github.com/thegridelectric/gridworks-data)
+(`gw_data` package); journalkeeper imports from it and never defines
+its own SQLAlchemy models.
 
 ---
 
-## Development Quick Start
+## Development quick start
 
 ### Prerequisites
 
-* Python **3.12**
-* `uv`
-* `make`
-* Docker / Docker Compose
-* PostgreSQL client (`psql`) recommended
-* pre-commit (see below)
+* Python **3.12** or **3.13**
+* [`uv`](https://docs.astral.sh/uv/)
+* Docker (for the dev RabbitMQ broker and `gridworks-data`'s PostgreSQL container)
+* `psql` (PostgreSQL client) — optional but useful
+* [pre-commit](https://pre-commit.com/) — optional; see below
 
-### One-time tooling setup
+### Set up
 
-This project uses `pre-commit` for local quality checks. The `pre-commit` runner
-must be installed once on your system (outside the project environment).
-
-We recommend installing it with `pipx`:
+From the repository root:
 
 ```bash
-# macOS / Linux
-brew install pipx        # or see https://pipx.pypa.io/installation/
-pipx ensurepath
+uv sync --all-extras    # installs runtime + dev deps
+cp template.env .env    # then edit .env with your local broker + db URL
+```
+
+Run tests:
+
+```bash
+uv run pytest
+```
+
+Lint:
+
+```bash
+uv run ruff check .
+```
+
+Type-check:
+
+```bash
+uv run mypy --strict src
+```
+
+### Optional: pre-commit
+
+```bash
 pipx install pre-commit
+pre-commit install
 ```
 
-Verify installation:
-
-```
-pre-commit --version
-```
-
-Note: pre-commit manages its own hook environments and does **not** rely on
-the project virtual environment. Once hooks are installed and cached, commits work offline.
-
+`pre-commit` runs ruff + the other configured hooks before each commit.
 
 ---
 
-### Python environment (uv + Make)
+## Runtime dependencies
 
-This project uses **uv** for dependency management and a **Makefile** for workflow orchestration.
+JournalKeeper needs:
 
-From the repository root:
+- a running RabbitMQ broker (publishes from scada / LTN / weather are consumed)
+- a PostgreSQL database with the `gw_data` schema applied
+
+Both run as Docker containers locally.
+
+### RabbitMQ
+
+If you're working on this repo in isolation (not as part of a larger
+simulation that brings its own broker), spin up a local dev broker
+from the sibling `gridworks-base` repo:
 
 ```bash
-make venv
-make dev
-pre-commit install
-source .venv/bin/activate
+cd ../gridworks-base
+./x86.sh        # on Apple silicon: ./arm.sh
 ```
 
-After changing dependencies:
-```bash
-make lock
-make dev
-```
-
-Common commands:
-```
-make lint
-make test
-make pre-commit
-```
-
-To run the test suite:
+That starts the `gw-dev-rabbit` container (the GHCR-baked image with
+the canonical exchange/binding topology) on the standard ports
+(`5672` AMQP, `1885` MQTT, `15672` mgmt UI). Then point this repo at
+it in `.env`:
 
 ```
-make test
-```
-## Runtime Dependencies (Docker)
-
-JournalKeeper expects:
-  - a running RabbitMQ broker
-  - a PostgreSQL database
-
-We run both locally using Docker.
-
-## RabbitMQ
-
-Follow the RabbitMQ setup instructions in [gridworks-base](https://github.com/thegridelectric/gridworks-base)
-
-## PostgreSQL (development database)
-
-From the repository root:
-```bash
-docker compose up
-```
-You should see logs ending with:
-```
-database system is ready to accept connections
+GJK_RABBIT__URL=amqp://smqPublic:smqPublic@localhost:5672/d1__1
 ```
 
+The same image runs in CI (see `.github/workflows/tests.yml`), so what
+you test locally matches what CI tests.
 
-[Note: `docker compose up -d` will run in the background if you prefer that]
+Full RabbitMQ setup details in
+[gridworks-base](https://github.com/thegridelectric/gridworks-base).
 
-The dev database is exposed on:
-  - Host      `localhost`
-  - Port      `5433`
-  - Database  `journaldb_dev`
-  - User:     `journaldb`
-  - Password:  `journaldb`
+### PostgreSQL
 
-  Port 5433 is used to avoid conflicts with a local PostgreSQL instance on 5432.
+The schema is owned by the sibling
+[`gridworks-data`](https://github.com/thegridelectric/gridworks-data)
+repo. Follow its README to bring up the
+`timescale/timescaledb-ha:pg18-ts2.25` container (typically on
+`5433:5432` with `POSTGRES_PASSWORD`), run the server-init script
+(`gw_admin` / `gw_writer` / `gw_reader` roles), and `uv run alembic
+upgrade head` to create the tables (`messages`, `g_nodes`,
+`reading_channels`, …).
 
-Test connectivity:
-```
-psql -h localhost -p 5433 -U journaldb journaldb_dev
-```
-
-
-## Database SCcema (Alembic)
-Alembic is used to manage database schema migrations.
-
-### Verify Alembic connectivity
-
-With your dev environment active:
-```bash
-
-alembic current
-```
-Expected output:
+Then point this repo at it in `.env`:
 
 ```
-INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
-INFO  [alembic.runtime.migration] Will assume transactional DDL.
-<revision_id>(head)
+GJK_DB_URL=postgresql+psycopg2://gw_writer:<password>@localhost:5433/gridworks
 ```
 
-### Apply migrations
+`gw_writer` is the right role for an app that only inserts rows;
+`gw_admin` is reserved for migrations and `gw_reader` for analytics.
+Migrations live in `gridworks-data`, not here.
 
-```
-alembic upgrade head
-```
-This will:
-  - 1.  Connect to `journaldb_dev`
-  - 2. Create the `alembic_version` table if needed
-  - 3. Apply all migrations in `alembic/versions`
-  - 4. Mark the database as being at `head`
+---
 
-##  Publishing a Release
+## Production notes
 
-## Publishing a Release
+JournalKeeper runs against the production RabbitMQ broker at
+`hw1-1.electricity.works` (see internal credentials in 1Password) and
+writes to the production PostgreSQL instance. The production
+`gridworks-data` schema is the source of truth for the table shape.
 
-JournalKeeper uses **tag-driven releases**. The version in `pyproject.toml` is the single source of truth and **must match the Git tag exactly**.
+---
+
+## Publishing a release
+
+JournalKeeper uses **tag-driven releases**. The version in
+`pyproject.toml` is the single source of truth and **must match the
+Git tag exactly**.
 
 ### Release checklist
 
-1. **Update the version**
-
-   Edit `pyproject.toml`:
+1. **Update the version** — edit `pyproject.toml`:
 
    ```toml
    [project]
    version = "0.1.0"
    ```
-2. **Commit and merge to `main`**
 
- do this through standard `branch` -> `dev` -> `main` PRs
+2. **Commit and merge to `main`** through the standard
+   `branch` → `dev` → `main` PR flow.
 
-3. **Add matching tag on main**
+3. **Tag on `main`**:
 
-```
-git checkout main
-git pull origin main
-```
-This ensures:
-  - tag points to the correct commit
-  - the release guard `tag is on main` will pass
-
-4. ** Create and push the tag**
-
-Now tag **locally** on `main`:
-
-```
-git tag v0.1.0
-git push origin v0.1.0
-```
+   ```bash
+   git checkout main
+   git pull origin main
+   git tag v0.1.0
+   git push origin v0.1.0
+   ```
 
 This triggers the Release workflow.
-## Production Notes
 
-JournalKeeper currently runs on an EC2-hosted PostgreSQL instance.
-
-```
-ssh ubuntu@journaldb.electricity.works
-psql -U journaldb
-```
-
-Credentials are stored in 1Password
-
-Remote access:
-
-
-```bash
-psql -h journaldb.electricity.works -U journaldb -d journaldb
-```
-
+---
 
 ## Contributing
 
 This repository uses:
-  - `ruff` for linting and formatting
-  - `mypy` for type checking
-  - `pytest` for tests
-  - `pre-commit` for enforcement
+
+- `ruff` for linting and formatting
+- `mypy` for type checking
+- `pytest` for tests
+- `pre-commit` for enforcement (optional)
 
 Before committing:
 
 ```bash
-
-make pre-commit
+uv run ruff check .
+uv run mypy --strict src
+uv run pytest
 ```
+
+Or, if you have `pre-commit` installed:
+
+```bash
+pre-commit run --all-files
+```
+
+---
 
 ## License
 
-MIT -- see [LICENSE](LICENSE)
-
-[@cjolowicz]: https://github.com/cjolowicz
-[pypi]: https://pypi.org/
-[hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-[file an issue]: https://github.com/thegridelectric/gridworks-journalkeeper/issues
-[pip]: https://pip.pypa.io/
-
-<!-- github-only -->
-
-[license]: https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/LICENSE
-[contributor guide]: https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/CONTRIBUTING.md
+MIT — see [LICENSE](LICENSE).

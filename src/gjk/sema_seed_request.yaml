@@ -1,0 +1,56 @@
+# initial_targets may contain only types and enums. Formats are never listed
+# directly; they are pulled in through type dependencies.
+#
+# For each type or enum, choose exactly one of:
+#   {}                         Use only the latest registry version.
+#   include_all_versions: true Include every registry-declared version.
+#   versions: ["001", "003"]   Include explicit versions. For types, seed
+#                              expansion also fills in intermediate versions.
+
+initial_targets:
+  types:
+    report.event:
+      versions: ["002","003"]
+    layout.lite:
+      include_all_versions: true
+    glitch:
+      include_all_versions: true
+    flo.params.house0:
+      include_all_versions: true
+    gridworks.event.problem:
+      include_all_versions: true
+    power.watts:
+      include_all_versions: true
+    heating.forecast:
+      include_all_versions: true
+    weather.forecast:
+      include_all_versions: true
+    weather:
+      include_all_versions: true
+    energy.instruction:
+      include_all_versions: true
+    new.command.tree:
+      include_all_versions: true
+    snapshot.spaceheat:
+      include_all_versions: true
+    scada.params:
+      include_all_versions: true
+    ticklist.reed.report:
+      include_all_versions: true
+    ticklist.hall.report:
+      include_all_versions: true
+    report:
+      include_all_versions: true
+    atn.bid:
+      include_all_versions: true
+    latest.price:
+      include_all_versions: true
+
+  enums:
+    gw1.main.auto.state: {}
+    gw1.lc.top.state: {}
+    gw1.leaf.ally.all.tanks.state: {}
+    gw1.leaf.ally.buffer.only.state: {}
+    gw1.local.control.all.tanks.state: {}
+    gw1.local.control.buffer.only.state: {}
+    gw1.local.control.standby.top.state: {}

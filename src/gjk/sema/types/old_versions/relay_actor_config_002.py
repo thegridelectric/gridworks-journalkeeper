@@ -9,7 +9,12 @@ from gjk.sema.enums import (
     RelayWiringConfig,
     SpaceheatUnit,
 )
-from gjk.sema.property_format import LeftRightDot, PositiveInt, SpaceheatName
+from gjk.sema.property_format import (
+    LeftRightDot,
+    NonEmptyString,
+    PositiveInt,
+    SpaceheatName,
+)
 from gjk.sema.types.relay_actor_config import RelayActorConfig
 
 
@@ -27,11 +32,11 @@ class RelayActorConfig002(SemaType):
     actor_name: SpaceheatName
     wiring_config: RelayWiringConfig
     event_type: LeftRightDot
-    de_energizing_event: str
-    energizing_event: str
+    de_energizing_event: NonEmptyString
+    energizing_event: NonEmptyString
     state_type: LeftRightDot
-    de_energized_state: str
-    energized_state: str
+    de_energized_state: NonEmptyString
+    energized_state: NonEmptyString
     type_name: Literal["relay.actor.config"] = "relay.actor.config"
     version: Literal["002"] = "002"
 
