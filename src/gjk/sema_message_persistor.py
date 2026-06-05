@@ -22,7 +22,8 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
-        "new.command.tree": "unix_ms",
+        # Omit until new.command.tree works correctly in SEMA
+        # "new.command.tree": "unix_ms",
         # Skipping snapshots for now for performance
         # "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",

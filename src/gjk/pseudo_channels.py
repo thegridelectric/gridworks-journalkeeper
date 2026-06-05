@@ -5,8 +5,8 @@
 #
 # This includes things like price, weather, ShNode states, etc.
 #
-# Some persistors manage their own pseudo-channels as part of persisting their readings.
-# But others can use this class to manage it for them, as part of the LayoutLite peristence.
+# LayoutLitePersistor syncs the registered pseudo-channels with the database.
+# Other persistors query the pseudo-channels from the database and store readings for them.
 
 
 class PseudoChannel:
