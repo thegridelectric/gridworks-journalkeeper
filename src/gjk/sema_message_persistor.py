@@ -14,6 +14,7 @@ from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
+from gjk.weather_forecast_persistor import WeatherForecastPersistor
 
 
 class SemaMessagePersistor:
@@ -22,7 +23,8 @@ class SemaMessagePersistor:
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "new.command.tree": "unix_ms",
-        "snapshot.spaceheat": "snapshot_time_unix_ms",
+        # Skipping snapshots for now for performance
+        # "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",
         "ticklist.reed.report": "scada_received_unix_ms",
         "ticklist.hall.report": "scada_received_unix_ms",
@@ -32,7 +34,6 @@ class SemaMessagePersistor:
 
     MSG_CREATED_AT_FIELDS_S = {
         "heating.forecast": "forecast_created_s",
-        "weather.forecast": "forecast_created_s",
     }
 
     MSG_ID_FIELDS = {
@@ -44,7 +45,8 @@ class SemaMessagePersistor:
 
     # Messages with no id or created_at info, but we still want to persist
     BASIC_MSG_TYPES = [
-        "atn.bid",
+        # Omit until bid works correctly in SEMA
+        # "atn.bid",
         "latest.price",
         "power.watts",
     ]
@@ -62,6 +64,7 @@ class SemaMessagePersistor:
                 LayoutLitePersistor(logger),
                 ReportEventPersistor(logger),
                 FloParamsHouse0Persistor(logger),
+                WeatherForecastPersistor(logger),
             ]
         }
 

@@ -1,9 +1,9 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.enums import Gw1Quantity, SpaceheatTelemetryName
+from gjk.sema.enums import Gw1Quantity
+from gjk.sema.enums import SpaceheatTelemetryName
+
 
 _PROJECTION = {
     SpaceheatTelemetryName.Unknown: Gw1Quantity.Unknown,
@@ -37,9 +37,7 @@ class SpaceheatTelemetryQuantityProjection(SemaType):
 
     telemetry_name: SpaceheatTelemetryName
     quantity: Gw1Quantity
-    type_name: Literal["spaceheat.telemetry.quantity.projection"] = (
-        "spaceheat.telemetry.quantity.projection"
-    )
+    type_name: Literal["spaceheat.telemetry.quantity.projection"] = "spaceheat.telemetry.quantity.projection"
     version: Literal["000"] = "000"
 
     @classmethod

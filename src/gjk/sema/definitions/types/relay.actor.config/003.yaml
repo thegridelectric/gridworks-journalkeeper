@@ -73,12 +73,14 @@ properties:
       actor's state.
 
   DeEnergizingEvent:
-    $ref: "https://schemas.electricity.works/formats/non.empty.string"
+    type: string
+    minLength: 1
     description: >
       Event value associated with transition caused by relay de-energization.
 
   EnergizingEvent:
-    $ref: "https://schemas.electricity.works/formats/non.empty.string"
+    type: string
+    minLength: 1
     description: >
       Event value associated with transition caused by relay energization.
 
@@ -88,12 +90,14 @@ properties:
       Semantic state category controlled by this relay.
 
   DeEnergizedState:
-    $ref: "https://schemas.electricity.works/formats/non.empty.string"
+    type: string
+    minLength: 1
     description: >
       State value associated with the de-energized relay position.
 
   EnergizedState:
-    $ref: "https://schemas.electricity.works/formats/non.empty.string"
+    type: string
+    minLength: 1
     description: >
       State value associated with the energized relay position.
 

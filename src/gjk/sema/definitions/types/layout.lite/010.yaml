@@ -10,7 +10,7 @@ description: >
   `layout.lite` is emitted by SCADA on request. It is not intended to be a
   lossless copy of the source layout artifact on disk. Some fields are projected
   directly from the loaded hardware layout, while others reflect active runtime
-  settings.
+  settings. 
 
 properties:
 

@@ -128,7 +128,7 @@ x-gridworks:
         Quantity SHALL equal the Quantity defined by the canonical
         spaceheat.telemetry.quantity.projection/000 instance
         for the specified TelemetryName.
-
+  
   extended_description: >
     data.channel.gt defines primary telemetry channels corresponding to
     directly observed measurements from physical devices or sensors.

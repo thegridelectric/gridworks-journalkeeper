@@ -34,7 +34,7 @@ properties:
       capture is triggered when the magnitude of the change since the last
       published value is greater than or equal to AsyncCaptureDelta, expressed
       in Unit-scaled values.
-
+    
 
   Exponent:
     type: integer

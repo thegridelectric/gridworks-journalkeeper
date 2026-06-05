@@ -17,5 +17,6 @@ default: "Initializing"
 x-gridworks:
   owner: "gridworks-energy"
   version: "001"
-  value_descriptions:
+  value_descriptions:   
   extended_description:
+    

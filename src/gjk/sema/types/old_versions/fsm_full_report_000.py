@@ -1,9 +1,8 @@
 from typing import Literal
-
 from pydantic import ConfigDict
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import SpaceheatName, UUID4Str
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.fsm_full_report import FsmFullReport
 from gjk.sema.types.old_versions.fsm_atomic_report_000 import FsmAtomicReport000
 

@@ -1,10 +1,9 @@
 from typing import Literal
-
 from pydantic import ConfigDict, StrictInt, model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums import TempCalcMethod
-from gjk.sema.property_format import PositiveInt, UUID4Str
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.channel_config import ChannelConfig
 
 
@@ -29,9 +28,7 @@ class PicoTankModuleComponentGt(SemaType):
     serial_number: str
     async_capture_delta_micro_volts: StrictInt
     sensor_order: list[StrictInt] | None = None
-    type_name: Literal["pico.tank.module.component.gt"] = (
-        "pico.tank.module.component.gt"
-    )
+    type_name: Literal["pico.tank.module.component.gt"] = "pico.tank.module.component.gt"
     version: Literal["011"] = "011"
 
     model_config = ConfigDict(**(SemaType.model_config | {"extra": "allow"}))

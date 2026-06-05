@@ -1,9 +1,9 @@
 from typing import Literal
-
 from pydantic import StrictFloat, model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import LeftRightDot, UTCSeconds, UUID4Str
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCSeconds
+from gjk.sema.property_format import UUID4Str
 
 
 class HeatingForecast(SemaType):

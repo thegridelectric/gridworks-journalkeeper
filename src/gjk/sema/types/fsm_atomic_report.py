@@ -1,10 +1,11 @@
 from typing import Any, Literal
-
 from pydantic import ConfigDict, model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums import FsmReportType
-from gjk.sema.property_format import HandleName, LeftRightDot, UTCMilliseconds, UUID4Str
+from gjk.sema.property_format import HandleName
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UUID4Str
 
 
 class FsmAtomicReport(SemaType):

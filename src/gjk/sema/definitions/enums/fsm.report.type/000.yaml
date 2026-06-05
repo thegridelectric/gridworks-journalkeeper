@@ -12,7 +12,7 @@ enum:
   - "Action"
 
 default: "Other"
-
+  
 x-gridworks:
   owner: "gridworks-energy"
   version: "000"

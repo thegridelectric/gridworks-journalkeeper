@@ -24,7 +24,7 @@ counterexamples:
   - "tank--depth"  # consecutive hyphens not allowed
   - "-tank"        # cannot begin with hyphen
   - "tank-"        # cannot end with hyphen
-
+  
 # GridWorks metadata
 x-gridworks:
   owner: "gridworks-energy"

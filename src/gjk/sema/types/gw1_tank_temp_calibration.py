@@ -1,7 +1,5 @@
 from typing import Literal
-
 from pydantic import StrictFloat
-
 from gjk.sema.base import SemaType
 
 

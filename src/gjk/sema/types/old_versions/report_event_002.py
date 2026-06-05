@@ -1,9 +1,9 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import LeftRightDot, UTCMilliseconds, UUID4Str
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.old_versions.report_002 import Report002
 from gjk.sema.types.report_event import ReportEvent
 
@@ -16,7 +16,7 @@ class ReportEvent002(SemaType):
     src: LeftRightDot
     report: Report002
     type_name: Literal["report.event"] = "report.event"
-    version: str = "002"
+    version: str = '002'
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> "ReportEvent002":

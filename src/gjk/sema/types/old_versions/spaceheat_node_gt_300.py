@@ -1,10 +1,11 @@
 from typing import Literal
-
 from pydantic import ConfigDict, model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums.old_versions.gw1_actor_class_009 import Gw1ActorClass009
-from gjk.sema.property_format import HandleName, PositiveInt, SpaceheatName, UUID4Str
+from gjk.sema.property_format import HandleName
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 
 

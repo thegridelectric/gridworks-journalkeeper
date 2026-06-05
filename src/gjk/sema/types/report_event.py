@@ -1,9 +1,9 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import LeftRightDot, UTCMilliseconds, UUID4Str
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.report import Report
 
 
@@ -24,7 +24,5 @@ class ReportEvent(SemaType):
         Src SHALL equal Report.FromGNodeAlias.
         """
         if self.src != self.report.from_g_node_alias:
-            raise ValueError(
-                f"Axiom 3 failed: src {self.src} must equal report.from_g_node_alias {self.report.from_g_node_alias}."
-            )
+            raise ValueError(f"Axiom 3 failed: src {self.src} must equal report.from_g_node_alias {self.report.from_g_node_alias}.")
         return self

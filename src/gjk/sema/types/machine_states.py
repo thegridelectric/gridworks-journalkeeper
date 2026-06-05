@@ -1,10 +1,10 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums import RelayClosedOrOpen
-from gjk.sema.property_format import HandleName, LeftRightDot, UTCMilliseconds
+from gjk.sema.property_format import HandleName
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
 
 
 class MachineStates(SemaType):

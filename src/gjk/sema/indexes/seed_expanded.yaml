@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-05-25T11:56:52Z'
+  generated_at: '2026-06-05T10:53:43Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -22,7 +22,6 @@ initial_targets:
 - power.watts:000
 - heating.forecast:000
 - weather.forecast:000
-- weather:000
 - energy.instruction:000
 - new.command.tree:000
 - snapshot.spaceheat:003
@@ -34,6 +33,7 @@ initial_targets:
 - report:003
 - atn.bid:002
 - latest.price:000
+- gw1.unit:002
 - gw1.main.auto.state:001
 - gw1.lc.top.state:001
 - gw1.leaf.ally.all.tanks.state:001
@@ -49,12 +49,8 @@ worklist:
       path: definitions/formats/left.right.dot.yaml
     market.slot.name:
       path: definitions/formats/market.slot.name.yaml
-    non.empty.string:
-      path: definitions/formats/non.empty.string.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
-    positive.int.as.str:
-      path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
     utc.milliseconds:
@@ -114,6 +110,8 @@ worklist:
     gw1.unit:
       '000':
         path: definitions/enums/gw1.unit/000.yaml
+      '002':
+        path: definitions/enums/gw1.unit/002.yaml
     hz.calc.method:
       '001':
         path: definitions/enums/hz.calc.method/001.yaml
@@ -312,9 +310,6 @@ worklist:
     ticklist.reed.report:
       '000':
         path: definitions/types/ticklist.reed.report/000.yaml
-    weather:
-      '000':
-        path: definitions/types/weather/000.yaml
     weather.forecast:
       '000':
         path: definitions/types/weather.forecast/000.yaml

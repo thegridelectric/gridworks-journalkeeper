@@ -1,13 +1,10 @@
 from typing import Literal
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import (
-    LeftRightDot,
-    PositiveInt,
-    UTCMilliseconds,
-    UTCSeconds,
-    UUID4Str,
-)
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UTCSeconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.channel_readings import ChannelReadings
 from gjk.sema.types.fsm_full_report import FsmFullReport
 from gjk.sema.types.machine_states import MachineStates

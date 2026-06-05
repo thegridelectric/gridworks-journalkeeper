@@ -13,9 +13,7 @@ from gjk.sema.types.gw1_tank_temp_calibration import Gw1TankTempCalibration
 from gjk.sema.types.gw1_tank_temp_calibration_map import Gw1TankTempCalibrationMap
 from gjk.sema.types.ha1_params import Ha1Params
 from gjk.sema.types.heating_forecast import HeatingForecast
-from gjk.sema.types.i2c_multichannel_dt_relay_component_gt import (
-    I2cMultichannelDtRelayComponentGt,
-)
+from gjk.sema.types.i2c_multichannel_dt_relay_component_gt import I2cMultichannelDtRelayComponentGt
 from gjk.sema.types.latest_price import LatestPrice
 from gjk.sema.types.layout_lite import LayoutLite
 from gjk.sema.types.machine_states import MachineStates
@@ -28,21 +26,16 @@ from gjk.sema.types.relay_actor_config import RelayActorConfig
 from gjk.sema.types.report import Report
 from gjk.sema.types.report_event import ReportEvent
 from gjk.sema.types.scada_params import ScadaParams
-from gjk.sema.types.sim_pico_tank_module_component_gt import (
-    SimPicoTankModuleComponentGt,
-)
+from gjk.sema.types.sim_pico_tank_module_component_gt import SimPicoTankModuleComponentGt
 from gjk.sema.types.single_machine_state import SingleMachineState
 from gjk.sema.types.single_reading import SingleReading
 from gjk.sema.types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
-from gjk.sema.types.spaceheat_telemetry_quantity_projection import (
-    SpaceheatTelemetryQuantityProjection,
-)
+from gjk.sema.types.spaceheat_telemetry_quantity_projection import SpaceheatTelemetryQuantityProjection
 from gjk.sema.types.ticklist_hall import TicklistHall
 from gjk.sema.types.ticklist_hall_report import TicklistHallReport
 from gjk.sema.types.ticklist_reed import TicklistReed
 from gjk.sema.types.ticklist_reed_report import TicklistReedReport
-from gjk.sema.types.weather import Weather
 from gjk.sema.types.weather_forecast import WeatherForecast
 
 __all__ = [
@@ -84,6 +77,5 @@ __all__ = [
     "TicklistHallReport",
     "TicklistReed",
     "TicklistReedReport",
-    "Weather",
     "WeatherForecast",
 ]

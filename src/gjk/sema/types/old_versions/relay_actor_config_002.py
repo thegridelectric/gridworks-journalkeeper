@@ -1,20 +1,13 @@
 from typing import Literal
-
 from pydantic import StrictInt, model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.enums import (
-    ChangeRelayState,
-    RelayClosedOrOpen,
-    RelayWiringConfig,
-    SpaceheatUnit,
-)
-from gjk.sema.property_format import (
-    LeftRightDot,
-    NonEmptyString,
-    PositiveInt,
-    SpaceheatName,
-)
+from gjk.sema.enums import ChangeRelayState
+from gjk.sema.enums import RelayClosedOrOpen
+from gjk.sema.enums import RelayWiringConfig
+from gjk.sema.enums import SpaceheatUnit
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import SpaceheatName
 from gjk.sema.types.relay_actor_config import RelayActorConfig
 
 
@@ -32,11 +25,11 @@ class RelayActorConfig002(SemaType):
     actor_name: SpaceheatName
     wiring_config: RelayWiringConfig
     event_type: LeftRightDot
-    de_energizing_event: NonEmptyString
-    energizing_event: NonEmptyString
+    de_energizing_event: str
+    energizing_event: str
     state_type: LeftRightDot
-    de_energized_state: NonEmptyString
-    energized_state: NonEmptyString
+    de_energized_state: str
+    energized_state: str
     type_name: Literal["relay.actor.config"] = "relay.actor.config"
     version: Literal["002"] = "002"
 
@@ -49,10 +42,7 @@ class RelayActorConfig002(SemaType):
         """
         if self.event_type == "change.relay.state":
             valid = set(ChangeRelayState.values())
-            if (
-                self.de_energizing_event not in valid
-                or self.energizing_event not in valid
-            ):
+            if self.de_energizing_event not in valid or self.energizing_event not in valid:
                 raise ValueError(
                     "Axiom 1 failed: relay state events must be valid change.relay.state values."
                 )
@@ -67,10 +57,7 @@ class RelayActorConfig002(SemaType):
         """
         if self.state_type == "relay.closed.or.open":
             valid = set(RelayClosedOrOpen.values())
-            if (
-                self.de_energized_state not in valid
-                or self.energized_state not in valid
-            ):
+            if self.de_energized_state not in valid or self.energized_state not in valid:
                 raise ValueError(
                     "Axiom 2 failed: relay states must be valid relay.closed.or.open values."
                 )
@@ -97,10 +84,7 @@ class RelayActorConfig002(SemaType):
         DeEnergizedState SHALL equal "RelayOpen" - DeEnergizingEvent SHALL equal "OpenRelay" -
         EnergizedState SHALL equal "RelayClosed" - EnergizingEvent SHALL equal "CloseRelay"
         """
-        if (
-            self.state_type != "relay.closed.or.open"
-            or self.event_type != "change.relay.state"
-        ):
+        if self.state_type != "relay.closed.or.open" or self.event_type != "change.relay.state":
             return self
 
         if self.wiring_config == RelayWiringConfig.NormallyClosed:

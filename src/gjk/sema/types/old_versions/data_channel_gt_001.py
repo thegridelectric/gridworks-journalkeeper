@@ -1,17 +1,14 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums import SpaceheatTelemetryName
-from gjk.sema.enums.old_versions.spaceheat_telemetry_name_006 import (
-    SpaceheatTelemetryName006,
-)
-from gjk.sema.property_format import LeftRightDot, SpaceheatName, UTCSeconds, UUID4Str
+from gjk.sema.enums.old_versions.spaceheat_telemetry_name_006 import SpaceheatTelemetryName006
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UTCSeconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.data_channel_gt import DataChannelGt
-from gjk.sema.types.spaceheat_telemetry_quantity_projection import (
-    SpaceheatTelemetryQuantityProjection,
-)
+from gjk.sema.types.spaceheat_telemetry_quantity_projection import SpaceheatTelemetryQuantityProjection
 
 
 class DataChannelGt001(SemaType):
@@ -35,10 +32,7 @@ class DataChannelGt001(SemaType):
         Axiom 1: PowerMeteringConstraint
         If InPowerMetering is true, TelemetryName SHALL equal PowerW.
         """
-        if (
-            self.in_power_metering
-            and self.telemetry_name != SpaceheatTelemetryName006.PowerW
-        ):
+        if self.in_power_metering and self.telemetry_name != SpaceheatTelemetryName006.PowerW:
             raise ValueError(
                 "Axiom 1 failed: telemetry_name must be PowerW when in_power_metering is true."
             )

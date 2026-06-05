@@ -1,12 +1,9 @@
 from typing import Literal
-
 from pydantic import ConfigDict, StrictInt, model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import SpaceheatName, UUID4Str
-from gjk.sema.types.i2c_multichannel_dt_relay_component_gt import (
-    I2cMultichannelDtRelayComponentGt,
-)
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UUID4Str
+from gjk.sema.types.i2c_multichannel_dt_relay_component_gt import I2cMultichannelDtRelayComponentGt
 from gjk.sema.types.old_versions.relay_actor_config_002 import RelayActorConfig002
 
 
@@ -20,9 +17,7 @@ class I2cMultichannelDtRelayComponentGt003(SemaType):
     hw_uid: str | None = None
     i2c_bus: SpaceheatName
     i2c_address_list: list[StrictInt]
-    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = (
-        "i2c.multichannel.dt.relay.component.gt"
-    )
+    type_name: Literal["i2c.multichannel.dt.relay.component.gt"] = "i2c.multichannel.dt.relay.component.gt"
     version: Literal["003"] = "003"
 
     model_config = ConfigDict(**(SemaType.model_config | {"extra": "allow"}))
@@ -36,13 +31,9 @@ class I2cMultichannelDtRelayComponentGt003(SemaType):
         actor_names = [cfg.actor_name for cfg in self.config_list]
         relay_idxs = [cfg.relay_idx for cfg in self.config_list]
         if len(set(actor_names)) != len(actor_names):
-            raise ValueError(
-                "Axiom 1 failed: config_list contains duplicate actor_name values."
-            )
+            raise ValueError("Axiom 1 failed: config_list contains duplicate actor_name values.")
         if len(set(relay_idxs)) != len(relay_idxs):
-            raise ValueError(
-                "Axiom 1 failed: config_list contains duplicate relay_idx values."
-            )
+            raise ValueError("Axiom 1 failed: config_list contains duplicate relay_idx values.")
         return self
 
     def upgrade(self) -> I2cMultichannelDtRelayComponentGt:

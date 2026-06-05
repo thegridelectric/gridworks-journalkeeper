@@ -1,13 +1,10 @@
 from typing import Literal
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import (
-    LeftRightDot,
-    PositiveInt,
-    UTCMilliseconds,
-    UTCSeconds,
-    UUID4Str,
-)
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UTCSeconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.channel_readings import ChannelReadings
 from gjk.sema.types.fsm_full_report import FsmFullReport
 from gjk.sema.types.machine_states import MachineStates
@@ -29,14 +26,13 @@ class Report002(SemaType):
     message_created_ms: UTCMilliseconds
     id: UUID4Str
     type_name: Literal["report"] = "report"
-    version: str = "002"
+    version: str = '002'
 
     def upgrade(self) -> Report:
         """- FsmReportList[]: fsm.full.report:000 -> 001"""
         data = self.model_dump()
         data["fsm_report_list"] = [
-            fsm_report.upgrade() if fsm_report.version == "000" else fsm_report
-            for fsm_report in self.fsm_report_list
+            fsm_report.upgrade() if fsm_report.version == "000" else fsm_report for fsm_report in self.fsm_report_list
         ]
         data["version"] = "003"
         return Report.model_validate(data)

@@ -1,10 +1,9 @@
 from typing import Literal
-
 from pydantic import StrictInt, model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums import SpaceheatUnit
-from gjk.sema.property_format import PositiveInt, SpaceheatName
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import SpaceheatName
 
 
 class ChannelConfig(SemaType):

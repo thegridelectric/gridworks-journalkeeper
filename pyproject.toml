@@ -31,7 +31,7 @@ dependencies = [
     "pytz>=2024.2",
     "result>=0.17.0",
     "gridworks-base>=0.4.0",
-    "gw_data>=0.2.0"
+    "gw_data>=0.3.0"
 ]
 
 [project.optional-dependencies]
@@ -114,6 +114,7 @@ exclude = [
     "buck-out",
     "build",
     "dist",
+    "src/gjk/sema"
 ]
 output-format = "concise"
 fix = true

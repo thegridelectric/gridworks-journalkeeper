@@ -1,14 +1,10 @@
 from typing import Literal
-
 from pydantic import StrictInt, model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import (
-    LeftRightDot,
-    PositiveInt,
-    UTCMilliseconds,
-    UTCSeconds,
-)
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UTCSeconds
 
 
 class EnergyInstruction(SemaType):
@@ -29,7 +25,9 @@ class EnergyInstruction(SemaType):
         SlotStartS SHALL be divisible by 60.
         """
         if self.slot_start_s % 60 != 0:
-            raise ValueError("Axiom 1 failed: slot_start_s must be divisible by 60.")
+            raise ValueError(
+                "Axiom 1 failed: slot_start_s must be divisible by 60."
+            )
         return self
 
     @model_validator(mode="after")

@@ -1,8 +1,10 @@
 from typing import Literal
-
 from gjk.sema.base import SemaType
-from gjk.sema.enums import Gw1EmissionMethod, Gw1Unit
-from gjk.sema.property_format import LeftRightDot, SpaceheatName, UUID4Str
+from gjk.sema.enums import Gw1EmissionMethod
+from gjk.sema.enums.old_versions.gw1_unit_000 import Gw1Unit000
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.derived_channel_gt import DerivedChannelGt
 
 
@@ -13,7 +15,7 @@ class DerivedChannelGt000(SemaType):
     name: SpaceheatName
     created_by_node_name: SpaceheatName
     strategy: SpaceheatName
-    output_unit: Gw1Unit | None = None
+    output_unit: Gw1Unit000 | None = None
     display_name: str
     terminal_asset_alias: LeftRightDot
     type_name: Literal["derived.channel.gt"] = "derived.channel.gt"

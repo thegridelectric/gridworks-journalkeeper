@@ -1,10 +1,12 @@
 from typing import Literal
-
 from pydantic import ConfigDict, StrictInt, model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.enums import FsmReportType, RelayEnergizationState
-from gjk.sema.property_format import HandleName, LeftRightDot, UTCMilliseconds, UUID4Str
+from gjk.sema.enums import FsmReportType
+from gjk.sema.enums import RelayEnergizationState
+from gjk.sema.property_format import HandleName
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.fsm_atomic_report import FsmAtomicReport
 
 
@@ -88,7 +90,9 @@ class FsmAtomicReport000(SemaType):
                 raise ValueError(
                     "FsmAtomicReport000.upgrade() only supports ActionType 'RelayPinSet'."
                 )
-            data["action"] = {"Value": RelayEnergizationState(self.action).value}
+            data["action"] = {
+                "Value": RelayEnergizationState(self.action).value
+            }
 
         data["version"] = "001"
         return FsmAtomicReport.model_validate(data)

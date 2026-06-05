@@ -1,10 +1,10 @@
 from typing import Literal
-
 from pydantic import model_validator
-
 from gjk.sema.base import SemaType
-from gjk.sema.enums import MarketPriceUnit, MarketQuantityUnit
-from gjk.sema.property_format import LeftRightDot, MarketSlotName
+from gjk.sema.enums import MarketPriceUnit
+from gjk.sema.enums import MarketQuantityUnit
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import MarketSlotName
 from gjk.sema.types.price_quantity_unitless import PriceQuantityUnitless
 
 

@@ -377,13 +377,6 @@ types:
       "000":
         summary: "Initial Sema version"
 
-  weather:
-    latest_version: "000"
-    versioning_strategy: "literal"
-    versions:
-      "000":
-        summary: "Initial Sema version — like-for-like port of the legacy weather_service.py wire shape onto Sema."
-
   weather.forecast:
     latest_version: "000"
     versioning_strategy: "literal"
@@ -489,6 +482,11 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "002":
+        added_values:
+          - "DollarsX1000"
+          - "MilesPerHourX1000"
+          - "KilowattHoursX1000"
       "000": {}
 
   hz.calc.method:

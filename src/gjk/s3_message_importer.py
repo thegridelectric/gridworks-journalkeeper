@@ -161,7 +161,12 @@ def main():
     codec = SemaCodec()
     msg_persistor = SemaMessagePersistor(settings, codec, logger)
     msg_types = msg_persistor.all_known_message_types()
-
+    # msg_types = {
+    #     # 'report.event',
+    #     # 'layout.lite',
+    #     # 'flo.params.house0',
+    #     # 'weather.forecast',
+    # }
     logger.info(
         "Importing the following message types: "
         + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
@@ -169,9 +174,10 @@ def main():
     importer = S3MessageImporter(settings, msg_types, logger)
 
     msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 4, 1),
-        #     # start=datetime(2026, 1, 9),
-        end=datetime(2026, 5, 17),
+        start=datetime(2026, 1, 9),
+        end=datetime(2026, 6, 1),
+        # start=datetime(2026, 4, 9),
+        # end=datetime(2025, 9, 1),
     )
 
     # msg_infos = importer.find_messages_on_date(

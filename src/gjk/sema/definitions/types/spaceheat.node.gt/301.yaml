@@ -114,7 +114,7 @@ x-gridworks:
     - number: 1
       name: "InPowerMeteringRequiresNameplate"
       statement: >
-        If InPowerMetering is true, NameplatePowerW SHALL be present.
+        If InPowerMetering is true, NameplatePowerW SHALL be present. 
 
     - number: 2
       name: "ActorHierarchyConstraints"

@@ -65,5 +65,4 @@ types:
   ticklist.hall.report: ticklist.hall.report
   ticklist.reed: ticklist.reed
   ticklist.reed.report: ticklist.reed.report
-  weather: weather
   weather.forecast: weather.forecast

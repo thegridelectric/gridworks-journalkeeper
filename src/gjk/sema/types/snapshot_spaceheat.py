@@ -1,7 +1,8 @@
 from typing import Literal
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import LeftRightDot, UTCMilliseconds, UUID4Str
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import UTCMilliseconds
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.single_machine_state import SingleMachineState
 from gjk.sema.types.single_reading import SingleReading
 

@@ -1,10 +1,11 @@
 from typing import Literal
-
 from pydantic import ConfigDict, model_validator
-
 from gjk.sema.base import SemaType
 from gjk.sema.enums.old_versions.gw1_actor_class_009 import Gw1ActorClass009
-from gjk.sema.property_format import HandleName, PositiveInt, SpaceheatName, UUID4Str
+from gjk.sema.property_format import HandleName
+from gjk.sema.property_format import PositiveInt
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.old_versions.spaceheat_node_gt_300 import SpaceheatNodeGt300
 
 
@@ -32,9 +33,7 @@ class SpaceheatNodeGt200(SemaType):
         If InPowerMetering is true, NameplatePowerW SHALL be present.
         """
         if self.in_power_metering and self.nameplate_power_w is None:
-            raise ValueError(
-                "Axiom 1 failed: if in_power_metering is true, nameplate_power_w must be present."
-            )
+            raise ValueError("Axiom 1 failed: if in_power_metering is true, nameplate_power_w must be present.")
         return self
 
     def upgrade(self) -> SpaceheatNodeGt300:

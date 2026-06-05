@@ -223,11 +223,6 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/ticklist.reed.report/000.yaml
-  weather:
-    latest_version: '000'
-    versioning_strategy: literal
-    versions:
-      '000': definitions/types/weather/000.yaml
   weather.forecast:
     latest_version: '000'
     versioning_strategy: literal
@@ -308,8 +303,9 @@ enums:
       '000': definitions/enums/gw1.system.mode/000.yaml
   gw1.unit:
     enum_type: versioned
-    latest_version: '000'
+    latest_version: '002'
     versions:
+      '002': definitions/enums/gw1.unit/002.yaml
       '000': definitions/enums/gw1.unit/000.yaml
   hz.calc.method:
     enum_type: versioned
@@ -365,9 +361,7 @@ formats:
   handle.name: definitions/formats/handle.name.yaml
   left.right.dot: definitions/formats/left.right.dot.yaml
   market.slot.name: definitions/formats/market.slot.name.yaml
-  non.empty.string: definitions/formats/non.empty.string.yaml
   positive.int: definitions/formats/positive.int.yaml
-  positive.int.as.str: definitions/formats/positive.int.as.str.yaml
   spaceheat.name: definitions/formats/spaceheat.name.yaml
   utc.milliseconds: definitions/formats/utc.milliseconds.yaml
   utc.seconds: definitions/formats/utc.seconds.yaml

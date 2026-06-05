@@ -1,7 +1,8 @@
 from typing import Literal
-
 from gjk.sema.base import SemaType
-from gjk.sema.property_format import LeftRightDot, SpaceheatName, UTCMilliseconds
+from gjk.sema.property_format import LeftRightDot
+from gjk.sema.property_format import SpaceheatName
+from gjk.sema.property_format import UTCMilliseconds
 from gjk.sema.types.ticklist_hall import TicklistHall
 
 
