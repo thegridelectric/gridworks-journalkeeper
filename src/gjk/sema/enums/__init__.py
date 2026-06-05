@@ -18,6 +18,7 @@ from gjk.sema.enums.hz_calc_method import HzCalcMethod
 from gjk.sema.enums.log_level import LogLevel
 from gjk.sema.enums.market_price_unit import MarketPriceUnit
 from gjk.sema.enums.market_quantity_unit import MarketQuantityUnit
+from gjk.sema.enums.market_type_name import MarketTypeName
 from gjk.sema.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.sema.enums.relay_energization_state import RelayEnergizationState
 from gjk.sema.enums.relay_wiring_config import RelayWiringConfig
@@ -47,6 +48,7 @@ __all__ = [
     "LogLevel",
     "MarketPriceUnit",
     "MarketQuantityUnit",
+    "MarketTypeName",
     "RelayClosedOrOpen",
     "RelayEnergizationState",
     "RelayWiringConfig",
