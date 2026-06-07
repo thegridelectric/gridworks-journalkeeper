@@ -6,7 +6,7 @@ from sqlalchemy import literal, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
-from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
 from gjk.pseudo_channels import PseudoChannel, register_pseudo_channels
 from gjk.sema.enums import Gw1Unit
 from gjk.sema.types.flo_params_house0 import FloParamsHouse0
@@ -110,8 +110,12 @@ class FloParamsHouse0Persistor:
             )
             db.execute(stmt, dicts)
 
-    def persist(self, from_alias: str, floParams: FloParamsType):
-        message_id = uuid.uuid4()
+    def persist(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsType
+    ):
+        message_id = uuid.UUID(
+            default_message_id(from_alias, self.target_message_type, time_received)
+        )
         return MessagePersistenceInfo(
             id=str(message_id),
             created_at=datetime.fromtimestamp(floParams.params_generated_s, tz=UTC),
@@ -120,8 +124,10 @@ class FloParamsHouse0Persistor:
             ),
         )
 
-    def persist_v007(self, from_alias: str, floParams: FloParamsHouse0):
-        return self.persist(from_alias, floParams)
+    def persist_v007(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0
+    ):
+        return self.persist(from_alias, time_received, floParams)
 
 
 register_pseudo_channels(FloParamsHouse0Persistor.get_pseudo_channels())

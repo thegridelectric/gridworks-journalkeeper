@@ -5,7 +5,7 @@ from gw_data.db.models import ReadingChannelSql, ReadingSql
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
-from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
 from gjk.pseudo_channels import PseudoChannel, register_pseudo_channels
 from gjk.sema.enums import Gw1Unit
 from gjk.sema.types import WeatherForecast
@@ -83,8 +83,12 @@ class WeatherForecastPersistor:
             )
             db.execute(stmt, dicts)
 
-    def persist_v000(self, from_alias: str, forecast: WeatherForecast):
-        message_id = uuid.uuid4()
+    def persist_v000(
+        self, from_alias: str, time_received: datetime, forecast: WeatherForecast
+    ):
+        message_id = uuid.UUID(
+            default_message_id(from_alias, self.target_message_type, time_received)
+        )
         return MessagePersistenceInfo(
             id=str(message_id),
             created_at=datetime.fromtimestamp(forecast.forecast_created_s, tz=UTC),
