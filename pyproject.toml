@@ -54,9 +54,6 @@ dev = [
     "pika-stubs>=0.1.3",
 ]
 
-[tool.uv.sources]
-gw_data = { path = "../gridworks-data/" }
-
 [project.urls]
 Homepage = "https://github.com/thegridelectric/gridworks-journalkeeper"
 Repository = "https://github.com/thegridelectric/gridworks-journalkeeper"
