@@ -611,16 +611,20 @@ class AlertGenerator:
                 found_temperature = False
                 for channel in channels_by_zone[zone]:
                     if "set" in channel:
-                        setpoint = self.data[house_alias][channel]["values"][-1] / 1000
-                        found_setpoint = True
+                        values = self.data[house_alias][channel]["values"]
+                        if values:
+                            setpoint = values[-1] / 1000
+                            found_setpoint = True
                     if "temp" in channel and "gw" not in channel:
-                        temperature = self.data[house_alias][channel]["values"][-1] / 1000
-                        found_temperature = True
+                        values = self.data[house_alias][channel]["values"]
+                        if values:
+                            temperature = values[-1] / 1000
+                            found_temperature = True
                 if not found_setpoint:
-                    print(f"-- {zone}: Missing setpoint channel")
+                    print(f"-- {zone}: Missing setpoint channel or readings")
                     continue
                 if not found_temperature:
-                    print(f"-- {zone}: Missing temperature channel")
+                    print(f"-- {zone}: Missing temperature channel or readings")
                     continue
 
                 if setpoint - temperature < self.max_setpoint_violation_f:
@@ -816,6 +820,10 @@ class AlertGenerator:
                 print(f"-- {house_alias} is in Standby, skipping")
                 continue
 
+            if 'relay9' not in self.relays[house_alias]:
+                print(f"{house_alias}: Missing relay9 data!")
+                continue
+
             current_relay9_boss = list(self.relays[house_alias]['relay9'].keys())[0]
             latest_relay_time = 0
             for relay9_boss in self.relays[house_alias]['relay9']:
@@ -902,6 +910,10 @@ class AlertGenerator:
             # TODO: check if monoblock and adapt the code as a consequence
             if 'hp-idu-pwr' not in self.data[house_alias] or 'hp-odu-pwr' not in self.data[house_alias]:
                 print(f"{house_alias}: Missing data!")
+                continue
+
+            if 'relay5' not in self.relays[house_alias]:
+                print(f"{house_alias}: Missing relay5 data!")
                 continue
 
             current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
@@ -991,6 +1003,10 @@ class AlertGenerator:
 
             if house_alias in self.houses_in_standby:
                 print(f"-- {house_alias} is in Standby, skipping")
+                continue
+
+            if 'relay5' not in self.relays[house_alias]:
+                print(f"{house_alias}: Missing relay5 data!")
                 continue
 
             current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
