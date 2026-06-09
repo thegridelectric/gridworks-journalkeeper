@@ -9,13 +9,18 @@ threads time_received through to the custom persistor (the actual root cause).
 No DB/AWS.
 """
 
+import inspect
 import logging
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
+import pytest
+
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
+from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
+from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema_message_persistor import SemaMessagePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 
@@ -81,3 +86,33 @@ def test_dispatch_threads_time_received_to_custom_persistor():
     p.persist_message(FROM_ALIAS, t, payload)
 
     custom.persist_v000.assert_called_once_with(FROM_ALIAS, t, payload)
+
+
+@pytest.mark.parametrize(
+    "persistor_cls",
+    [
+        FloParamsHouse0Persistor,
+        WeatherForecastPersistor,
+        ReportEventPersistor,
+        LayoutLitePersistor,
+    ],
+)
+def test_every_custom_persist_method_accepts_time_received(persistor_cls):
+    """Real-signature guard for the seam contract.
+
+    ``SemaMessagePersistor.persist_message`` calls every custom persistor as
+    ``persist_vNNN(from_alias, time_received, payload)``. The existing seam
+    test uses a MagicMock, so it cannot catch a real persistor whose
+    ``persist_vNNN`` was never migrated to take ``time_received`` (the
+    report.event / layout.lite regression). Assert each real method's third
+    positional parameter is ``time_received``.
+    """
+    methods = [m for m in dir(persistor_cls) if m.startswith("persist_v")]
+    assert methods, f"{persistor_cls.__name__} exposes no persist_vNNN methods"
+    for name in methods:
+        params = list(inspect.signature(getattr(persistor_cls, name)).parameters)
+        assert params[:3] == ["self", "from_alias", "time_received"], (
+            f"{persistor_cls.__name__}.{name}{tuple(params)} must accept "
+            "(self, from_alias, time_received, <payload>) — the dispatch seam "
+            "passes time_received positionally"
+        )

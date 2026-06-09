@@ -188,23 +188,37 @@ class LayoutLitePersistor:
             ),
         )
 
-    def persist_v007(self, from_alias: str, layout: LayoutLite007):
+    def persist_v007(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite007
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v008(self, from_alias: str, layout: LayoutLite008):
+    def persist_v008(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite008
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v009(self, from_alias: str, layout: LayoutLite009):
+    def persist_v009(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite009
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v010(self, from_alias: str, layout: LayoutLite010):
+    def persist_v010(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite010
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v011(self, from_alias: str, layout: LayoutLite011):
+    def persist_v011(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite011
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v012(self, from_alias: str, layout: LayoutLite012):
+    def persist_v012(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite012
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v013(self, from_alias: str, layout: LayoutLite):
+    def persist_v013(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite
+    ):
         return self.persist(from_alias, layout)
