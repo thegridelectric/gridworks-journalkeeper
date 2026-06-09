@@ -3,20 +3,44 @@ import time
 import dotenv
 import pendulum
 import requests
+from gw.errors import GwTypeError
 from gjk.api_db import get_db
 from gjk.config import Settings
 from gjk.models import MessageSql
-from gjk.named_types import LayoutLite
-from sqlalchemy import asc, desc, or_
-from sqlalchemy import create_engine, Column, String, JSON, Integer, BigInteger
-from typing import cast
+from gjk.enums import LogLevel
+from gjk.named_types import Glitch, LayoutLite, Report, SnapshotSpaceheat
+from sqlalchemy import asc, or_
+from sqlalchemy import create_engine, Column, String, JSON, Integer
+from typing import NamedTuple, Optional
 from sqlalchemy.orm import declarative_base, sessionmaker
 from pydantic import BaseModel
-from typing import Optional
 
 SIMULATING = False
 
 Base = declarative_base()
+
+
+class ParsedLayoutLite(NamedTuple):
+    house_alias: str
+    message_persisted_ms: int
+    layout: LayoutLite
+
+
+class ParsedReport(NamedTuple):
+    house_alias: str
+    report: Report
+
+
+class ParsedGlitch(NamedTuple):
+    house_alias: str
+    message_persisted_ms: int
+    glitch: Glitch
+
+
+class ParsedSnapshotSpaceheat(NamedTuple):
+    message_persisted_ms: int
+    snapshot: SnapshotSpaceheat
+
 
 class House(Base):
     __tablename__ = 'homes'
@@ -72,7 +96,7 @@ class AlertGenerator:
         self.houses_in_standby = []
         self.data = {}
         self.relays = {}
-        self.critical_zones_list = {}
+        self.spruce_snapshots: list[ParsedSnapshotSpaceheat] = []
         self.alert_status = {}
         self.houses_with_an_active_alert = []
         self.main()
@@ -191,6 +215,71 @@ class AlertGenerator:
             return float(self.simulated_reference_time.timestamp())
         return time.time()
 
+    def _parse_layout_lite_message(
+        self, message: MessageSql
+    ) -> ParsedLayoutLite | None:
+        try:
+            layout = LayoutLite.from_dict(message.payload)
+        except (GwTypeError, ValueError) as e:
+            print(
+                f"Skipping invalid layout.lite from {message.from_alias}: {e}"
+            )
+            return None
+        return ParsedLayoutLite(
+            house_alias=message.from_alias.split(".")[-2],
+            message_persisted_ms=message.message_persisted_ms,
+            layout=layout,
+        )
+
+    def _parse_report_message(self, message: MessageSql) -> ParsedReport | None:
+        try:
+            report = Report.from_dict(message.payload)
+        except (GwTypeError, ValueError) as e:
+            print(f"Skipping invalid report from {message.from_alias}: {e}")
+            return None
+        return ParsedReport(
+            house_alias=message.from_alias.split(".")[-2],
+            report=report,
+        )
+
+    def _house_alias_from_g_node_alias(self, source: str) -> str | None:
+        if ".scada" in source and source.split(".")[-1] in ["scada", "s2"]:
+            return source.split(".scada")[0].split(".")[-1]
+        if len(source.split(".")) > 1:
+            return source.split(".")[-1]
+        print(f"Unknown source: {source}")
+        return None
+
+    def _parse_glitch_message(self, message: MessageSql) -> ParsedGlitch | None:
+        try:
+            glitch = Glitch.from_dict(message.payload)
+        except (GwTypeError, ValueError) as e:
+            print(f"Skipping invalid glitch from {message.from_alias}: {e}")
+            return None
+        house_alias = self._house_alias_from_g_node_alias(glitch.from_g_node_alias)
+        if house_alias is None:
+            return None
+        return ParsedGlitch(
+            house_alias=house_alias,
+            message_persisted_ms=message.message_persisted_ms,
+            glitch=glitch,
+        )
+
+    def _parse_snapshot_spaceheat_message(
+        self, message: MessageSql
+    ) -> ParsedSnapshotSpaceheat | None:
+        try:
+            snapshot = SnapshotSpaceheat.from_dict(message.payload)
+        except (GwTypeError, ValueError) as e:
+            print(
+                f"Skipping invalid snapshot.spaceheat from {message.from_alias}: {e}"
+            )
+            return None
+        return ParsedSnapshotSpaceheat(
+            message_persisted_ms=message.message_persisted_ms,
+            snapshot=snapshot,
+        )
+
     def get_data_from_journaldb(self):
         print("\nFinding data from journaldb...")
         time_now = self.reference_now()
@@ -214,21 +303,46 @@ class AlertGenerator:
             print(f"An error occured while getting data from journaldb: {e}")
             return
         
-        self.messages = [m for m in sql_messages if m.message_type_name == "report"]
-        self.layout_lites = [m for m in sql_messages if m.message_type_name == "layout.lite"]
-        print(f"Found {len(self.messages)} reports and {len(self.layout_lites)} layout lites")
-        for layout_lite_message in self.layout_lites:
-            llm_house_alias = layout_lite_message.from_alias.split(".")[-2]
-            if "CriticalZoneList" in layout_lite_message.payload:
-                self.critical_zones_by_house[llm_house_alias] = layout_lite_message.payload["CriticalZoneList"]
+        report_messages = [
+            m for m in sql_messages if m.message_type_name == "report"
+        ]
+        self.reports = [
+            parsed
+            for m in report_messages
+            if (parsed := self._parse_report_message(m)) is not None
+        ]
+        layout_lite_messages = [
+            m for m in sql_messages if m.message_type_name == "layout.lite"
+        ]
+        self.layout_lites = [
+            parsed
+            for m in layout_lite_messages
+            if (parsed := self._parse_layout_lite_message(m)) is not None
+        ]
+        print(
+            f"Found {len(self.reports)} reports "
+            f"({len(report_messages) - len(self.reports)} skipped) and "
+            f"{len(self.layout_lites)} layout lites "
+            f"({len(layout_lite_messages) - len(self.layout_lites)} skipped)"
+        )
+        for parsed in self.layout_lites:
+            self.critical_zones_by_house[parsed.house_alias] = {
+                "known": True,
+                "list": parsed.layout.critical_zone_list,
+            }
             if (
-                "SystemMode" in layout_lite_message.payload 
-                and layout_lite_message.payload["SystemMode"] == "Standby"
-                and llm_house_alias not in self.houses_in_standby
+                parsed.layout.system_mode == "Standby"
+                and parsed.house_alias not in self.houses_in_standby
             ):
-                self.houses_in_standby.append(llm_house_alias)
-                print(f"Adding {llm_house_alias} to the list of houses in standby")
-        all_house_aliases = list({x.from_alias.split(".")[-2] for x in self.messages})
+                self.houses_in_standby.append(parsed.house_alias)
+                print(f"Adding {parsed.house_alias} to the list of houses in standby")
+            elif (
+                parsed.layout.system_mode != "Standby"
+                and parsed.house_alias in self.houses_in_standby
+            ):
+                self.houses_in_standby.remove(parsed.house_alias)
+                print(f"Removing {parsed.house_alias} from the list of houses in standby")
+        all_house_aliases = list({x.house_alias for x in self.reports})
         self.selected_house_aliases = [x for x in all_house_aliases if x not in self.ignored_house_aliases and x in ['beech', 'oak', 'fir', 'maple', 'elm']]
 
         for house_alias in all_house_aliases:
@@ -243,28 +357,35 @@ class AlertGenerator:
                 print(f"- {house_alias}: House is not in the selected aliases")
                 continue
 
-            for message in [m for m in self.messages if m.from_alias.split(".")[-2] == house_alias]:
-                for channel in message.payload["ChannelReadingList"]:
-                    channel_name = channel["ChannelName"]
+            for parsed in [r for r in self.reports if r.house_alias == house_alias]:
+                for channel in parsed.report.channel_reading_list:
+                    channel_name = channel.channel_name
                     if channel_name not in self.data[house_alias]:
                         self.data[house_alias][channel_name] = {}
                         self.data[house_alias][channel_name]['times'] = []
                         self.data[house_alias][channel_name]['values'] = []
-                    self.data[house_alias][channel_name]["times"].extend(channel["ScadaReadTimeUnixMsList"])
-                    self.data[house_alias][channel_name]["values"].extend(channel["ValueList"])
+                    self.data[house_alias][channel_name]["times"].extend(
+                        channel.scada_read_time_unix_ms_list
+                    )
+                    self.data[house_alias][channel_name]["values"].extend(
+                        channel.value_list
+                    )
 
-                    if "StateList" in message.payload:
-                        for state in message.payload["StateList"]:
-                            if 'relay' in state["MachineHandle"]:
-                                relay_name = state["MachineHandle"].split('.')[-1]
-                                if relay_name not in self.relays[house_alias]:
-                                    self.relays[house_alias][relay_name] = {}
-                                if state["MachineHandle"] not in self.relays[house_alias][relay_name]:
-                                    self.relays[house_alias][relay_name][state["MachineHandle"]] = {}
-                                    self.relays[house_alias][relay_name][state["MachineHandle"]]["times"] = []
-                                    self.relays[house_alias][relay_name][state["MachineHandle"]]["values"] = []
-                                self.relays[house_alias][relay_name][state["MachineHandle"]]["times"].extend(state["UnixMsList"])
-                                self.relays[house_alias][relay_name][state["MachineHandle"]]["values"].extend(state["StateList"])
+                for state in parsed.report.state_list:
+                    if 'relay' in state.machine_handle:
+                        relay_name = state.machine_handle.split('.')[-1]
+                        if relay_name not in self.relays[house_alias]:
+                            self.relays[house_alias][relay_name] = {}
+                        if state.machine_handle not in self.relays[house_alias][relay_name]:
+                            self.relays[house_alias][relay_name][state.machine_handle] = {}
+                            self.relays[house_alias][relay_name][state.machine_handle]["times"] = []
+                            self.relays[house_alias][relay_name][state.machine_handle]["values"] = []
+                        self.relays[house_alias][relay_name][state.machine_handle]["times"].extend(
+                            state.unix_ms_list
+                        )
+                        self.relays[house_alias][relay_name][state.machine_handle]["values"].extend(
+                            state.state_list
+                        )
 
             for channel in self.data[house_alias]:
                 sorted_times_values = sorted(zip(self.data[house_alias][channel]["times"], self.data[house_alias][channel]["values"]))
@@ -284,16 +405,16 @@ class AlertGenerator:
                 print(f"- {house_alias}: Found data")
             else:
                 print(f"- {house_alias}: Did not find any data")
-                self.check_no_data()
 
     def get_data_from_journaldb_spruce(self):
         print("\nFinding Spruce data from journaldb...")
         time_now = self.reference_now()
+        self.spruce_snapshots = []
         try:
             with next(get_db()) as session:
                 start_ms = time_now.add(minutes=-10).timestamp() * 1000
                 end_ms = time_now.timestamp() * 1000
-                self.spruce_snapshots = (
+                snapshot_messages = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "snapshot.spaceheat",
                         MessageSql.from_alias == f"hw1.isone.me.versant.keene.spruce.scada",
@@ -301,7 +422,16 @@ class AlertGenerator:
                         MessageSql.message_persisted_ms <= end_ms,
                     ).order_by(asc(MessageSql.message_persisted_ms)).all()
                 )
-                print(f"Found {len(self.spruce_snapshots)} snapshots")
+                self.spruce_snapshots = [
+                    parsed
+                    for m in snapshot_messages
+                    if (parsed := self._parse_snapshot_spaceheat_message(m))
+                    is not None
+                ]
+                print(
+                    f"Found {len(self.spruce_snapshots)} snapshots "
+                    f"({len(snapshot_messages) - len(self.spruce_snapshots)} skipped)"
+                )
         except Exception as e:
             print(f"An error occured while getting data from journaldb: {e}")
             return
@@ -330,34 +460,51 @@ class AlertGenerator:
                 ])
             with next(get_db()) as session:
                 start_ms = self.reference_now().add(hours=-self.hours_back).timestamp() * 1000
-                glitches = (
+                glitch_messages = (
                     session.query(MessageSql).filter(
                         MessageSql.message_type_name == "glitch",
                         MessageSql.from_alias.in_(message_aliases),
                         MessageSql.message_persisted_ms >= start_ms,
                         ).order_by(asc(MessageSql.message_persisted_ms)).all()
                     )
-                if not glitches:
-                    print(f"No glitches found")
+                parsed_glitches = [
+                    parsed
+                    for m in glitch_messages
+                    if (parsed := self._parse_glitch_message(m)) is not None
+                ]
+                if not parsed_glitches:
+                    print("No glitches found")
                 else:
-                    critical_glitches = [g for g in glitches if g.payload['Type'] == "Critical"]
-                    print(f"Found {len(glitches)} glitches, of which {len(critical_glitches)} are critical")
-                for message in glitches:
-                    type = str(message.payload['Type']).lower()
-                    source = message.payload['FromGNodeAlias']
-                    summary = message.payload['Summary']
-                    time_received = int(message.message_persisted_ms/1000)
-                    if ".scada" in source and source.split('.')[-1] in ['scada', 's2']:
-                        house_alias = source.split('.scada')[0].split('.')[-1]
-                    elif len(source.split('.'))>1:
-                        house_alias = source.split('.')[-1]
-                    else:
-                        print(f"Unknown source: {source}")
+                    critical_count = sum(
+                        1
+                        for p in parsed_glitches
+                        if p.glitch.type == LogLevel.Critical
+                    )
+                    print(
+                        f"Found {len(parsed_glitches)} glitches "
+                        f"({len(glitch_messages) - len(parsed_glitches)} skipped), "
+                        f"of which {critical_count} are critical"
+                    )
+                for parsed in parsed_glitches:
+                    house_alias = parsed.house_alias
+                    if house_alias not in self.alert_status:
                         continue
-                    unique_id = f'{house_alias}-{summary}'
-                    if type=="critical" and unique_id not in self.alert_status[house_alias][alert_alias]:
-                        self.send_opsgenie_alert(f"{house_alias} - critical glitch: {summary}", house_alias, alert_alias)
-                        self.alert_status[house_alias][alert_alias][unique_id] = time_received
+                    summary = parsed.glitch.summary
+                    time_received = int(parsed.message_persisted_ms / 1000)
+                    unique_id = f"{house_alias}-{summary}"
+                    if (
+                        parsed.glitch.type == LogLevel.Critical
+                        and unique_id
+                        not in self.alert_status[house_alias][alert_alias]
+                    ):
+                        self.send_opsgenie_alert(
+                            f"{house_alias} - critical glitch: {summary}",
+                            house_alias,
+                            alert_alias,
+                        )
+                        self.alert_status[house_alias][alert_alias][
+                            unique_id
+                        ] = time_received
         except Exception as e:
             print(f"An error occured while checking for glitches: {e}")
             return
@@ -752,8 +899,9 @@ class AlertGenerator:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
+            # TODO: check if monoblock and adapt the code as a consequence
             if 'hp-idu-pwr' not in self.data[house_alias] or 'hp-odu-pwr' not in self.data[house_alias]:
-                print(f"{house_alias}: Missing data!") # TODO: create an alert?
+                print(f"{house_alias}: Missing data!")
                 continue
 
             current_relay5_boss = list(self.relays[house_alias]['relay5'].keys())[0]
@@ -905,8 +1053,12 @@ class AlertGenerator:
             if alert_alias not in self.alert_status[house_alias]:
                 self.alert_status[house_alias][alert_alias] = False
 
-            layouts_for_house = [m for m in self.layout_lites if m.from_alias.split(".")[-2] == house_alias]
-            layout_times_for_house = [m.message_persisted_ms for m in layouts_for_house]
+            layouts_for_house = [
+                m for m in self.layout_lites if m.house_alias == house_alias
+            ]
+            layout_times_for_house = [
+                m.message_persisted_ms for m in layouts_for_house
+            ]
             # Check for more than 5 layout records in the same 5-minute window
             if layout_times_for_house:
                 rounded_times = [int(t//(5*60*1000)) for t in layout_times_for_house]
