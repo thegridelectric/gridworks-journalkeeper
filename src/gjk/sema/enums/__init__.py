@@ -6,9 +6,15 @@ from gjk.sema.enums.gw1_emission_method import Gw1EmissionMethod
 from gjk.sema.enums.gw1_lc_top_state import Gw1LcTopState
 from gjk.sema.enums.gw1_leaf_ally_all_tanks_state import Gw1LeafAllyAllTanksState
 from gjk.sema.enums.gw1_leaf_ally_buffer_only_state import Gw1LeafAllyBufferOnlyState
-from gjk.sema.enums.gw1_local_control_all_tanks_state import Gw1LocalControlAllTanksState
-from gjk.sema.enums.gw1_local_control_buffer_only_state import Gw1LocalControlBufferOnlyState
-from gjk.sema.enums.gw1_local_control_standby_top_state import Gw1LocalControlStandbyTopState
+from gjk.sema.enums.gw1_local_control_all_tanks_state import (
+    Gw1LocalControlAllTanksState,
+)
+from gjk.sema.enums.gw1_local_control_buffer_only_state import (
+    Gw1LocalControlBufferOnlyState,
+)
+from gjk.sema.enums.gw1_local_control_standby_top_state import (
+    Gw1LocalControlStandbyTopState,
+)
 from gjk.sema.enums.gw1_main_auto_state import Gw1MainAutoState
 from gjk.sema.enums.gw1_quantity import Gw1Quantity
 from gjk.sema.enums.gw1_seasonal_storage_mode import Gw1SeasonalStorageMode
