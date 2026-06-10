@@ -45,7 +45,9 @@ initial_targets:
       include_all_versions: true
     report:
       include_all_versions: true
-    atn.bid:
+    atn.bid:            # historical (frozen) — old S3 atn.bid still decodes
+      include_all_versions: true
+    bid:                # current
       include_all_versions: true
     latest.price:
       include_all_versions: true

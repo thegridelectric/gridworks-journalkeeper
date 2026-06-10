@@ -128,6 +128,7 @@ types:
     '001':
       used_by:
       - atn.bid:002
+      - bid:000
   relay.actor.config:
     '002':
       used_by:
@@ -258,6 +259,7 @@ enums:
     '000':
       used_by:
       - atn.bid:002
+      - bid:000
       - flo.params.house0:003
       - flo.params.house0:004
       - flo.params.house0:005
@@ -268,6 +270,7 @@ enums:
     '000':
       used_by:
       - atn.bid:002
+      - bid:000
   relay.closed.or.open:
     '000':
       used_by:
@@ -320,6 +323,7 @@ formats:
   left.right.dot:
     used_by:
     - atn.bid:002
+    - bid:000
     - data.channel.gt:001
     - data.channel.gt:002
     - derived.channel.gt:000
@@ -360,6 +364,7 @@ formats:
   market.slot.name:
     used_by:
     - atn.bid:002
+    - bid:000
     - latest.price:000
   non.empty.string:
     used_by:

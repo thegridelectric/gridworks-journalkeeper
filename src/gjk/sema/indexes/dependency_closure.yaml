@@ -13,6 +13,17 @@ types:
       types:
       - price.quantity.unitless:001
       versionless_types: []
+  bid:
+    '000':
+      enums:
+      - market.price.unit:000
+      - market.quantity.unit:000
+      formats:
+      - left.right.dot
+      - market.slot.name
+      types:
+      - price.quantity.unitless:001
+      versionless_types: []
   channel.config:
     '000':
       enums:

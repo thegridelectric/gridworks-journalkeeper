@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-06-10T17:54:32Z'
+  generated_at: '2026-06-10T22:16:27Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -32,6 +32,7 @@ initial_targets:
 - report:002
 - report:003
 - atn.bid:002
+- bid:000
 - latest.price:000
 - gw1.unit:002
 - gw1.main.auto.state:001
@@ -155,6 +156,9 @@ worklist:
     atn.bid:
       '002':
         path: definitions/types/atn.bid/002.yaml
+    bid:
+      '000':
+        path: definitions/types/bid/000.yaml
     channel.config:
       '000':
         path: definitions/types/channel.config/000.yaml
