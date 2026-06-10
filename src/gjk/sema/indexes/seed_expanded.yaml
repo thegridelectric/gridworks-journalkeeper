@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-06-05T10:53:43Z'
+  generated_at: '2026-06-10T17:12:51Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -49,8 +49,12 @@ worklist:
       path: definitions/formats/left.right.dot.yaml
     market.slot.name:
       path: definitions/formats/market.slot.name.yaml
+    non.empty.string:
+      path: definitions/formats/non.empty.string.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
+    positive.int.as.str:
+      path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
     utc.milliseconds:

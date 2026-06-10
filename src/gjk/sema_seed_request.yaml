@@ -1,3 +1,9 @@
+# Regenerate the snapshot after editing this seed:
+#   scripts/regen_sema_snapshot.sh
+# (runs `sema snapshot prepare <this file>` + `build --package-name gjk` in the
+# sema repo, then mirrors output/sema -> src/gjk/sema). src/gjk/sema is
+# generated — edit this seed, not the vendored output.
+#
 # initial_targets may contain only types and enums. Formats are never listed
 # directly; they are pulled in through type dependencies.
 #

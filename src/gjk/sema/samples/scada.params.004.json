@@ -1,0 +1,9 @@
+{
+  "TypeName": "scada.params",
+  "Version": "004",
+  "FromGNodeAlias": "d1.isone.me.versant.keene.beech.scada",
+  "FromName": "a",
+  "ToName": "s",
+  "UnixTimeMs": 1704067200000,
+  "MessageId": "9cff2689-eadc-4577-94ea-6d86d0d23e9e"
+}

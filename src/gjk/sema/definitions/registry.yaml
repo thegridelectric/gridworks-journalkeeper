@@ -1,10 +1,7 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-06-05T10:00:00Z"
+  last_updated: "2026-06-08T00:00:00Z"
   maintainer: "gridworks-energy"
-
-snapshot:
-  built_at: "2026-06-05T10:53:43Z"
 
 formats:
   handle.name:
@@ -23,13 +20,25 @@ formats:
     owner: gridworks-energy
     schema_url: "https://schemas.electricity.works/formats/market.slot.name"
     created: "2024-12-05T19:25:00Z"
-    description: "Dot-separated identifier for a specific market slot, ending in a 10-digit Unix start timestamp aligned to the market type duration"
+    description: "Dot-separated identifier for a specific market slot: commodity class, a market-product name token, the market-maker alias, and a 10-digit Unix slot-start timestamp"
+
+  non.empty.string:
+    owner: gridworks-energy
+    schema_url: "https://schemas.electricity.works/formats/non.empty.string"
+    created: "2024-12-31T15:00:00Z"
+    description: "String with at least one character"
 
   positive.int:
     owner: gridworks-energy
     schema_url: "https://schemas.electricity.works/formats/positive.int"
     created: "2024-09-02T15:00:00Z"
     description: "Positive integer with non-coercive serialized validation"
+
+  positive.int.as.str:
+    owner: gridworks-energy
+    schema_url: "https://schemas.electricity.works/formats/positive.int.as.str"
+    created: "2024-12-31T15:00:00Z"
+    description: "Canonical decimal string form of a positive integer; used as the propertyNames $ref for int-keyed Typed Maps"
 
   spaceheat.name:
     owner: gridworks-energy
@@ -357,6 +366,7 @@ types:
     owner: gridworks-energy
     replaced_by:
       - "bid"
+    frozen_at: "2026-06-08T00:00:00Z"
     versioning_strategy: "literal"
     description: "Legacy market bid submitted by a LeafTransactiveNode for a specific market slot; superseded by bid."
 
@@ -670,6 +680,7 @@ types:
         direct_dependencies:
           structural:
             - "gw1.tank.temp.calibration:000"
+            - "positive.int.as.str"
 
   ha1.params:
     latest_version: "006"
@@ -887,7 +898,7 @@ types:
       "008":
         schema_url: "https://schemas.electricity.works/types/layout.lite/008"
         created: "2026-01-15T18:00:00Z"
-        summary: "- SystemMode: add - SeasonalStorageMode: add - TankModuleComponents[]: pico.tank.module.component.gt only -> pico.tank.module.component.gt | sim.pico.tank.module.component.gt - DerivedNodeConsistency axiom: add"
+        summary: "- SystemMode: add - SeasonalStorageMode: add - ShNodes[]: spaceheat.node.gt:200 -> 300 - TankModuleComponents[]: pico.tank.module.component.gt only -> pico.tank.module.component.gt | sim.pico.tank.module.component.gt - DerivedNodeConsistency axiom: add"
         direct_dependencies:
           structural:
             - "data.channel.gt:001"
@@ -958,6 +969,8 @@ types:
           structural:
             - "left.right.dot"
             - "spaceheat.node.gt:200"
+            - "spaceheat.node.gt:300"
+            - "spaceheat.node.gt:301"
             - "utc.milliseconds"
 
   pico.flow.module.component.gt:
@@ -1040,6 +1053,7 @@ types:
         direct_dependencies:
           structural:
             - "left.right.dot"
+            - "non.empty.string"
             - "positive.int"
             - "relay.wiring.config:000"
             - "spaceheat.name"
@@ -1054,6 +1068,7 @@ types:
         direct_dependencies:
           structural:
             - "left.right.dot"
+            - "non.empty.string"
             - "positive.int"
             - "relay.wiring.config:000"
             - "spaceheat.name"

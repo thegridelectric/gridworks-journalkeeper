@@ -35,7 +35,9 @@ class PicoFlowModuleComponentGt(SemaType):
     publish_ticklist_length: StrictInt | None = None
     exp_alpha: StrictFloat | None = None
     cutoff_frequency: StrictFloat | None = None
-    type_name: Literal["pico.flow.module.component.gt"] = "pico.flow.module.component.gt"
+    type_name: Literal["pico.flow.module.component.gt"] = (
+        "pico.flow.module.component.gt"
+    )
     version: Literal["000"] = "000"
 
     @model_validator(mode="after")
@@ -47,7 +49,9 @@ class PicoFlowModuleComponentGt(SemaType):
         """
         import re
 
-        if self.hw_uid is not None and not re.fullmatch(r"pico_[0-9a-f]{6}", self.hw_uid):
+        if self.hw_uid is not None and not re.fullmatch(
+            r"pico_[0-9a-f]{6}", self.hw_uid
+        ):
             raise ValueError(
                 "Axiom 1 failed: hw_uid must match pico_xxxxxx with lowercase hex."
             )

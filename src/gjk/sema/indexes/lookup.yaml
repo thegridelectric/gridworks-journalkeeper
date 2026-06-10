@@ -361,7 +361,9 @@ formats:
   handle.name: definitions/formats/handle.name.yaml
   left.right.dot: definitions/formats/left.right.dot.yaml
   market.slot.name: definitions/formats/market.slot.name.yaml
+  non.empty.string: definitions/formats/non.empty.string.yaml
   positive.int: definitions/formats/positive.int.yaml
+  positive.int.as.str: definitions/formats/positive.int.as.str.yaml
   spaceheat.name: definitions/formats/spaceheat.name.yaml
   utc.milliseconds: definitions/formats/utc.milliseconds.yaml
   utc.seconds: definitions/formats/utc.seconds.yaml
