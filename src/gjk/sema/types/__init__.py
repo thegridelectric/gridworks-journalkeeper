@@ -1,4 +1,5 @@
 from gjk.sema.types.atn_bid import AtnBid
+from gjk.sema.types.bid import Bid
 from gjk.sema.types.channel_config import ChannelConfig
 from gjk.sema.types.channel_readings import ChannelReadings
 from gjk.sema.types.data_channel_gt import DataChannelGt
@@ -46,6 +47,7 @@ from gjk.sema.types.weather_forecast import WeatherForecast
 
 __all__ = [
     "AtnBid",
+    "Bid",
     "ChannelConfig",
     "ChannelReadings",
     "DataChannelGt",

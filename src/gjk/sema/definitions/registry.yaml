@@ -383,6 +383,25 @@ types:
             - "market.slot.name"
             - "price.quantity.unitless:001"
 
+  bid:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Market-normalized, slot-specific price-quantity schedule submitted by a market participant."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/bid/000"
+        created: "2026-01-15T15:45:08Z"
+        summary: "Initial Sema version"
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "market.price.unit:000"
+            - "market.quantity.unit:000"
+            - "market.slot.name"
+            - "price.quantity.unitless:001"
+
   channel.config:
     latest_version: "000"
     owner: gridworks-energy

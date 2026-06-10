@@ -28,6 +28,7 @@ enums:
   temp.calc.method: temp.calc.method
 types:
   atn.bid: atn.bid
+  bid: bid
   channel.config: channel.config
   channel.readings: channel.readings
   data.channel.gt: data.channel.gt
