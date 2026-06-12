@@ -60,6 +60,16 @@ Run tests:
 uv run pytest
 ```
 
+The suite includes a **Layer-2 liveness test** (`tests/test_live_amqp.py`)
+that spins up an ephemeral RabbitMQ + TimescaleDB (via `testcontainers`),
+boots a real `JournalKeeper`, publishes a message through the broker, and
+asserts it persists — then tears the containers down. It needs **Docker**
+and **self-skips** when Docker is unavailable. Run just it with:
+
+```bash
+uv run pytest -m integration
+```
+
 Lint:
 
 ```bash
