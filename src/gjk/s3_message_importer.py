@@ -152,9 +152,9 @@ def main():
     )
     parser.add_argument("--db-echo", action="store_true", help="Echo SQL to stdout")
     parser.add_argument(
-        "--continue-on-error",
+        "--abort-on-error",
         action="store_true",
-        help="Skip failed messages instead of aborting",
+        help="Abort on failed messages instead of skipping",
     )
     parser.add_argument(
         "--dry-run",
@@ -273,9 +273,9 @@ def main():
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
-            if args.continue_on_error:
-                continue
-            raise
+            if args.abort_on_error:
+                raise
+            continue
 
 
 if __name__ == "__main__":
