@@ -7,7 +7,11 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.pseudo_channels import PseudoChannel, register_pseudo_channels
+from gjk.pseudo_channels import (
+    ModernLayout,
+    PseudoChannel,
+    register_pseudo_channel_factory,
+)
 from gjk.sema.enums import (
     Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
@@ -17,6 +21,7 @@ from gjk.sema.enums import (
     Gw1LocalControlStandbyTopState,
     Gw1MainAutoState,
 )
+from gjk.sema.enums.gw1_unit import Gw1Unit
 from gjk.sema.enums.gw_str_enum import SemaEnum
 from gjk.sema.types import ReportEvent
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
@@ -24,6 +29,14 @@ from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
 
 class SemaEnumPseudoChannel(PseudoChannel):
     def __init__(self, name: str, display_name: str, enum_type: type[SemaEnum]):
+        super().__init__(
+            name, display_name, unit="Enum", unit_type=enum_type.enum_name()
+        )
+        self.enum_type = enum_type
+
+
+class ZoneHeatCallPseudoChannel(PseudoChannel):
+    def __init__(self, name: str):
         super().__init__(
             name, display_name, unit="Enum", unit_type=enum_type.enum_name()
         )
@@ -76,8 +89,26 @@ class ReportEventPersistor:
     }
 
     @classmethod
-    def get_pseudo_channels(cls) -> list[PseudoChannel]:
-        return [item for sublist in cls.STATE_CHANNELS.values() for item in sublist]
+    def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
+        result: list[PseudoChannel] = [
+            item for sublist in cls.STATE_CHANNELS.values() for item in sublist
+        ]
+
+        channel_names = {ch.name for ch in layout.data_channels}
+        for ch_name in channel_names:
+            if "whitewire-pwr" in ch_name:
+                heatcall_channel_name = ch_name.replace("whitewire-pwr", "heat-call")
+                if heatcall_channel_name not in channel_names:
+                    result.append(
+                        PseudoChannel(
+                            heatcall_channel_name,
+                            "Heat Call",
+                            unit=Gw1Unit.Unitless,
+                            unit_type=Gw1Unit.enum_name(),
+                        )
+                    )
+
+        return result
 
     def __init__(self, logger):
         self.logger = logger
@@ -95,45 +126,13 @@ class ReportEventPersistor:
             )
             return hash_result
 
-    def persist_readings(
-        self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
+    def collect_channel_state_readings(
+        self,
+        readings: list[ReadingSql],
+        reportEvent: ReportEvent | ReportEvent002,
+        message_id: uuid.UUID,
+        db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
-        from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
-        db_channels = (
-            db.query(ReadingChannelSql)
-            .filter(
-                ReadingChannelSql.deactivated_date.is_(None),
-                ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,
-            )
-            .all()
-        )
-
-        message_id = uuid.UUID(reportEvent.message_id)
-
-        db_channel_ids_by_name = {c.name: c.id for c in db_channels}
-        readings: list[ReadingSql] = []
-        for ch_readings in reportEvent.report.channel_reading_list:
-            db_channel_id = db_channel_ids_by_name.get(ch_readings.channel_name)
-            if db_channel_id is None:
-                continue
-            else:
-                # Reports can duplicate the same timestamp and value, so we need to de-duplicate it.
-                readings_by_ts = {}
-                for ts, value in zip(
-                    ch_readings.scada_read_time_unix_ms_list,
-                    ch_readings.value_list,
-                    strict=True,
-                ):
-                    if ts not in readings_by_ts:
-                        readings_by_ts[ts] = ReadingSql(
-                            channel_id=db_channel_id,
-                            message_id=message_id,
-                            timestamp=datetime.fromtimestamp(ts / 1000, timezone.utc),
-                            value=value,
-                        )
-
-                readings.extend(readings_by_ts.values())
-
         for states in reportEvent.report.state_list:
             machine_handle = (
                 str(states.machine_handle)
@@ -180,6 +179,93 @@ class ReportEventPersistor:
                         f"Unexpected enum {states.state_enum} found for state {states.machine_handle} (msg_id={message_id})"
                     )
 
+    whitewire_pwr_threshold_default = 20
+    whitewire_pwr_threshold_overrides = {
+        "hw1.isone.me.versant.keene.beech.scada": 100,
+        "hw1.isone.me.versant.keene.elm.scada": 1,
+    }
+
+    def collect_zone_heat_call_readings(
+        self,
+        readings: list[ReadingSql],
+        reportEvent: ReportEvent | ReportEvent002,
+        message_id: uuid.UUID,
+        db_channel_ids_by_name: dict[str, uuid.UUID],
+    ):
+        threshold = self.whitewire_pwr_threshold_overrides.get(
+            reportEvent.report.from_g_node_alias, self.whitewire_pwr_threshold_default
+        )
+
+        whitewire_pwr_channel_names_by_id = {
+            id: name
+            for name, id in db_channel_ids_by_name.items()
+            if "whitewire-pwr" in name
+        }
+        # # Find all the whitewire-pwr readings, and add corresponding readings to heat-call
+        for r in readings:
+            whitewire_pwr_channel_name = whitewire_pwr_channel_names_by_id.get(
+                r.channel_id
+            )
+            if whitewire_pwr_channel_name:
+                heat_call_channel_id = db_channel_ids_by_name.get(
+                    whitewire_pwr_channel_name.replace("whitewire-pwr", "heat-call")
+                )
+                if heat_call_channel_id:
+                    readings.append(
+                        ReadingSql(
+                            channel_id=heat_call_channel_id,
+                            message_id=message_id,
+                            timestamp=r.timestamp,
+                            value=1 if r.value > threshold else 0,
+                        )
+                    )
+
+    def persist_readings(
+        self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
+    ):
+        from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
+        db_channels = (
+            db.query(ReadingChannelSql)
+            .filter(
+                ReadingChannelSql.deactivated_date.is_(None),
+                ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,
+            )
+            .all()
+        )
+
+        message_id = uuid.UUID(reportEvent.message_id)
+
+        db_channel_ids_by_name = {c.name: c.id for c in db_channels}
+        readings: list[ReadingSql] = []
+        for ch_readings in reportEvent.report.channel_reading_list:
+            db_channel_id = db_channel_ids_by_name.get(ch_readings.channel_name)
+            if db_channel_id is None:
+                continue
+            else:
+                # Reports can duplicate the same timestamp and value, so we need to de-duplicate it.
+                readings_by_ts = {}
+                for ts, value in zip(
+                    ch_readings.scada_read_time_unix_ms_list,
+                    ch_readings.value_list,
+                    strict=True,
+                ):
+                    if ts not in readings_by_ts:
+                        readings_by_ts[ts] = ReadingSql(
+                            channel_id=db_channel_id,
+                            message_id=message_id,
+                            timestamp=datetime.fromtimestamp(ts / 1000, timezone.utc),
+                            value=value,
+                        )
+
+                readings.extend(readings_by_ts.values())
+
+        self.collect_channel_state_readings(
+            readings, reportEvent, message_id, db_channel_ids_by_name
+        )
+        self.collect_zone_heat_call_readings(
+            readings, reportEvent, message_id, db_channel_ids_by_name
+        )
+
         dicts = [r.__dict__ for r in readings]
         if len(dicts) > 0:
             stmt = insert(ReadingSql).on_conflict_do_nothing(
@@ -210,4 +296,4 @@ class ReportEventPersistor:
         )
 
 
-register_pseudo_channels(ReportEventPersistor.get_pseudo_channels())
+register_pseudo_channel_factory(ReportEventPersistor.get_pseudo_channels)

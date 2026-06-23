@@ -31,7 +31,7 @@ dependencies = [
     "pytz>=2024.2",
     "result>=0.17.0",
     "gridworks-base>=0.5.2",
-    "gw_data>=0.3.0"
+    "gw_data>=0.3.1"
 ]
 
 [project.optional-dependencies]
@@ -116,6 +116,9 @@ exclude = [
 output-format = "concise"
 fix = true
 show-fixes = true
+
+[tool.uv.sources]
+gw_data = { path = "../gridworks-data/" }
 
 [tool.ruff.format]
 preview = true

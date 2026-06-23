@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Literal
 from gjk.sema.base import SemaType
 from gjk.sema.types.gw1_tank_temp_calibration import Gw1TankTempCalibration
 
