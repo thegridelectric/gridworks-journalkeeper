@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 from gw_data.db.models import ReadingChannelSql, ReadingSql
 from sqlalchemy.dialects.postgresql import insert
@@ -278,7 +278,7 @@ class ReportEventPersistor:
     ):
         return MessagePersistenceInfo(
             id=report.message_id,
-            created_at=datetime.fromtimestamp(report.time_created_ms / 1000),
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
             ),
@@ -289,7 +289,7 @@ class ReportEventPersistor:
     ):
         return MessagePersistenceInfo(
             id=report.message_id,
-            created_at=datetime.fromtimestamp(report.time_created_ms / 1000),
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
             ),
