@@ -63,8 +63,8 @@ class WeatherForecastPersistor:
         timestamp = datetime.fromtimestamp(forecast.time[0], tz=UTC)
 
         reading_values = {
-            "forecast-ws": round(forecast.wind_speed_mph[0] * 100),
-            "forecast-oat": round(forecast.oat_f[0] * 1000),
+            "forecast-ws": round(forecast.wind_speed_mph[0] * 1000),
+            "forecast-oat": round(forecast.oat_f[0] * 100),
         }
 
         readings = []
