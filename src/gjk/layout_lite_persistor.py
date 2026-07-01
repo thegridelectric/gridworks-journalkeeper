@@ -111,11 +111,6 @@ class LayoutLitePersistor:
                     del self.existing_db_channels_by_name[dc.name]
 
         def sync_pseudo_channels(self):
-            # TODO for zones, the quantity and name of the "zone*-heat-call" channels depend on the layout.
-            # How do we implement this?
-            # We want to find everything in self.layout.data_channels that matches zone*-whitewire-pwr and create an equivalent zone*-heat-call
-            # (And store data in it on every report)
-
             for pc in get_pseudo_channels(self.layout):
                 db_channel = self.existing_db_channels_by_name.get(pc.name)
                 if db_channel is None:

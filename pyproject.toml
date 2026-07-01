@@ -117,9 +117,6 @@ output-format = "concise"
 fix = true
 show-fixes = true
 
-[tool.uv.sources]
-gw_data = { path = "../gridworks-data/" }
-
 [tool.ruff.format]
 preview = true
 
