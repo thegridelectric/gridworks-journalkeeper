@@ -143,7 +143,9 @@ def _parse_date(value: str) -> datetime:
     return datetime.strptime(value, "%Y-%m-%d")
 
 
-def main():
+def main(argv=None):
+    # argv=None -> sys.argv[1:] (unchanged CLI behavior); tests pass an explicit
+    # list so pytest's own args never leak into this parser.
     parser = argparse.ArgumentParser(
         description="Import messages from S3 into the database"
     )
@@ -171,7 +173,7 @@ def main():
         type=str,
         help="When importing a date range, a comma-separated list of message types to import -- or, when preceded with '~', a list of message types to skip",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.message_path is None and (args.start is None or args.end is None):
         parser.error("--start and --end are required unless --message-path is provided")
@@ -207,7 +209,9 @@ def main():
         )
         msg_infos: Iterable[S3MessageInfo] = [S3MessageInfo(args.message_path)]
     else:
-        message_types_arg = str(args.message_types)
+        # args.message_types is None when the flag is omitted (str() would turn
+        # that into the truthy "None" and silently import nothing).
+        message_types_arg = args.message_types
         if message_types_arg:
             if message_types_arg.startswith("~"):
                 msg_types = msg_persistor.all_known_message_types()
@@ -215,7 +219,7 @@ def main():
                     msg_types.discard(msg_type.strip())
 
             else:
-                msg_types = set(message_types_arg.split(","))
+                msg_types = {t.strip() for t in message_types_arg.split(",")}
         else:
             msg_types = msg_persistor.all_known_message_types()
 
