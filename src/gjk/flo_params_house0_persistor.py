@@ -7,7 +7,11 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
-from gjk.pseudo_channels import PseudoChannel, register_pseudo_channels
+from gjk.pseudo_channels import (
+    ModernLayout,
+    PseudoChannel,
+    register_pseudo_channel_factory,
+)
 from gjk.sema.enums import Gw1Unit
 from gjk.sema.types.flo_params_house0 import FloParamsHouse0
 from gjk.sema.types.old_versions.flo_params_house0_003 import FloParamsHouse0003
@@ -47,7 +51,7 @@ class FloParamsHouse0Persistor:
     ]
 
     @classmethod
-    def get_pseudo_channels(cls) -> list[PseudoChannel]:
+    def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
         return cls.PSEUDO_CHANNELS
 
     def __init__(self, logger):
@@ -130,4 +134,4 @@ class FloParamsHouse0Persistor:
         return self.persist(from_alias, time_received, floParams)
 
 
-register_pseudo_channels(FloParamsHouse0Persistor.get_pseudo_channels())
+register_pseudo_channel_factory(FloParamsHouse0Persistor.get_pseudo_channels)

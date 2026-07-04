@@ -8,6 +8,26 @@
 # LayoutLitePersistor syncs the registered pseudo-channels with the database.
 # Other persistors query the pseudo-channels from the database and store readings for them.
 
+from collections.abc import Callable
+
+from gjk.sema.types import LayoutLite
+from gjk.sema.types.old_versions.layout_lite_007 import LayoutLite007
+from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
+from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
+from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
+from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
+from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
+
+type ModernLayout = (
+    LayoutLite
+    | LayoutLite012
+    | LayoutLite011
+    | LayoutLite010
+    | LayoutLite009
+    | LayoutLite008
+    | LayoutLite007
+)
+
 
 class PseudoChannel:
     CHANNEL_TYPE = "gjk.pseudo"
@@ -19,12 +39,14 @@ class PseudoChannel:
         self.unit_type = unit_type
 
 
-_REGISTERED_CHANNELS = []
+type PseudoChannelFactory = Callable[[ModernLayout], list[PseudoChannel]]
+_REGISTERED_CHANNEL_FACTORIES: list[PseudoChannelFactory] = []
 
 
-def register_pseudo_channels(channels: list[PseudoChannel]):
-    _REGISTERED_CHANNELS.extend(channels)
+def register_pseudo_channel_factory(factory: PseudoChannelFactory):
+    _REGISTERED_CHANNEL_FACTORIES.append(factory)
 
 
-def get_pseudo_channels():
-    yield from _REGISTERED_CHANNELS
+def get_pseudo_channels(layout: ModernLayout):
+    for f in _REGISTERED_CHANNEL_FACTORIES:
+        yield from f(layout)

@@ -29,10 +29,8 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
-        # Omit until new.command.tree works correctly in SEMA
-        # "new.command.tree": "unix_ms",
-        # Skipping snapshots for now for performance
-        # "snapshot.spaceheat": "snapshot_time_unix_ms",
+        "new.command.tree": "unix_ms",
+        "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",
         "ticklist.reed.report": "scada_received_unix_ms",
         "ticklist.hall.report": "scada_received_unix_ms",
@@ -53,16 +51,17 @@ class SemaMessagePersistor:
 
     # Messages with no id or created_at info, but we still want to persist
     BASIC_MSG_TYPES = [
-        # Omit until bid works correctly in SEMA
-        # "atn.bid",
+        "atn.bid",
         "latest.price",
         "power.watts",
     ]
 
-    def __init__(self, settings: Settings, codec: SemaCodec, logger):
+    def __init__(
+        self, settings: Settings, codec: SemaCodec, logger, db_echo: bool = False
+    ):
         self.settings = settings
         self.codec = codec
-        engine = create_engine(settings.db_url.get_secret_value(), echo=False)
+        engine = create_engine(settings.db_url.get_secret_value(), echo=db_echo)
         self.Session = sessionmaker(bind=engine)
         self.logger = logger
 

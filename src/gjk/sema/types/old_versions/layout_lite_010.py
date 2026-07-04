@@ -10,6 +10,7 @@ from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.gw1_tank_temp_calibration_map import Gw1TankTempCalibrationMap
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
 from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
+from gjk.sema.types.old_versions.ha1_params_004 import Ha1Params004
 from gjk.sema.types.old_versions.ha1_params_005 import Ha1Params005
 from gjk.sema.types.old_versions.i2c_multichannel_dt_relay_component_gt_002 import (
     I2cMultichannelDtRelayComponentGt002,
@@ -44,7 +45,7 @@ class LayoutLite010(SemaType):
         PicoTankModuleComponentGt | SimPicoTankModuleComponentGt
     ]
     flow_module_components: list[PicoFlowModuleComponentGt]
-    ha1_params: Ha1Params005
+    ha1_params: Ha1Params004 | Ha1Params005
     i2c_relay_component: I2cMultichannelDtRelayComponentGt002 | None = None
     t_map: Gw1TankTempCalibrationMap | None = None
     type_name: Literal["layout.lite"] = "layout.lite"
@@ -125,10 +126,9 @@ class LayoutLite010(SemaType):
 
     def upgrade(self) -> LayoutLite011:
         """
-        - Ha1Params: ha1.params:005 -> 006
+        - Ha1Params: ha1.params:004 | 005 -> ha1.params:004 | 005 | 006
         - DerivedChannels[]: derived.channel.gt:000 -> 000 | 001
         """
         data = self.model_dump()
-        data["ha1_params"] = self.ha1_params.upgrade()
         data["version"] = "011"
         return LayoutLite011.model_validate(data)

@@ -105,8 +105,55 @@ def test_main_continues_past_failed_message(monkeypatch):
     monkeypatch.setattr(imp_mod, "SemaMessagePersistor", _FakePersistor)
     monkeypatch.setattr(imp_mod, "S3MessageImporter", lambda *_a, **_k: fake_importer)
 
-    imp_mod.main()
+    # Explicit argv: pytest's own CLI args must not leak into main()'s parser,
+    # and the date-range path requires --start/--end.
+    imp_mod.main(["--start", "2026-05-23", "--end", "2026-05-24"])
 
     # Both messages were attempted: the loop did NOT `return` on the first
     # failure (the fix is `continue`). Pre-fix this would be 1.
     assert fake_importer.download_calls == 2
+
+
+# --- C: --message-types selection ------------------------------------------
+
+class _KnownTypesPersistor(_FakePersistor):
+    def all_known_message_types(self):
+        return {"report.event", "layout.lite"}
+
+
+def _run_main_capturing_msg_types(monkeypatch, argv):
+    """Run main() with the given argv; return the msg_types set the importer
+    was constructed with (the type-selection outcome under test)."""
+    captured = {}
+
+    def _fake_importer_factory(_settings, msg_types, _logger):
+        captured["msg_types"] = msg_types
+        fake = _FakeImporter()
+        fake.find_messages_in_date_range = lambda start, end: []  # noqa: ARG005
+        return fake
+
+    monkeypatch.setattr(imp_mod, "Settings", lambda **_k: object())
+    monkeypatch.setattr(imp_mod, "SemaCodec", lambda *_a, **_k: object())
+    monkeypatch.setattr(imp_mod, "SemaMessagePersistor", lambda *_a, **_k: _KnownTypesPersistor())
+    monkeypatch.setattr(imp_mod, "S3MessageImporter", _fake_importer_factory)
+    imp_mod.main(argv)
+    return captured["msg_types"]
+
+
+def test_omitted_message_types_defaults_to_all_known(monkeypatch):
+    # Regression: str(None) == "None" is truthy, which silently selected the
+    # bogus type set {"None"} and imported nothing.
+    msg_types = _run_main_capturing_msg_types(
+        monkeypatch, ["--start", "2026-05-23", "--end", "2026-05-24"]
+    )
+    assert msg_types == {"report.event", "layout.lite"}
+
+
+def test_message_types_include_list_strips_whitespace(monkeypatch):
+    # A space after the comma must not produce the never-matching " layout.lite".
+    msg_types = _run_main_capturing_msg_types(
+        monkeypatch,
+        ["--start", "2026-05-23", "--end", "2026-05-24",
+         "--message-types", "report.event, layout.lite"],
+    )
+    assert msg_types == {"report.event", "layout.lite"}

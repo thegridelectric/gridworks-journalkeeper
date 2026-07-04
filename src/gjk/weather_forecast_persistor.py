@@ -6,7 +6,11 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
-from gjk.pseudo_channels import PseudoChannel, register_pseudo_channels
+from gjk.pseudo_channels import (
+    ModernLayout,
+    PseudoChannel,
+    register_pseudo_channel_factory,
+)
 from gjk.sema.enums import Gw1Unit
 from gjk.sema.types import WeatherForecast
 
@@ -28,7 +32,7 @@ class WeatherForecastPersistor:
     ]
 
     @classmethod
-    def get_pseudo_channels(cls) -> list[PseudoChannel]:
+    def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
         return cls.PSEUDO_CHANNELS
 
     def __init__(self, logger):
@@ -60,7 +64,7 @@ class WeatherForecastPersistor:
 
         reading_values = {
             "forecast-ws": round(forecast.wind_speed_mph[0] * 1000),
-            "forecast-oat": round(forecast.oat_f[0] * 1000),
+            "forecast-oat": round(forecast.oat_f[0] * 100),
         }
 
         readings = []
@@ -98,4 +102,4 @@ class WeatherForecastPersistor:
         )
 
 
-register_pseudo_channels(WeatherForecastPersistor.get_pseudo_channels())
+register_pseudo_channel_factory(WeatherForecastPersistor.get_pseudo_channels)
