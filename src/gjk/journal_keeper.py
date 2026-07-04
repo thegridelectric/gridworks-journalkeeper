@@ -84,11 +84,66 @@ class JournalKeeper(ActorBase):
         Errors are logged and swallowed — the live path keeps running,
         unlike the importer (which halts on first failure).
         """
+        self._persist_body(from_alias=envelope.from_alias, body=body)
+
+    def on_routing_key_parse_error(
+        self, *, routing_key: str, body: bytes, error: ValueError
+    ) -> None:
+        """legacy_hack (PERMANENT) — salvage the pre-gwbase LTN ``broadcast.*``
+        keys instead of letting gwbase drop them.
+
+        Before the LTN became a gwbase actor it published several types with
+        ``Dst="broadcast"`` (a magic string), so the wire routing key carries a
+        ``broadcast`` token and is not a valid GridWorks envelope — gwbase's
+        parser raises, and the body would be lost (the data-loss this and the
+        gridworks-base design 'must-accept-current-ltn-messages' exist to stop).
+        We recognize that shape and persist anyway, deriving the source from the
+        wrapped body's ``Header.Src`` (the legacy key has no from-alias slot).
+
+        Kept **permanently** (not an interim bridge): historical and replayed
+        ``broadcast.*`` data must keep loading. Once the LTN emits a real
+        gw-wrapped message (scada design 'ltn-sends-gw-wrapped') no *new*
+        ``broadcast.*`` arrives live, but backfill/replay still depends on this
+        branch. Anything that is not the legacy broadcast shape falls back to the
+        base log+drop.
+        """
+        # The exact wire position of the `broadcast` token is still being
+        # confirmed against prod (design 'ltn-sends-gw-wrapped' open question),
+        # so match it anywhere in the key rather than only at token[0].
+        if "broadcast" in routing_key.split("."):
+            from_alias = self._legacy_src_from_body(body)
+            self.logger.warning(
+                f"legacy_hack: persisting legacy broadcast key {routing_key!r} "
+                f"from {from_alias}"
+            )
+            self._persist_body(from_alias=from_alias, body=body)
+            return
+        super().on_routing_key_parse_error(
+            routing_key=routing_key, body=body, error=error
+        )
+
+    @staticmethod
+    def _legacy_src_from_body(body: bytes) -> str:
+        """Best-effort source alias from a wrapped body's ``Header.Src``; the
+        legacy ``broadcast.*`` key carries no from-alias slot."""
+        try:
+            header = json.loads(body.decode("utf-8")).get("Header", {})
+            src = header.get("Src")
+            if isinstance(src, str) and src:
+                return src
+        except Exception:  # noqa: BLE001 -- best-effort; fall through to default
+            pass
+        return "unknown.broadcast.src"
+
+    def _persist_body(self, *, from_alias: str, body: bytes) -> None:
+        """Decode a wrapped message body and hand the SemaType to the persistor.
+        Shared by the normal dispatch path and the broadcast ``legacy_hack``.
+        Errors are logged and swallowed — the live path keeps running."""
         try:
             msg_dict = json.loads(body.decode("utf-8"))
         except Exception as e:
             self.logger.error(
-                f"Failed to decode body as JSON from {envelope.from_alias}: {e!r}"
+                f"Failed to decode body as JSON from {from_alias}: {e!r}"
             )
             return
 
@@ -101,24 +156,22 @@ class JournalKeeper(ActorBase):
                 payload_dict, auto_upgrade=False, mode="degraded"
             )
         except Exception as e:
-            self.logger.error(f"Codec decode failed from {envelope.from_alias}: {e!r}")
+            self.logger.error(f"Codec decode failed from {from_alias}: {e!r}")
             return
 
         if not isinstance(sema_obj, SemaType):
             self.logger.warning(
                 f"Got degraded SEMA type {sema_obj.type_name} "
-                f"(v{sema_obj.version}) from {envelope.from_alias} — not persisting"
+                f"(v{sema_obj.version}) from {from_alias} — not persisting"
             )
             return
 
         try:
-            self.persistor.persist_message(
-                envelope.from_alias, datetime.now(UTC), sema_obj
-            )
+            self.persistor.persist_message(from_alias, datetime.now(UTC), sema_obj)
         except Exception as e:
             self.logger.error(
                 f"Persist failed for {sema_obj.type_name} "
-                f"from {envelope.from_alias}: {e!r}"
+                f"from {from_alias}: {e!r}"
             )
 
     # ------------------------------------------------------------------

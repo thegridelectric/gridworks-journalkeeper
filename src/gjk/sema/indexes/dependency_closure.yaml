@@ -13,6 +13,17 @@ types:
       types:
       - price.quantity.unitless:001
       versionless_types: []
+  bid:
+    '000':
+      enums:
+      - market.price.unit:000
+      - market.quantity.unit:000
+      formats:
+      - left.right.dot
+      - market.slot.name
+      types:
+      - price.quantity.unitless:001
+      versionless_types: []
   channel.config:
     '000':
       enums:
@@ -210,7 +221,8 @@ types:
   gw1.tank.temp.calibration.map:
     '000':
       enums: []
-      formats: []
+      formats:
+      - positive.int.as.str
       types:
       - gw1.tank.temp.calibration:000
       versionless_types: []
@@ -248,6 +260,7 @@ types:
       - spaceheat.unit:001
       formats:
       - left.right.dot
+      - non.empty.string
       - positive.int
       - spaceheat.name
       - uuid4.str
@@ -262,6 +275,7 @@ types:
       - spaceheat.unit:001
       formats:
       - left.right.dot
+      - non.empty.string
       - positive.int
       - spaceheat.name
       - uuid4.str
@@ -276,6 +290,7 @@ types:
       - spaceheat.unit:001
       formats:
       - left.right.dot
+      - non.empty.string
       - positive.int
       - spaceheat.name
       - uuid4.str
@@ -308,7 +323,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -344,7 +361,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -381,7 +400,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -420,7 +441,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -431,6 +454,7 @@ types:
       - derived.channel.gt:000
       - gw1.tank.temp.calibration.map:000
       - gw1.tank.temp.calibration:000
+      - ha1.params:004
       - ha1.params:005
       - i2c.multichannel.dt.relay.component.gt:002
       - pico.flow.module.component.gt:000
@@ -460,7 +484,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -472,6 +498,8 @@ types:
       - derived.channel.gt:001
       - gw1.tank.temp.calibration.map:000
       - gw1.tank.temp.calibration:000
+      - ha1.params:004
+      - ha1.params:005
       - ha1.params:006
       - i2c.multichannel.dt.relay.component.gt:002
       - pico.flow.module.component.gt:000
@@ -501,7 +529,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -541,7 +571,9 @@ types:
       formats:
       - handle.name
       - left.right.dot
+      - non.empty.string
       - positive.int
+      - positive.int.as.str
       - spaceheat.name
       - utc.milliseconds
       - utc.seconds
@@ -573,7 +605,9 @@ types:
       versionless_types: []
   new.command.tree:
     '000':
-      enums: []
+      enums:
+      - gw1.actor.class:009
+      - gw1.actor.class:011
       formats:
       - handle.name
       - left.right.dot
@@ -583,6 +617,8 @@ types:
       - uuid4.str
       types:
       - spaceheat.node.gt:200
+      - spaceheat.node.gt:300
+      - spaceheat.node.gt:301
       versionless_types: []
   pico.flow.module.component.gt:
     '000':
@@ -631,6 +667,7 @@ types:
       - spaceheat.unit:001
       formats:
       - left.right.dot
+      - non.empty.string
       - positive.int
       - spaceheat.name
       types: []
@@ -643,6 +680,7 @@ types:
       - spaceheat.unit:001
       formats:
       - left.right.dot
+      - non.empty.string
       - positive.int
       - spaceheat.name
       types: []

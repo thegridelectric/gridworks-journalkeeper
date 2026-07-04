@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-06-05T10:53:43Z'
+  generated_at: '2026-07-04T17:13:58Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -32,6 +32,7 @@ initial_targets:
 - report:002
 - report:003
 - atn.bid:002
+- bid:000
 - latest.price:000
 - gw1.unit:002
 - gw1.main.auto.state:001
@@ -49,8 +50,12 @@ worklist:
       path: definitions/formats/left.right.dot.yaml
     market.slot.name:
       path: definitions/formats/market.slot.name.yaml
+    non.empty.string:
+      path: definitions/formats/non.empty.string.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
+    positive.int.as.str:
+      path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
     utc.milliseconds:
@@ -151,6 +156,9 @@ worklist:
     atn.bid:
       '002':
         path: definitions/types/atn.bid/002.yaml
+    bid:
+      '000':
+        path: definitions/types/bid/000.yaml
     channel.config:
       '000':
         path: definitions/types/channel.config/000.yaml

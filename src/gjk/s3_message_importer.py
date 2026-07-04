@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import sys
@@ -138,63 +139,99 @@ class S3MessageImporter:
         return (s3_object["Body"].read(), s3_object["ContentLength"])
 
 
-def main():
+def _parse_date(value: str) -> datetime:
+    return datetime.strptime(value, "%Y-%m-%d")
+
+
+def main(argv=None):
+    # argv=None -> sys.argv[1:] (unchanged CLI behavior); tests pass an explicit
+    # list so pytest's own args never leak into this parser.
+    parser = argparse.ArgumentParser(
+        description="Import messages from S3 into the database"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Include debug logging to stdout"
+    )
+    parser.add_argument("--db-echo", action="store_true", help="Echo SQL to stdout")
+    parser.add_argument(
+        "--abort-on-error",
+        action="store_true",
+        help="Abort on failed messages instead of skipping",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="If true, downloads and parses messages but does not store them",
+    )
+    parser.add_argument(
+        "--message-path", type=str, help="S3 key path of a single message to process"
+    )
+    parser.add_argument("--start", type=_parse_date, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end", type=_parse_date, help="End date (YYYY-MM-DD)")
+    parser.add_argument(
+        "--message-types",
+        type=str,
+        help="When importing a date range, a comma-separated list of message types to import -- or, when preceded with '~', a list of message types to skip",
+    )
+    args = parser.parse_args(argv)
+
+    if args.message_path is None and (args.start is None or args.end is None):
+        parser.error("--start and --end are required unless --message-path is provided")
+
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.DEBUG)
 
     stderr_handler = logging.StreamHandler(sys.stderr)
-    stderr_handler.setLevel(logging.WARNING)  # Send only WARNING and above to stderr
+    stderr_handler.setLevel(logging.WARNING)
     stderr_handler.setFormatter(
         logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
     )
     logger.addHandler(stderr_handler)
 
     stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setLevel(logging.INFO)
+    stdout_handler.setLevel("DEBUG" if args.verbose else "INFO")
     stdout_handler.setFormatter(
         logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
     )
     logger.addHandler(stdout_handler)
 
-    settings = Settings(_env_file=dotenv.find_dotenv())  # type: ignore
+    settings = Settings(
+        service_alias="gjk.s3import",
+        _env_file=dotenv.find_dotenv(),  # type: ignore
+    )
 
     codec = SemaCodec()
-    msg_persistor = SemaMessagePersistor(settings, codec, logger)
-    msg_types = msg_persistor.all_known_message_types()
-    # msg_types = {
-    #     # 'report.event',
-    #     # 'layout.lite',
-    #     # 'flo.params.house0',
-    #     # 'weather.forecast',
-    # }
-    logger.info(
-        "Importing the following message types: "
-        + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
-    )
-    importer = S3MessageImporter(settings, msg_types, logger)
+    msg_persistor = SemaMessagePersistor(settings, codec, logger, db_echo=args.db_echo)
 
-    msg_infos = importer.find_messages_in_date_range(
-        start=datetime(2026, 1, 9),
-        end=datetime(2026, 6, 1),
-        # start=datetime(2026, 4, 9),
-        # end=datetime(2025, 9, 1),
-    )
+    if args.message_path is not None:
+        importer = S3MessageImporter(
+            settings, msg_persistor.all_known_message_types(), logger
+        )
+        msg_infos: Iterable[S3MessageInfo] = [S3MessageInfo(args.message_path)]
+    else:
+        # args.message_types is None when the flag is omitted (str() would turn
+        # that into the truthy "None" and silently import nothing).
+        message_types_arg = args.message_types
+        if message_types_arg:
+            if message_types_arg.startswith("~"):
+                msg_types = msg_persistor.all_known_message_types()
+                for msg_type in message_types_arg[1:].split(","):
+                    msg_types.discard(msg_type.strip())
 
-    # msg_infos = importer.find_messages_on_date(
-    #     datetime(2026,4,30),
-    #     skip_past='hw1__1/eventstore/20260430/hw1.isone.me.versant.keene.oak.scada-report.event-1777569193938-ear.electricity.works.json',
-    #     sort="asc"
-    # )
-    # msg_infos = importer.find_messages_on_dates([
-    #     datetime(2026, 4, 19),
-    #     # datetime(2026, 3, 1),
-    #     # datetime(2026, 2, 1),
-    #     # datetime(2026, 1, 1),
-    # ], sort="asc")
+            else:
+                msg_types = {t.strip() for t in message_types_arg.split(",")}
+        else:
+            msg_types = msg_persistor.all_known_message_types()
 
-    # msg_infos = [S3MessageInfo(x) for x in [
-    #     'hw1__1/eventstore/20260419/hw1.isone.me.versant.keene.maple.scada-new.command.tree-1776603937184-ear.electricity.works.json',
-    # ]]
+        importer = S3MessageImporter(settings, msg_types, logger)
+        logger.info(
+            f"Importing the following message types from {args.start.strftime("%Y-%m-%d")} through {args.end.strftime("%Y-%m-%d")}: "
+            + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
+        )
+        msg_infos = importer.find_messages_in_date_range(
+            start=args.start,
+            end=args.end,
+        )
 
     gb_counter = 0
     byte_counter = 0
@@ -226,9 +263,10 @@ def main():
                 logger.debug(
                     f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
                 )
-                msg_persistor.persist_message(
-                    msg_info.from_alias, msg_info.persist_time, sema_obj
-                )
+                if not args.dry_run:
+                    msg_persistor.persist_message(
+                        msg_info.from_alias, msg_info.persist_time, sema_obj
+                    )
             else:
                 logger.warning(
                     f"Parsed into degraded SEMA type {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str}"
@@ -239,6 +277,8 @@ def main():
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
+            if args.abort_on_error:
+                raise
             continue
 
 

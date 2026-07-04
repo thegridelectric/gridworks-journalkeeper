@@ -10,14 +10,18 @@ from sqlalchemy.orm import sessionmaker
 from gjk.config import Settings
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
 from gjk.layout_lite_persistor import LayoutLitePersistor
-from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.message_persistence_info import (
+    MESSAGE_ID_NAMESPACE,
+    MessagePersistenceInfo,
+    default_message_id,
+)
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 
-# Fixed namespace so the default persist path can mint deterministic (uuid5)
-# message ids — making re-imports of the same S3 object idempotent.
-MESSAGE_ID_NAMESPACE = uuid.UUID("3f2504e0-4f89-41d3-9a0c-0305e82c3301")
+# Re-exported from message_persistence_info so existing importers (and tests)
+# can keep importing MESSAGE_ID_NAMESPACE from here.
+__all__ = ["MESSAGE_ID_NAMESPACE", "SemaMessagePersistor"]
 
 
 class SemaMessagePersistor:
@@ -25,10 +29,8 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
-        # Omit until new.command.tree works correctly in SEMA
-        # "new.command.tree": "unix_ms",
-        # Skipping snapshots for now for performance
-        # "snapshot.spaceheat": "snapshot_time_unix_ms",
+        "new.command.tree": "unix_ms",
+        "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",
         "ticklist.reed.report": "scada_received_unix_ms",
         "ticklist.hall.report": "scada_received_unix_ms",
@@ -49,16 +51,17 @@ class SemaMessagePersistor:
 
     # Messages with no id or created_at info, but we still want to persist
     BASIC_MSG_TYPES = [
-        # Omit until bid works correctly in SEMA
-        # "atn.bid",
+        "atn.bid",
         "latest.price",
         "power.watts",
     ]
 
-    def __init__(self, settings: Settings, codec: SemaCodec, logger):
+    def __init__(
+        self, settings: Settings, codec: SemaCodec, logger, db_echo: bool = False
+    ):
         self.settings = settings
         self.codec = codec
-        engine = create_engine(settings.db_url.get_secret_value(), echo=False)
+        engine = create_engine(settings.db_url.get_secret_value(), echo=db_echo)
         self.Session = sessionmaker(bind=engine)
         self.logger = logger
 
@@ -106,16 +109,7 @@ class SemaMessagePersistor:
             if id is None:
                 self.logger.warn(f"No data found for {payload.type_name}.{id_field}")
         if not id:
-            # Deterministic id from the unique-per-object triple (matches the S3
-            # filename), so re-importing a date is a true no-op via the
-            # (id, timestamp) PK + on_conflict_do_nothing.
-            persisted_ms = int(time_received.timestamp() * 1000)
-            id = str(
-                uuid.uuid5(
-                    MESSAGE_ID_NAMESPACE,
-                    f"{from_alias}|{payload.type_name}|{persisted_ms}",
-                )
-            )
+            id = default_message_id(from_alias, payload.type_name, time_received)
 
         created_at = None
         created_at_ms_field = self.MSG_CREATED_AT_FIELDS_MS.get(payload.type_name)
@@ -154,7 +148,7 @@ class SemaMessagePersistor:
             else None
         )
         if custom_fn is not None:
-            persistence_info = custom_fn(from_alias, payload)
+            persistence_info = custom_fn(from_alias, time_received, payload)
         else:
             persistence_info = self.persist_message_default(
                 from_alias, payload, time_received

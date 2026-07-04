@@ -1,6 +1,7 @@
 """Settings for a GridWorks JournalKeeper, readable from environment and/or from env files."""
 
-from gwbase.config import GNodeSettings
+from gwbase.config import ServiceSettings
+from gwbase.transport_format import LeftRightDot
 from pydantic import BaseModel, ConfigDict, SecretStr
 
 DEFAULT_ENV_FILE = ".env"
@@ -15,7 +16,7 @@ class AwsClient(BaseModel):
     bucket_name: str = "gwdev"
 
 
-class Settings(GNodeSettings):
+class Settings(ServiceSettings):
     db_url: SecretStr = SecretStr(
         "postgresql+psycopg2://journaldb:journaldb@localhost:5433/journaldb_dev"
     )
@@ -24,9 +25,11 @@ class Settings(GNodeSettings):
     )
     aws: AwsClient = AwsClient()
     ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
-    g_node_alias: str = "d1.journal"
-    g_node_id: str = "00000000-0000-0000-0000-000000000000"
-    world_instance_alias: str = "d1__1"
+    # gwbase-native tap identity (replaces the old g_node_alias hack). JK is
+    # not a GNode, so it carries no g_node_id / world_instance_alias / g-node
+    # file. GJK_SERVICE_ALIAS overrides the default.
+    service_alias: LeftRightDot = "d1.journal"
+    service_name: str = "journalkeeper"  # XDG path segment for logs/state
     my_fqdn: str = "localhost"
     visualizer_api_password: SecretStr = SecretStr("ThermostatAPIKey")
     email_sender: SecretStr = SecretStr("email_sender")

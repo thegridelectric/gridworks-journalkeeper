@@ -5,7 +5,7 @@ from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.pseudo_channels import PseudoChannel, get_pseudo_channels
+from gjk.pseudo_channels import ModernLayout, PseudoChannel, get_pseudo_channels
 from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
 from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
@@ -16,16 +16,6 @@ from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
-
-type ModernLayout = (
-    LayoutLite
-    | LayoutLite012
-    | LayoutLite011
-    | LayoutLite010
-    | LayoutLite009
-    | LayoutLite008
-    | LayoutLite007
-)
 
 
 class LayoutLitePersistor:
@@ -121,7 +111,7 @@ class LayoutLitePersistor:
                     del self.existing_db_channels_by_name[dc.name]
 
         def sync_pseudo_channels(self):
-            for pc in get_pseudo_channels():
+            for pc in get_pseudo_channels(self.layout):
                 db_channel = self.existing_db_channels_by_name.get(pc.name)
                 if db_channel is None:
                     self.new_db_channels.append(self.pseudo_channel_to_db(pc))
@@ -188,23 +178,37 @@ class LayoutLitePersistor:
             ),
         )
 
-    def persist_v007(self, from_alias: str, layout: LayoutLite007):
+    def persist_v007(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite007
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v008(self, from_alias: str, layout: LayoutLite008):
+    def persist_v008(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite008
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v009(self, from_alias: str, layout: LayoutLite009):
+    def persist_v009(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite009
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v010(self, from_alias: str, layout: LayoutLite010):
+    def persist_v010(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite010
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v011(self, from_alias: str, layout: LayoutLite011):
+    def persist_v011(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite011
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v012(self, from_alias: str, layout: LayoutLite012):
+    def persist_v012(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite012
+    ):
         return self.persist(from_alias, layout)
 
-    def persist_v013(self, from_alias: str, layout: LayoutLite):
+    def persist_v013(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite
+    ):
         return self.persist(from_alias, layout)
