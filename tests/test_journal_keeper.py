@@ -23,8 +23,8 @@ def test_inherits_actor_base() -> None:
 
 
 def _make_bare_jk() -> JournalKeeper:
-    """Construct a JournalKeeper that skips ActorBase.__init__ (which needs
-    a g_node.json on disk). Lets us unit-test dispatch_message in isolation."""
+    """Construct a JournalKeeper that skips ActorBase.__init__ (which opens a
+    live rabbit connection). Lets us unit-test dispatch_message in isolation."""
     jk = JournalKeeper.__new__(JournalKeeper)
     jk.codec = MagicMock()
     jk.persistor = MagicMock()
