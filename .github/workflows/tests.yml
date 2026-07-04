@@ -12,12 +12,6 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v7
 
-      - name: Cache uv
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/uv
-          key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
-
       - name: Start World Broker
         uses: namoshek/rabbitmq-github-action@v1
         with:
@@ -26,11 +20,9 @@ jobs:
           config: ${{ github.workspace }}/.ci/rabbitmq.conf
           container-name: "rabbit"
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
+      # setup-uv owns both Python (python-version) and caching (enable-cache,
+      # keyed on uv.lock) — a separate setup-python step and a manual
+      # actions/cache on ~/.cache/uv were double provisioning / double caching.
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
