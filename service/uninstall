@@ -1,0 +1,17 @@
+sudo systemctl stop journalkeeper-restart.timer
+sudo systemctl disable journalkeeper-restart.timer
+sudo systemctl stop journalkeeper-restart
+sudo systemctl disable journalkeeper-restart
+sudo systemctl stop journalkeeper
+sudo systemctl disable journalkeeper
+sudo systemctl daemon-reload
+
+sudo rm /lib/systemd/system/journalkeeper.service
+sudo rm /lib/systemd/system/journalkeeper-restart.service
+sudo rm /lib/systemd/system/journalkeeper-restart.timer
+
+rm $HOME/.local/bin/jkstatus
+rm $HOME/.local/bin/jkpause
+rm $HOME/.local/bin/jkstart
+rm $HOME/.local/bin/jkstop
+rm $HOME/.local/bin/jkrestart

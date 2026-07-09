@@ -158,6 +158,38 @@ JournalKeeper runs against the production RabbitMQ broker at
 writes to the production PostgreSQL instance. The production
 `gridworks-data` schema is the source of truth for the table shape.
 
+### Run as a systemd service
+
+On the production host (Ubuntu, user `ubuntu`, checkout at
+`/home/ubuntu/gridworks-journalkeeper`):
+
+1. `uv sync` in the checkout (creates `.venv`).
+2. `cp template.env .env`, then set the production values:
+   `GJK_RABBIT__URL` (AMQP URL of the production broker, vhost `hw1__1`),
+   `GJK_DB_URL` (the production PostgreSQL URL), and `GJK_SERVICE_ALIAS`
+   (the tap's routable address in the production world, e.g. `hw1.journal`).
+3. Install, enable, and start everything:
+
+       ./service/install
+
+`service/journalkeeper.service` runs `run_journal_keeper.py` with the
+`.venv` python and `Restart=always`. A 15-minute timer
+(`journalkeeper-restart.timer` → `journalkeeper-restart.service`)
+restarts the main service if it was stopped manually and forgotten.
+The install script also links helper commands into `~/.local/bin`:
+
+| Command | Effect |
+| --- | --- |
+| `jkstatus` | status of service, restart service, and timer |
+| `jkpause` | stop the service (the timer restarts it within 15 min) |
+| `jkstop` | stop service **and** timer (stays down) |
+| `jkstart` | start service and timer |
+| `jkrestart` | restart both |
+
+Process-level output: `journalctl -u journalkeeper -f`. Application
+logs land in the XDG state dir:
+`~/.local/state/gridworks/journalkeeper/log/<service-alias>.log`.
+
 ---
 
 ## Publishing a release

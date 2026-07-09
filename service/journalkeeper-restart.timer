@@ -1,0 +1,8 @@
+[Unit]
+Description=Timer to trigger journalkeeper-restart.service, which starts journalkeeper if it is not already started.
+
+[Timer]
+OnCalendar=*:0/15
+
+[Install]
+WantedBy=timers.target

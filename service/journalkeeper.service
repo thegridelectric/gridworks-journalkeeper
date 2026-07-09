@@ -1,0 +1,16 @@
+[Unit]
+Description=GridWorks JournalKeeper service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ubuntu
+WorkingDirectory=/home/ubuntu/gridworks-journalkeeper
+ExecStart=/home/ubuntu/gridworks-journalkeeper/.venv/bin/python \
+    /home/ubuntu/gridworks-journalkeeper/run_journal_keeper.py
+
+[Install]
+WantedBy=multi-user.target

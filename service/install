@@ -1,0 +1,17 @@
+$HOME/gridworks-journalkeeper/service/uninstall > /dev/null 2>&1
+
+sudo ln -s $HOME/gridworks-journalkeeper/service/journalkeeper.service /lib/systemd/system
+sudo ln -s $HOME/gridworks-journalkeeper/service/journalkeeper-restart.service /lib/systemd/system
+sudo ln -s $HOME/gridworks-journalkeeper/service/journalkeeper-restart.timer /lib/systemd/system
+
+sudo systemctl enable /lib/systemd/system/journalkeeper.service
+sudo systemctl start journalkeeper
+sudo systemctl enable /lib/systemd/system/journalkeeper-restart.timer
+sudo systemctl start journalkeeper-restart.timer
+
+mkdir -p $HOME/.local/bin
+ln -s $HOME/gridworks-journalkeeper/service/jkstatus $HOME/.local/bin
+ln -s $HOME/gridworks-journalkeeper/service/jkpause $HOME/.local/bin
+ln -s $HOME/gridworks-journalkeeper/service/jkstart $HOME/.local/bin
+ln -s $HOME/gridworks-journalkeeper/service/jkstop $HOME/.local/bin
+ln -s $HOME/gridworks-journalkeeper/service/jkrestart $HOME/.local/bin

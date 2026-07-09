@@ -1,0 +1,11 @@
+[Unit]
+Description=Start journalkeeper service if it is not running; designed to catch manually stopping and forgetting to restart service.
+After=multi-user.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/bin/sh -c "/usr/bin/systemctl is-active -q journalkeeper || sudo /usr/bin/systemctl start journalkeeper"
+
+[Install]
+WantedBy=multi-user.target

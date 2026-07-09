@@ -1,0 +1,2 @@
+sudo systemctl start journalkeeper
+sudo systemctl start journalkeeper-restart.timer
