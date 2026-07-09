@@ -21,22 +21,14 @@ from gjk.sema.enums import (
     Gw1LocalControlStandbyTopState,
     Gw1MainAutoState,
 )
-from gjk.sema.enums.gw1_unit import Gw1Unit
 from gjk.sema.enums.gw_str_enum import SemaEnum
 from gjk.sema.types import ReportEvent
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
+from gjk.zone_heat_call_pseudo_channel import ZoneHeatCallPseudoChannel
 
 
 class SemaEnumPseudoChannel(PseudoChannel):
     def __init__(self, name: str, display_name: str, enum_type: type[SemaEnum]):
-        super().__init__(
-            name, display_name, unit="Enum", unit_type=enum_type.enum_name()
-        )
-        self.enum_type = enum_type
-
-
-class ZoneHeatCallPseudoChannel(PseudoChannel):
-    def __init__(self, name: str):
         super().__init__(
             name, display_name, unit="Enum", unit_type=enum_type.enum_name()
         )
@@ -99,14 +91,7 @@ class ReportEventPersistor:
             if "whitewire-pwr" in ch_name:
                 heatcall_channel_name = ch_name.replace("whitewire-pwr", "heat-call")
                 if heatcall_channel_name not in channel_names:
-                    result.append(
-                        PseudoChannel(
-                            heatcall_channel_name,
-                            "Heat Call",
-                            unit=Gw1Unit.Unitless,
-                            unit_type=Gw1Unit.enum_name(),
-                        )
-                    )
+                    result.append(ZoneHeatCallPseudoChannel(heatcall_channel_name))
 
         return result
 
