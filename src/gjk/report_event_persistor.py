@@ -21,7 +21,6 @@ from gjk.sema.enums import (
     Gw1LocalControlStandbyTopState,
     Gw1MainAutoState,
 )
-from gjk.sema.enums.gw1_unit import Gw1Unit
 from gjk.sema.enums.gw_str_enum import SemaEnum
 from gjk.sema.types import ReportEvent
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
@@ -29,14 +28,6 @@ from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
 
 class SemaEnumPseudoChannel(PseudoChannel):
     def __init__(self, name: str, display_name: str, enum_type: type[SemaEnum]):
-        super().__init__(
-            name, display_name, unit="Enum", unit_type=enum_type.enum_name()
-        )
-        self.enum_type = enum_type
-
-
-class ZoneHeatCallPseudoChannel(PseudoChannel):
-    def __init__(self, name: str):
         super().__init__(
             name, display_name, unit="Enum", unit_type=enum_type.enum_name()
         )
@@ -90,25 +81,7 @@ class ReportEventPersistor:
 
     @classmethod
     def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
-        result: list[PseudoChannel] = [
-            item for sublist in cls.STATE_CHANNELS.values() for item in sublist
-        ]
-
-        channel_names = {ch.name for ch in layout.data_channels}
-        for ch_name in channel_names:
-            if "whitewire-pwr" in ch_name:
-                heatcall_channel_name = ch_name.replace("whitewire-pwr", "heat-call")
-                if heatcall_channel_name not in channel_names:
-                    result.append(
-                        PseudoChannel(
-                            heatcall_channel_name,
-                            "Heat Call",
-                            unit=Gw1Unit.Unitless,
-                            unit_type=Gw1Unit.enum_name(),
-                        )
-                    )
-
-        return result
+        return [item for sublist in cls.STATE_CHANNELS.values() for item in sublist]
 
     def __init__(self, logger):
         self.logger = logger
@@ -179,47 +152,6 @@ class ReportEventPersistor:
                         f"Unexpected enum {states.state_enum} found for state {states.machine_handle} (msg_id={message_id})"
                     )
 
-    whitewire_pwr_threshold_default = 20
-    whitewire_pwr_threshold_overrides = {
-        "hw1.isone.me.versant.keene.beech.scada": 100,
-        "hw1.isone.me.versant.keene.elm.scada": 1,
-    }
-
-    def collect_zone_heat_call_readings(
-        self,
-        readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
-        message_id: uuid.UUID,
-        db_channel_ids_by_name: dict[str, uuid.UUID],
-    ):
-        threshold = self.whitewire_pwr_threshold_overrides.get(
-            reportEvent.report.from_g_node_alias, self.whitewire_pwr_threshold_default
-        )
-
-        whitewire_pwr_channel_names_by_id = {
-            id: name
-            for name, id in db_channel_ids_by_name.items()
-            if "whitewire-pwr" in name
-        }
-        # # Find all the whitewire-pwr readings, and add corresponding readings to heat-call
-        for r in readings:
-            whitewire_pwr_channel_name = whitewire_pwr_channel_names_by_id.get(
-                r.channel_id
-            )
-            if whitewire_pwr_channel_name:
-                heat_call_channel_id = db_channel_ids_by_name.get(
-                    whitewire_pwr_channel_name.replace("whitewire-pwr", "heat-call")
-                )
-                if heat_call_channel_id:
-                    readings.append(
-                        ReadingSql(
-                            channel_id=heat_call_channel_id,
-                            message_id=message_id,
-                            timestamp=r.timestamp,
-                            value=1 if r.value > threshold else 0,
-                        )
-                    )
-
     def persist_readings(
         self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
     ):
@@ -260,9 +192,6 @@ class ReportEventPersistor:
                 readings.extend(readings_by_ts.values())
 
         self.collect_channel_state_readings(
-            readings, reportEvent, message_id, db_channel_ids_by_name
-        )
-        self.collect_zone_heat_call_readings(
             readings, reportEvent, message_id, db_channel_ids_by_name
         )
 

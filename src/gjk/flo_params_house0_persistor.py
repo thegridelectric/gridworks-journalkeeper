@@ -2,7 +2,6 @@ import uuid
 from datetime import UTC, datetime
 
 from gw_data.db.models import ReadingChannelSql, ReadingSql
-from sqlalchemy import literal, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
