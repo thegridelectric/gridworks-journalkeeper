@@ -8,6 +8,7 @@ end-to-end dev recipe lands in wiki/gridworks-journalkeeper/.
 Run from repo root:
     uv run python scripts/point_at_dev_hack.py
 """
+
 from __future__ import annotations
 
 import logging
@@ -19,9 +20,7 @@ import dotenv
 
 # Override prod-broker .env BEFORE Settings(); dev rabbit creds per
 # gridworks-scada/for_docker/dev_rabbitmq.conf.
-os.environ["GJK_RABBIT__URL"] = (
-    "amqp://smqPublic:smqPublic@localhost:5672/d1__1"
-)
+os.environ["GJK_RABBIT__URL"] = "amqp://smqPublic:smqPublic@localhost:5672/d1__1"
 dotenv.load_dotenv(dotenv.find_dotenv(), override=False)
 
 from gjk.config import Settings  # noqa: E402
@@ -78,7 +77,9 @@ def main() -> None:
         try:
             original_dispatch(envelope=envelope, body=body)  # type: ignore[arg-type]
         except Exception as e:
-            logger.warning(f"dispatch (persist) failed (expected if DB schema missing): {e!r}")
+            logger.warning(
+                f"dispatch (persist) failed (expected if DB schema missing): {e!r}"
+            )
 
     jk.dispatch_message = capturing_dispatch  # type: ignore[method-assign]
 

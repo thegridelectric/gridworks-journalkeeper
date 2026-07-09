@@ -52,7 +52,7 @@ class JournalKeeper(ActorBase):
         flow through automatically with no edits here.
         """
         for type_name in sorted(self.persistor.all_known_message_types()):
-            routing_key = f"#.{type_name.replace(".", "-")}"
+            routing_key = f"#.{type_name.replace('.', '-')}"
             self.logger.info(
                 "Binding queue %s to %s with routing key %s",
                 self.queue_name,
@@ -142,9 +142,7 @@ class JournalKeeper(ActorBase):
         try:
             msg_dict = json.loads(body.decode("utf-8"))
         except Exception as e:
-            self.logger.error(
-                f"Failed to decode body as JSON from {from_alias}: {e!r}"
-            )
+            self.logger.error(f"Failed to decode body as JSON from {from_alias}: {e!r}")
             return
 
         # Messages on ear_tx come wrapped: { "Payload": {...}, ... }.
@@ -170,8 +168,7 @@ class JournalKeeper(ActorBase):
             self.persistor.persist_message(from_alias, datetime.now(UTC), sema_obj)
         except Exception as e:
             self.logger.error(
-                f"Persist failed for {sema_obj.type_name} "
-                f"from {from_alias}: {e!r}"
+                f"Persist failed for {sema_obj.type_name} from {from_alias}: {e!r}"
             )
 
     # ------------------------------------------------------------------

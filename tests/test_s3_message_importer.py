@@ -46,6 +46,7 @@ def _importer(pages, msg_types):
 
 # --- A: empty / missing date folder ---------------------------------------
 
+
 def test_find_messages_on_date_empty_page_does_not_raise():
     # list_objects_v2 omits "Contents" entirely for a date with no objects.
     imp = _importer(pages=[{}], msg_types={"snapshot.spaceheat"})
@@ -53,10 +54,7 @@ def test_find_messages_on_date_empty_page_does_not_raise():
 
 
 def test_find_messages_on_date_yields_matching_contents():
-    key = (
-        "hw1__1/eventstore/20260523/"
-        "beech-snapshot.spaceheat-1779000000000-ear.json"
-    )
+    key = "hw1__1/eventstore/20260523/beech-snapshot.spaceheat-1779000000000-ear.json"
     imp = _importer(
         pages=[{"Contents": [{"Key": key}]}], msg_types={"snapshot.spaceheat"}
     )
@@ -66,6 +64,7 @@ def test_find_messages_on_date_yields_matching_contents():
 
 
 # --- B: a failing message must not abort the run ---------------------------
+
 
 class _FakeInfo:
     def __init__(self, key):
@@ -116,6 +115,7 @@ def test_main_continues_past_failed_message(monkeypatch):
 
 # --- C: --message-types selection ------------------------------------------
 
+
 class _KnownTypesPersistor(_FakePersistor):
     def all_known_message_types(self):
         return {"report.event", "layout.lite"}
@@ -134,7 +134,9 @@ def _run_main_capturing_msg_types(monkeypatch, argv):
 
     monkeypatch.setattr(imp_mod, "Settings", lambda **_k: object())
     monkeypatch.setattr(imp_mod, "SemaCodec", lambda *_a, **_k: object())
-    monkeypatch.setattr(imp_mod, "SemaMessagePersistor", lambda *_a, **_k: _KnownTypesPersistor())
+    monkeypatch.setattr(
+        imp_mod, "SemaMessagePersistor", lambda *_a, **_k: _KnownTypesPersistor()
+    )
     monkeypatch.setattr(imp_mod, "S3MessageImporter", _fake_importer_factory)
     imp_mod.main(argv)
     return captured["msg_types"]
@@ -153,7 +155,13 @@ def test_message_types_include_list_strips_whitespace(monkeypatch):
     # A space after the comma must not produce the never-matching " layout.lite".
     msg_types = _run_main_capturing_msg_types(
         monkeypatch,
-        ["--start", "2026-05-23", "--end", "2026-05-24",
-         "--message-types", "report.event, layout.lite"],
+        [
+            "--start",
+            "2026-05-23",
+            "--end",
+            "2026-05-24",
+            "--message-types",
+            "report.event, layout.lite",
+        ],
     )
     assert msg_types == {"report.event", "layout.lite"}

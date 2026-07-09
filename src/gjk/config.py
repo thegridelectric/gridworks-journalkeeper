@@ -21,7 +21,7 @@ class Settings(ServiceSettings):
         "postgresql+psycopg2://journaldb:journaldb@localhost:5433/journaldb_dev"
     )
     gbo_db_url: SecretStr = SecretStr(
-        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/backofficedb_dev" ""
+        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/backofficedb_dev"
     )
     aws: AwsClient = AwsClient()
     ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
