@@ -10,6 +10,7 @@ proper test harness lands.
 Run from repo root:
     uv run python scripts/point_at_prod_observe.py [seconds=600]
 """
+
 from __future__ import annotations
 
 import logging
@@ -42,7 +43,10 @@ def main() -> None:
     settings = Settings()
     # Mask creds generically — never hardcode the password as a literal.
     import re
-    safe_url = re.sub(r"://([^:]+):[^@]+@", r"://\1:***@", settings.rabbit.url.get_secret_value())
+
+    safe_url = re.sub(
+        r"://([^:]+):[^@]+@", r"://\1:***@", settings.rabbit.url.get_secret_value()
+    )
     logger.info("Broker URL: %s", safe_url)
     codec = SemaCodec()
     jk = JournalKeeper(settings, codec, logger)
@@ -87,8 +91,12 @@ def main() -> None:
             time.sleep(5)
             total = sum(counts.values())
             if total and int(time.time()) % 60 < 5:
-                logger.info("...so far: %d msgs across %d types from %d aliases",
-                            total, len(counts), len(distinct_from))
+                logger.info(
+                    "...so far: %d msgs across %d types from %d aliases",
+                    total,
+                    len(counts),
+                    len(distinct_from),
+                )
     except KeyboardInterrupt:
         pass
     finally:

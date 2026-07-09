@@ -210,7 +210,8 @@ class ReportEventPersistor:
     ):
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
         db_channels = (
-            db.query(ReadingChannelSql)
+            db
+            .query(ReadingChannelSql)
             .filter(
                 ReadingChannelSql.deactivated_date.is_(None),
                 ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,

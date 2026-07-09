@@ -16,12 +16,15 @@ from sqlalchemy import create_engine, text
 
 def _docker_available() -> bool:
     try:
-        return subprocess.run(
-            ["docker", "info"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=10,
-        ).returncode == 0
+        return (
+            subprocess.run(
+                ["docker", "info"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=10,
+            ).returncode
+            == 0
+        )
     except Exception:  # noqa: BLE001 -- any failure => treat docker as absent
         return False
 
