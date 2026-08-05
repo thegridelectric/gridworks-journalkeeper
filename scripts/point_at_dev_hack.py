@@ -3,7 +3,7 @@
 mode — proves the gwwf→gjk weather path on dev infrastructure.
 
 UNTRACKED — not part of the package. Remove once the proper
-end-to-end dev recipe lands in wiki/gridworks-journalkeeper/.
+end-to-end dev recipe lands.
 
 Run from repo root:
     uv run python scripts/point_at_dev_hack.py

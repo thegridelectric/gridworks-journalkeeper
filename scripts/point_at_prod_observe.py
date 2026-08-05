@@ -3,9 +3,8 @@ observe — count distinct type_names received over a fixed window,
 then exit. No persistence (DB writes wrapped in try/except).
 
 Companion to scripts/point_at_dev_hack.py. UNTRACKED in spirit (only
-exists for the stored-vs-not-stored inventory captured into
-wiki/gridworks-journalkeeper/executor/primary.md). Remove once the
-proper test harness lands.
+exists for a one-off stored-vs-not-stored type inventory). Remove once
+the proper test harness lands.
 
 Run from repo root:
     uv run python scripts/point_at_prod_observe.py [seconds=600]
