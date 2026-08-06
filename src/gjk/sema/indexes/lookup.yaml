@@ -29,6 +29,11 @@ types:
     versioning_strategy: literal
     versions:
       '002': definitions/types/channel.readings/002.yaml
+  connectivity.edge.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/connectivity.edge.gt/000.yaml
   data.channel.gt:
     latest_version: '002'
     versioning_strategy: literal
@@ -67,6 +72,24 @@ types:
     versions:
       '001': definitions/types/fsm.full.report/001.yaml
       '000': definitions/types/fsm.full.report/000.yaml
+  g.node.forest:
+    latest_version: '002'
+    versioning_strategy: literal
+    versions:
+      '002': definitions/types/g.node.forest/002.yaml
+      '001': definitions/types/g.node.forest/001.yaml
+      '000': definitions/types/g.node.forest/000.yaml
+  g.node.forest.request:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/g.node.forest.request/000.yaml
+  g.node.gt:
+    latest_version: '006'
+    versioning_strategy: literal
+    versions:
+      '006': definitions/types/g.node.gt/006.yaml
+      '005': definitions/types/g.node.gt/005.yaml
   glitch:
     latest_version: '000'
     versioning_strategy: literal
@@ -100,10 +123,9 @@ types:
     versions:
       '000': definitions/types/heating.forecast/000.yaml
   i2c.multichannel.dt.relay.component.gt:
-    latest_version: '004'
+    latest_version: '003'
     versioning_strategy: literal
     versions:
-      '004': definitions/types/i2c.multichannel.dt.relay.component.gt/004.yaml
       '003': definitions/types/i2c.multichannel.dt.relay.component.gt/003.yaml
       '002': definitions/types/i2c.multichannel.dt.relay.component.gt/002.yaml
   latest.price:
@@ -112,10 +134,9 @@ types:
     versions:
       '000': definitions/types/latest.price/000.yaml
   layout.lite:
-    latest_version: '013'
+    latest_version: '012'
     versioning_strategy: literal
     versions:
-      '013': definitions/types/layout.lite/013.yaml
       '012': definitions/types/layout.lite/012.yaml
       '011': definitions/types/layout.lite/011.yaml
       '010': definitions/types/layout.lite/010.yaml
@@ -128,9 +149,11 @@ types:
     versions:
       '000': definitions/types/machine.states/000.yaml
   new.command.tree:
-    latest_version: '000'
+    latest_version: '002'
     versioning_strategy: literal
     versions:
+      '002': definitions/types/new.command.tree/002.yaml
+      '001': definitions/types/new.command.tree/001.yaml
       '000': definitions/types/new.command.tree/000.yaml
   pico.flow.module.component.gt:
     latest_version: '000'
@@ -153,10 +176,9 @@ types:
     versions:
       '001': definitions/types/price.quantity.unitless/001.yaml
   relay.actor.config:
-    latest_version: '003'
+    latest_version: '002'
     versioning_strategy: literal
     versions:
-      '003': definitions/types/relay.actor.config/003.yaml
       '002': definitions/types/relay.actor.config/002.yaml
   report:
     latest_version: '003'
@@ -197,9 +219,11 @@ types:
     versions:
       '003': definitions/types/snapshot.spaceheat/003.yaml
   spaceheat.node.gt:
-    latest_version: '301'
+    latest_version: '303'
     versioning_strategy: literal
     versions:
+      '303': definitions/types/spaceheat.node.gt/303.yaml
+      '302': definitions/types/spaceheat.node.gt/302.yaml
       '301': definitions/types/spaceheat.node.gt/301.yaml
       '300': definitions/types/spaceheat.node.gt/300.yaml
       '200': definitions/types/spaceheat.node.gt/200.yaml
@@ -234,12 +258,22 @@ types:
     versions:
       '000': definitions/types/weather.forecast/000.yaml
 enums:
+  base.g.node.class:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/base.g.node.class/000.yaml
   change.relay.state:
     enum_type: literal
     schema: definitions/enums/change.relay.state/000.yaml
   fsm.report.type:
     enum_type: literal
     schema: definitions/enums/fsm.report.type/000.yaml
+  g.node.status:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/g.node.status/000.yaml
   gpm.from.hz.method:
     enum_type: versioned
     latest_version: '000'
@@ -247,8 +281,9 @@ enums:
       '000': definitions/enums/gpm.from.hz.method/000.yaml
   gw1.actor.class:
     enum_type: versioned
-    latest_version: '011'
+    latest_version: '012'
     versions:
+      '012': definitions/enums/gw1.actor.class/012.yaml
       '011': definitions/enums/gw1.actor.class/011.yaml
       009: definitions/enums/gw1.actor.class/009.yaml
   gw1.emission.method:

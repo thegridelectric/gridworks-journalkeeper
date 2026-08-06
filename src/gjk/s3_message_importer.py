@@ -265,7 +265,10 @@ def main(argv=None):
                 )
                 if not args.dry_run:
                     msg_persistor.persist_message(
-                        msg_info.from_alias, msg_info.persist_time, sema_obj
+                        msg_info.from_alias,
+                        msg_info.persist_time,
+                        sema_obj,
+                        live=False,
                     )
             else:
                 logger.warning(

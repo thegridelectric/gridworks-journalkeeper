@@ -38,6 +38,7 @@ class WeatherForecastPersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = "weather.forecast"
+        self.fanout_on_import = True  # history fan-out; replays welcome
 
     def add_readings(
         self,

@@ -1,5 +1,7 @@
+from gjk.sema.enums.base_g_node_class import BaseGNodeClass
 from gjk.sema.enums.change_relay_state import ChangeRelayState
 from gjk.sema.enums.fsm_report_type import FsmReportType
+from gjk.sema.enums.g_node_status import GNodeStatus
 from gjk.sema.enums.gpm_from_hz_method import GpmFromHzMethod
 from gjk.sema.enums.gw1_actor_class import Gw1ActorClass
 from gjk.sema.enums.gw1_emission_method import Gw1EmissionMethod
@@ -33,8 +35,10 @@ from gjk.sema.enums.spaceheat_unit import SpaceheatUnit
 from gjk.sema.enums.temp_calc_method import TempCalcMethod
 
 __all__ = [
+    "BaseGNodeClass",
     "ChangeRelayState",
     "FsmReportType",
+    "GNodeStatus",
     "GpmFromHzMethod",
     "Gw1ActorClass",
     "Gw1EmissionMethod",

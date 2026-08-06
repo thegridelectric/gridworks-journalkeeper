@@ -15,13 +15,13 @@ from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
-from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
 
 class LayoutLitePersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = "layout.lite"
+        self.fanout_on_import = True  # history fan-out; replays welcome
 
     class ReadingChannelSyncProcess:
         def __init__(
@@ -205,11 +205,6 @@ class LayoutLitePersistor:
         return self.persist(from_alias, layout)
 
     def persist_v012(
-        self, from_alias: str, time_received: datetime, layout: LayoutLite012
-    ):
-        return self.persist(from_alias, layout)
-
-    def persist_v013(
         self, from_alias: str, time_received: datetime, layout: LayoutLite
     ):
         return self.persist(from_alias, layout)

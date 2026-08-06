@@ -98,6 +98,7 @@ class ReportEventPersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = "report.event"
+        self.fanout_on_import = True  # history fan-out; replays welcome
         self.enum_type_cache = {}
 
     def get_sema_enum_value(self, enum_type: type[SemaEnum], value_str: str) -> int:

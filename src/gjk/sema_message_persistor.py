@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk.config import Settings
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
+from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import (
     MESSAGE_ID_NAMESPACE,
@@ -72,6 +73,13 @@ class SemaMessagePersistor:
                 ReportEventPersistor(logger),
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
+                # The registry alias is the universe's `<universe>.gnr` —
+                # derived from this service's own alias, never a second
+                # literal that can drift.
+                GNodeForestPersistor(
+                    logger,
+                    registry_alias=(f"{settings.service_alias.split('.')[0]}.gnr"),
+                ),
             ]
         }
 
@@ -135,8 +143,19 @@ class SemaMessagePersistor:
         return MessagePersistenceInfo(id=id, created_at=created_at)
 
     def persist_message(
-        self, from_alias: str, time_received: datetime, payload: SemaType
+        self,
+        from_alias: str,
+        time_received: datetime,
+        payload: SemaType,
+        *,
+        live: bool,
     ):
+        """live: True when the message arrives from the broker (current fleet
+        traffic); False when replayed from the persistent store (S3 backfill).
+        The raw message is stored either way. A custom persistor that declares
+        ``fanout_on_import = False`` projects CURRENT state — its fan-out runs
+        only on live messages, so replayed history cannot regress the
+        projection."""
         self.logger.debug(
             f"persisting message of type {payload.type_name}:{payload.version} from {from_alias} at {time_received.isoformat()}"
         )
@@ -149,6 +168,8 @@ class SemaMessagePersistor:
         )
         if custom_fn is not None:
             persistence_info = custom_fn(from_alias, time_received, payload)
+            if not live and not custom_persistor.fanout_on_import:
+                persistence_info.additional_db_operations = None
         else:
             persistence_info = self.persist_message_default(
                 from_alias, payload, time_received

@@ -6,7 +6,7 @@ from gjk.sema.property_format import HandleName
 from gjk.sema.property_format import PositiveInt
 from gjk.sema.property_format import SpaceheatName
 from gjk.sema.property_format import UUID4Str
-from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
+from gjk.sema.types.old_versions.spaceheat_node_gt_301 import SpaceheatNodeGt301
 
 
 class SpaceheatNodeGt300(SemaType):
@@ -38,11 +38,11 @@ class SpaceheatNodeGt300(SemaType):
             )
         return self
 
-    def upgrade(self) -> SpaceheatNodeGt:
+    def upgrade(self) -> SpaceheatNodeGt301:
         """
         - BoardComponentId: add as Optional
         - ActorClass: gw1.actor.class:009 -> 011
         """
         data = self.model_dump()
         data["version"] = "301"
-        return SpaceheatNodeGt.model_validate(data)
+        return SpaceheatNodeGt301.model_validate(data)

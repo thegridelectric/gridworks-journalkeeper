@@ -33,6 +33,13 @@ types:
           - ChannelId: remove
           - additionalProperties: true -> false
 
+  connectivity.edge.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version"
+
   data.channel.gt:
     latest_version: "002"
     versioning_strategy: "literal"
@@ -120,6 +127,33 @@ types:
       "000":
         summary: "Initial Sema version"
 
+  g.node.forest:
+    latest_version: "002"
+    versioning_strategy: "literal"
+    versions:
+      "002":
+        summary: "- Nodes rebind to g.node.gt:006; SendTimeMs joins required"
+      "001":
+        summary: "- SendTimeMs: new optional sender-clock stamp (epoch ms) at forest assembly; the registry stamps wall-clock — it is never simulated (sender-time standard, first adopter)"
+      "000":
+        summary: "Initial Sema version"
+
+  g.node.forest.request:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version"
+
+  g.node.gt:
+    latest_version: "006"
+    versioning_strategy: "literal"
+    versions:
+      "006":
+        summary: "- Axiom 2 (PhysicalGNodeLocations) becomes activation-conditioned: PositionPointId is mandatory only when Status is Active — a Pending physical GNode may be locationless"
+      "005":
+        summary: "adds axiom 6 GNodeAliasHasBody; no field changes"
+
   glitch:
     latest_version: "000"
     versioning_strategy: "literal"
@@ -175,11 +209,9 @@ types:
         summary: "Initial Sema version"
 
   i2c.multichannel.dt.relay.component.gt:
-    latest_version: "004"
+    latest_version: "003"
     versioning_strategy: "literal"
     versions:
-      "004":
-        summary: "- ConfigList[]: relay.actor.config:002 -> 003"
       "003":
         summary: "- Add I2cBus"
       "002":
@@ -193,11 +225,9 @@ types:
         summary: "Initial Sema version"
 
   layout.lite:
-    latest_version: "013"
+    latest_version: "012"
     versioning_strategy: "literal"
     versions:
-      "013":
-        summary: "- I2cRelayComponent: i2c.multichannel.dt.relay.component.gt:003 -> 004"
       "012":
         summary: >
           - DerivedChannels[]: derived.channel.gt:000 | 001 -> 001
@@ -235,9 +265,13 @@ types:
         summary: "Initial Sema version"
 
   new.command.tree:
-    latest_version: "000"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
+      "002":
+        summary: "- ShNodes: spaceheat.node.gt:301 -> 303"
+      "001":
+        summary: "- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"
       "000":
         summary: "Initial Sema version"
 
@@ -270,11 +304,9 @@ types:
         summary: "Baseline runtime version (no prior version tracked)."
 
   relay.actor.config:
-    latest_version: "003"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
-      "003":
-        summary: "- AsyncCaptureDelta: require when AsyncCapture is true"
       "002":
         summary: "Baseline runtime version (no prior version tracked)."
 
@@ -338,9 +370,15 @@ types:
         summary: "Baseline runtime version (no prior version tracked)."
 
   spaceheat.node.gt:
-    latest_version: "301"
+    latest_version: "303"
     versioning_strategy: "literal"
     versions:
+      "303":
+        summary: >
+          - InPowerMetering: drop (routing is owned by the consuming transactive declaration, not the node)
+          - InPowerMeteringRequiresNameplate axiom: drop
+      "302":
+        summary: "- ActorClass: gw1.actor.class:011 -> 012"
       "301":
         summary: >
           - BoardComponentId: add as Optional
@@ -393,6 +431,12 @@ types:
         summary: "Initial Sema version"
 
 enums:
+  base.g.node.class:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   change.relay.state:
     enum_type: "literal"
     note: "This enum is literal; version 000 is immutable and exclusive."
@@ -402,6 +446,12 @@ enums:
   fsm.report.type:
     enum_type: "literal"
     note: "This enum is literal; version 000 is immutable and exclusive."
+    versions:
+      "000": {}
+
+  g.node.status:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
     versions:
       "000": {}
 
@@ -415,6 +465,10 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "012":
+        added_values:
+          - "SimSensorActor"
+          - "SimRelayActor"
       "011":
         added_values:
           - "I2cThermistorReader"

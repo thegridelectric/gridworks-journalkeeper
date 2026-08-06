@@ -13,6 +13,12 @@ types:
       used_by:
       - report:002
       - report:003
+  connectivity.edge.gt:
+    '000':
+      used_by:
+      - g.node.forest:000
+      - g.node.forest:001
+      - g.node.forest:002
   data.channel.gt:
     '001':
       used_by:
@@ -24,7 +30,6 @@ types:
     '002':
       used_by:
       - layout.lite:012
-      - layout.lite:013
   derived.channel.gt:
     '000':
       used_by:
@@ -37,7 +42,6 @@ types:
       used_by:
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   fsm.atomic.report:
     '000':
       used_by:
@@ -53,6 +57,14 @@ types:
       used_by:
       - report:002
       - report:003
+  g.node.gt:
+    '005':
+      used_by:
+      - g.node.forest:000
+      - g.node.forest:001
+    '006':
+      used_by:
+      - g.node.forest:002
   gw1.tank.temp.calibration:
     '000':
       used_by:
@@ -66,7 +78,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   ha1.params:
     '004':
       used_by:
@@ -86,7 +97,6 @@ types:
       used_by:
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
       - scada.params:005
   i2c.multichannel.dt.relay.component.gt:
     '002':
@@ -99,9 +109,6 @@ types:
     '003':
       used_by:
       - layout.lite:012
-    '004':
-      used_by:
-      - layout.lite:013
   machine.states:
     '000':
       used_by:
@@ -116,7 +123,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   pico.tank.module.component.gt:
     '011':
       used_by:
@@ -126,7 +132,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   price.quantity.unitless:
     '001':
       used_by:
@@ -137,9 +142,6 @@ types:
       used_by:
       - i2c.multichannel.dt.relay.component.gt:002
       - i2c.multichannel.dt.relay.component.gt:003
-    '003':
-      used_by:
-      - i2c.multichannel.dt.relay.component.gt:004
   report:
     '002':
       used_by:
@@ -155,7 +157,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   single.machine.state:
     '000':
       used_by:
@@ -181,8 +182,11 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
       - new.command.tree:000
+      - new.command.tree:001
+    '303':
+      used_by:
+      - new.command.tree:002
   spaceheat.telemetry.quantity.projection:
     '000':
       used_by:
@@ -196,16 +200,26 @@ types:
       used_by:
       - ticklist.reed.report:000
 enums:
+  base.g.node.class:
+    '000':
+      used_by:
+      - g.node.gt:005
+      - g.node.gt:006
   change.relay.state:
     '000':
       used_by:
       - relay.actor.config:002
-      - relay.actor.config:003
   fsm.report.type:
     '000':
       used_by:
       - fsm.atomic.report:000
       - fsm.atomic.report:001
+  g.node.status:
+    '000':
+      used_by:
+      - connectivity.edge.gt:000
+      - g.node.gt:005
+      - g.node.gt:006
   gpm.from.hz.method:
     '000':
       used_by:
@@ -218,6 +232,10 @@ enums:
     '011':
       used_by:
       - spaceheat.node.gt:301
+    '012':
+      used_by:
+      - spaceheat.node.gt:302
+      - spaceheat.node.gt:303
   gw1.emission.method:
     '000':
       used_by:
@@ -235,7 +253,6 @@ enums:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   gw1.system.mode:
     '000':
       used_by:
@@ -244,7 +261,6 @@ enums:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   gw1.unit:
     '000':
       used_by:
@@ -279,7 +295,6 @@ enums:
       used_by:
       - machine.states:000
       - relay.actor.config:002
-      - relay.actor.config:003
       - single.machine.state:000
   relay.energization.state:
     '000':
@@ -289,7 +304,6 @@ enums:
     '000':
       used_by:
       - relay.actor.config:002
-      - relay.actor.config:003
   spaceheat.make.model:
     '003':
       used_by:
@@ -307,7 +321,6 @@ enums:
       used_by:
       - channel.config:000
       - relay.actor.config:002
-      - relay.actor.config:003
   temp.calc.method:
     '000':
       used_by:
@@ -323,6 +336,8 @@ formats:
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - spaceheat.node.gt:302
+    - spaceheat.node.gt:303
   left.right.dot:
     used_by:
     - atn.bid:002
@@ -339,6 +354,12 @@ formats:
     - flo.params.house0:007
     - fsm.atomic.report:000
     - fsm.atomic.report:001
+    - g.node.forest.request:000
+    - g.node.forest:000
+    - g.node.forest:001
+    - g.node.forest:002
+    - g.node.gt:005
+    - g.node.gt:006
     - glitch:000
     - heating.forecast:000
     - latest.price:000
@@ -348,11 +369,11 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - machine.states:000
     - new.command.tree:000
+    - new.command.tree:001
+    - new.command.tree:002
     - relay.actor.config:002
-    - relay.actor.config:003
     - report.event:002
     - report.event:003
     - report:002
@@ -372,7 +393,6 @@ formats:
   non.empty.string:
     used_by:
     - relay.actor.config:002
-    - relay.actor.config:003
   positive.int:
     used_by:
     - channel.config:000
@@ -389,16 +409,16 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - pico.tank.module.component.gt:011
     - relay.actor.config:002
-    - relay.actor.config:003
     - report:002
     - report:003
     - sim.pico.tank.module.component.gt:000
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - spaceheat.node.gt:302
+    - spaceheat.node.gt:303
   positive.int.as.str:
     used_by:
     - gw1.tank.temp.calibration.map:000
@@ -414,16 +434,16 @@ formats:
     - fsm.full.report:001
     - glitch:000
     - i2c.multichannel.dt.relay.component.gt:003
-    - i2c.multichannel.dt.relay.component.gt:004
     - pico.flow.module.component.gt:000
     - relay.actor.config:002
-    - relay.actor.config:003
     - scada.params:004
     - scada.params:005
     - single.reading:000
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - spaceheat.node.gt:302
+    - spaceheat.node.gt:303
     - ticklist.hall.report:000
     - ticklist.reed.report:000
   utc.milliseconds:
@@ -432,6 +452,8 @@ formats:
     - energy.instruction:000
     - fsm.atomic.report:000
     - fsm.atomic.report:001
+    - g.node.forest:001
+    - g.node.forest:002
     - glitch:000
     - gridworks.event.problem:001
     - layout.lite:007
@@ -440,9 +462,10 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - machine.states:000
     - new.command.tree:000
+    - new.command.tree:001
+    - new.command.tree:002
     - report.event:002
     - report.event:003
     - report:002
@@ -470,6 +493,7 @@ formats:
     - weather.forecast:000
   uuid4.str:
     used_by:
+    - connectivity.edge.gt:000
     - data.channel.gt:001
     - data.channel.gt:002
     - derived.channel.gt:000
@@ -483,11 +507,13 @@ formats:
     - fsm.atomic.report:001
     - fsm.full.report:000
     - fsm.full.report:001
+    - g.node.forest.request:000
+    - g.node.gt:005
+    - g.node.gt:006
     - gridworks.event.problem:001
     - heating.forecast:000
     - i2c.multichannel.dt.relay.component.gt:002
     - i2c.multichannel.dt.relay.component.gt:003
-    - i2c.multichannel.dt.relay.component.gt:004
     - latest.price:000
     - layout.lite:007
     - layout.lite:008
@@ -495,7 +521,6 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - pico.flow.module.component.gt:000
     - pico.tank.module.component.gt:011
     - report.event:002
@@ -509,4 +534,6 @@ formats:
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - spaceheat.node.gt:302
+    - spaceheat.node.gt:303
     - weather.forecast:000

@@ -1,6 +1,8 @@
 enums:
+  base.g.node.class: base.g.node.class
   change.relay.state: change.relay.state
   fsm.report.type: fsm.report.type
+  g.node.status: g.node.status
   gpm.from.hz.method: gpm.from.hz.method
   gw1.actor.class: gw1.actor.class
   gw1.emission.method: gw1.emission.method
@@ -31,12 +33,16 @@ types:
   bid: bid
   channel.config: channel.config
   channel.readings: channel.readings
+  connectivity.edge.gt: connectivity.edge.gt
   data.channel.gt: data.channel.gt
   derived.channel.gt: derived.channel.gt
   energy.instruction: energy.instruction
   flo.params.house0: flo.params.house0
   fsm.atomic.report: fsm.atomic.report
   fsm.full.report: fsm.full.report
+  g.node.forest: g.node.forest
+  g.node.forest.request: g.node.forest.request
+  g.node.gt: g.node.gt
   glitch: glitch
   gridworks.event.problem: gridworks.event.problem
   gw1.tank.temp.calibration: gw1.tank.temp.calibration

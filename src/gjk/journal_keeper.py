@@ -52,18 +52,34 @@ class JournalKeeper(ActorBase):
         flow through automatically with no edits here.
         """
         for type_name in sorted(self.persistor.all_known_message_types()):
-            routing_key = f"#.{type_name.replace('.', '-')}"
-            self.logger.info(
-                "Binding queue %s to %s with routing key %s",
-                self.queue_name,
-                self._consume_exchange,
-                routing_key,
-            )
-            self._single_channel.queue_bind(
-                self.queue_name,
-                self._consume_exchange,
-                routing_key=routing_key,
-            )
+            token = type_name.replace(".", "-")
+            # Every routing key carries the type token; its position depends
+            # on the message category (the gwbase transport grammars):
+            #   gw.<from>.to.<tclass>.<type>                wrapped, type last
+            #   rjb.<from>.<fclass>.<type>[.<channel>...]   broadcast — the
+            #       radio channel keeps its dots, a multi-segment tail
+            #   rj.<from>.<fclass>.<type>.<tclass>.<to>     direct
+            # One exact binding per grammar (`#` on the rjb tail matches zero
+            # segments, so channel-less broadcasts too). Keys outside the
+            # three grammars are not this consumer's business: the universal
+            # ear witnesses strays, and the S3 import path replays history
+            # without touching these bindings.
+            for routing_key in (
+                f"gw.*.to.*.{token}",
+                f"rjb.*.*.{token}.#",
+                f"rj.*.*.{token}.*.*",
+            ):
+                self.logger.info(
+                    "Binding queue %s to %s with routing key %s",
+                    self.queue_name,
+                    self._consume_exchange,
+                    routing_key,
+                )
+                self._single_channel.queue_bind(
+                    self.queue_name,
+                    self._consume_exchange,
+                    routing_key=routing_key,
+                )
 
     def local_start(self) -> None:
         self._main_loop_running = True
@@ -165,7 +181,9 @@ class JournalKeeper(ActorBase):
             return
 
         try:
-            self.persistor.persist_message(from_alias, datetime.now(UTC), sema_obj)
+            self.persistor.persist_message(
+                from_alias, datetime.now(UTC), sema_obj, live=True
+            )
         except Exception as e:
             self.logger.error(
                 f"Persist failed for {sema_obj.type_name} from {from_alias}: {e!r}"
