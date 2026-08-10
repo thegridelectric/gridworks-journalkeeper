@@ -1,3 +1,0 @@
-systemctl status --no-pager -n 0 journalkeeper-restart.timer
-systemctl status --no-pager -n 0 journalkeeper-restart
-systemctl status --no-pager -n 0 journalkeeper
