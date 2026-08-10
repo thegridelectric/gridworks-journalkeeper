@@ -20,22 +20,23 @@ from gjk.config import Settings
 from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
 
-LOGGER = logging.getLogger(__name__)
-
 
 class JournalKeeper(ActorBase):
     def __init__(
         self,
         settings: Settings,
         codec: SemaCodec,
-        logger: logging.Logger = LOGGER,
+        logger: logging.Logger | None = None,
     ) -> None:
         super().__init__(settings=settings)
         self.settings: Settings = settings
         self.codec: SemaCodec = codec
-        self.logger: logging.Logger = logger
+        # ActorBase built the XDG file logger (gwbase logging_setup); an
+        # injected logger is the override seam for harness scripts only.
+        if logger is not None:
+            self.logger = logger
         self.persistor: SemaMessagePersistor = SemaMessagePersistor(
-            settings, codec, logger
+            settings, codec, self.logger
         )
         self._consume_exchange = "ear_tx"
         self.main_thread = threading.Thread(target=self.main, daemon=True)
