@@ -1,0 +1,9 @@
+# journalkeeper convenience aliases — pure spelling over systemctl/tail,
+# no logic. Sourced from the box login's ~/.bashrc at box setup; the
+# sudoers drop-in (/etc/sudoers.d/journalkeeper) grants exactly these
+# systemctl invocations.
+alias jkstart='sudo systemctl start journalkeeper'
+alias jkstop='sudo systemctl stop journalkeeper'
+alias jkrestart='sudo systemctl restart journalkeeper'
+alias jkstatus='systemctl status journalkeeper --no-pager'
+alias jklog='cd "$HOME"/.local/state/gridworks/journalkeeper/log && tail -F *.log'

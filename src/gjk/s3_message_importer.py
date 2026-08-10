@@ -92,7 +92,7 @@ class S3MessageImporter:
         skip_past: str | None = None,
         sort: Literal["none", "asc", "desc"] = "none",
     ) -> Iterable[S3MessageInfo]:
-        prefix = f'{self.world_instance_name}/eventstore/{dt.strftime("%Y%m%d")}'
+        prefix = f"{self.world_instance_name}/eventstore/{dt.strftime('%Y%m%d')}"
         paginator = self.s3.get_paginator("list_objects_v2")
         pages = paginator.paginate(Bucket=self.aws_bucket_name, Prefix=prefix)
 
@@ -225,7 +225,7 @@ def main(argv=None):
 
         importer = S3MessageImporter(settings, msg_types, logger)
         logger.info(
-            f"Importing the following message types from {args.start.strftime("%Y-%m-%d")} through {args.end.strftime("%Y-%m-%d")}: "
+            f"Importing the following message types from {args.start.strftime('%Y-%m-%d')} through {args.end.strftime('%Y-%m-%d')}: "
             + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
         )
         msg_infos = importer.find_messages_in_date_range(

@@ -20,22 +20,23 @@ from gjk.config import Settings
 from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
 
-LOGGER = logging.getLogger(__name__)
-
 
 class JournalKeeper(ActorBase):
     def __init__(
         self,
         settings: Settings,
         codec: SemaCodec,
-        logger: logging.Logger = LOGGER,
+        logger: logging.Logger | None = None,
     ) -> None:
         super().__init__(settings=settings)
         self.settings: Settings = settings
         self.codec: SemaCodec = codec
-        self.logger: logging.Logger = logger
+        # ActorBase built the XDG file logger (gwbase logging_setup); an
+        # injected logger is the override seam for harness scripts only.
+        if logger is not None:
+            self.logger = logger
         self.persistor: SemaMessagePersistor = SemaMessagePersistor(
-            settings, codec, logger
+            settings, codec, self.logger
         )
         self._consume_exchange = "ear_tx"
         self.main_thread = threading.Thread(target=self.main, daemon=True)
@@ -52,7 +53,7 @@ class JournalKeeper(ActorBase):
         flow through automatically with no edits here.
         """
         for type_name in sorted(self.persistor.all_known_message_types()):
-            routing_key = f"#.{type_name.replace(".", "-")}"
+            routing_key = f"#.{type_name.replace('.', '-')}"
             self.logger.info(
                 "Binding queue %s to %s with routing key %s",
                 self.queue_name,
@@ -142,9 +143,7 @@ class JournalKeeper(ActorBase):
         try:
             msg_dict = json.loads(body.decode("utf-8"))
         except Exception as e:
-            self.logger.error(
-                f"Failed to decode body as JSON from {from_alias}: {e!r}"
-            )
+            self.logger.error(f"Failed to decode body as JSON from {from_alias}: {e!r}")
             return
 
         # Messages on ear_tx come wrapped: { "Payload": {...}, ... }.
@@ -170,8 +169,7 @@ class JournalKeeper(ActorBase):
             self.persistor.persist_message(from_alias, datetime.now(UTC), sema_obj)
         except Exception as e:
             self.logger.error(
-                f"Persist failed for {sema_obj.type_name} "
-                f"from {from_alias}: {e!r}"
+                f"Persist failed for {sema_obj.type_name} from {from_alias}: {e!r}"
             )
 
     # ------------------------------------------------------------------

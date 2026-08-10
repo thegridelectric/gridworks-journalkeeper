@@ -2,7 +2,6 @@ import uuid
 from datetime import UTC, datetime
 
 from gw_data.db.models import ReadingChannelSql, ReadingSql
-from sqlalchemy import literal, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
@@ -68,7 +67,8 @@ class FloParamsHouse0Persistor:
         terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
 
         db_channels = (
-            db.query(ReadingChannelSql)
+            db
+            .query(ReadingChannelSql)
             .filter(
                 ReadingChannelSql.deactivated_date.is_(None),
                 ReadingChannelSql.terminal_asset_alias == terminal_asset_alias,

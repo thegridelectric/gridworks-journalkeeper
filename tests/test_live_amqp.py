@@ -30,7 +30,11 @@ pytestmark = pytest.mark.integration
 SAMPLE_TYPE = "scada.params"
 SAMPLE_FILE = (
     Path(__file__).resolve().parents[1]
-    / "src" / "gjk" / "sema" / "samples" / "scada.params.004.json"
+    / "src"
+    / "gjk"
+    / "sema"
+    / "samples"
+    / "scada.params.004.json"
 )
 
 
@@ -92,9 +96,7 @@ def test_emitter_through_broker_to_journalkeeper(
         landed = 0
         deadline = time.time() + 30
         while time.time() < deadline:
-            pub.basic_publish(
-                exchange="amq.topic", routing_key=routing_key, body=body
-            )
+            pub.basic_publish(exchange="amq.topic", routing_key=routing_key, body=body)
             time.sleep(0.5)
             with eng.connect() as c:
                 landed = c.execute(

@@ -131,7 +131,8 @@ class LayoutLitePersistor:
 
         def execute(self):
             db_channels = (
-                self.db.query(ReadingChannelSql)
+                self.db
+                .query(ReadingChannelSql)
                 .filter(
                     ReadingChannelSql.deactivated_date.is_(None),
                     ReadingChannelSql.terminal_asset_alias == self.terminal_asset_alias,
