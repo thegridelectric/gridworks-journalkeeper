@@ -168,23 +168,23 @@ On the production host (Ubuntu, user `ubuntu`, checkout at
    `GJK_RABBIT__URL` (AMQP URL of the production broker, vhost `hw1__1`),
    `GJK_DB_URL` (the production PostgreSQL URL), and `GJK_SERVICE_ALIAS`
    (the tap's routable address in the production world, e.g. `hw1.journal`).
-3. Install, enable, and start everything:
-
-       ./service/install
+3. Install the unit (symlink or copy
+   `service/journalkeeper.service` into `/etc/systemd/system/`),
+   `sudo systemctl daemon-reload`, then enable + start it.
 
 `service/journalkeeper.service` runs `run_journal_keeper.py` with the
-`.venv` python and `Restart=always`. A 15-minute timer
-(`journalkeeper-restart.timer` → `journalkeeper-restart.service`)
-restarts the main service if it was stopped manually and forgotten.
-The install script also links helper commands into `~/.local/bin`:
+`.venv` python and `Restart=always` — there is no watchdog timer: a
+stopped service stays stopped until started. Convenience aliases
+(pure spelling over systemctl/tail) live in `service/bash_aliases`,
+sourced from the login's `~/.bashrc`:
 
-| Command | Effect |
+| Alias | Effect |
 | --- | --- |
-| `jkstatus` | status of service, restart service, and timer |
-| `jkpause` | stop the service (the timer restarts it within 15 min) |
-| `jkstop` | stop service **and** timer (stays down) |
-| `jkstart` | start service and timer |
-| `jkrestart` | restart both |
+| `gjkstatus` | service status |
+| `gjkstop` | stop (stays down) |
+| `gjkstart` | start |
+| `gjkrestart` | restart |
+| `gjklog` | tail the application logs |
 
 Process-level output: `journalctl -u journalkeeper -f`. Application
 logs land in the XDG state dir:
