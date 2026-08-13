@@ -160,8 +160,8 @@ writes to the production PostgreSQL instance. The production
 
 ### Run as a systemd service
 
-On the production host (Ubuntu, user `ubuntu`, checkout at
-`/home/ubuntu/gridworks-journalkeeper`):
+On the production host (Ubuntu, user `gjk`, checkout at
+`/home/gjk/gridworks-journalkeeper`):
 
 1. `uv sync` in the checkout (creates `.venv`).
 2. `cp template.env .env`, then set the production values:

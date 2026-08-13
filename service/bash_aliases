@@ -1,6 +1,6 @@
 # journalkeeper convenience aliases — pure spelling over systemctl/tail,
 # no logic. Sourced from the box login's ~/.bashrc at box setup; the
-# sudoers drop-in (/etc/sudoers.d/journalkeeper) grants exactly these
+# sudoers drop-in (/etc/sudoers.d/gjk) grants exactly these
 # systemctl invocations.
 alias gjkstart='sudo systemctl start journalkeeper'
 alias gjkstop='sudo systemctl stop journalkeeper'
