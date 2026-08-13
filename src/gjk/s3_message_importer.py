@@ -44,6 +44,15 @@ ALL_MSG_TYPES = [
     "send.layout",
     "no.new.contract.warning",
     "ticklist.hall.report",
+    "gw.weather.observation",
+    "gw.weather.forecast",
+    "gw.weather.channel.gt",
+    "gw.weather.forecast.channel.gt",
+    "gw.weather.forecast.bundle.gt",
+    "gw.weather.location.gt",
+    "gw.weather.create.cmd",
+    "gw.weather.cmd.ack",
+    "gw.weather.cmd.nack",
 ]
 
 

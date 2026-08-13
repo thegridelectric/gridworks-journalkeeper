@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-07-04T17:13:58Z'
+  generated_at: '2026-08-12T21:48:48Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
@@ -11,7 +11,6 @@ initial_targets:
 - layout.lite:010
 - layout.lite:011
 - layout.lite:012
-- layout.lite:013
 - glitch:000
 - flo.params.house0:003
 - flo.params.house0:004
@@ -24,6 +23,7 @@ initial_targets:
 - weather.forecast:000
 - energy.instruction:000
 - new.command.tree:000
+- new.command.tree:001
 - snapshot.spaceheat:003
 - scada.params:004
 - scada.params:005
@@ -34,6 +34,15 @@ initial_targets:
 - atn.bid:002
 - bid:000
 - latest.price:000
+- gw.weather.observation:000
+- gw.weather.forecast:000
+- gw.weather.channel.gt:000
+- gw.weather.forecast.channel.gt:000
+- gw.weather.forecast.bundle.gt:000
+- gw.weather.location.gt:000
+- gw.weather.create.cmd:000
+- gw.weather.cmd.ack:000
+- gw.weather.cmd.nack:000
 - gw1.unit:002
 - gw1.main.auto.state:001
 - gw1.lc.top.state:001
@@ -52,12 +61,16 @@ worklist:
       path: definitions/formats/market.slot.name.yaml
     non.empty.string:
       path: definitions/formats/non.empty.string.yaml
+    non.negative.int:
+      path: definitions/formats/non.negative.int.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
     positive.int.as.str:
       path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
+    utc.iso8601.seconds:
+      path: definitions/formats/utc.iso8601.seconds.yaml
     utc.milliseconds:
       path: definitions/formats/utc.milliseconds.yaml
     utc.seconds:
@@ -74,6 +87,9 @@ worklist:
     gpm.from.hz.method:
       '000':
         path: definitions/enums/gpm.from.hz.method/000.yaml
+    gw.weather.forecast.fidelity:
+      '000':
+        path: definitions/enums/gw.weather.forecast.fidelity/000.yaml
     gw1.actor.class:
       009:
         path: definitions/enums/gw1.actor.class/009.yaml
@@ -106,6 +122,8 @@ worklist:
     gw1.quantity:
       '000':
         path: definitions/enums/gw1.quantity/000.yaml
+      '002':
+        path: definitions/enums/gw1.quantity/002.yaml
     gw1.seasonal.storage.mode:
       '000':
         path: definitions/enums/gw1.seasonal.storage.mode/000.yaml
@@ -205,6 +223,33 @@ worklist:
     gridworks.event.problem:
       '001':
         path: definitions/types/gridworks.event.problem/001.yaml
+    gw.weather.channel.gt:
+      '000':
+        path: definitions/types/gw.weather.channel.gt/000.yaml
+    gw.weather.cmd.ack:
+      '000':
+        path: definitions/types/gw.weather.cmd.ack/000.yaml
+    gw.weather.cmd.nack:
+      '000':
+        path: definitions/types/gw.weather.cmd.nack/000.yaml
+    gw.weather.create.cmd:
+      '000':
+        path: definitions/types/gw.weather.create.cmd/000.yaml
+    gw.weather.forecast:
+      '000':
+        path: definitions/types/gw.weather.forecast/000.yaml
+    gw.weather.forecast.bundle.gt:
+      '000':
+        path: definitions/types/gw.weather.forecast.bundle.gt/000.yaml
+    gw.weather.forecast.channel.gt:
+      '000':
+        path: definitions/types/gw.weather.forecast.channel.gt/000.yaml
+    gw.weather.location.gt:
+      '000':
+        path: definitions/types/gw.weather.location.gt/000.yaml
+    gw.weather.observation:
+      '000':
+        path: definitions/types/gw.weather.observation/000.yaml
     gw1.tank.temp.calibration:
       '000':
         path: definitions/types/gw1.tank.temp.calibration/000.yaml
@@ -226,8 +271,6 @@ worklist:
         path: definitions/types/i2c.multichannel.dt.relay.component.gt/002.yaml
       '003':
         path: definitions/types/i2c.multichannel.dt.relay.component.gt/003.yaml
-      '004':
-        path: definitions/types/i2c.multichannel.dt.relay.component.gt/004.yaml
     latest.price:
       '000':
         path: definitions/types/latest.price/000.yaml
@@ -244,14 +287,14 @@ worklist:
         path: definitions/types/layout.lite/011.yaml
       '012':
         path: definitions/types/layout.lite/012.yaml
-      '013':
-        path: definitions/types/layout.lite/013.yaml
     machine.states:
       '000':
         path: definitions/types/machine.states/000.yaml
     new.command.tree:
       '000':
         path: definitions/types/new.command.tree/000.yaml
+      '001':
+        path: definitions/types/new.command.tree/001.yaml
     pico.flow.module.component.gt:
       '000':
         path: definitions/types/pico.flow.module.component.gt/000.yaml
@@ -267,8 +310,6 @@ worklist:
     relay.actor.config:
       '002':
         path: definitions/types/relay.actor.config/002.yaml
-      '003':
-        path: definitions/types/relay.actor.config/003.yaml
     report:
       '002':
         path: definitions/types/report/002.yaml

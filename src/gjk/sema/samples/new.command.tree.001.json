@@ -1,0 +1,15 @@
+{
+  "TypeName": "new.command.tree",
+  "Version": "001",
+  "FromGNodeAlias": "hw1.isone.me.versant.keene.spruce.scada",
+  "ShNodes": [
+    {
+      "TypeName": "spaceheat.node.gt",
+      "Version": "301",
+      "Name": "s",
+      "ActorClass": "PrimaryScada",
+      "ShNodeId": "8f3c27de-6a41-4bb0-9df2-51b7ac94e203"
+    }
+  ],
+  "UnixMs": 1738083600000
+}

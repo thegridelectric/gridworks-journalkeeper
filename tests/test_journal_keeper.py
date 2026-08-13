@@ -29,13 +29,20 @@ def _make_bare_jk() -> JournalKeeper:
     jk.codec = MagicMock()
     jk.persistor = MagicMock()
     jk.logger = MagicMock()
+    # The capture set the queue-wide `#` bind narrows against at dispatch.
+    jk._known_types = frozenset({
+        "weather.forecast",
+        "unknown.thing",
+        "glitch",
+        "flo.next.hour.plans",
+    })
     return jk
 
 
 def test_dispatch_message_malformed_json_does_not_raise() -> None:
     """Bad JSON gets logged and swallowed; the live actor must keep running."""
     jk = _make_bare_jk()
-    envelope = MagicMock(from_alias="test.alias")
+    envelope = MagicMock(from_alias="test.alias", type_name="weather.forecast")
     jk.dispatch_message(envelope=envelope, body=b"not-json")
     jk.persistor.persist_message.assert_not_called()
     jk.logger.error.assert_called()
@@ -51,7 +58,7 @@ def test_dispatch_message_routes_sema_to_persistor() -> None:
     sema_obj.version = "000"
     jk.codec.from_dict.return_value = sema_obj
 
-    envelope = MagicMock(from_alias="test.alias")
+    envelope = MagicMock(from_alias="test.alias", type_name="weather.forecast")
     body = json.dumps({
         "Payload": {"TypeName": "weather.forecast", "Version": "000"}
     }).encode()
@@ -63,6 +70,35 @@ def test_dispatch_message_routes_sema_to_persistor() -> None:
     assert args[2] is sema_obj
 
 
+def test_dispatch_message_outside_capture_set_drops_before_decode() -> None:
+    """The `#` bind delivers the whole bus; a type outside the capture set
+    returns before any body decode."""
+    jk = _make_bare_jk()
+    envelope = MagicMock(from_alias="test.alias", type_name="gridworks.ping")
+    jk.dispatch_message(envelope=envelope, body=b"irrelevant")
+    jk.codec.from_dict.assert_not_called()
+    jk.persistor.persist_message.assert_not_called()
+
+
+def test_persist_body_gates_decodable_but_uncaptured_types() -> None:
+    """The legacy_hack path has no envelope to pre-gate on: a decodable
+    type outside the capture set must still not persist (decodable ≠
+    captured — the snapshot deliberately holds vocabulary gjk does not
+    persist, e.g. bid)."""
+    from gjk.sema import SemaType
+
+    jk = _make_bare_jk()
+    sema_obj = MagicMock(spec=SemaType)
+    sema_obj.type_name = "bid"
+    sema_obj.version = "000"
+    jk.codec.from_dict.return_value = sema_obj
+
+    body = json.dumps({"Payload": {"TypeName": "bid", "Version": "000"}}).encode()
+    jk._persist_body(from_alias="test.alias", body=body)
+
+    jk.persistor.persist_message.assert_not_called()
+
+
 def test_dispatch_message_degraded_type_not_persisted() -> None:
     """Degraded SemaType is logged but not persisted."""
     jk = _make_bare_jk()
@@ -71,7 +107,7 @@ def test_dispatch_message_degraded_type_not_persisted() -> None:
     degraded.version = "000"
     jk.codec.from_dict.return_value = degraded
 
-    envelope = MagicMock(from_alias="test.alias")
+    envelope = MagicMock(from_alias="test.alias", type_name="unknown.thing")
     body = json.dumps({"Payload": {"TypeName": "unknown.thing"}}).encode()
     jk.dispatch_message(envelope=envelope, body=body)
 

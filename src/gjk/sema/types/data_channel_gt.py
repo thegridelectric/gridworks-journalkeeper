@@ -1,8 +1,8 @@
 from typing import Literal
 from pydantic import ValidationError, model_validator
 from gjk.sema.base import SemaType
-from gjk.sema.enums import Gw1Quantity
 from gjk.sema.enums import SpaceheatTelemetryName
+from gjk.sema.enums.old_versions.gw1_quantity_000 import Gw1Quantity000
 from gjk.sema.property_format import LeftRightDot
 from gjk.sema.property_format import SpaceheatName
 from gjk.sema.property_format import UTCSeconds
@@ -20,7 +20,7 @@ class DataChannelGt(SemaType):
     about_node_name: SpaceheatName
     captured_by_node_name: SpaceheatName
     telemetry_name: SpaceheatTelemetryName
-    quantity: Gw1Quantity
+    quantity: Gw1Quantity000
     terminal_asset_alias: LeftRightDot
     in_power_metering: bool | None = None
     start_s: UTCSeconds | None = None

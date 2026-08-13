@@ -4,7 +4,7 @@ from gjk.sema.enums.gw_str_enum import SemaEnum
 
 
 class Gw1Quantity(SemaEnum):
-    """Sema: https://schemas.electricity.works/enums/gw1.quantity/000"""
+    """Sema: https://schemas.electricity.works/enums/gw1.quantity/002"""
 
     Unknown = auto()
     Unitless = auto()
@@ -17,6 +17,8 @@ class Gw1Quantity(SemaEnum):
     Current = auto()
     Percent = auto()
     Frequency = auto()
+    Time = auto()
+    WindSpeed = auto()
 
     @classmethod
     def default(cls) -> "Gw1Quantity":
@@ -32,4 +34,4 @@ class Gw1Quantity(SemaEnum):
 
     @classmethod
     def enum_version(cls) -> str:
-        return "000"
+        return "002"

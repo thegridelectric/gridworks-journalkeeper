@@ -77,6 +77,51 @@ types:
     versioning_strategy: literal
     versions:
       '001': definitions/types/gridworks.event.problem/001.yaml
+  gw.weather.channel.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.channel.gt/000.yaml
+  gw.weather.cmd.ack:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.cmd.ack/000.yaml
+  gw.weather.cmd.nack:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.cmd.nack/000.yaml
+  gw.weather.create.cmd:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.create.cmd/000.yaml
+  gw.weather.forecast:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.forecast/000.yaml
+  gw.weather.forecast.bundle.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.forecast.bundle.gt/000.yaml
+  gw.weather.forecast.channel.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.forecast.channel.gt/000.yaml
+  gw.weather.location.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.location.gt/000.yaml
+  gw.weather.observation:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.observation/000.yaml
   gw1.tank.temp.calibration:
     latest_version: '000'
     versioning_strategy: literal
@@ -100,10 +145,9 @@ types:
     versions:
       '000': definitions/types/heating.forecast/000.yaml
   i2c.multichannel.dt.relay.component.gt:
-    latest_version: '004'
+    latest_version: '003'
     versioning_strategy: literal
     versions:
-      '004': definitions/types/i2c.multichannel.dt.relay.component.gt/004.yaml
       '003': definitions/types/i2c.multichannel.dt.relay.component.gt/003.yaml
       '002': definitions/types/i2c.multichannel.dt.relay.component.gt/002.yaml
   latest.price:
@@ -112,10 +156,9 @@ types:
     versions:
       '000': definitions/types/latest.price/000.yaml
   layout.lite:
-    latest_version: '013'
+    latest_version: '012'
     versioning_strategy: literal
     versions:
-      '013': definitions/types/layout.lite/013.yaml
       '012': definitions/types/layout.lite/012.yaml
       '011': definitions/types/layout.lite/011.yaml
       '010': definitions/types/layout.lite/010.yaml
@@ -128,9 +171,10 @@ types:
     versions:
       '000': definitions/types/machine.states/000.yaml
   new.command.tree:
-    latest_version: '000'
+    latest_version: '001'
     versioning_strategy: literal
     versions:
+      '001': definitions/types/new.command.tree/001.yaml
       '000': definitions/types/new.command.tree/000.yaml
   pico.flow.module.component.gt:
     latest_version: '000'
@@ -153,10 +197,9 @@ types:
     versions:
       '001': definitions/types/price.quantity.unitless/001.yaml
   relay.actor.config:
-    latest_version: '003'
+    latest_version: '002'
     versioning_strategy: literal
     versions:
-      '003': definitions/types/relay.actor.config/003.yaml
       '002': definitions/types/relay.actor.config/002.yaml
   report:
     latest_version: '003'
@@ -245,6 +288,11 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/gpm.from.hz.method/000.yaml
+  gw.weather.forecast.fidelity:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.weather.forecast.fidelity/000.yaml
   gw1.actor.class:
     enum_type: versioned
     latest_version: '011'
@@ -293,8 +341,9 @@ enums:
       '001': definitions/enums/gw1.main.auto.state/001.yaml
   gw1.quantity:
     enum_type: versioned
-    latest_version: '000'
+    latest_version: '002'
     versions:
+      '002': definitions/enums/gw1.quantity/002.yaml
       '000': definitions/enums/gw1.quantity/000.yaml
   gw1.seasonal.storage.mode:
     enum_type: versioned
@@ -367,9 +416,11 @@ formats:
   left.right.dot: definitions/formats/left.right.dot.yaml
   market.slot.name: definitions/formats/market.slot.name.yaml
   non.empty.string: definitions/formats/non.empty.string.yaml
+  non.negative.int: definitions/formats/non.negative.int.yaml
   positive.int: definitions/formats/positive.int.yaml
   positive.int.as.str: definitions/formats/positive.int.as.str.yaml
   spaceheat.name: definitions/formats/spaceheat.name.yaml
+  utc.iso8601.seconds: definitions/formats/utc.iso8601.seconds.yaml
   utc.milliseconds: definitions/formats/utc.milliseconds.yaml
   utc.seconds: definitions/formats/utc.seconds.yaml
   uuid4.str: definitions/formats/uuid4.str.yaml

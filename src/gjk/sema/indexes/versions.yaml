@@ -134,6 +134,69 @@ types:
       "001":
         summary: "Initial Sema version"
 
+  gw.weather.channel.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.cmd.ack:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.cmd.nack:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.create.cmd:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast.bundle.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast.channel.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.location.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.observation:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
   gw1.tank.temp.calibration:
     latest_version: "000"
     versioning_strategy: "literal"
@@ -175,11 +238,9 @@ types:
         summary: "Initial Sema version"
 
   i2c.multichannel.dt.relay.component.gt:
-    latest_version: "004"
+    latest_version: "003"
     versioning_strategy: "literal"
     versions:
-      "004":
-        summary: "- ConfigList[]: relay.actor.config:002 -> 003"
       "003":
         summary: "- Add I2cBus"
       "002":
@@ -193,11 +254,9 @@ types:
         summary: "Initial Sema version"
 
   layout.lite:
-    latest_version: "013"
+    latest_version: "012"
     versioning_strategy: "literal"
     versions:
-      "013":
-        summary: "- I2cRelayComponent: i2c.multichannel.dt.relay.component.gt:003 -> 004"
       "012":
         summary: >
           - DerivedChannels[]: derived.channel.gt:000 | 001 -> 001
@@ -235,9 +294,11 @@ types:
         summary: "Initial Sema version"
 
   new.command.tree:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
+      "001":
+        summary: "- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"
       "000":
         summary: "Initial Sema version"
 
@@ -270,11 +331,9 @@ types:
         summary: "Baseline runtime version (no prior version tracked)."
 
   relay.actor.config:
-    latest_version: "003"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
-      "003":
-        summary: "- AsyncCaptureDelta: require when AsyncCapture is true"
       "002":
         summary: "Baseline runtime version (no prior version tracked)."
 
@@ -411,6 +470,12 @@ enums:
     versions:
       "000": {}
 
+  gw.weather.forecast.fidelity:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   gw1.actor.class:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
@@ -472,6 +537,9 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "002":
+        added_values:
+          - "WindSpeed"
       "000": {}
 
   gw1.seasonal.storage.mode:

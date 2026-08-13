@@ -16,11 +16,9 @@ from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
-from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
 type ModernLayout = (
     LayoutLite
-    | LayoutLite012
     | LayoutLite011
     | LayoutLite010
     | LayoutLite009

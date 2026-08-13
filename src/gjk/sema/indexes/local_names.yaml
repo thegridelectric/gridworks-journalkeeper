@@ -2,6 +2,7 @@ enums:
   change.relay.state: change.relay.state
   fsm.report.type: fsm.report.type
   gpm.from.hz.method: gpm.from.hz.method
+  gw.weather.forecast.fidelity: gw.weather.forecast.fidelity
   gw1.actor.class: gw1.actor.class
   gw1.emission.method: gw1.emission.method
   gw1.lc.top.state: gw1.lc.top.state
@@ -39,6 +40,15 @@ types:
   fsm.full.report: fsm.full.report
   glitch: glitch
   gridworks.event.problem: gridworks.event.problem
+  gw.weather.channel.gt: gw.weather.channel.gt
+  gw.weather.cmd.ack: gw.weather.cmd.ack
+  gw.weather.cmd.nack: gw.weather.cmd.nack
+  gw.weather.create.cmd: gw.weather.create.cmd
+  gw.weather.forecast: gw.weather.forecast
+  gw.weather.forecast.bundle.gt: gw.weather.forecast.bundle.gt
+  gw.weather.forecast.channel.gt: gw.weather.forecast.channel.gt
+  gw.weather.location.gt: gw.weather.location.gt
+  gw.weather.observation: gw.weather.observation
   gw1.tank.temp.calibration: gw1.tank.temp.calibration
   gw1.tank.temp.calibration.map: gw1.tank.temp.calibration.map
   ha1.params: ha1.params
