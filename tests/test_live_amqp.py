@@ -121,3 +121,151 @@ def test_emitter_through_broker_to_journalkeeper(
             jk.stop_consumer()
         except Exception:  # noqa: BLE001 -- best-effort teardown
             pass
+
+
+def test_weather_words_ride_radio_and_direct_keys(
+    timescale_db_url: str, rabbit_url: str, monkeypatch, tmp_path
+) -> None:
+    """The type token is not terminal on these keys: the observation
+    broadcast carries its radio tail (the location alias) after the
+    type, and the create command is a direct key with to-class.to-alias
+    after the type. Both must still reach JK's queue (the `#.<type>.#`
+    binding) and land as messages rows, bodies unwrapped as gwwf
+    publishes them."""
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+
+    _declare_topology(rabbit_url)
+
+    from gjk.config import Settings
+    from gjk.journal_keeper import JournalKeeper
+    from gjk.sema import SemaCodec
+    from gwbase.config.rabbit_settings import RabbitBrokerClient
+    from gwbase.transport_encoding import (
+        BroadcastRoutingEnvelope,
+        DirectRoutingEnvelope,
+        TransportClass,
+    )
+
+    samples = Path(__file__).resolve().parents[1] / "src" / "gjk" / "sema" / "samples"
+    observation = json.loads((samples / "gw.weather.observation.000.json").read_text())
+    create_cmd = json.loads((samples / "gw.weather.create.cmd.000.json").read_text())
+    bundle = json.loads(
+        (samples / "gw.weather.forecast.bundle.gt.000.json").read_text()
+    )
+    cases = [
+        (
+            "gw.weather.forecast.bundle.gt",
+            bundle,
+            BroadcastRoutingEnvelope.from_classes(
+                type_name="gw.weather.forecast.bundle.gt",
+                from_alias="d1.weather",
+                from_class=TransportClass.WeatherForecastService,
+                # the bundle broadcast is tail-less by design
+            ).routing_key,
+        ),
+        (
+            "gw.weather.observation",
+            observation,
+            BroadcastRoutingEnvelope.from_classes(
+                type_name="gw.weather.observation",
+                from_alias="d1.weather",
+                from_class=TransportClass.WeatherForecastService,
+                radio_channel=observation["LocationAlias"],
+            ).routing_key,
+        ),
+        (
+            "gw.weather.create.cmd",
+            create_cmd,
+            DirectRoutingEnvelope.from_classes(
+                type_name="gw.weather.create.cmd",
+                from_alias="d1.weatherminter",
+                from_class=TransportClass.WeatherForecastService,
+                to_class=TransportClass.WeatherForecastService,
+                to_alias="d1.weather",
+            ).routing_key,
+        ),
+    ]
+
+    settings = Settings(
+        db_url=SecretStr(timescale_db_url),
+        service_alias="d1.journal",
+        rabbit=RabbitBrokerClient(url=SecretStr(rabbit_url)),
+    )
+    jk = JournalKeeper(settings=settings, codec=SemaCodec())
+    jk.start()
+    try:
+        deadline = time.time() + 30
+        while not jk.consuming and time.time() < deadline:
+            time.sleep(0.2)
+        assert jk.consuming, "JournalKeeper never started consuming"
+
+        conn = pika.BlockingConnection(pika.URLParameters(rabbit_url))
+        pub = conn.channel()
+        eng = create_engine(timescale_db_url)
+
+        # publish-until-landed against the bind/consume race; landed>=1 is
+        # the assertion (these types mint ids at persist time, so a republish
+        # may add rows — count-nonzero, not count-exact).
+        # The binding wildcards filter delivery only; the delivered message
+        # carries its full key, so from_alias must land intact per sender.
+        expected_from = {
+            "gw.weather.forecast.bundle.gt": "d1.weather",
+            "gw.weather.observation": "d1.weather",
+            "gw.weather.create.cmd": "d1.weatherminter",
+        }
+        pending = {type_name: (body, key) for type_name, body, key in cases}
+        deadline = time.time() + 30
+        while pending and time.time() < deadline:
+            for type_name, (body, key) in list(pending.items()):
+                pub.basic_publish(
+                    exchange="amq.topic",
+                    routing_key=key,
+                    body=json.dumps(body).encode(),
+                )
+            time.sleep(0.5)
+            with eng.connect() as c:
+                for type_name in list(pending):
+                    froms = {
+                        r[0]
+                        for r in c.execute(
+                            text(
+                                "SELECT DISTINCT from_alias FROM gridworks.messages "
+                                "WHERE message_type_name = :t"
+                            ),
+                            {"t": type_name},
+                        )
+                    }
+                    if froms:
+                        assert froms == {expected_from[type_name]}
+                        del pending[type_name]
+        assert not pending, f"never landed: {sorted(pending)}"
+
+        # The bundle's post-insert hook created the observed-series
+        # pseudo-channels — observation channels only, scoped to the
+        # weather GNode.
+        with eng.connect() as c:
+            channels = {
+                r[0]
+                for r in c.execute(
+                    text(
+                        "SELECT name FROM gridworks.reading_channels "
+                        "WHERE terminal_asset_alias = 'd1.weather' "
+                        "AND deactivated_date IS NULL"
+                    )
+                )
+            }
+        assert channels == {
+            bundle["TempObservationChannel"]["Name"].replace(".", "-"),
+            bundle["WindSpeedObservationChannel"]["Name"].replace(".", "-"),
+        }
+        conn.close()
+        eng.dispose()
+    finally:
+        jk._main_loop_running = False
+        jk.shutting_down = True
+        try:
+            jk.stop_consumer()
+        except Exception:  # noqa: BLE001 -- best-effort teardown
+            pass

@@ -38,6 +38,12 @@ class JournalKeeper(ActorBase):
         self.persistor: SemaMessagePersistor = SemaMessagePersistor(
             settings, codec, self.logger
         )
+        # The capture set, frozen at boot: the queue receives everything
+        # (`#`), and THIS is where narrowing happens — by type, from the
+        # parsed envelope.
+        self._known_types: frozenset[str] = frozenset(
+            self.persistor.all_known_message_types()
+        )
         self._consume_exchange = "ear_tx"
         self.main_thread = threading.Thread(target=self.main, daemon=True)
 
@@ -46,25 +52,25 @@ class JournalKeeper(ActorBase):
     # ------------------------------------------------------------------
 
     def local_rabbit_startup(self) -> None:
-        """Bind one routing key per type the persistor knows how to handle.
+        """Bind everything (`#`) — gjk is a tap on the full bus.
 
-        The persistor's ``all_known_message_types()`` is the single
-        source of truth — new types added to the persistor's tables
-        flow through automatically with no edits here.
+        Narrowing does NOT happen at the broker: routing-key grammar
+        (where the type token sits per key shape) is transport
+        knowledge, not gjk's. The queue takes every message; dispatch
+        keeps only the types in the capture set, read off the PARSED
+        envelope gwbase hands it. This also delivers the legacy
+        ``broadcast.*`` keys the salvage override recovers.
         """
-        for type_name in sorted(self.persistor.all_known_message_types()):
-            routing_key = f"#.{type_name.replace('.', '-')}"
-            self.logger.info(
-                "Binding queue %s to %s with routing key %s",
-                self.queue_name,
-                self._consume_exchange,
-                routing_key,
-            )
-            self._single_channel.queue_bind(
-                self.queue_name,
-                self._consume_exchange,
-                routing_key=routing_key,
-            )
+        self.logger.info(
+            "Binding queue %s to %s with routing key #",
+            self.queue_name,
+            self._consume_exchange,
+        )
+        self._single_channel.queue_bind(
+            self.queue_name,
+            self._consume_exchange,
+            routing_key="#",
+        )
 
     def local_start(self) -> None:
         self._main_loop_running = True
@@ -81,10 +87,16 @@ class JournalKeeper(ActorBase):
     def dispatch_message(self, *, envelope: RoutingEnvelope, body: bytes) -> None:
         """Parse with SemaCodec, hand the SemaType to the persistor.
 
+        The capture gate: the queue receives the whole bus, so this is
+        where the capture set applies — on the parsed envelope's
+        type_name, before any body decode.
+
         Live AMQP counterpart to ``s3_message_importer.main()``'s loop.
         Errors are logged and swallowed — the live path keeps running,
         unlike the importer (which halts on first failure).
         """
+        if envelope.type_name not in self._known_types:
+            return
         self._persist_body(from_alias=envelope.from_alias, body=body)
 
     def on_routing_key_parse_error(
@@ -163,6 +175,12 @@ class JournalKeeper(ActorBase):
                 f"Got degraded SEMA type {sema_obj.type_name} "
                 f"(v{sema_obj.version}) from {from_alias} — not persisting"
             )
+            return
+
+        # The capture gate again, post-decode: the legacy_hack path has no
+        # parsed envelope to pre-gate on, and decodable ≠ captured (the
+        # snapshot deliberately holds vocabulary gjk does not persist).
+        if sema_obj.type_name not in self._known_types:
             return
 
         try:

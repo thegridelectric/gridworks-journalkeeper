@@ -24,7 +24,6 @@ types:
     '002':
       used_by:
       - layout.lite:012
-      - layout.lite:013
   derived.channel.gt:
     '000':
       used_by:
@@ -37,7 +36,6 @@ types:
       used_by:
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   fsm.atomic.report:
     '000':
       used_by:
@@ -53,6 +51,24 @@ types:
       used_by:
       - report:002
       - report:003
+  gw.weather.channel.gt:
+    '000':
+      used_by:
+      - gw.weather.create.cmd:000
+      - gw.weather.forecast.bundle.gt:000
+  gw.weather.forecast.bundle.gt:
+    '000':
+      used_by:
+      - gw.weather.create.cmd:000
+  gw.weather.forecast.channel.gt:
+    '000':
+      used_by:
+      - gw.weather.create.cmd:000
+      - gw.weather.forecast.bundle.gt:000
+  gw.weather.location.gt:
+    '000':
+      used_by:
+      - gw.weather.create.cmd:000
   gw1.tank.temp.calibration:
     '000':
       used_by:
@@ -66,7 +82,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   ha1.params:
     '004':
       used_by:
@@ -86,7 +101,6 @@ types:
       used_by:
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
       - scada.params:005
   i2c.multichannel.dt.relay.component.gt:
     '002':
@@ -99,9 +113,6 @@ types:
     '003':
       used_by:
       - layout.lite:012
-    '004':
-      used_by:
-      - layout.lite:013
   machine.states:
     '000':
       used_by:
@@ -116,7 +127,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   pico.tank.module.component.gt:
     '011':
       used_by:
@@ -126,7 +136,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   price.quantity.unitless:
     '001':
       used_by:
@@ -137,9 +146,6 @@ types:
       used_by:
       - i2c.multichannel.dt.relay.component.gt:002
       - i2c.multichannel.dt.relay.component.gt:003
-    '003':
-      used_by:
-      - i2c.multichannel.dt.relay.component.gt:004
   report:
     '002':
       used_by:
@@ -155,7 +161,6 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   single.machine.state:
     '000':
       used_by:
@@ -181,8 +186,8 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
       - new.command.tree:000
+      - new.command.tree:001
   spaceheat.telemetry.quantity.projection:
     '000':
       used_by:
@@ -200,7 +205,6 @@ enums:
     '000':
       used_by:
       - relay.actor.config:002
-      - relay.actor.config:003
   fsm.report.type:
     '000':
       used_by:
@@ -210,6 +214,10 @@ enums:
     '000':
       used_by:
       - pico.flow.module.component.gt:000
+  gw.weather.forecast.fidelity:
+    '000':
+      used_by:
+      - gw.weather.forecast:000
   gw1.actor.class:
     009:
       used_by:
@@ -227,6 +235,10 @@ enums:
       used_by:
       - data.channel.gt:002
       - spaceheat.telemetry.quantity.projection:000
+    '002':
+      used_by:
+      - gw.weather.channel.gt:000
+      - gw.weather.forecast.bundle.gt:000
   gw1.seasonal.storage.mode:
     '000':
       used_by:
@@ -235,7 +247,6 @@ enums:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   gw1.system.mode:
     '000':
       used_by:
@@ -244,12 +255,14 @@ enums:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
-      - layout.lite:013
   gw1.unit:
     '000':
       used_by:
       - derived.channel.gt:000
       - derived.channel.gt:001
+    '002':
+      used_by:
+      - gw.weather.channel.gt:000
   hz.calc.method:
     '001':
       used_by:
@@ -279,7 +292,6 @@ enums:
       used_by:
       - machine.states:000
       - relay.actor.config:002
-      - relay.actor.config:003
       - single.machine.state:000
   relay.energization.state:
     '000':
@@ -289,7 +301,6 @@ enums:
     '000':
       used_by:
       - relay.actor.config:002
-      - relay.actor.config:003
   spaceheat.make.model:
     '003':
       used_by:
@@ -307,7 +318,6 @@ enums:
       used_by:
       - channel.config:000
       - relay.actor.config:002
-      - relay.actor.config:003
   temp.calc.method:
     '000':
       used_by:
@@ -340,6 +350,12 @@ formats:
     - fsm.atomic.report:000
     - fsm.atomic.report:001
     - glitch:000
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.channel.gt:000
+    - gw.weather.forecast:000
+    - gw.weather.location.gt:000
+    - gw.weather.observation:000
     - heating.forecast:000
     - latest.price:000
     - layout.lite:007
@@ -348,11 +364,10 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - machine.states:000
     - new.command.tree:000
+    - new.command.tree:001
     - relay.actor.config:002
-    - relay.actor.config:003
     - report.event:002
     - report.event:003
     - report:002
@@ -371,8 +386,15 @@ formats:
     - latest.price:000
   non.empty.string:
     used_by:
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.channel.gt:000
+    - gw.weather.location.gt:000
     - relay.actor.config:002
-    - relay.actor.config:003
+  non.negative.int:
+    used_by:
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
   positive.int:
     used_by:
     - channel.config:000
@@ -383,16 +405,17 @@ formats:
     - flo.params.house0:005
     - flo.params.house0:006
     - flo.params.house0:007
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.channel.gt:000
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - pico.tank.module.component.gt:011
     - relay.actor.config:002
-    - relay.actor.config:003
     - report:002
     - report:003
     - sim.pico.tank.module.component.gt:000
@@ -414,10 +437,8 @@ formats:
     - fsm.full.report:001
     - glitch:000
     - i2c.multichannel.dt.relay.component.gt:003
-    - i2c.multichannel.dt.relay.component.gt:004
     - pico.flow.module.component.gt:000
     - relay.actor.config:002
-    - relay.actor.config:003
     - scada.params:004
     - scada.params:005
     - single.reading:000
@@ -426,6 +447,13 @@ formats:
     - spaceheat.node.gt:301
     - ticklist.hall.report:000
     - ticklist.reed.report:000
+  utc.iso8601.seconds:
+    used_by:
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.channel.gt:000
+    - gw.weather.forecast:000
+    - gw.weather.observation:000
   utc.milliseconds:
     used_by:
     - channel.readings:002
@@ -434,15 +462,16 @@ formats:
     - fsm.atomic.report:001
     - glitch:000
     - gridworks.event.problem:001
+    - gw.weather.forecast:000
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - machine.states:000
     - new.command.tree:000
+    - new.command.tree:001
     - report.event:002
     - report.event:003
     - report:002
@@ -484,10 +513,13 @@ formats:
     - fsm.full.report:000
     - fsm.full.report:001
     - gridworks.event.problem:001
+    - gw.weather.channel.gt:000
+    - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.channel.gt:000
+    - gw.weather.location.gt:000
     - heating.forecast:000
     - i2c.multichannel.dt.relay.component.gt:002
     - i2c.multichannel.dt.relay.component.gt:003
-    - i2c.multichannel.dt.relay.component.gt:004
     - latest.price:000
     - layout.lite:007
     - layout.lite:008
@@ -495,7 +527,6 @@ formats:
     - layout.lite:010
     - layout.lite:011
     - layout.lite:012
-    - layout.lite:013
     - pico.flow.module.component.gt:000
     - pico.tank.module.component.gt:011
     - report.event:002
