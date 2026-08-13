@@ -168,6 +168,69 @@ types:
       "001":
         summary: "Initial Sema version"
 
+  gw.weather.channel.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.cmd.ack:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.cmd.nack:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.create.cmd:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast.bundle.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.forecast.channel.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.location.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.observation:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
   gw1.tank.temp.calibration:
     latest_version: "000"
     versioning_strategy: "literal"
@@ -265,11 +328,9 @@ types:
         summary: "Initial Sema version"
 
   new.command.tree:
-    latest_version: "002"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
-      "002":
-        summary: "- ShNodes: spaceheat.node.gt:301 -> 303"
       "001":
         summary: "- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"
       "000":
@@ -370,15 +431,9 @@ types:
         summary: "Baseline runtime version (no prior version tracked)."
 
   spaceheat.node.gt:
-    latest_version: "303"
+    latest_version: "301"
     versioning_strategy: "literal"
     versions:
-      "303":
-        summary: >
-          - InPowerMetering: drop (routing is owned by the consuming transactive declaration, not the node)
-          - InPowerMeteringRequiresNameplate axiom: drop
-      "302":
-        summary: "- ActorClass: gw1.actor.class:011 -> 012"
       "301":
         summary: >
           - BoardComponentId: add as Optional
@@ -461,14 +516,16 @@ enums:
     versions:
       "000": {}
 
+  gw.weather.forecast.fidelity:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   gw1.actor.class:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
-      "012":
-        added_values:
-          - "SimSensorActor"
-          - "SimRelayActor"
       "011":
         added_values:
           - "I2cThermistorReader"
@@ -526,6 +583,9 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "002":
+        added_values:
+          - "WindSpeed"
       "000": {}
 
   gw1.seasonal.storage.mode:

@@ -14,12 +14,12 @@ from gjk.sema.types.ha1_params import Ha1Params
 from gjk.sema.types.i2c_multichannel_dt_relay_component_gt import (
     I2cMultichannelDtRelayComponentGt,
 )
-from gjk.sema.types.old_versions.spaceheat_node_gt_301 import SpaceheatNodeGt301
 from gjk.sema.types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.sema.types.pico_tank_module_component_gt import PicoTankModuleComponentGt
 from gjk.sema.types.sim_pico_tank_module_component_gt import (
     SimPicoTankModuleComponentGt,
 )
+from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 
 
 class LayoutLite(SemaType):
@@ -35,7 +35,7 @@ class LayoutLite(SemaType):
     zone_list: list[str]
     critical_zone_list: list[str]
     total_store_tanks: PositiveInt
-    sh_nodes: list[SpaceheatNodeGt301]
+    sh_nodes: list[SpaceheatNodeGt]
     data_channels: list[DataChannelGt]
     derived_channels: list[DerivedChannelGt]
     tank_module_components: list[

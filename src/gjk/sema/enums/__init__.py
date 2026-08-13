@@ -22,6 +22,7 @@ from gjk.sema.enums.gw1_quantity import Gw1Quantity
 from gjk.sema.enums.gw1_seasonal_storage_mode import Gw1SeasonalStorageMode
 from gjk.sema.enums.gw1_system_mode import Gw1SystemMode
 from gjk.sema.enums.gw1_unit import Gw1Unit
+from gjk.sema.enums.gw_weather_forecast_fidelity import GwWeatherForecastFidelity
 from gjk.sema.enums.hz_calc_method import HzCalcMethod
 from gjk.sema.enums.log_level import LogLevel
 from gjk.sema.enums.market_price_unit import MarketPriceUnit
@@ -53,6 +54,7 @@ __all__ = [
     "Gw1SeasonalStorageMode",
     "Gw1SystemMode",
     "Gw1Unit",
+    "GwWeatherForecastFidelity",
     "HzCalcMethod",
     "LogLevel",
     "MarketPriceUnit",

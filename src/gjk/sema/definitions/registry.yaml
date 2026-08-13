@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-08-06T14:35:00Z"
+  last_updated: "2026-08-13T11:55:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -32,6 +32,13 @@ formats:
     status: "published"
     description: "String with at least one character"
 
+  non.negative.int:
+    owner: gridworks-energy
+    schema_url: "https://schemas.electricity.works/formats/non.negative.int"
+    created: "2024-09-02T15:00:00Z"
+    status: "published"
+    description: "Non-negative integer with non-coercive serialized validation"
+
   positive.int:
     owner: gridworks-energy
     schema_url: "https://schemas.electricity.works/formats/positive.int"
@@ -52,6 +59,13 @@ formats:
     created: "2024-09-02T15:00:00Z"
     status: "published"
     description: "Single-segment lowercase identifier with optional internal hyphen-separated words"
+
+  utc.iso8601.seconds:
+    owner: gridworks-energy
+    schema_url: "https://schemas.electricity.works/formats/utc.iso8601.seconds"
+    created: "2026-02-22T16:43:00Z"
+    status: "published"
+    description: "UTC timestamp in ISO 8601 format with second precision and Z suffix"
 
   utc.milliseconds:
     owner: gridworks-energy
@@ -127,20 +141,25 @@ enums:
         created: "2024-10-23T19:32:00Z"
         status: "published"
 
+  gw.weather.forecast.fidelity:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "Degradation rung of a weather forecast emission: live product, stored-horizon drawdown, or seasonal-template fill."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw.weather.forecast.fidelity/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+
   gw1.actor.class:
-    latest_version: "012"
+    latest_version: "011"
     owner: gridworks-energy
     enum_type: "versioned"
     description: "Classification of actors in the GridWorks SCADA system."
 
     versions:
-      "012":
-        schema_url: "https://schemas.electricity.works/enums/gw1.actor.class/012"
-        created: "2026-06-12T00:00:00Z"
-        status: "published"
-        added_values:
-          - "SimSensorActor"
-          - "SimRelayActor"
       "011":
         schema_url: "https://schemas.electricity.works/enums/gw1.actor.class/011"
         created: "2026-02-18T21:34:00Z"
@@ -249,12 +268,18 @@ enums:
         status: "published"
 
   gw1.quantity:
-    latest_version: "000"
+    latest_version: "002"
     owner: gridworks-energy
     enum_type: "versioned"
     description: "High-level physical or semantic quantity classification for telemetry values."
 
     versions:
+      "002":
+        schema_url: "https://schemas.electricity.works/enums/gw1.quantity/002"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        added_values:
+          - "WindSpeed"
       "000":
         schema_url: "https://schemas.electricity.works/enums/gw1.quantity/000"
         created: "2026-02-17T19:54:00Z"
@@ -276,7 +301,10 @@ enums:
     latest_version: "000"
     owner: gridworks-energy
     enum_type: "versioned"
-    description: "System operational mode for HVAC control."
+    description: "System operational mode for HVAC control. Conflated actuation authority with the thermal service (Heating doubled as full authority)."
+    replaced_by:
+      - "gw1.actuation.authority"
+      - "gw1.service.mode"
 
     versions:
       "000":
@@ -869,6 +897,177 @@ types:
             - "utc.milliseconds"
             - "uuid4.str"
 
+  gw.weather.channel.gt:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "An observed weather series: one quantity at one place, the ground-truth series forecasters are scored against."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.channel.gt/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "gw1.quantity:002"
+            - "gw1.unit:002"
+            - "left.right.dot"
+            - "non.empty.string"
+            - "non.negative.int"
+            - "positive.int"
+            - "utc.iso8601.seconds"
+            - "uuid4.str"
+
+  gw.weather.cmd.ack:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "The weather service's reply to a write command it applied; correlated by the command's content hash."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.cmd.ack/000"
+        created: "2026-08-12T17:05:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural: []
+
+  gw.weather.cmd.nack:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "The weather service's reply to a write command it refused, carrying the reason; correlated by the command's content hash."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.cmd.nack/000"
+        created: "2026-08-12T17:05:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural: []
+
+  gw.weather.create.cmd:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Command to create one weather record (location, observed channel, forecast channel, or bundle) — the human minting act; the service inserts, broadcasts once, and replies ack or nack."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.create.cmd/000"
+        created: "2026-08-12T17:05:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "gw.weather.channel.gt:000"
+            - "gw.weather.forecast.bundle.gt:000"
+            - "gw.weather.forecast.channel.gt:000"
+            - "gw.weather.location.gt:000"
+
+  gw.weather.forecast:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Temperatures and wind speeds over a shared slice grid for a location, emitted per bundle by the GridWorks weather forecast service for flexible-load optimization."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.forecast/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "gw.weather.forecast.fidelity:000"
+            - "left.right.dot"
+            - "utc.iso8601.seconds"
+            - "utc.milliseconds"
+
+  gw.weather.forecast.bundle.gt:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "The subscribable curated set of forecast channels sharing one slice grid and emission schedule; embeds the forecast channels and their observed targets."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.forecast.bundle.gt/000"
+        created: "2026-08-12T13:10:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "gw.weather.channel.gt:000"
+            - "gw.weather.forecast.channel.gt:000"
+            - "left.right.dot"
+            - "non.empty.string"
+            - "non.negative.int"
+            - "positive.int"
+            - "utc.iso8601.seconds"
+            - "uuid4.str"
+          axiom:
+            - "gw1.quantity:002"
+
+  gw.weather.forecast.channel.gt:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "A named predictor of one observed weather series; slice structure declared on the record, not the wire."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.forecast.channel.gt/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "non.empty.string"
+            - "positive.int"
+            - "utc.iso8601.seconds"
+            - "uuid4.str"
+
+  gw.weather.location.gt:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "The place anchor for weather channels: provider-neutral coordinates, timezone, and station identifiers."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.location.gt/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "non.empty.string"
+            - "uuid4.str"
+
+  gw.weather.observation:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "One station observation: air temperature and wind speed at a location at ObservationTime; Interpolated marks gap-recovery fill."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/gw.weather.observation/000"
+        created: "2026-08-11T14:20:00Z"
+        status: "published"
+        summary: "Initial version."
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "utc.iso8601.seconds"
+
   gw1.tank.temp.calibration:
     latest_version: "000"
     owner: gridworks-energy
@@ -1161,22 +1360,12 @@ types:
             - "relay.closed.or.open:000"
 
   new.command.tree:
-    latest_version: "002"
+    latest_version: "001"
     owner: gridworks-energy
     versioning_strategy: "literal"
     description: "Full set of SpaceheatNodes describing a SCADA node's actor command hierarchy, sent to its LeafTransactiveNode."
 
     versions:
-      "002":
-        schema_url: "https://schemas.electricity.works/types/new.command.tree/002"
-        created: "2026-06-26T03:40:00Z"
-        status: "published"
-        summary: "- ShNodes: spaceheat.node.gt:301 -> 303"
-        direct_dependencies:
-          structural:
-            - "left.right.dot"
-            - "spaceheat.node.gt:303"
-            - "utc.milliseconds"
       "001":
         schema_url: "https://schemas.electricity.works/types/new.command.tree/001"
         created: "2026-06-26T03:35:00Z"
@@ -1475,36 +1664,12 @@ types:
             - "uuid4.str"
 
   spaceheat.node.gt:
-    latest_version: "303"
+    latest_version: "301"
     owner: gridworks-energy
     versioning_strategy: "literal"
     description: "A Spaceheat node representing a named element in the SCADA system."
 
     versions:
-      "303":
-        schema_url: "https://schemas.electricity.works/types/spaceheat.node.gt/303"
-        created: "2026-06-26T03:40:00Z"
-        status: "published"
-        summary: "- InPowerMetering: drop (routing is owned by the consuming transactive declaration, not the node) - InPowerMeteringRequiresNameplate axiom: drop"
-        direct_dependencies:
-          structural:
-            - "gw1.actor.class:012"
-            - "handle.name"
-            - "positive.int"
-            - "spaceheat.name"
-            - "uuid4.str"
-      "302":
-        schema_url: "https://schemas.electricity.works/types/spaceheat.node.gt/302"
-        created: "2026-06-12T00:00:00Z"
-        status: "published"
-        summary: "- ActorClass: gw1.actor.class:011 -> 012"
-        direct_dependencies:
-          structural:
-            - "gw1.actor.class:012"
-            - "handle.name"
-            - "positive.int"
-            - "spaceheat.name"
-            - "uuid4.str"
       "301":
         schema_url: "https://schemas.electricity.works/types/spaceheat.node.gt/301"
         created: "2026-02-18T21:34:00Z"

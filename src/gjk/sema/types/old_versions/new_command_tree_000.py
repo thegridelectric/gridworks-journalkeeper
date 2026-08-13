@@ -3,17 +3,17 @@ from pydantic import model_validator
 from gjk.sema.base import SemaType
 from gjk.sema.property_format import LeftRightDot
 from gjk.sema.property_format import UTCMilliseconds
-from gjk.sema.types.old_versions.new_command_tree_001 import NewCommandTree001
+from gjk.sema.types.new_command_tree import NewCommandTree
 from gjk.sema.types.old_versions.spaceheat_node_gt_200 import SpaceheatNodeGt200
 from gjk.sema.types.old_versions.spaceheat_node_gt_300 import SpaceheatNodeGt300
-from gjk.sema.types.old_versions.spaceheat_node_gt_301 import SpaceheatNodeGt301
+from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 
 
 class NewCommandTree000(SemaType):
     """Sema: https://schemas.electricity.works/types/new.command.tree/000"""
 
     from_g_node_alias: LeftRightDot
-    sh_nodes: list[SpaceheatNodeGt200 | SpaceheatNodeGt300 | SpaceheatNodeGt301]
+    sh_nodes: list[SpaceheatNodeGt200 | SpaceheatNodeGt300 | SpaceheatNodeGt]
     unix_ms: UTCMilliseconds
     type_name: Literal["new.command.tree"] = "new.command.tree"
     version: Literal["000"] = "000"
@@ -43,15 +43,15 @@ class NewCommandTree000(SemaType):
                     )
         return self
 
-    def upgrade(self) -> NewCommandTree001:
+    def upgrade(self) -> NewCommandTree:
         """- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"""
         data = self.model_dump()
-        lifted: list[SpaceheatNodeGt301] = []
+        lifted: list[SpaceheatNodeGt] = []
         for node in self.sh_nodes:
             current: SemaType = node
-            while not isinstance(current, SpaceheatNodeGt301):
+            while not isinstance(current, SpaceheatNodeGt):
                 current = current.upgrade()
             lifted.append(current)
         data["sh_nodes"] = lifted
         data["version"] = "001"
-        return NewCommandTree001.model_validate(data)
+        return NewCommandTree.model_validate(data)

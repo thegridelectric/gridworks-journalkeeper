@@ -7,22 +7,22 @@ from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 
 
 class NewCommandTree(SemaType):
-    """Sema: https://schemas.electricity.works/types/new.command.tree/002"""
+    """Sema: https://schemas.electricity.works/types/new.command.tree/001"""
 
     from_g_node_alias: LeftRightDot
     sh_nodes: list[SpaceheatNodeGt]
     unix_ms: UTCMilliseconds
     type_name: Literal["new.command.tree"] = "new.command.tree"
-    version: Literal["002"] = "002"
+    version: Literal["001"] = "001"
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> "NewCommandTree":
         """
         Axiom 1: PrefixClosedHandles
-        Let the effective handle of an ShNode be its Handle if present, otherwise
-        its Name. The set of effective handles SHALL be prefix-closed: for every ShNode
-        in ShNodes, each dot-separated prefix of its effective handle SHALL also be the
-        effective handle of some ShNode in ShNodes.
+        Let the effective handle of an ShNode be its Handle if present, otherwise its Name.
+        The set of effective handles SHALL be prefix-closed: for every ShNode in ShNodes,
+        each dot-separated prefix of its effective handle SHALL also be the effective handle
+        of some ShNode in ShNodes.
         """
         effective = {
             node.handle if node.handle is not None else node.name

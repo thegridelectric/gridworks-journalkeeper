@@ -1,11 +1,15 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-08-06T15:10:50Z'
+  generated_at: '2026-08-13T12:38:43Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
 - report.event:003
 - layout.lite:007
+- layout.lite:008
+- layout.lite:009
+- layout.lite:010
+- layout.lite:011
 - layout.lite:012
 - glitch:000
 - flo.params.house0:003
@@ -20,7 +24,6 @@ initial_targets:
 - energy.instruction:000
 - new.command.tree:000
 - new.command.tree:001
-- new.command.tree:002
 - g.node.forest:000
 - g.node.forest:001
 - g.node.forest:002
@@ -35,6 +38,15 @@ initial_targets:
 - atn.bid:002
 - bid:000
 - latest.price:000
+- gw.weather.observation:000
+- gw.weather.forecast:000
+- gw.weather.channel.gt:000
+- gw.weather.forecast.channel.gt:000
+- gw.weather.forecast.bundle.gt:000
+- gw.weather.location.gt:000
+- gw.weather.create.cmd:000
+- gw.weather.cmd.ack:000
+- gw.weather.cmd.nack:000
 - gw1.unit:002
 - gw1.main.auto.state:001
 - gw1.lc.top.state:001
@@ -53,12 +65,16 @@ worklist:
       path: definitions/formats/market.slot.name.yaml
     non.empty.string:
       path: definitions/formats/non.empty.string.yaml
+    non.negative.int:
+      path: definitions/formats/non.negative.int.yaml
     positive.int:
       path: definitions/formats/positive.int.yaml
     positive.int.as.str:
       path: definitions/formats/positive.int.as.str.yaml
     spaceheat.name:
       path: definitions/formats/spaceheat.name.yaml
+    utc.iso8601.seconds:
+      path: definitions/formats/utc.iso8601.seconds.yaml
     utc.milliseconds:
       path: definitions/formats/utc.milliseconds.yaml
     utc.seconds:
@@ -81,13 +97,14 @@ worklist:
     gpm.from.hz.method:
       '000':
         path: definitions/enums/gpm.from.hz.method/000.yaml
+    gw.weather.forecast.fidelity:
+      '000':
+        path: definitions/enums/gw.weather.forecast.fidelity/000.yaml
     gw1.actor.class:
       009:
         path: definitions/enums/gw1.actor.class/009.yaml
       '011':
         path: definitions/enums/gw1.actor.class/011.yaml
-      '012':
-        path: definitions/enums/gw1.actor.class/012.yaml
     gw1.emission.method:
       '000':
         path: definitions/enums/gw1.emission.method/000.yaml
@@ -115,6 +132,8 @@ worklist:
     gw1.quantity:
       '000':
         path: definitions/enums/gw1.quantity/000.yaml
+      '002':
+        path: definitions/enums/gw1.quantity/002.yaml
     gw1.seasonal.storage.mode:
       '000':
         path: definitions/enums/gw1.seasonal.storage.mode/000.yaml
@@ -232,6 +251,33 @@ worklist:
     gridworks.event.problem:
       '001':
         path: definitions/types/gridworks.event.problem/001.yaml
+    gw.weather.channel.gt:
+      '000':
+        path: definitions/types/gw.weather.channel.gt/000.yaml
+    gw.weather.cmd.ack:
+      '000':
+        path: definitions/types/gw.weather.cmd.ack/000.yaml
+    gw.weather.cmd.nack:
+      '000':
+        path: definitions/types/gw.weather.cmd.nack/000.yaml
+    gw.weather.create.cmd:
+      '000':
+        path: definitions/types/gw.weather.create.cmd/000.yaml
+    gw.weather.forecast:
+      '000':
+        path: definitions/types/gw.weather.forecast/000.yaml
+    gw.weather.forecast.bundle.gt:
+      '000':
+        path: definitions/types/gw.weather.forecast.bundle.gt/000.yaml
+    gw.weather.forecast.channel.gt:
+      '000':
+        path: definitions/types/gw.weather.forecast.channel.gt/000.yaml
+    gw.weather.location.gt:
+      '000':
+        path: definitions/types/gw.weather.location.gt/000.yaml
+    gw.weather.observation:
+      '000':
+        path: definitions/types/gw.weather.observation/000.yaml
     gw1.tank.temp.calibration:
       '000':
         path: definitions/types/gw1.tank.temp.calibration/000.yaml
@@ -277,8 +323,6 @@ worklist:
         path: definitions/types/new.command.tree/000.yaml
       '001':
         path: definitions/types/new.command.tree/001.yaml
-      '002':
-        path: definitions/types/new.command.tree/002.yaml
     pico.flow.module.component.gt:
       '000':
         path: definitions/types/pico.flow.module.component.gt/000.yaml
@@ -328,10 +372,6 @@ worklist:
         path: definitions/types/spaceheat.node.gt/300.yaml
       '301':
         path: definitions/types/spaceheat.node.gt/301.yaml
-      '302':
-        path: definitions/types/spaceheat.node.gt/302.yaml
-      '303':
-        path: definitions/types/spaceheat.node.gt/303.yaml
     spaceheat.telemetry.quantity.projection:
       '000':
         path: definitions/types/spaceheat.telemetry.quantity.projection/000.yaml

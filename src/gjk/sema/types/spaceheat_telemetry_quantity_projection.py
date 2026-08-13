@@ -1,34 +1,34 @@
 from typing import Literal
 from pydantic import model_validator
 from gjk.sema.base import SemaType
-from gjk.sema.enums import Gw1Quantity
 from gjk.sema.enums import SpaceheatTelemetryName
+from gjk.sema.enums.old_versions.gw1_quantity_000 import Gw1Quantity000
 
 
 _PROJECTION = {
-    SpaceheatTelemetryName.Unknown: Gw1Quantity.Unknown,
-    SpaceheatTelemetryName.PowerW: Gw1Quantity.Power,
-    SpaceheatTelemetryName.WattHours: Gw1Quantity.Energy,
-    SpaceheatTelemetryName.MilliWattHours: Gw1Quantity.Energy,
-    SpaceheatTelemetryName.WaterTempCTimes1000: Gw1Quantity.Temperature,
-    SpaceheatTelemetryName.WaterTempFTimes1000: Gw1Quantity.Temperature,
-    SpaceheatTelemetryName.AirTempCTimes1000: Gw1Quantity.Temperature,
-    SpaceheatTelemetryName.AirTempFTimes1000: Gw1Quantity.Temperature,
-    SpaceheatTelemetryName.CelsiusTimes100: Gw1Quantity.Temperature,
-    SpaceheatTelemetryName.GpmTimes100: Gw1Quantity.FlowRate,
-    SpaceheatTelemetryName.GallonsTimes100: Gw1Quantity.Volume,
-    SpaceheatTelemetryName.VoltageRmsMilliVolts: Gw1Quantity.Voltage,
-    SpaceheatTelemetryName.VoltsTimesTen: Gw1Quantity.Voltage,
-    SpaceheatTelemetryName.VoltsTimes100: Gw1Quantity.Voltage,
-    SpaceheatTelemetryName.MicroVolts: Gw1Quantity.Voltage,
-    SpaceheatTelemetryName.CurrentRmsMicroAmps: Gw1Quantity.Current,
-    SpaceheatTelemetryName.HzTimes100: Gw1Quantity.Frequency,
-    SpaceheatTelemetryName.MicroHz: Gw1Quantity.Frequency,
-    SpaceheatTelemetryName.RelayState: Gw1Quantity.Unitless,
-    SpaceheatTelemetryName.ThermostatState: Gw1Quantity.Unitless,
-    SpaceheatTelemetryName.StorageLayer: Gw1Quantity.Unitless,
-    SpaceheatTelemetryName.BinaryState: Gw1Quantity.Unitless,
-    SpaceheatTelemetryName.PercentKeep: Gw1Quantity.Percent,
+    SpaceheatTelemetryName.Unknown: Gw1Quantity000.Unknown,
+    SpaceheatTelemetryName.PowerW: Gw1Quantity000.Power,
+    SpaceheatTelemetryName.WattHours: Gw1Quantity000.Energy,
+    SpaceheatTelemetryName.MilliWattHours: Gw1Quantity000.Energy,
+    SpaceheatTelemetryName.WaterTempCTimes1000: Gw1Quantity000.Temperature,
+    SpaceheatTelemetryName.WaterTempFTimes1000: Gw1Quantity000.Temperature,
+    SpaceheatTelemetryName.AirTempCTimes1000: Gw1Quantity000.Temperature,
+    SpaceheatTelemetryName.AirTempFTimes1000: Gw1Quantity000.Temperature,
+    SpaceheatTelemetryName.CelsiusTimes100: Gw1Quantity000.Temperature,
+    SpaceheatTelemetryName.GpmTimes100: Gw1Quantity000.FlowRate,
+    SpaceheatTelemetryName.GallonsTimes100: Gw1Quantity000.Volume,
+    SpaceheatTelemetryName.VoltageRmsMilliVolts: Gw1Quantity000.Voltage,
+    SpaceheatTelemetryName.VoltsTimesTen: Gw1Quantity000.Voltage,
+    SpaceheatTelemetryName.VoltsTimes100: Gw1Quantity000.Voltage,
+    SpaceheatTelemetryName.MicroVolts: Gw1Quantity000.Voltage,
+    SpaceheatTelemetryName.CurrentRmsMicroAmps: Gw1Quantity000.Current,
+    SpaceheatTelemetryName.HzTimes100: Gw1Quantity000.Frequency,
+    SpaceheatTelemetryName.MicroHz: Gw1Quantity000.Frequency,
+    SpaceheatTelemetryName.RelayState: Gw1Quantity000.Unitless,
+    SpaceheatTelemetryName.ThermostatState: Gw1Quantity000.Unitless,
+    SpaceheatTelemetryName.StorageLayer: Gw1Quantity000.Unitless,
+    SpaceheatTelemetryName.BinaryState: Gw1Quantity000.Unitless,
+    SpaceheatTelemetryName.PercentKeep: Gw1Quantity000.Percent,
 }
 
 
@@ -36,14 +36,14 @@ class SpaceheatTelemetryQuantityProjection(SemaType):
     """Sema: https://schemas.electricity.works/types/spaceheat.telemetry.quantity.projection/000"""
 
     telemetry_name: SpaceheatTelemetryName
-    quantity: Gw1Quantity
+    quantity: Gw1Quantity000
     type_name: Literal["spaceheat.telemetry.quantity.projection"] = (
         "spaceheat.telemetry.quantity.projection"
     )
     version: Literal["000"] = "000"
 
     @classmethod
-    def project(cls, telemetry_name: SpaceheatTelemetryName) -> Gw1Quantity:
+    def project(cls, telemetry_name: SpaceheatTelemetryName) -> Gw1Quantity000:
         expected = _PROJECTION.get(telemetry_name)
         if expected is None:
             raise ValueError(

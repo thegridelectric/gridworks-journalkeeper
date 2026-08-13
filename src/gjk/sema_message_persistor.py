@@ -9,7 +9,6 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk.config import Settings
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
-from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import (
     MESSAGE_ID_NAMESPACE,
@@ -18,6 +17,8 @@ from gjk.message_persistence_info import (
 )
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
+from gjk.g_node_forest_persistor import GNodeForestPersistor
+from gjk.weather_bundle_persistor import WeatherBundlePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 
 # Re-exported from message_persistence_info so existing importers (and tests)
@@ -30,6 +31,7 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
+        "gw.weather.forecast": "message_created_ms",
         "new.command.tree": "unix_ms",
         "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",
@@ -46,6 +48,13 @@ class SemaMessagePersistor:
     MSG_ID_FIELDS = {
         "gridworks.event.problem": "message_id",
         "scada.params": "message_id",
+        # Weather records are durable identities; their own uuid is the
+        # message id, so a record replayed through the bus dedupes. (The
+        # bundle is absent here: WeatherBundlePersistor owns it, keeping
+        # the same natural-id rule.)
+        "gw.weather.channel.gt": "id",
+        "gw.weather.forecast.channel.gt": "id",
+        "gw.weather.location.gt": "id",
         # Obsolete message types
         "report": "id",
     }
@@ -53,6 +62,16 @@ class SemaMessagePersistor:
     # Messages with no id or created_at info, but we still want to persist
     BASIC_MSG_TYPES = [
         "atn.bid",
+        # The observation carries ObservationTime (the station's claim
+        # time, ISO seconds) but no message-created field by design;
+        # readings projection will key on ObservationTime later.
+        "gw.weather.observation",
+        # The create round: the journal carries every minting act, not
+        # only the eventstore. CommandHash is a sha256 hex, not a uuid,
+        # so the id stays the deterministic uuid5 default.
+        "gw.weather.cmd.ack",
+        "gw.weather.cmd.nack",
+        "gw.weather.create.cmd",
         "latest.price",
         "power.watts",
     ]
@@ -73,6 +92,7 @@ class SemaMessagePersistor:
                 ReportEventPersistor(logger),
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
+                WeatherBundlePersistor(logger),
                 # The registry alias is the universe's `<universe>.gnr` —
                 # derived from this service's own alias, never a second
                 # literal that can drift.

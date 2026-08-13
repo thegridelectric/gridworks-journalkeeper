@@ -18,7 +18,9 @@ initial_targets:
     report.event:
       versions: ["002","003"]
     layout.lite:
-      versions: ["007", "012"]  # published 007–012; 013+ staging — widen when promoted
+      # Published set only (013+ are staging): gjk is a prod service, so
+      # its snapshot is publication-grade; widen when scada promotes.
+      versions: ["007", "008", "009", "010", "011", "012"]
     glitch:
       include_all_versions: true
     flo.params.house0:
@@ -34,7 +36,8 @@ initial_targets:
     energy.instruction:
       include_all_versions: true
     new.command.tree:
-      include_all_versions: true
+      # Published set only (002 is staging) — same posture as layout.lite.
+      versions: ["000", "001"]
     g.node.forest:      # grid-node-registry's broadcast projection
       include_all_versions: true
     g.node.forest.request:      # bootstrap/resync against gnr's read API
@@ -55,6 +58,17 @@ initial_targets:
       include_all_versions: true
     latest.price:
       include_all_versions: true
+    # The gw.weather vocabulary: journaled from its first broadcast
+    # (messages-table only; readings projection comes later).
+    gw.weather.observation: {}
+    gw.weather.forecast: {}
+    gw.weather.channel.gt: {}
+    gw.weather.forecast.channel.gt: {}
+    gw.weather.forecast.bundle.gt: {}
+    gw.weather.location.gt: {}
+    gw.weather.create.cmd: {}
+    gw.weather.cmd.ack: {}
+    gw.weather.cmd.nack: {}
 
   enums:
     gw1.unit: {}
