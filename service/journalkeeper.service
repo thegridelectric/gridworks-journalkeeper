@@ -5,11 +5,11 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=gjk
 # Repo root as CWD so Settings' env_file=".env" resolves to the repo's .env.
-WorkingDirectory=/home/ubuntu/gridworks-journalkeeper
-ExecStart=/home/ubuntu/gridworks-journalkeeper/.venv/bin/python \
-    /home/ubuntu/gridworks-journalkeeper/run_journal_keeper.py
+WorkingDirectory=/home/gjk/gridworks-journalkeeper
+ExecStart=/home/gjk/gridworks-journalkeeper/.venv/bin/python \
+    /home/gjk/gridworks-journalkeeper/run_journal_keeper.py
 Restart=always
 RestartSec=1
 
