@@ -2,7 +2,9 @@ import argparse
 import json
 import logging
 import sys
+from collections import defaultdict
 from collections.abc import Iterable
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Literal
 
@@ -54,6 +56,18 @@ ALL_MSG_TYPES = [
     "gw.weather.cmd.ack",
     "gw.weather.cmd.nack",
 ]
+
+# Sentinel "version" for a message that raised before its version was known.
+PARSE_FAIL = "<parse-fail>"
+
+
+@dataclass
+class VersionCounts:
+    """Per-(type_name, version) tallies accumulated over one import run."""
+
+    ok: int = 0  # decoded into a known SemaType
+    degraded: int = 0  # codec returned a degraded type (version not known)
+    failed: int = 0  # decode raised (keyed under version=PARSE_FAIL)
 
 
 class S3MessageInfo:
@@ -152,6 +166,43 @@ def _parse_date(value: str) -> datetime:
     return datetime.strptime(value, "%Y-%m-%d")
 
 
+def log_run_summary(
+    logger, summary: dict[tuple[str, str], VersionCounts], msg_counter: int
+) -> None:
+    """Log a sorted (type_name, version) tally and call out degraded versions.
+
+    Degraded versions are the actionable output of a backfill: the codec could
+    not decode them, so each needs a sema word version authored before it can
+    load.
+    """
+    lines = [
+        "",
+        "=" * 78,
+        f"RUN SUMMARY (messages processed: {msg_counter})",
+        "-" * 78,
+        f"{'type_name':40} {'version':>9} {'ok':>8} {'degraded':>9} {'failed':>7}",
+        "-" * 78,
+    ]
+    degraded = []
+    for (type_name, version), c in sorted(summary.items()):
+        lines.append(
+            f"{type_name:40} {version:>9} {c.ok:>8} {c.degraded:>9} {c.failed:>7}"
+        )
+        if c.degraded:
+            degraded.append((type_name, version, c.degraded))
+    lines.append("=" * 78)
+    if degraded:
+        lines.append(
+            "Degraded versions (codec cannot decode — need new sema word versions):"
+        )
+        for type_name, version, n in degraded:
+            lines.append(f"  - {type_name} v{version} ({n} messages)")
+    else:
+        lines.append("No degraded versions — every accepted type decoded cleanly.")
+    lines.append("=" * 78)
+    logger.info("\n".join(lines))
+
+
 def main(argv=None):
     # argv=None -> sys.argv[1:] (unchanged CLI behavior); tests pass an explicit
     # list so pytest's own args never leak into this parser.
@@ -242,6 +293,7 @@ def main(argv=None):
             end=args.end,
         )
 
+    summary: dict[tuple[str, str], VersionCounts] = defaultdict(VersionCounts)
     gb_counter = 0
     byte_counter = 0
     msg_counter = 0
@@ -269,6 +321,7 @@ def main(argv=None):
                 msg_dict["Payload"], auto_upgrade=False, mode="degraded"
             )
             if isinstance(sema_obj, SemaType):
+                summary[(sema_obj.type_name, str(sema_obj.version))].ok += 1
                 logger.debug(
                     f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
                 )
@@ -277,18 +330,22 @@ def main(argv=None):
                         msg_info.from_alias, msg_info.persist_time, sema_obj
                     )
             else:
+                summary[(sema_obj.type_name, str(sema_obj.version))].degraded += 1
                 logger.warning(
                     f"Parsed into degraded SEMA type {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str}"
                 )
                 logger.debug(msg_text)
 
         except Exception as e:
+            summary[(msg_info.msg_type_name, PARSE_FAIL)].failed += 1
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
             if args.abort_on_error:
                 raise
             continue
+
+    log_run_summary(logger, summary, msg_counter)
 
 
 if __name__ == "__main__":
