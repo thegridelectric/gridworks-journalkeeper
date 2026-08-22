@@ -7,14 +7,27 @@ from sqlalchemy.orm import Session
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.pseudo_channels import ModernLayout, PseudoChannel, get_pseudo_channels
 from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
-from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite
+from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
 from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
+from gjk.sema.types.old_versions.layout_lite_006 import LayoutLite006
 from gjk.sema.types.old_versions.layout_lite_007 import LayoutLite007
 from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
+
+# layout.lite versions whose channel projection is SynthChannels (007+ carry
+# DerivedChannels instead). Grows as the S3 backfill walks earlier: v005,
+# v004, ... also carry SynthChannels — append each here as it is backfilled
+# into sema and gains its persist_vNNN method.
+SYNTH_ERA_LAYOUTS: tuple[type, ...] = (LayoutLite006,)
+
+# The only synth channels that ever appear in report.event readings — present
+# from the beginning of the archive, kept as synth channels for the synth
+# era. The other synth channels in a layout are unreported intermediates and
+# get no reading_channels rows.
+REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
 class LayoutLitePersistor:
@@ -58,6 +71,17 @@ class LayoutLitePersistor:
                 unit=dc.output_unit if dc.output_unit is not None else "Unknown",
                 unit_type=Gw1Unit.enum_name(),
                 channel_type=DerivedChannelGt.type_name_value(),
+            )
+
+        def synth_channel_to_db(self, sc: SynthChannelGt) -> ReadingChannelSql:
+            return ReadingChannelSql(
+                id=uuid.uuid4(),
+                name=sc.name,
+                terminal_asset_alias=sc.terminal_asset_alias,
+                display_name=sc.display_name,
+                unit=sc.telemetry_name,
+                unit_type=SpaceheatTelemetryName.enum_name(),
+                channel_type=SynthChannelGt.type_name_value(),
             )
 
         def pseudo_channel_to_db(self, pc: PseudoChannel) -> ReadingChannelSql:
@@ -109,6 +133,29 @@ class LayoutLitePersistor:
 
                     del self.existing_db_channels_by_name[dc.name]
 
+        def sync_synth_channels(self):
+            # Only the reported synth channels get rows; see
+            # REPORTED_SYNTH_CHANNELS.
+            for sc in self.layout.synth_channels:
+                if sc.name not in REPORTED_SYNTH_CHANNELS:
+                    continue
+                db_channel = self.existing_db_channels_by_name.get(sc.name)
+                if db_channel is None:
+                    self.new_db_channels.append(self.synth_channel_to_db(sc))
+                else:
+                    if (
+                        db_channel.unit != sc.telemetry_name
+                        or db_channel.unit_type != SpaceheatTelemetryName.enum_name()
+                        or db_channel.channel_type != SynthChannelGt.type_name_value()
+                    ):
+                        self.logger.info(
+                            f"Found synth channel {sc.name} for {sc.terminal_asset_alias} with mismatched unit/type in DB: {db_channel.channel_type}:{db_channel.unit_type}:{db_channel.unit}/{sc.telemetry_name}"
+                        )
+                        self.new_db_channels.append(self.synth_channel_to_db(sc))
+                        db_channel.deactivated_date = self.msg_timestamp
+
+                    del self.existing_db_channels_by_name[sc.name]
+
         def sync_pseudo_channels(self):
             for pc in get_pseudo_channels(self.layout):
                 db_channel = self.existing_db_channels_by_name.get(pc.name)
@@ -142,12 +189,15 @@ class LayoutLitePersistor:
 
             self.new_db_channels = []
 
-            # Look at every channel (data, derived, and pseudo)
+            # Look at every channel (data, derived/synth, and pseudo)
             #   If it does not exist as active in the database, add it
             #   If it exists with a different unit or unit type, deactivated it and add a new one
 
             self.sync_data_channels()
-            self.sync_derived_channels()
+            if isinstance(self.layout, SYNTH_ERA_LAYOUTS):
+                self.sync_synth_channels()
+            else:
+                self.sync_derived_channels()
             self.sync_pseudo_channels()
 
             for db_only_channel in self.existing_db_channels_by_name.values():
@@ -177,6 +227,11 @@ class LayoutLitePersistor:
                 db, from_alias, layout
             ),
         )
+
+    def persist_v006(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite006
+    ):
+        return self.persist(from_alias, layout)
 
     def persist_v007(
         self, from_alias: str, time_received: datetime, layout: LayoutLite007

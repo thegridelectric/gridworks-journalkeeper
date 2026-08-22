@@ -16,6 +16,7 @@ types:
   data.channel.gt:
     '001':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - layout.lite:008
       - layout.lite:009
@@ -85,6 +86,7 @@ types:
   ha1.params:
     '004':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - layout.lite:008
       - layout.lite:009
@@ -105,6 +107,7 @@ types:
   i2c.multichannel.dt.relay.component.gt:
     '002':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - layout.lite:008
       - layout.lite:009
@@ -121,6 +124,7 @@ types:
   pico.flow.module.component.gt:
     '000':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - layout.lite:008
       - layout.lite:009
@@ -130,6 +134,7 @@ types:
   pico.tank.module.component.gt:
     '011':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - layout.lite:008
       - layout.lite:009
@@ -172,6 +177,7 @@ types:
   spaceheat.node.gt:
     '200':
       used_by:
+      - layout.lite:006
       - layout.lite:007
       - new.command.tree:000
     '300':
@@ -192,6 +198,10 @@ types:
     '000':
       used_by:
       - data.channel.gt:002
+  synth.channel.gt:
+    '000':
+      used_by:
+      - layout.lite:006
   ticklist.hall:
     '101':
       used_by:
@@ -313,6 +323,7 @@ enums:
       used_by:
       - data.channel.gt:002
       - spaceheat.telemetry.quantity.projection:000
+      - synth.channel.gt:000
   spaceheat.unit:
     '001':
       used_by:
@@ -358,6 +369,7 @@ formats:
     - gw.weather.observation:000
     - heating.forecast:000
     - latest.price:000
+    - layout.lite:006
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
@@ -376,6 +388,7 @@ formats:
     - scada.params:005
     - single.machine.state:000
     - snapshot.spaceheat:003
+    - synth.channel.gt:000
     - ticklist.hall.report:000
     - ticklist.reed.report:000
     - weather.forecast:000
@@ -408,6 +421,7 @@ formats:
     - gw.weather.channel.gt:000
     - gw.weather.forecast.bundle.gt:000
     - gw.weather.forecast.channel.gt:000
+    - layout.lite:006
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
@@ -422,6 +436,7 @@ formats:
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - synth.channel.gt:000
   positive.int.as.str:
     used_by:
     - gw1.tank.temp.calibration.map:000
@@ -445,6 +460,7 @@ formats:
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - synth.channel.gt:000
     - ticklist.hall.report:000
     - ticklist.reed.report:000
   utc.iso8601.seconds:
@@ -463,6 +479,7 @@ formats:
     - glitch:000
     - gridworks.event.problem:001
     - gw.weather.forecast:000
+    - layout.lite:006
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
@@ -521,6 +538,7 @@ formats:
     - i2c.multichannel.dt.relay.component.gt:002
     - i2c.multichannel.dt.relay.component.gt:003
     - latest.price:000
+    - layout.lite:006
     - layout.lite:007
     - layout.lite:008
     - layout.lite:009
@@ -540,4 +558,5 @@ formats:
     - spaceheat.node.gt:200
     - spaceheat.node.gt:300
     - spaceheat.node.gt:301
+    - synth.channel.gt:000
     - weather.forecast:000

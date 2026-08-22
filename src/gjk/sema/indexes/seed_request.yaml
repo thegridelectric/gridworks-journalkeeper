@@ -20,7 +20,9 @@ initial_targets:
     layout.lite:
       # Published set only (013+ are staging): gjk is a prod service, so
       # its snapshot is publication-grade; widen when scada promotes.
-      versions: ["007", "008", "009", "010", "011", "012"]
+      # 006 is the historical back-fill version (SynthChannels era) the
+      # S3 backfill decodes.
+      versions: ["006", "007", "008", "009", "010", "011", "012"]
     glitch:
       include_all_versions: true
     flo.params.house0:

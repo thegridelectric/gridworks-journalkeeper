@@ -11,12 +11,16 @@
 from collections.abc import Callable
 
 from gjk.sema.types import LayoutLite
+from gjk.sema.types.old_versions.layout_lite_006 import LayoutLite006
 from gjk.sema.types.old_versions.layout_lite_007 import LayoutLite007
 from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 
+# Every layout.lite version JK persists natively. 006 is the historical
+# SynthChannels-era version (backfilled from the S3 archive); 007+ carry
+# DerivedChannels instead.
 type ModernLayout = (
     LayoutLite
     | LayoutLite011
@@ -24,6 +28,7 @@ type ModernLayout = (
     | LayoutLite009
     | LayoutLite008
     | LayoutLite007
+    | LayoutLite006
 )
 
 

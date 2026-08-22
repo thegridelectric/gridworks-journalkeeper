@@ -46,6 +46,7 @@ from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import boto3
 
@@ -97,6 +98,11 @@ class TypeVersionReport:
     last_seen: datetime
     aliases: set[str] = field(default_factory=set)
     loadable: bool | None = None
+    # When loadable is False, exactly one of these explains it: the codec does
+    # not know the (type, version) — a new sema word version to author — or it
+    # does and the real payload still fails, a translation bug to raise.
+    needs_version: bool = False
+    decode_error: str | None = None
 
 
 def dates_in_range(start: datetime, end: datetime):
@@ -232,16 +238,27 @@ def flag_loadable(
     reports: dict[tuple[str, str], TypeVersionReport],
     sample_payloads: dict[tuple[str, str], dict],
 ) -> None:
-    """Decode one sample of each (type, version); set loadable = decodes cleanly."""
+    """Decode one sample of each (type, version) strictly and classify.
+
+    loadable=True: decodes cleanly. Otherwise needs_version marks a (type,
+    version) the codec does not know (author it), while decode_error carries
+    the failure for a version the codec DOES know — the sema definition
+    mistranslating the wire.
+    """
     for key, report in reports.items():
         payload = sample_payloads.get(key)
         if payload is None:
             continue
         try:
-            obj = codec.from_dict(payload, auto_upgrade=False, mode="degraded")
+            obj = codec.from_dict(payload, auto_upgrade=False)
             report.loadable = isinstance(obj, SemaType)
-        except Exception:  # noqa: BLE001 -- a decode failure is "not loadable"
+        except Exception as e:  # noqa: BLE001 -- classify every decode failure
             report.loadable = False
+            message = str(e)
+            if "Unsupported version" in message or "Unknown type" in message:
+                report.needs_version = True
+            else:
+                report.decode_error = message.replace("\n", " ")[:160]
 
 
 def accepted_types(logger) -> set[str]:
@@ -270,10 +287,16 @@ def log_report(
         f"{'first_seen':16}  {'last_seen':16}  houses",
         "-" * 100,
     ]
-    need_authoring = []
+    need_version = []
+    mismatched = []
     out_of_scope = 0
     for (type_name, version), r in sorted(reports.items()):
-        load = "ok" if r.loadable else ("NO" if r.loadable is False else "?")
+        if r.loadable:
+            load = "ok"
+        elif r.loadable is None:
+            load = "?"
+        else:
+            load = "need" if r.needs_version else "MISM"
         is_accepted = type_name in accepted
         acc = "yes" if is_accepted else ("no" if accepted else "?")
         lines.append(
@@ -281,18 +304,25 @@ def log_report(
             f"{r.first_seen:%Y-%m-%d %H:%M}  {r.last_seen:%Y-%m-%d %H:%M}  {len(r.aliases)}"
         )
         if r.loadable is False:
-            if is_accepted:
-                need_authoring.append((type_name, version, r.count))
-            else:
+            if not is_accepted:
                 out_of_scope += 1
+            elif r.needs_version:
+                need_version.append((type_name, version, r.count))
+            else:
+                mismatched.append((type_name, version, r.count, r.decode_error))
     lines.append("=" * 100)
-    if need_authoring:
+    if mismatched:
         lines.append(
-            "ACCEPTED versions the codec cannot decode -- need new sema word versions:"
+            "TRANSLATION MISMATCH -- versions the codec knows whose real payloads "
+            "fail to decode (fix the sema definition, do not add a version):"
         )
-        for type_name, version, count in need_authoring:
+        for type_name, version, count, error in mismatched:
+            lines.append(f"  - {type_name} v{version} ({count} messages): {error}")
+    if need_version:
+        lines.append("ACCEPTED types needing NEW sema word versions authored:")
+        for type_name, version, count in need_version:
             lines.append(f"  - {type_name} v{version} ({count} messages)")
-    else:
+    if not mismatched and not need_version:
         lines.append("Every accepted version found decodes with the current codec.")
     if out_of_scope:
         lines.append(
@@ -329,6 +359,13 @@ def main(argv=None):
         default=32,
         help="Concurrent S3 GETs for the download-all path",
     )
+    parser.add_argument(
+        "--save-samples",
+        type=str,
+        default=None,
+        help="Directory to write each (type, version)'s first payload as "
+        "<type.name>-<version>.json -- the wire evidence for authoring",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
@@ -349,6 +386,14 @@ def main(argv=None):
 
     flag_loadable(SemaCodec(), reports, sample_payloads)
     log_report(logger, reports, accepted_types(logger))
+
+    if args.save_samples is not None:
+        samples_dir = Path(args.save_samples)
+        samples_dir.mkdir(parents=True, exist_ok=True)
+        for (type_name, version), payload in sorted(sample_payloads.items()):
+            path = samples_dir / f"{type_name}-{version}.json"
+            path.write_text(json.dumps(payload, indent=2) + "\n")
+        logger.info(f"wrote {len(sample_payloads)} sample payloads to {samples_dir}")
 
 
 if __name__ == "__main__":

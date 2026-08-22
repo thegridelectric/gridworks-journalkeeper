@@ -72,6 +72,7 @@ types:
   snapshot.spaceheat: snapshot.spaceheat
   spaceheat.node.gt: spaceheat.node.gt
   spaceheat.telemetry.quantity.projection: spaceheat.telemetry.quantity.projection
+  synth.channel.gt: synth.channel.gt
   ticklist.hall: ticklist.hall
   ticklist.hall.report: ticklist.hall.report
   ticklist.reed: ticklist.reed

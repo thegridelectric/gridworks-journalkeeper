@@ -165,6 +165,7 @@ types:
       009: definitions/types/layout.lite/009.yaml
       008: definitions/types/layout.lite/008.yaml
       '007': definitions/types/layout.lite/007.yaml
+      '006': definitions/types/layout.lite/006.yaml
   machine.states:
     latest_version: '000'
     versioning_strategy: literal
@@ -251,6 +252,11 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/spaceheat.telemetry.quantity.projection/000.yaml
+  synth.channel.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/synth.channel.gt/000.yaml
   ticklist.hall:
     latest_version: '101'
     versioning_strategy: literal

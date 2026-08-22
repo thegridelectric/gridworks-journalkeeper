@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-08-12T20:25:00Z"
+  last_updated: "2026-08-16T16:30:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -277,7 +277,10 @@ enums:
     latest_version: "000"
     owner: gridworks-energy
     enum_type: "versioned"
-    description: "System operational mode for HVAC control."
+    description: "System operational mode for HVAC control. Conflated actuation authority with the thermal service (Heating doubled as full authority)."
+    replaced_by:
+      - "gw1.actuation.authority"
+      - "gw1.service.mode"
 
     versions:
       "000":
@@ -402,7 +405,7 @@ enums:
     versions:
       "007":
         schema_url: "https://schemas.electricity.works/enums/spaceheat.telemetry.name/007"
-        created: "2026-03-30T17:12:00Z"
+        created: "2025-12-08T00:00:00Z"
         status: "published"
         added_values:
           - "BinaryState"
@@ -1192,7 +1195,7 @@ types:
         schema_url: "https://schemas.electricity.works/types/layout.lite/007"
         created: "2026-01-14T14:08:00Z"
         status: "published"
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "Replace SynthChannels with DerivedChannels; add optional TMap."
         direct_dependencies:
           structural:
             - "data.channel.gt:001"
@@ -1205,6 +1208,24 @@ types:
             - "pico.tank.module.component.gt:011"
             - "positive.int"
             - "spaceheat.node.gt:200"
+            - "utc.milliseconds"
+            - "uuid4.str"
+      "006":
+        schema_url: "https://schemas.electricity.works/types/layout.lite/006"
+        created: "2025-12-10T00:00:00Z"
+        status: "published"
+        summary: "SynthChannels-based runtime layout (no DerivedChannels or TMap)."
+        direct_dependencies:
+          structural:
+            - "data.channel.gt:001"
+            - "ha1.params:004"
+            - "i2c.multichannel.dt.relay.component.gt:002"
+            - "left.right.dot"
+            - "pico.flow.module.component.gt:000"
+            - "pico.tank.module.component.gt:011"
+            - "positive.int"
+            - "spaceheat.node.gt:200"
+            - "synth.channel.gt:000"
             - "utc.milliseconds"
             - "uuid4.str"
 
@@ -1565,7 +1586,7 @@ types:
             - "uuid4.str"
       "200":
         schema_url: "https://schemas.electricity.works/types/spaceheat.node.gt/200"
-        created: "2026-01-14T14:08:00Z"
+        created: "2025-12-09T00:00:00Z"
         status: "published"
         summary: "Baseline runtime version (no prior version tracked)."
         direct_dependencies:
@@ -1591,6 +1612,26 @@ types:
           structural:
             - "gw1.quantity:000"
             - "spaceheat.telemetry.name:007"
+
+  synth.channel.gt:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Definition of a synthetic telemetry channel computed by a GridWorks actor node from one or more input channels."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/synth.channel.gt/000"
+        created: "2025-12-09T00:00:00Z"
+        status: "published"
+        summary: "Initial Sema version"
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "positive.int"
+            - "spaceheat.name"
+            - "spaceheat.telemetry.name:007"
+            - "uuid4.str"
 
   ticklist.hall:
     latest_version: "101"

@@ -1,10 +1,11 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-08-12T21:48:48Z'
+  generated_at: '2026-08-22T21:35:55Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:002
 - report.event:003
+- layout.lite:006
 - layout.lite:007
 - layout.lite:008
 - layout.lite:009
@@ -275,6 +276,8 @@ worklist:
       '000':
         path: definitions/types/latest.price/000.yaml
     layout.lite:
+      '006':
+        path: definitions/types/layout.lite/006.yaml
       '007':
         path: definitions/types/layout.lite/007.yaml
       008:
@@ -347,6 +350,9 @@ worklist:
     spaceheat.telemetry.quantity.projection:
       '000':
         path: definitions/types/spaceheat.telemetry.quantity.projection/000.yaml
+    synth.channel.gt:
+      '000':
+        path: definitions/types/synth.channel.gt/000.yaml
     ticklist.hall:
       '101':
         path: definitions/types/ticklist.hall/101.yaml
