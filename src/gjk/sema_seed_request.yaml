@@ -16,13 +16,13 @@
 initial_targets:
   types:
     report.event:
-      versions: ["002","003"]
+      versions: ["000", "002", "003"]
     layout.lite:
       # Published set only (013+ are staging): gjk is a prod service, so
       # its snapshot is publication-grade; widen when scada promotes.
-      # 006 is the historical back-fill version (SynthChannels era) the
-      # S3 backfill decodes.
-      versions: ["006", "007", "008", "009", "010", "011", "012"]
+      # The walk-back extends this backward; 002/003 are historical back-fill
+      # versions the S3 archive still carries and JK must decode.
+      versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
     glitch:
       include_all_versions: true
     flo.params.house0:

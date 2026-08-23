@@ -1,0 +1,22 @@
+{
+  "TypeName": "scada.params",
+  "Version": "001",
+  "FromGNodeAlias": "hw1.isone.me.versant.keene.elm",
+  "FromName": "a",
+  "ToName": "h",
+  "UnixTimeMs": 1745850860132,
+  "MessageId": "0da324a0-2f91-46ca-9f3c-7388173fd44e",
+  "NewParams": {
+    "TypeName": "ha1.params",
+    "Version": "000",
+    "AlphaTimes10": 70,
+    "BetaTimes100": -13,
+    "GammaEx6": 2000,
+    "IntermediatePowerKw": 1.5,
+    "IntermediateRswtF": 130,
+    "DdPowerKw": 12.0,
+    "DdRswtF": 180,
+    "DdDeltaTF": 20,
+    "HpMaxKwTh": 14.0
+  }
+}

@@ -23,8 +23,12 @@ from gjk.sema.enums import (
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
 from gjk.sema.types import ReportEvent
+from gjk.sema.types.old_versions.report_001 import Report001
+from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
 from gjk.zone_heat_call_pseudo_channel import ZoneHeatCallPseudoChannel
+
+ReportEventType = ReportEvent | ReportEvent002 | ReportEvent000
 
 
 class SemaEnumPseudoChannel(PseudoChannel):
@@ -114,10 +118,14 @@ class ReportEventPersistor:
     def collect_channel_state_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
+        if isinstance(reportEvent.report, Report001):
+            # report:001 carries FsmActionList in place of StateList: no
+            # machine states to project.
+            return
         for states in reportEvent.report.state_list:
             machine_handle = (
                 str(states.machine_handle)
@@ -173,7 +181,7 @@ class ReportEventPersistor:
     def collect_zone_heat_call_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
@@ -206,7 +214,7 @@ class ReportEventPersistor:
                     )
 
     def persist_readings(
-        self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
+        self, db: Session, from_alias: str, reportEvent: ReportEventType
     ):
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
         db_channels = (
@@ -258,6 +266,17 @@ class ReportEventPersistor:
                 index_elements=["timestamp", "channel_id"]
             )
             db.execute(stmt, dicts)
+
+    def persist_v000(
+        self, from_alias: str, time_received: datetime, report: ReportEvent000
+    ):
+        return MessagePersistenceInfo(
+            id=report.message_id,
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
+            additional_db_operations=lambda db: self.persist_readings(
+                db, from_alias, report
+            ),
+        )
 
     def persist_v002(
         self, from_alias: str, time_received: datetime, report: ReportEvent002

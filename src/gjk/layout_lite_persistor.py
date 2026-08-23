@@ -5,11 +5,22 @@ from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.pseudo_channels import ModernLayout, PseudoChannel, get_pseudo_channels
+from gjk.pseudo_channels import (
+    DerivedEraLayout,
+    ModernLayout,
+    PseudoChannel,
+    SynthEraLayout,
+    get_pseudo_channels,
+)
 from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
 from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
 from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
+from gjk.sema.types.old_versions.layout_lite_001 import LayoutLite001
+from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
+from gjk.sema.types.old_versions.layout_lite_003 import LayoutLite003
+from gjk.sema.types.old_versions.layout_lite_004 import LayoutLite004
+from gjk.sema.types.old_versions.layout_lite_005 import LayoutLite005
 from gjk.sema.types.old_versions.layout_lite_006 import LayoutLite006
 from gjk.sema.types.old_versions.layout_lite_007 import LayoutLite007
 from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
@@ -18,10 +29,16 @@ from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 
 # layout.lite versions whose channel projection is SynthChannels (007+ carry
-# DerivedChannels instead). Grows as the S3 backfill walks earlier: v005,
-# v004, ... also carry SynthChannels — append each here as it is backfilled
-# into sema and gains its persist_vNNN method.
-SYNTH_ERA_LAYOUTS: tuple[type, ...] = (LayoutLite006,)
+# DerivedChannels instead). v001 predates SynthChannels altogether and v002
+# carries them optionally; both sync as an empty synth set.
+SYNTH_ERA_LAYOUTS = (
+    LayoutLite006,
+    LayoutLite005,
+    LayoutLite004,
+    LayoutLite003,
+    LayoutLite002,
+    LayoutLite001,
+)
 
 # The only synth channels that ever appear in report.event readings — present
 # from the beginning of the archive, kept as synth channels for the synth
@@ -114,8 +131,8 @@ class LayoutLitePersistor:
 
                     del self.existing_db_channels_by_name[dc.name]
 
-        def sync_derived_channels(self):
-            for dc in self.layout.derived_channels:
+        def sync_derived_channels(self, layout: DerivedEraLayout):
+            for dc in layout.derived_channels:
                 db_channel = self.existing_db_channels_by_name.get(dc.name)
                 if db_channel is None:
                     self.new_db_channels.append(self.derived_channel_to_db(dc))
@@ -133,10 +150,16 @@ class LayoutLitePersistor:
 
                     del self.existing_db_channels_by_name[dc.name]
 
-        def sync_synth_channels(self):
+        def sync_synth_channels(self, layout: SynthEraLayout):
             # Only the reported synth channels get rows; see
             # REPORTED_SYNTH_CHANNELS.
-            for sc in self.layout.synth_channels:
+            if isinstance(layout, LayoutLite001):
+                synth_channels = []
+            elif isinstance(layout, LayoutLite002):
+                synth_channels = layout.synth_channels or []
+            else:
+                synth_channels = layout.synth_channels
+            for sc in synth_channels:
                 if sc.name not in REPORTED_SYNTH_CHANNELS:
                     continue
                 db_channel = self.existing_db_channels_by_name.get(sc.name)
@@ -195,9 +218,9 @@ class LayoutLitePersistor:
 
             self.sync_data_channels()
             if isinstance(self.layout, SYNTH_ERA_LAYOUTS):
-                self.sync_synth_channels()
+                self.sync_synth_channels(self.layout)
             else:
-                self.sync_derived_channels()
+                self.sync_derived_channels(self.layout)
             self.sync_pseudo_channels()
 
             for db_only_channel in self.existing_db_channels_by_name.values():
@@ -227,6 +250,31 @@ class LayoutLitePersistor:
                 db, from_alias, layout
             ),
         )
+
+    def persist_v001(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite001
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v002(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite002
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v003(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite003
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v004(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite004
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v005(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite005
+    ):
+        return self.persist(from_alias, layout)
 
     def persist_v006(
         self, from_alias: str, time_received: datetime, layout: LayoutLite006

@@ -41,6 +41,7 @@ import argparse
 import json
 import logging
 import sys
+import time
 from collections import defaultdict
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -63,10 +64,61 @@ WORLD_INSTANCE_NAME = "hw1__1"
 # objects -> read every version directly; at or above -> bisect for boundaries.
 DOWNLOAD_ALL_THRESHOLD = 100
 
+# Unknown proactor comm-infrastructure types on a separate vocabulary track,
+# not part of the version reconstruction. They flood the scan's need-list on
+# every window and obscure the types actually being reconstructed, so skip
+# them for now. Listed explicitly (not by prefix) so an authored sibling such
+# as gridworks.event.problem stays visible. Drop an entry when its word lands.
+IGNORED_TYPE_NAMES = frozenset({
+    "gridworks.event.comm.mqtt.connect",
+    "gridworks.event.comm.mqtt.connect.failed",
+    "gridworks.event.comm.mqtt.disconnect",
+    "gridworks.event.comm.mqtt.fully.subscribed",
+    "gridworks.event.comm.peer.active",
+    "gridworks.event.comm.response.timeout",
+    "gridworks.event.startup",
+    "gridworks.event.shutdown",
+    "gridworks.event.proactor.dbg",
+    "gridworks.event.relay.report",
+    "gridworks.event.relay.report.received",
+    "gridworks.event.admin.command.set.relay",
+    "gridworks.ping",
+    "gridworks.ack",
+})
+
+
+def ignored_type(type_name: str) -> bool:
+    """True for types deliberately excluded from the scan (see set above)."""
+    return type_name in IGNORED_TYPE_NAMES
+
+
 # Version sentinel for a payload with no Version field.
 NO_VERSION = "<no-version>"
 # Version sentinel for an object that could not be fetched/parsed into a payload.
 FETCH_ERROR = "<fetch-error>"
+
+# Specific (type_name, version) pairs deliberately REJECTED -- never authored,
+# never loaded, and not surfaced as a walk-back need. Unlike IGNORED_TYPE_NAMES
+# (whole types), this rejects one version of a type whose OTHER versions stay
+# in scope. gridworks.event.problem carries a pre-versioning proactor shape
+# (no Version field, nanosecond TimeNS) from the earliest archive; it is
+# ancient and will never be used -- only the versioned gridworks.event.problem
+# (reports) and the channels matter -- so its no-version pair is rejected while
+# the versioned form stays visible and loadable.
+# snapshot.spaceheat 000 is the pre-channel shape (a nested
+# telemetry.snapshot.spaceheat keyed by node alias + telemetry name, hex enum
+# symbols on some houses). It predates 2024-10-13, the start of database
+# population -- the readings of that era ride gt.sh.status, which JournalKeeper
+# does not accept -- so it is rejected rather than authored.
+REJECTED_TYPE_VERSIONS = frozenset({
+    ("gridworks.event.problem", NO_VERSION),
+    ("snapshot.spaceheat", "000"),
+})
+
+
+def rejected_pair(type_name: str, version: str) -> bool:
+    """True for a (type, version) pair deliberately rejected (see set above)."""
+    return (type_name, version) in REJECTED_TYPE_VERSIONS
 
 
 @dataclass
@@ -290,8 +342,12 @@ def log_report(
     need_version = []
     mismatched = []
     out_of_scope = 0
+    rejected = 0
     for (type_name, version), r in sorted(reports.items()):
-        if r.loadable:
+        is_rejected = rejected_pair(type_name, version)
+        if is_rejected:
+            load = "rej"
+        elif r.loadable:
             load = "ok"
         elif r.loadable is None:
             load = "?"
@@ -303,7 +359,9 @@ def log_report(
             f"{type_name:34} {version:>5} {r.count:>8} {load:>5} {acc:>4}  "
             f"{r.first_seen:%Y-%m-%d %H:%M}  {r.last_seen:%Y-%m-%d %H:%M}  {len(r.aliases)}"
         )
-        if r.loadable is False:
+        if is_rejected:
+            rejected += 1
+        elif r.loadable is False:
             if not is_accepted:
                 out_of_scope += 1
             elif r.needs_version:
@@ -328,6 +386,12 @@ def log_report(
         lines.append(
             f"({out_of_scope} more non-loadable (type, version) pairs are types JK "
             f"does not accept -- out of scope.)"
+        )
+    if rejected:
+        lines.append(
+            f"({rejected} (type, version) pair(s) deliberately REJECTED -- ancient "
+            f"pre-versioning shapes we will never author or load; see "
+            f"REJECTED_TYPE_VERSIONS.)"
         )
     lines.append("=" * 100)
     logger.info("\n".join(lines))
@@ -377,8 +441,16 @@ def main(argv=None):
     logger.addHandler(handler)
 
     s3 = boto3.client("s3")
+    started = time.monotonic()
     logger.info(f"listing {args.start:%Y-%m-%d}..{args.end:%Y-%m-%d}")
     infos = list_message_infos(s3, args.start, args.end, logger)
+    ignored = sum(1 for i in infos if ignored_type(i.msg_type_name))
+    if ignored:
+        infos = [i for i in infos if not ignored_type(i.msg_type_name)]
+        logger.info(
+            f"ignoring {ignored} objects of {len(IGNORED_TYPE_NAMES)} deferred types"
+        )
+    listed = time.monotonic()
     logger.info(f"listed {len(infos)} objects; scanning versions")
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
@@ -386,6 +458,12 @@ def main(argv=None):
 
     flag_loadable(SemaCodec(), reports, sample_payloads)
     log_report(logger, reports, accepted_types(logger))
+
+    finished = time.monotonic()
+    logger.info(
+        f"elapsed {finished - started:.1f}s for {args.start:%Y-%m-%d}..{args.end:%Y-%m-%d} "
+        f"(listing {listed - started:.1f}s, scanning {finished - listed:.1f}s)"
+    )
 
     if args.save_samples is not None:
         samples_dir = Path(args.save_samples)
