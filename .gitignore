@@ -35,3 +35,4 @@ CodeGenerationTools/SMQL/*.*
 # Ignore coverage
 .coverage
 htmlcov
+runs/
