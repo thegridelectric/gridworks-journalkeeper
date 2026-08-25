@@ -21,16 +21,31 @@ from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
 
 
+CACHE_KEY = "channel_rows"
+
+
 def load_channel_rows(
     db: Session, terminal_asset_alias: str
 ) -> list[ReadingChannelSql]:
-    """Every row (active and retired) for the terminal asset."""
-    return (
-        db
-        .query(ReadingChannelSql)
-        .filter(ReadingChannelSql.terminal_asset_alias == terminal_asset_alias)
-        .all()
-    )
+    """Every row (active and retired) for the terminal asset.
+
+    Cached on the session (`db.info`) so a batch of reports for one house
+    pays the query once; a fresh session per message sees no cache. Layout
+    syncs that change rows call `forget_channel_rows`.
+    """
+    cache: dict[str, list[ReadingChannelSql]] = db.info.setdefault(CACHE_KEY, {})
+    if terminal_asset_alias not in cache:
+        cache[terminal_asset_alias] = (
+            db
+            .query(ReadingChannelSql)
+            .filter(ReadingChannelSql.terminal_asset_alias == terminal_asset_alias)
+            .all()
+        )
+    return cache[terminal_asset_alias]
+
+
+def forget_channel_rows(db: Session, terminal_asset_alias: str) -> None:
+    db.info.get(CACHE_KEY, {}).pop(terminal_asset_alias, None)
 
 
 def channel_ids_at(rows: list[ReadingChannelSql], t: datetime) -> dict[str, uuid.UUID]:

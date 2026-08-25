@@ -8,7 +8,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.reading_channel_eras import load_channel_rows
+from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
 from gjk.pseudo_channels import (
     DerivedEraLayout,
     ModernLayout,
@@ -326,6 +326,8 @@ class LayoutLitePersistor:
 
             for ch in self.new_db_channels:
                 self.db.add(ch)
+            self.db.flush()
+            forget_channel_rows(self.db, self.terminal_asset_alias)
 
     def sync_reading_channels(
         self,

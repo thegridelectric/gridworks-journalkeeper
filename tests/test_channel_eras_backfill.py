@@ -213,3 +213,36 @@ def test_forward_order_still_deactivates_on_definition_change(persistor, db):
     }
     boundary = datetime.fromtimestamp(_created_ms(layout_2026) / 1000, UTC)
     assert rows == {("FahrenheitX100", None), ("WaterTempCTimes1000", boundary)}
+
+
+def test_batched_persist_routes_readings_identically(persistor, db):
+    """The bulk path — one transaction per batch — yields the same rows as
+    message-at-a-time persistence."""
+    alias = f"{BEECH}.eras4"
+    codec = persistor.codec
+    items = []
+    for name, shift in (
+        (LAYOUT_2026, 0),
+        (LAYOUT_2025, 0),
+        (REPORT_2024, 0),
+        (REPORT_2025, 0),
+        (REPORT_2026, 86_400_000),
+    ):
+        payload = _load(name, alias, shift_ms=shift)
+        items.append((
+            f"{alias}.scada",
+            datetime.fromtimestamp(_created_ms(payload) / 1000, UTC),
+            codec.from_dict(payload, auto_upgrade=False),
+        ))
+    assert persistor.persist_messages(items) == []
+    db.expire_all()
+
+    by_unit = {r.unit: r for r in _channel_rows(db, alias, "buffer-depth1")}
+    celsius = _readings(db, by_unit["WaterTempCTimes1000"].id)
+    fahrenheit = _readings(db, by_unit["FahrenheitX100"].id)
+    assert {r.timestamp.year for r in celsius} == {2024, 2025}
+    assert {r.timestamp.year for r in fahrenheit} == {2026}
+    # Idempotent: the same batch again adds nothing.
+    assert persistor.persist_messages(items) == []
+    db.expire_all()
+    assert len(_readings(db, by_unit["WaterTempCTimes1000"].id)) == len(celsius)

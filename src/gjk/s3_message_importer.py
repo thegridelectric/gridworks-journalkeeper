@@ -349,6 +349,12 @@ def main(argv=None):
         help="Concurrent S3 GETs kept in flight ahead of persistence",
     )
     parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=500,
+        help="Messages per database transaction (1 = commit per message)",
+    )
+    parser.add_argument(
         "--summary-json",
         type=Path,
         help="Write the run summary (per-version, per-day, channel tallies) to this file",
@@ -425,6 +431,30 @@ def main(argv=None):
     byte_counter = 0
     msg_counter = 0
     msg_text = "(not yet downloaded)"
+    batch: list[tuple[S3MessageInfo, SemaType]] = []
+
+    def flush_batch() -> None:
+        if not batch:
+            return
+        failures = msg_persistor.persist_messages([
+            (i.from_alias, i.persist_time, o) for i, o in batch
+        ])
+        failed_ids = {id(o) for _, _, o, _ in failures}
+        for info, obj in batch:
+            summary.count(
+                info,
+                obj.type_name,
+                str(obj.version),
+                "failed" if id(obj) in failed_ids else "ok",
+            )
+        for from_alias, _, obj, e in failures:
+            logger.error(
+                f"Persist failure for {obj.type_name} v{obj.version} from {from_alias}: {e!r}"
+            )
+            if args.abort_on_error:
+                raise e
+        batch.clear()
+
     for msg_info, download in importer.prefetch(msg_infos, args.workers):
         msg_counter += 1
         if byte_counter > 1000000000:
@@ -448,14 +478,17 @@ def main(argv=None):
                 msg_dict["Payload"], auto_upgrade=False, mode="degraded"
             )
             if isinstance(sema_obj, SemaType):
-                summary.count(msg_info, sema_obj.type_name, str(sema_obj.version), "ok")
                 logger.debug(
                     f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
                 )
-                if not args.dry_run:
-                    msg_persistor.persist_message(
-                        msg_info.from_alias, msg_info.persist_time, sema_obj
+                if args.dry_run:
+                    summary.count(
+                        msg_info, sema_obj.type_name, str(sema_obj.version), "ok"
                     )
+                else:
+                    batch.append((msg_info, sema_obj))
+                    if len(batch) >= args.batch_size:
+                        flush_batch()
             else:
                 summary.count(
                     msg_info, sema_obj.type_name, str(sema_obj.version), "degraded"
@@ -474,6 +507,7 @@ def main(argv=None):
                 raise
             continue
 
+    flush_batch()
     summary.messages_processed = msg_counter
     summary.take_persistor_tallies(msg_persistor)
     log_run_summary(logger, summary)

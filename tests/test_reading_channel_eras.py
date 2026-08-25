@@ -13,6 +13,7 @@ from gjk.reading_channel_eras import channel_ids_at
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.s3_message_importer import RunSummary, S3MessageInfo
 from gjk.sema import SemaCodec
+from gjk.sema_message_persistor import SemaMessagePersistor
 
 SAMPLES = Path(__file__).parent / "data" / "sample_messages" / "ops498"
 
@@ -103,3 +104,44 @@ def test_run_summary_counts_per_day_and_serializes():
         {"terminal_asset_alias": "x.ta", "channel": "ch", "count": 5}
     ]
     json.dumps(out)
+
+
+def test_persist_messages_replays_one_by_one_after_batch_failure(monkeypatch):
+    """A batch that raises is replayed per message; only the bad one fails."""
+    persistor = SemaMessagePersistor.__new__(SemaMessagePersistor)
+    persistor.logger = logging.getLogger("test")
+    calls: list[str] = []
+
+    class FakeSession:
+        info: dict = {}
+
+        def commit(self):
+            pass
+
+        def rollback(self):
+            pass
+
+        def close(self):
+            pass
+
+    from contextlib import contextmanager
+
+    @contextmanager
+    def get_db():
+        yield FakeSession()
+
+    def persist_in_session(db, from_alias, time_received, payload):
+        calls.append(payload)
+        if payload == "bad":
+            raise ValueError("bad payload")
+
+    monkeypatch.setattr(persistor, "get_db", get_db)
+    monkeypatch.setattr(persistor, "persist_in_session", persist_in_session)
+
+    items = [("a", None, "ok1"), ("a", None, "bad"), ("a", None, "ok2")]
+    failures = persistor.persist_messages(items)  # type: ignore[arg-type]
+
+    assert [f[2] for f in failures] == ["bad"]
+    assert isinstance(failures[0][3], ValueError)
+    # batch attempt (stops at bad) + full replay
+    assert calls == ["ok1", "bad", "ok1", "bad", "ok2"]
