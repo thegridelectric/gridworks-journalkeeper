@@ -2,11 +2,13 @@ import argparse
 import json
 import logging
 import sys
-from collections import defaultdict
-from collections.abc import Iterable
+from collections import Counter, defaultdict
+from collections.abc import Iterable, Iterator
+from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
-from typing import Literal
+from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
+from typing import Literal, NamedTuple
 
 import boto3
 import dotenv
@@ -70,6 +72,94 @@ class VersionCounts:
     failed: int = 0  # decode raised (keyed under version=PARSE_FAIL)
 
 
+class DailyKey(NamedTuple):
+    """One cell of the per-day outcome tally: the S3 key's UTC day, the
+    sending alias, the decoded (or key-named) type and version, and the
+    outcome (`ok` / `degraded` / `failed`)."""
+
+    day: date
+    from_alias: str
+    type_name: str
+    version: str
+    outcome: str
+
+
+class RunSummary:
+    """Everything one import run counted, for the log and the JSON file.
+
+    `versions` is the decode outcome per (type, version); `daily` the same
+    split by day and sender, for reconciling against S3 listings and the
+    DB after a load; the three channel tallies come from the persistors and
+    are the MISM signals of a back-fill: readings that found no channel row,
+    enum values outside the vendored vocabulary, and era rows the layout sync
+    had to add.
+    """
+
+    def __init__(self):
+        self.versions: dict[tuple[str, str], VersionCounts] = defaultdict(VersionCounts)
+        self.daily: Counter[DailyKey] = Counter()
+        self.dropped_readings: Counter[tuple[str, str]] = Counter()
+        self.enum_fallbacks: Counter[tuple[str, str]] = Counter()
+        self.era_rows: Counter[tuple[str, str]] = Counter()
+        self.messages_processed = 0
+
+    def count(
+        self,
+        msg_info: "S3MessageInfo",
+        type_name: str,
+        version: str,
+        outcome: str,
+    ) -> None:
+        counts = self.versions[(type_name, version)]
+        setattr(counts, outcome, getattr(counts, outcome) + 1)
+        self.daily[
+            DailyKey(
+                msg_info.persist_time.date(),
+                msg_info.from_alias,
+                type_name,
+                version,
+                outcome,
+            )
+        ] += 1
+
+    def take_persistor_tallies(self, msg_persistor: SemaMessagePersistor) -> None:
+        for persistor in msg_persistor.custom_persistor_lookup.values():
+            self.dropped_readings.update(getattr(persistor, "dropped_readings", {}))
+            self.enum_fallbacks.update(getattr(persistor, "enum_fallbacks", {}))
+            self.era_rows.update(getattr(persistor, "skipped_mismatches", {}))
+
+    def to_jsonable(self) -> dict:
+        return {
+            "messages_processed": self.messages_processed,
+            "versions": [
+                {
+                    "type_name": t,
+                    "version": v,
+                    "ok": c.ok,
+                    "degraded": c.degraded,
+                    "failed": c.failed,
+                }
+                for (t, v), c in sorted(self.versions.items())
+            ],
+            "daily": [
+                {**k._asdict(), "day": k.day.isoformat(), "count": n}
+                for k, n in sorted(self.daily.items())
+            ],
+            "dropped_readings": [
+                {"terminal_asset_alias": ta, "channel": ch, "count": n}
+                for (ta, ch), n in sorted(self.dropped_readings.items())
+            ],
+            "enum_fallbacks": [
+                {"enum": e, "value": v, "count": n}
+                for (e, v), n in sorted(self.enum_fallbacks.items())
+            ],
+            "era_rows": [
+                {"terminal_asset_alias": ta, "channel": ch, "count": n}
+                for (ta, ch), n in sorted(self.era_rows.items())
+            ],
+        }
+
+
 class S3MessageInfo:
     def __init__(self, key_str: str):
         self.key_str = key_str
@@ -84,7 +174,8 @@ class S3MessageInfo:
 class S3MessageImporter:
     def __init__(self, settings: Settings, msg_types: set[str], logger):
         self.settings = settings
-        self.s3 = boto3.client("s3")
+        # An instance-role box has no default region; the bucket's is known.
+        self.s3 = boto3.client("s3", region_name=settings.aws.region_name)
         self.aws_bucket_name = "gwdev"
         self.world_instance_name = "hw1__1"
         self.msg_types = msg_types
@@ -161,30 +252,43 @@ class S3MessageImporter:
         )
         return (s3_object["Body"].read(), s3_object["ContentLength"])
 
+    def prefetch(
+        self, msg_infos: Iterable[S3MessageInfo], workers: int
+    ) -> Iterator[tuple[S3MessageInfo, Future[tuple[bytes, int]]]]:
+        """Yield (msg_info, download future) in listing order, keeping up to
+        2*workers GETs in flight so persistence never waits on the network."""
+        window: list[tuple[S3MessageInfo, Future[tuple[bytes, int]]]] = []
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for msg_info in msg_infos:
+                window.append((msg_info, pool.submit(self.download_message, msg_info)))
+                if len(window) >= 2 * workers:
+                    yield window.pop(0)
+            yield from window
+
 
 def _parse_date(value: str) -> datetime:
     return datetime.strptime(value, "%Y-%m-%d")
 
 
-def log_run_summary(
-    logger, summary: dict[tuple[str, str], VersionCounts], msg_counter: int
-) -> None:
-    """Log a sorted (type_name, version) tally and call out degraded versions.
+def log_run_summary(logger, summary: RunSummary) -> None:
+    """Log the (type_name, version) tally, degraded versions, and the
+    channel-level MISM signals.
 
     Degraded versions are the actionable output of a backfill: the codec could
     not decode them, so each needs a sema word version authored before it can
-    load.
+    load. Dropped readings and enum fallbacks are the next tier: the message
+    decoded, but a channel or a value had no home in the vendored vocabulary.
     """
     lines = [
         "",
         "=" * 78,
-        f"RUN SUMMARY (messages processed: {msg_counter})",
+        f"RUN SUMMARY (messages processed: {summary.messages_processed})",
         "-" * 78,
         f"{'type_name':40} {'version':>9} {'ok':>8} {'degraded':>9} {'failed':>7}",
         "-" * 78,
     ]
     degraded = []
-    for (type_name, version), c in sorted(summary.items()):
+    for (type_name, version), c in sorted(summary.versions.items()):
         lines.append(
             f"{type_name:40} {version:>9} {c.ok:>8} {c.degraded:>9} {c.failed:>7}"
         )
@@ -199,6 +303,18 @@ def log_run_summary(
             lines.append(f"  - {type_name} v{version} ({n} messages)")
     else:
         lines.append("No degraded versions — every accepted type decoded cleanly.")
+    for title, tally in (
+        (
+            "Dropped readings (no channel row for the report time)",
+            summary.dropped_readings,
+        ),
+        ("Enum fallbacks (value not in vendored enum)", summary.enum_fallbacks),
+        ("Era rows added by add-only layout syncs", summary.era_rows),
+    ):
+        if tally:
+            lines.append(f"{title}:")
+            for (a, b), n in sorted(tally.items()):
+                lines.append(f"  - {a} / {b} ({n})")
     lines.append("=" * 78)
     logger.info("\n".join(lines))
 
@@ -225,6 +341,17 @@ def main(argv=None):
     )
     parser.add_argument(
         "--message-path", type=str, help="S3 key path of a single message to process"
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=8,
+        help="Concurrent S3 GETs kept in flight ahead of persistence",
+    )
+    parser.add_argument(
+        "--summary-json",
+        type=Path,
+        help="Write the run summary (per-version, per-day, channel tallies) to this file",
     )
     parser.add_argument("--start", type=_parse_date, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", type=_parse_date, help="End date (YYYY-MM-DD)")
@@ -293,12 +420,12 @@ def main(argv=None):
             end=args.end,
         )
 
-    summary: dict[tuple[str, str], VersionCounts] = defaultdict(VersionCounts)
+    summary = RunSummary()
     gb_counter = 0
     byte_counter = 0
     msg_counter = 0
     msg_text = "(not yet downloaded)"
-    for msg_info in msg_infos:
+    for msg_info, download in importer.prefetch(msg_infos, args.workers):
         msg_counter += 1
         if byte_counter > 1000000000:
             byte_counter = 0
@@ -313,7 +440,7 @@ def main(argv=None):
             )
 
         try:
-            (msg_bytes, msg_length) = importer.download_message(msg_info)
+            (msg_bytes, msg_length) = download.result()
             byte_counter += msg_length
             msg_text = msg_bytes.decode("utf-8")
             msg_dict = json.loads(msg_text)
@@ -321,7 +448,7 @@ def main(argv=None):
                 msg_dict["Payload"], auto_upgrade=False, mode="degraded"
             )
             if isinstance(sema_obj, SemaType):
-                summary[(sema_obj.type_name, str(sema_obj.version))].ok += 1
+                summary.count(msg_info, sema_obj.type_name, str(sema_obj.version), "ok")
                 logger.debug(
                     f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
                 )
@@ -330,14 +457,16 @@ def main(argv=None):
                         msg_info.from_alias, msg_info.persist_time, sema_obj
                     )
             else:
-                summary[(sema_obj.type_name, str(sema_obj.version))].degraded += 1
+                summary.count(
+                    msg_info, sema_obj.type_name, str(sema_obj.version), "degraded"
+                )
                 logger.warning(
                     f"Parsed into degraded SEMA type {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str}"
                 )
                 logger.debug(msg_text)
 
         except Exception as e:
-            summary[(msg_info.msg_type_name, PARSE_FAIL)].failed += 1
+            summary.count(msg_info, msg_info.msg_type_name, PARSE_FAIL, "failed")
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
@@ -345,7 +474,12 @@ def main(argv=None):
                 raise
             continue
 
-    log_run_summary(logger, summary, msg_counter)
+    summary.messages_processed = msg_counter
+    summary.take_persistor_tallies(msg_persistor)
+    log_run_summary(logger, summary)
+    if args.summary_json is not None:
+        args.summary_json.write_text(json.dumps(summary.to_jsonable(), indent=1))
+        logger.info(f"Wrote run summary to {args.summary_json}")
 
 
 if __name__ == "__main__":
