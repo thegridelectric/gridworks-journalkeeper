@@ -48,6 +48,7 @@ from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.sema.types.spaceheat_telemetry_quantity_projection import (
     SpaceheatTelemetryQuantityProjection,
 )
+from gjk.sema.types.synth_channel_gt import SynthChannelGt
 from gjk.sema.types.ticklist_hall import TicklistHall
 from gjk.sema.types.ticklist_hall_report import TicklistHallReport
 from gjk.sema.types.ticklist_reed import TicklistReed
@@ -99,6 +100,7 @@ __all__ = [
     "SnapshotSpaceheat",
     "SpaceheatNodeGt",
     "SpaceheatTelemetryQuantityProjection",
+    "SynthChannelGt",
     "TicklistHall",
     "TicklistHallReport",
     "TicklistReed",

@@ -8,7 +8,9 @@ types:
     versioning_strategy: "literal"
     versions:
       "002":
-        summary: "Initial Sema version"
+        summary: "Fix PqPairs sub-type to price.quantity.unitless:001."
+      "001":
+        summary: "Legacy AtomicTNode bid, pre-ltn rename; PqPairs accept price.quantity.unitless 000 or 001."
 
   bid:
     latest_version: "000"
@@ -98,7 +100,24 @@ types:
           - FloGitCommit: remove
           - ConstantDeltaT: optional -> required
       "003":
-        summary: "Initial Sema version"
+        summary: >
+          - InitialThermocline -> InitialThermocline1 + InitialThermocline2
+          - InitialMiddleTempF: add
+      "002":
+        summary: >
+          - FloAlias: add
+          - FloGitCommit: add
+          - BufferAvailableKwh: optional -> required
+          - HouseAvailableKwh: optional -> required
+          - InitialBottomTempF: optional -> required
+      "001":
+        summary: >
+          - CopMin: add
+          - CopMinOatF: add
+          - HpIsOff: add
+          - HpTurnOnMinutes: add
+      "000":
+        summary: "Earliest wire shape (single shape, seen 2025-01-04 to 2025-01-06), back-filled from S3 evidence. As v001 but without CopMin, CopMinOatF, HpIsOff, HpTurnOnMinutes and the v001-era optional fields (BufferAvailableKwh, HouseAvailableKwh, InitialBottomTempF, DischargingDdDeltaTF)."
 
   fsm.atomic.report:
     latest_version: "001"
@@ -229,6 +248,14 @@ types:
           - CopMinOatF: add as optional
       "004":
         summary: "Baseline runtime version (no prior version tracked)."
+      "003":
+        summary: "- StratBossDist010: add"
+      "002":
+        summary: "- LoadOverestimationPercent: add"
+      "001":
+        summary: "- MaxEwtF: add"
+      "000":
+        summary: "Earliest wire shape, back-filled from S3 evidence. The nine coefficient/operating fields, before MaxEwtF (v001), LoadOverestimationPercent (v002) and StratBossDist010 (v003)."
 
   heating.forecast:
     latest_version: "000"
@@ -244,7 +271,9 @@ types:
       "003":
         summary: "- Add I2cBus"
       "002":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "- ConfigList element: relay.actor.config 001 -> 002"
+      "001":
+        summary: "Earliest wire shape, back-filled from S3 evidence. As v002 but its ConfigList element is relay.actor.config:001 (pre-DeEnergizedState / EnergizedState)."
 
   latest.price:
     latest_version: "000"
@@ -284,7 +313,19 @@ types:
           - TankModuleComponents[]: pico.tank.module.component.gt only -> pico.tank.module.component.gt | sim.pico.tank.module.component.gt
           - DerivedNodeConsistency axiom: add
       "007":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "Replace SynthChannels with DerivedChannels; add optional TMap."
+      "006":
+        summary: "Drop FromGNodeInstanceId; add CriticalZoneList."
+      "005":
+        summary: "Runtime layout carrying FromGNodeInstanceId; no CriticalZoneList (added in 006)."
+      "004":
+        summary: "Historical back-fill from S3 wire evidence. As v005 but Ha1Params and TankModuleComponents are deploy-lag unions: Ha1Params oneOf[002, 003]; TankModuleComponents.items oneOf[pico.tank 000, 010]."
+      "003":
+        summary: "Historical back-fill from S3 wire evidence. As v004 but the deploy-lag unions sit one window earlier: Ha1Params oneOf[001, 002]; TankModuleComponents single pico.tank 000 (v010 first appears in v004)."
+      "002":
+        summary: "Historical back-fill from S3 wire evidence. As v003 but one window earlier: Ha1Params single ha1.params:001 (v002 first appears in v003), and I2cRelayComponent oneOf[i2c 001, 002] (deploy-lag union; i2c/relay.actor.config bumped to 002 on 2024-12-31)."
+      "001":
+        summary: "Historical back-fill from S3 wire evidence. As v002 but without I2cRelayComponent and SynthChannels, and Ha1Params is the nine-field ha1.params:000 (before MaxEwtF)."
 
   machine.states:
     latest_version: "000"
@@ -315,6 +356,12 @@ types:
     versions:
       "011":
         summary: "Baseline runtime version (no prior version tracked)."
+      "010":
+        summary: >
+          - SensorOrder: add as optional
+          - PicoKOhms: required -> optional
+      "000":
+        summary: "Historical version back-filled from S3 wire evidence; lowest tracked version. Dual-Pico hardware identity (PicoAHwUid + PicoBHwUid) with PicoKOhms and SimpleBetaForPico temp calc; no SensorOrder."
 
   power.watts:
     latest_version: "000"
@@ -328,14 +375,21 @@ types:
     versioning_strategy: "literal"
     versions:
       "001":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "Rename PriceTimes1000/QuantityTimes1000 to PriceX1000/QuantityX1000."
+      "000":
+        summary: "Integer price/quantity pair, values x1000 (PriceTimes1000/QuantityTimes1000)."
 
   relay.actor.config:
     latest_version: "002"
     versioning_strategy: "literal"
     versions:
       "002":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: >
+          - StateType: add
+          - DeEnergizedState: add
+          - EnergizedState: add
+      "001":
+        summary: "Earliest wire shape, back-filled from S3 evidence. As v002 but without StateType, DeEnergizedState or EnergizedState (added 2024-12-31 with the state-consistency axioms); v001 carries only axiom 1."
 
   report:
     latest_version: "003"
@@ -344,7 +398,12 @@ types:
       "003":
         summary: "- FsmReportList[]: fsm.full.report:000 -> 001"
       "002":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: >
+          - StateList: add (machine.states:000)
+          - FsmActionList: remove
+          - FsmReportList[]: fsm.full.report:000 -> oneOf[000, 001]
+      "001":
+        summary: "Historical back-fill from S3 wire evidence (gwproto era). As v002 but FsmActionList (fsm.atomic.report:000) in place of StateList, and FsmReportList is fsm.full.report:000 only."
 
   report.event:
     latest_version: "003"
@@ -355,7 +414,9 @@ types:
           - Report: report:002 -> 003
           - Axioms: remove former ReportIdentityPropagation and ReportCreatedTimePropagation
       "002":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "- Report: report:001 -> 002"
+      "000":
+        summary: "Historical back-fill from S3 wire evidence (gwproto era). As v002 but Report is report:001; same three propagation axioms."
 
   scada.params:
     latest_version: "005"
@@ -366,7 +427,15 @@ types:
           - NewParams: ha1.params:004 | ha1.params:005 -> ha1.params:006
           - OldParams: ha1.params:004 | ha1.params:005 -> ha1.params:006
       "004":
-        summary: "Initial Sema version"
+        summary: >
+          - NewParams: ha1.params:001 | ha1.params:002 | ha1.params:003 -> ha1.params:004
+          - OldParams: ha1.params:001 | ha1.params:002 | ha1.params:003 -> ha1.params:004
+      "002":
+        summary: "- NewParams/OldParams element: ha1.params 000 -> 001/002/003"
+      "001":
+        summary: "Earliest params-bearing scada.params, back-filled from S3 evidence. NewParams/OldParams carry an ha1.params:000 object (nine-field shape)."
+      "000":
+        summary: "Earliest wire shape, back-filled from S3 evidence. A free-form param-setter envelope with no NewParams/OldParams; individual params (e.g. Gamma, BufferEmpty, DdRswt) ride additionalProperties."
 
   sim.pico.tank.module.component.gt:
     latest_version: "000"
@@ -394,7 +463,13 @@ types:
     versioning_strategy: "literal"
     versions:
       "003":
-        summary: "Baseline runtime version (no prior version tracked)."
+        summary: "LatestStateList element: machine.states -> single.machine.state (one state per entry, adds Cause; drops the parallel StateList/UnixMsList arrays). Type moved from gwproto to scada."
+      "002":
+        summary: >
+          - LatestStateList: add (machine.states:000, parallel StateList / UnixMsList
+            arrays per machine)
+      "001":
+        summary: "Historical back-fill from S3 wire evidence (gwproto era). As v002 but without LatestStateList (readings only). Authored as the shape carried from 2024-03-06 on; the earlier nested-Snapshot shape under the same version label predates the S3 archive."
 
   spaceheat.node.gt:
     latest_version: "301"
@@ -410,6 +485,13 @@ types:
         summary: "Baseline runtime version (no prior version tracked)."
 
   spaceheat.telemetry.quantity.projection:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version"
+
+  synth.channel.gt:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
@@ -611,7 +693,13 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
-      "003": {}
+      "007":
+        added_values:
+          - "SAIER__SENHZG1WA"
+          - "DFROBOT__DFR0971_TIMES2"
+          - "GRIDWORKS__TANKMODULE3"
+          - "GRIDWORKS__GW101"
+          - "GRIDWORKS__SCADA_GW108"
 
   spaceheat.telemetry.name:
     enum_type: "versioned"

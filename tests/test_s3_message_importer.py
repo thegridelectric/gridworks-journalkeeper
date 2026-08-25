@@ -85,8 +85,12 @@ class _FakeImporter:
         self.download_calls += 1
         raise RuntimeError("boom")  # every message fails
 
+    prefetch = imp_mod.S3MessageImporter.prefetch
+
 
 class _FakePersistor:
+    custom_persistor_lookup: dict = {}
+
     def __init__(self, *_a, **_k):
         pass
 

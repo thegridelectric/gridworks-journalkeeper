@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from gw_data.db.models import MessageSql
 from sqlalchemy import create_engine
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.config import Settings
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
@@ -157,6 +157,41 @@ class SemaMessagePersistor:
     def persist_message(
         self, from_alias: str, time_received: datetime, payload: SemaType
     ):
+        """Persist one message in its own transaction (the live path)."""
+        with self.get_db() as db:
+            self.persist_in_session(db, from_alias, time_received, payload)
+
+    def persist_messages(
+        self, items: list[tuple[str, datetime, SemaType]]
+    ) -> list[tuple[str, datetime, SemaType, Exception]]:
+        """Persist a batch in one transaction (the bulk-import path).
+
+        One commit per batch instead of per message: a persist is several
+        round trips (channel rows, message insert, readings insert, commit),
+        and against a remote database the round trips are the cost. A batch
+        that raises is rolled back and replayed one message at a time, so a
+        single bad payload costs only itself; the failures are returned.
+        """
+        try:
+            with self.get_db() as db:
+                for from_alias, time_received, payload in items:
+                    self.persist_in_session(db, from_alias, time_received, payload)
+            return []
+        except Exception as batch_error:
+            self.logger.warning(
+                f"Batch of {len(items)} rolled back ({batch_error!r}); replaying one by one"
+            )
+        failures = []
+        for from_alias, time_received, payload in items:
+            try:
+                self.persist_message(from_alias, time_received, payload)
+            except Exception as e:
+                failures.append((from_alias, time_received, payload, e))
+        return failures
+
+    def persist_in_session(
+        self, db: Session, from_alias: str, time_received: datetime, payload: SemaType
+    ):
         self.logger.debug(
             f"persisting message of type {payload.type_name}:{payload.version} from {from_alias} at {time_received.isoformat()}"
         )
@@ -173,27 +208,26 @@ class SemaMessagePersistor:
             persistence_info = self.persist_message_default(
                 from_alias, payload, time_received
             )
-        with self.get_db() as db:
-            msg = MessageSql(
-                id=uuid.UUID(persistence_info.id),
-                timestamp=(
-                    persistence_info.created_at
-                    if persistence_info.created_at
-                    else time_received
-                ),
-                created_at=persistence_info.created_at,
-                persisted_at=time_received,
-                from_alias=from_alias,
-                message_type_name=payload.type_name,
-                payload=payload.to_dict(),
-            )
+        msg = MessageSql(
+            id=uuid.UUID(persistence_info.id),
+            timestamp=(
+                persistence_info.created_at
+                if persistence_info.created_at
+                else time_received
+            ),
+            created_at=persistence_info.created_at,
+            persisted_at=time_received,
+            from_alias=from_alias,
+            message_type_name=payload.type_name,
+            payload=payload.to_dict(),
+        )
 
-            stmt = insert(MessageSql).on_conflict_do_nothing(
-                index_elements=["timestamp", "id"]
-            )
-            db.execute(stmt, [msg.__dict__])
+        stmt = insert(MessageSql).on_conflict_do_nothing(
+            index_elements=["timestamp", "id"]
+        )
+        db.execute(stmt, [msg.__dict__])
 
-            # TODO determine if the insert actually inserted anything so we can warn on a duplicate message
+        # TODO determine if the insert actually inserted anything so we can warn on a duplicate message
 
-            if persistence_info.additional_db_operations is not None:
-                persistence_info.additional_db_operations(db)
+        if persistence_info.additional_db_operations is not None:
+            persistence_info.additional_db_operations(db)
