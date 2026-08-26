@@ -93,12 +93,16 @@ class _FakeImporter:
 
 class _FakePersistor:
     custom_persistor_lookup: dict = {}
+    RECEIPT_TIME_KEYED_TYPES: frozenset = frozenset()
 
     def __init__(self, *_a, **_k):
         pass
 
     def all_known_message_types(self):
         return set()
+
+    def dedupable_message_types(self):
+        return self.all_known_message_types() - self.RECEIPT_TIME_KEYED_TYPES
 
     def persist_message(self, *_a, **_k):
         pass
@@ -138,7 +142,7 @@ def _run_main_capturing_msg_types(monkeypatch, argv):
     was constructed with (the type-selection outcome under test)."""
     captured = {}
 
-    def _fake_importer_factory(_settings, msg_types, _logger):
+    def _fake_importer_factory(_settings, msg_types, _logger, **_kw):
         captured["msg_types"] = msg_types
         fake = _FakeImporter()
         fake.find_messages_in_date_range = lambda start, end: []  # noqa: ARG005
