@@ -11,6 +11,9 @@ from gjk.sema.types.old_versions.i2c_multichannel_dt_relay_component_gt_002 impo
     I2cMultichannelDtRelayComponentGt002,
 )
 from gjk.sema.types.old_versions.layout_lite_007 import LayoutLite007
+from gjk.sema.types.old_versions.pico_tank_module_component_gt_010 import (
+    PicoTankModuleComponentGt010,
+)
 from gjk.sema.types.old_versions.spaceheat_node_gt_200 import SpaceheatNodeGt200
 from gjk.sema.types.pico_flow_module_component_gt import PicoFlowModuleComponentGt
 from gjk.sema.types.pico_tank_module_component_gt import PicoTankModuleComponentGt
@@ -30,7 +33,9 @@ class LayoutLite006(SemaType):
     sh_nodes: list[SpaceheatNodeGt200]
     data_channels: list[DataChannelGt001]
     synth_channels: list[SynthChannelGt]
-    tank_module_components: list[PicoTankModuleComponentGt]
+    tank_module_components: list[
+        PicoTankModuleComponentGt010 | PicoTankModuleComponentGt
+    ]
     flow_module_components: list[PicoFlowModuleComponentGt]
     ha1_params: Ha1Params004
     i2c_relay_component: I2cMultichannelDtRelayComponentGt002

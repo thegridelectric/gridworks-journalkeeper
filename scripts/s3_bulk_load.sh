@@ -5,7 +5,8 @@
 #     GJK_DB_URL=<writer url> scripts/s3_bulk_load.sh
 #
 # FLOORS=<file> reuses the per-type floors captured by the first run (required
-# once any back-fill has landed); PASS1=0 skips the layout pass; DRY=1 lists,
+# once any back-fill has landed); START / PASS2_START resume each pass from a
+# later day; PASS1=0 skips the layout pass; DRY=1 lists,
 # decodes and writes summaries without persisting; RUN sets the output dir
 # (default runs/<UTC stamp> under the repo); WORKERS / BATCH tune the importer.
 #
@@ -21,7 +22,8 @@ set -euo pipefail
 JK="$(cd "$(dirname "$0")/.." && pwd)"
 RUN="${RUN:-$JK/runs/$(date -u +%Y%m%dT%H%M)}"
 mkdir -p "$RUN"
-START="${START:-2024-10-13}"  # override to resume a pass from a later day
+START="${START:-2024-10-13}"  # override to resume pass 1 from a later day
+PASS2_START="${PASS2_START:-$START}"  # pass 2 start, when pass 1 resumed later than it
 IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} ${DRY:+--dry-run}"
 
 # Each type's last import day is the day BEFORE its earliest LIVE row. That
@@ -64,8 +66,8 @@ fi
 # and the history since Jan 2026 is enough.
 SKIP="layout.lite,gridworks.event.problem"
 common="$(awk '$1!="layout.lite" && $1!="gridworks.event.problem" {print $2}' "$floors" | sort | head -1)"
-echo "== pass 2a: all but layout.lite $START → $common"
-weeks "$START" "$common" | while read -r s e; do
+echo "== pass 2a: all but layout.lite $PASS2_START → $common"
+weeks "$PASS2_START" "$common" | while read -r s e; do
   $IMPORT --start "$s" --end "$e" --message-types "~$SKIP" --summary-json "$RUN/pass2a_${s}_$e.json" > "$RUN/pass2a_${s}_$e.log" 2>&1
 done
 # Pass 2b: the late-floor types, grouped by floor date so each day is listed
