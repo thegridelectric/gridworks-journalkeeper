@@ -4,7 +4,8 @@
 #
 #     GJK_DB_URL=<writer url> scripts/s3_bulk_load.sh
 #
-# PASS1=0 skips the layout pass (resume after it completed); DRY=1 lists,
+# FLOORS=<file> reuses the per-type floors captured by the first run (required
+# once any back-fill has landed); PASS1=0 skips the layout pass; DRY=1 lists,
 # decodes and writes summaries without persisting; RUN sets the output dir
 # (default runs/<UTC stamp> under the repo); WORKERS / BATCH tune the importer.
 #
@@ -23,10 +24,19 @@ mkdir -p "$RUN"
 START="${START:-2024-10-13}"  # override to resume a pass from a later day
 IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} ${DRY:+--dry-run}"
 
-# Earliest prod row per type, the day BEFORE it is each type's last import day.
+# Each type's last import day is the day BEFORE its earliest LIVE row. That
+# query is only right on a DB with no back-filled rows: once a pass has
+# loaded old data, the earliest row moves back and the query would report
+# the load as done. So the floors are captured once, before anything is
+# loaded, and every later run is given that file (FLOORS=<path>).
 floors="$RUN/floors.txt"
-psql "${GJK_DB_URL/+psycopg2/}" -At -F' ' -c \
-  "select message_type_name, (min(timestamp)::date - 1) from gridworks.messages group by 1" > "$floors"
+if [[ -n "${FLOORS:-}" ]]; then
+  cp "$FLOORS" "$floors"
+else
+  echo "== deriving floors from the DB (valid only before any back-fill has run)"
+  psql "${GJK_DB_URL/+psycopg2/}" -At -F' ' -c \
+    "select message_type_name, (min(timestamp)::date - 1) from gridworks.messages group by 1" > "$floors"
+fi
 floor_of() { awk -v t="$1" '$1==t {print $2}' "$floors"; }
 
 weeks() {  # weeks START END -> "s e" lines
