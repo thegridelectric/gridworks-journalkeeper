@@ -91,12 +91,13 @@ class WeatherForecastPersistor:
     def persist_v000(
         self, from_alias: str, time_received: datetime, forecast: WeatherForecast
     ):
+        created_at = datetime.fromtimestamp(forecast.forecast_created_s, tz=UTC)
         message_id = uuid.UUID(
-            default_message_id(from_alias, self.target_message_type, time_received)
+            default_message_id(from_alias, self.target_message_type, created_at)
         )
         return MessagePersistenceInfo(
             id=str(message_id),
-            created_at=datetime.fromtimestamp(forecast.forecast_created_s, tz=UTC),
+            created_at=created_at,
             additional_db_operations=lambda db: self.add_readings(
                 db, from_alias, message_id, forecast
             ),

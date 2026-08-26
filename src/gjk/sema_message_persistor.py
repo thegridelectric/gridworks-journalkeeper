@@ -59,6 +59,10 @@ class SemaMessagePersistor:
     }
 
     # Messages with no id or created_at info, but we still want to persist
+    # Payloads with neither an id nor a created time. Their messages row is
+    # keyed on the receipt time, so the same message arriving by rabbit and
+    # by S3 import gets two rows; a word wanting a safe ack or a dedupable
+    # journal row MUST carry a created time or an id.
     BASIC_MSG_TYPES = [
         "atn.bid",
         # The observation carries ObservationTime (the station's claim
@@ -108,6 +112,33 @@ class SemaMessagePersistor:
         finally:
             session.close()  # Always close the session
 
+    # Types whose messages row is keyed on the receipt time: the payload has
+    # no created time, so `timestamp` (and, without an id, the uuid5 id too)
+    # differ between the rabbit path and an S3 import. A word wanting a
+    # dedupable journal row or a safe ack MUST carry a created time. The S3
+    # importer refuses these; the live path still journals them. Pinned by
+    # tests/test_receipt_time_keyed_types.py — change both together.
+    RECEIPT_TIME_KEYED_TYPES = frozenset({
+        # neither id nor created time
+        "atn.bid",
+        "gw.weather.cmd.ack",
+        "gw.weather.cmd.nack",
+        "gw.weather.create.cmd",
+        "gw.weather.observation",
+        "latest.price",
+        "power.watts",
+        # id but no created time
+        "gw.weather.channel.gt",
+        "gw.weather.forecast.bundle.gt",
+        "gw.weather.forecast.channel.gt",
+        "gw.weather.location.gt",
+    })
+
+    def dedupable_message_types(self) -> set[str]:
+        """Types an S3 import may persist: every known type whose payload
+        carries a created time, so the row dedupes against the live path."""
+        return self.all_known_message_types() - self.RECEIPT_TIME_KEYED_TYPES
+
     def all_known_message_types(self):
         return {
             *(
@@ -122,15 +153,6 @@ class SemaMessagePersistor:
     def persist_message_default(
         self, from_alias: str, payload: SemaType, time_received: datetime
     ):
-        id = None
-        id_field = self.MSG_ID_FIELDS.get(payload.type_name)
-        if id_field:
-            id = getattr(payload, id_field, None)
-            if id is None:
-                self.logger.warn(f"No data found for {payload.type_name}.{id_field}")
-        if not id:
-            id = default_message_id(from_alias, payload.type_name, time_received)
-
         created_at = None
         created_at_ms_field = self.MSG_CREATED_AT_FIELDS_MS.get(payload.type_name)
         if created_at_ms_field:
@@ -151,6 +173,19 @@ class SemaMessagePersistor:
                 self.logger.warn(
                     f"No data found for {payload.type_name}.{created_at_s_field}"
                 )
+
+        id = None
+        id_field = self.MSG_ID_FIELDS.get(payload.type_name)
+        if id_field:
+            id = getattr(payload, id_field, None)
+            if id is None:
+                self.logger.warn(f"No data found for {payload.type_name}.{id_field}")
+        if not id:
+            # A created time makes the id path-independent; without one the
+            # receipt time is all there is (BASIC_MSG_TYPES).
+            id = default_message_id(
+                from_alias, payload.type_name, created_at or time_received
+            )
 
         return MessagePersistenceInfo(id=id, created_at=created_at)
 

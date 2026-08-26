@@ -24,7 +24,7 @@ RUN="${RUN:-$JK/runs/$(date -u +%Y%m%dT%H%M)}"
 mkdir -p "$RUN"
 START="${START:-2024-10-13}"  # override to resume pass 1 from a later day
 PASS2_START="${PASS2_START:-$START}"  # pass 2 start, when pass 1 resumed later than it
-IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} ${DRY:+--dry-run}"
+IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} --alias-prefix ${ALIAS_PREFIX:-hw1.} ${DRY:+--dry-run}"
 
 # Each type's last import day is the day BEFORE its earliest LIVE row. That
 # query is only right on a DB with no back-filled rows: once a pass has
