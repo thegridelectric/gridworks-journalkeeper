@@ -172,8 +172,18 @@ class S3MessageInfo:
 
 
 class S3MessageImporter:
-    def __init__(self, settings: Settings, msg_types: set[str], logger):
+    def __init__(
+        self,
+        settings: Settings,
+        msg_types: set[str],
+        logger,
+        alias_prefix: str | None = None,
+    ):
         self.settings = settings
+        # Keys are <from_alias>-<type>-<ms>-<source>; the alias's first
+        # segment is its universe. A prefix keeps other universes' traffic
+        # (dev `d1.` houses that share the eventstore) out of the journal.
+        self.alias_prefix = alias_prefix
         # An instance-role box has no default region; the bucket's is known.
         self.s3 = boto3.client("s3", region_name=settings.aws.region_name)
         self.aws_bucket_name = "gwdev"
@@ -216,6 +226,10 @@ class S3MessageImporter:
                 key_str = s3_object["Key"]
                 try:
                     msg_info = S3MessageInfo(key_str)
+                    if self.alias_prefix and not msg_info.from_alias.startswith(
+                        self.alias_prefix
+                    ):
+                        continue
                     if msg_info.msg_type_name in self.msg_types:
                         date_results.append(msg_info)
                     elif msg_info.msg_type_name not in ALL_MSG_TYPES:
@@ -349,6 +363,11 @@ def main(argv=None):
         help="Concurrent S3 GETs kept in flight ahead of persistence",
     )
     parser.add_argument(
+        "--alias-prefix",
+        type=str,
+        help="Only import keys whose from-alias starts with this (e.g. 'hw1.' to keep dev-universe traffic out)",
+    )
+    parser.add_argument(
         "--batch-size",
         type=int,
         default=500,
@@ -404,19 +423,28 @@ def main(argv=None):
     else:
         # args.message_types is None when the flag is omitted (str() would turn
         # that into the truthy "None" and silently import nothing).
+        # Only types whose payload carries a created time are imported: the
+        # rest would get a second messages row next to the one the live
+        # path wrote (SemaMessagePersistor.RECEIPT_TIME_KEYED_TYPES).
         message_types_arg = args.message_types
         if message_types_arg:
             if message_types_arg.startswith("~"):
-                msg_types = msg_persistor.all_known_message_types()
+                msg_types = msg_persistor.dedupable_message_types()
                 for msg_type in message_types_arg[1:].split(","):
                     msg_types.discard(msg_type.strip())
-
             else:
                 msg_types = {t.strip() for t in message_types_arg.split(",")}
+                refused = msg_types & msg_persistor.RECEIPT_TIME_KEYED_TYPES
+                if refused:
+                    parser.error(
+                        f"refusing to import types keyed on receipt time (no created time in the payload): {sorted(refused)}"
+                    )
         else:
-            msg_types = msg_persistor.all_known_message_types()
+            msg_types = msg_persistor.dedupable_message_types()
 
-        importer = S3MessageImporter(settings, msg_types, logger)
+        importer = S3MessageImporter(
+            settings, msg_types, logger, alias_prefix=args.alias_prefix
+        )
         logger.info(
             f"Importing the following message types from {args.start.strftime('%Y-%m-%d')} through {args.end.strftime('%Y-%m-%d')}: "
             + "".join(map(lambda t: f"\n  {t}", sorted(msg_types)))
