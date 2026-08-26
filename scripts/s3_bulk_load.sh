@@ -20,7 +20,7 @@ set -euo pipefail
 JK="$(cd "$(dirname "$0")/.." && pwd)"
 RUN="${RUN:-$JK/runs/$(date -u +%Y%m%dT%H%M)}"
 mkdir -p "$RUN"
-START="2024-10-13"
+START="${START:-2024-10-13}"  # override to resume a pass from a later day
 IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} ${DRY:+--dry-run}"
 
 # Earliest prod row per type, the day BEFORE it is each type's last import day.
