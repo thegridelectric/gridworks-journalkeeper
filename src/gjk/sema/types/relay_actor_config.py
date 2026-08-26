@@ -27,7 +27,7 @@ class RelayActorConfig(SemaType):
     event_type: LeftRightDot
     de_energizing_event: NonEmptyString
     energizing_event: NonEmptyString
-    state_type: LeftRightDot
+    state_type: LeftRightDot | None = None
     de_energized_state: NonEmptyString
     energized_state: NonEmptyString
     type_name: Literal["relay.actor.config"] = "relay.actor.config"
