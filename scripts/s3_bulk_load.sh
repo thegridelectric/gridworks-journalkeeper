@@ -6,7 +6,8 @@
 #
 # FLOORS=<file> reuses the per-type floors captured by the first run (required
 # once any back-fill has landed); START / PASS2_START resume each pass from a
-# later day; PASS1=0 skips the layout pass; DRY=1 lists,
+# later day; PASS2_END caps pass 2a for a driver that owns one span of a
+# parallel run; PASS1=0 skips the layout pass; DRY=1 lists,
 # decodes and writes summaries without persisting; RUN sets the output dir
 # (default runs/<UTC stamp> under the repo); WORKERS / BATCH tune the importer.
 #
@@ -24,6 +25,7 @@ RUN="${RUN:-$JK/runs/$(date -u +%Y%m%dT%H%M)}"
 mkdir -p "$RUN"
 START="${START:-2024-10-13}"  # override to resume pass 1 from a later day
 PASS2_START="${PASS2_START:-$START}"  # pass 2 start, when pass 1 resumed later than it
+PASS2_END="${PASS2_END:-}"  # cap pass 2a at this day (parallel drivers own disjoint spans); 2b runs only when uncapped
 IMPORT="uv run --project $JK python -m gjk.s3_message_importer --workers ${WORKERS:-16} --batch-size ${BATCH:-500} --alias-prefix ${ALIAS_PREFIX:-hw1.} ${DRY:+--dry-run}"
 
 # Each type's last import day is the day BEFORE its earliest LIVE row. That
@@ -66,10 +68,16 @@ fi
 # and the history since Jan 2026 is enough.
 SKIP="layout.lite,gridworks.event.problem"
 common="$(awk '$1!="layout.lite" && $1!="gridworks.event.problem" {print $2}' "$floors" | sort | head -1)"
-echo "== pass 2a: all but layout.lite $PASS2_START → $common"
-weeks "$PASS2_START" "$common" | while read -r s e; do
+end2a="$common"
+if [[ -n "$PASS2_END" && "$PASS2_END" < "$common" ]]; then end2a="$PASS2_END"; fi
+echo "== pass 2a: all but layout.lite $PASS2_START → $end2a"
+weeks "$PASS2_START" "$end2a" | while read -r s e; do
   $IMPORT --start "$s" --end "$e" --message-types "~$SKIP" --summary-json "$RUN/pass2a_${s}_$e.json" > "$RUN/pass2a_${s}_$e.log" 2>&1
 done
+if [[ -n "$PASS2_END" && "$PASS2_END" < "$common" ]]; then
+  echo "== pass 2a capped at $PASS2_END; pass 2b left to the uncapped driver"
+  exit 0
+fi
 # Pass 2b: the late-floor types, grouped by floor date so each day is listed
 # once per group, not once per type. gw.weather.* is skipped: the weather
 # service began emitting in Aug 2026, there is nothing older in the store.
