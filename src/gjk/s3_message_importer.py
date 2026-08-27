@@ -333,6 +333,27 @@ def log_run_summary(logger, summary: RunSummary) -> None:
     logger.info("\n".join(lines))
 
 
+def log_reject(path: Path, msg_info: "S3MessageInfo", error: Exception) -> None:
+    """Append one undecodable message's S3 key to the rejects log (JSON line).
+
+    Records the key plus enough to triage (type, sender, time, error) but NOT
+    the payload: the eventstore holds the durable copy, so a rejected message
+    is re-fetched by key on demand rather than duplicated here. A message is
+    rejected for a validation error (a real schema-vs-wire mismatch, e.g.
+    flo.params.house0 sending a float where the type declares an int) or
+    corrupt bytes; the run continues past it.
+    """
+    record = {
+        "key": msg_info.key_str,
+        "from_alias": msg_info.from_alias,
+        "type_name": msg_info.msg_type_name,
+        "persisted_at": msg_info.persist_time.isoformat(),
+        "error": repr(error),
+    }
+    with path.open("a") as f:
+        f.write(json.dumps(record) + "\n")
+
+
 def main(argv=None):
     # argv=None -> sys.argv[1:] (unchanged CLI behavior); tests pass an explicit
     # list so pytest's own args never leak into this parser.
@@ -372,6 +393,11 @@ def main(argv=None):
         type=int,
         default=500,
         help="Messages per database transaction (1 = commit per message)",
+    )
+    parser.add_argument(
+        "--rejects-log",
+        type=Path,
+        help="Append the S3 key of every message that fails to decode as one JSON line {key, from_alias, type, persisted_at, error}. The eventstore is the durable copy, so we log the key (not the payload) and re-fetch on demand — e.g. the fractional-temp flo.params.house0 messages, for the int-vs-float decision.",
     )
     parser.add_argument(
         "--summary-json",
@@ -531,6 +557,8 @@ def main(argv=None):
             logger.error(f"Parsing failure for {msg_info.key_str}: {repr(e)}")
             logger.exception(e)
             logger.debug(msg_text)
+            if args.rejects_log is not None:
+                log_reject(args.rejects_log, msg_info, e)
             if args.abort_on_error:
                 raise
             continue
