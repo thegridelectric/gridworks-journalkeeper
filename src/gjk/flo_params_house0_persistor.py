@@ -13,6 +13,9 @@ from gjk.pseudo_channels import (
 )
 from gjk.sema.enums import Gw1Unit
 from gjk.sema.types.flo_params_house0 import FloParamsHouse0
+from gjk.sema.types.old_versions.flo_params_house0_000 import FloParamsHouse0000
+from gjk.sema.types.old_versions.flo_params_house0_001 import FloParamsHouse0001
+from gjk.sema.types.old_versions.flo_params_house0_002 import FloParamsHouse0002
 from gjk.sema.types.old_versions.flo_params_house0_003 import FloParamsHouse0003
 from gjk.sema.types.old_versions.flo_params_house0_004 import FloParamsHouse0004
 from gjk.sema.types.old_versions.flo_params_house0_005 import FloParamsHouse0005
@@ -24,6 +27,9 @@ FloParamsType = (
     | FloParamsHouse0005
     | FloParamsHouse0004
     | FloParamsHouse0003
+    | FloParamsHouse0002
+    | FloParamsHouse0001
+    | FloParamsHouse0000
 )
 
 
@@ -81,9 +87,13 @@ class FloParamsHouse0Persistor:
 
         timestamp = datetime.fromtimestamp(flo_params.start_unix_s, tz=UTC)
 
-        reading_values = {
-            "buffer-available-kwh": round(flo_params.buffer_available_kwh * 1000)
-        }
+        # v000 has no BufferAvailableKwh; v001 carries it optionally.
+        reading_values = {}
+        if not isinstance(flo_params, FloParamsHouse0000):
+            if flo_params.buffer_available_kwh is not None:
+                reading_values["buffer-available-kwh"] = round(
+                    flo_params.buffer_available_kwh * 1000
+                )
 
         if flo_params.lmp_forecast is not None:
             reading_values["lmp-usd-per-mwh"] = round(flo_params.lmp_forecast[0] * 1000)
@@ -117,16 +127,52 @@ class FloParamsHouse0Persistor:
     def persist(
         self, from_alias: str, time_received: datetime, floParams: FloParamsType
     ):
+        created_at = datetime.fromtimestamp(floParams.params_generated_s, tz=UTC)
         message_id = uuid.UUID(
-            default_message_id(from_alias, self.target_message_type, time_received)
+            default_message_id(from_alias, self.target_message_type, created_at)
         )
         return MessagePersistenceInfo(
             id=str(message_id),
-            created_at=datetime.fromtimestamp(floParams.params_generated_s, tz=UTC),
+            created_at=created_at,
             additional_db_operations=lambda db: self.add_readings(
                 db, from_alias, message_id, floParams
             ),
         )
+
+    def persist_v000(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0000
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v001(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0001
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v002(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0002
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v003(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0003
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v004(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0004
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v005(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0005
+    ):
+        return self.persist(from_alias, time_received, floParams)
+
+    def persist_v006(
+        self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0006
+    ):
+        return self.persist(from_alias, time_received, floParams)
 
     def persist_v007(
         self, from_alias: str, time_received: datetime, floParams: FloParamsHouse0

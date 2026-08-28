@@ -1,12 +1,14 @@
 import hashlib
 import uuid
+from collections import Counter
 from datetime import UTC, datetime, timezone
 
-from gw_data.db.models import ReadingChannelSql, ReadingSql
+from gw_data.db.models import ReadingSql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.reading_channel_eras import channel_ids_at, load_channel_rows
 from gjk.pseudo_channels import (
     ModernLayout,
     PseudoChannel,
@@ -23,8 +25,12 @@ from gjk.sema.enums import (
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
 from gjk.sema.types import ReportEvent
+from gjk.sema.types.old_versions.report_001 import Report001
+from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
 from gjk.zone_heat_call_pseudo_channel import ZoneHeatCallPseudoChannel
+
+ReportEventType = ReportEvent | ReportEvent002 | ReportEvent000
 
 
 class SemaEnumPseudoChannel(PseudoChannel):
@@ -99,6 +105,13 @@ class ReportEventPersistor:
         self.logger = logger
         self.target_message_type = "report.event"
         self.enum_type_cache = {}
+        # Load tallies, read by the S3 importer's run summary.
+        # (terminal_asset_alias, channel name) -> readings with no channel row
+        # whose era contains the report time.
+        self.dropped_readings: Counter[tuple[str, str]] = Counter()
+        # (enum name, value) -> state readings stored under the sha256
+        # fallback because the value is not in the vendored enum.
+        self.enum_fallbacks: Counter[tuple[str, str]] = Counter()
 
     def get_sema_enum_value(self, enum_type: type[SemaEnum], value_str: str) -> int:
         if value_str in enum_type.values():
@@ -109,15 +122,20 @@ class ReportEventPersistor:
             self.logger.warn(
                 f"Unrecognized enum value {value_str} in {enum_type.enum_name()} -- using hash value {hash_result} as default."
             )
+            self.enum_fallbacks[(enum_type.enum_name(), value_str)] += 1
             return hash_result
 
     def collect_channel_state_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
+        if isinstance(reportEvent.report, Report001):
+            # report:001 carries FsmActionList in place of StateList: no
+            # machine states to project.
+            return
         for states in reportEvent.report.state_list:
             machine_handle = (
                 str(states.machine_handle)
@@ -141,7 +159,11 @@ class ReportEventPersistor:
                     if channel.enum_type.enum_name() == states.state_enum:
                         found_channel = True
                         db_channel_id = db_channel_ids_by_name.get(channel.name)
-                        if db_channel_id is not None:
+                        if db_channel_id is None:
+                            self.dropped_readings[
+                                (self.terminal_asset_alias(reportEvent), channel.name)
+                            ] += len(states.unix_ms_list)
+                        else:
                             readings.extend(
                                 map(
                                     lambda t_s: ReadingSql(
@@ -173,7 +195,7 @@ class ReportEventPersistor:
     def collect_zone_heat_call_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
@@ -205,27 +227,28 @@ class ReportEventPersistor:
                         )
                     )
 
+    @staticmethod
+    def terminal_asset_alias(reportEvent: ReportEventType) -> str:
+        return reportEvent.report.from_g_node_alias.split(".scada")[0] + ".ta"
+
     def persist_readings(
-        self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
+        self, db: Session, from_alias: str, reportEvent: ReportEventType
     ):
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
-        db_channels = (
-            db
-            .query(ReadingChannelSql)
-            .filter(
-                ReadingChannelSql.deactivated_date.is_(None),
-                ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,
-            )
-            .all()
+        report_time = datetime.fromtimestamp(reportEvent.time_created_ms / 1000, UTC)
+        db_channel_ids_by_name = channel_ids_at(
+            load_channel_rows(db, from_terminal_asset_alias), report_time
         )
 
         message_id = uuid.UUID(reportEvent.message_id)
 
-        db_channel_ids_by_name = {c.name: c.id for c in db_channels}
         readings: list[ReadingSql] = []
         for ch_readings in reportEvent.report.channel_reading_list:
             db_channel_id = db_channel_ids_by_name.get(ch_readings.channel_name)
             if db_channel_id is None:
+                self.dropped_readings[
+                    (from_terminal_asset_alias, ch_readings.channel_name)
+                ] += len(ch_readings.value_list)
                 continue
             else:
                 # Reports can duplicate the same timestamp and value, so we need to de-duplicate it.
@@ -258,6 +281,17 @@ class ReportEventPersistor:
                 index_elements=["timestamp", "channel_id"]
             )
             db.execute(stmt, dicts)
+
+    def persist_v000(
+        self, from_alias: str, time_received: datetime, report: ReportEvent000
+    ):
+        return MessagePersistenceInfo(
+            id=report.message_id,
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
+            additional_db_operations=lambda db: self.persist_readings(
+                db, from_alias, report
+            ),
+        )
 
     def persist_v002(
         self, from_alias: str, time_received: datetime, report: ReportEvent002

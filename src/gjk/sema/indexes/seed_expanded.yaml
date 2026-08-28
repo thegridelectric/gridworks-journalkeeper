@@ -1,10 +1,17 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-08-12T21:48:48Z'
+  generated_at: '2026-08-26T11:18:47Z'
   note: Transitive closure of initial_targets
 initial_targets:
+- report.event:000
 - report.event:002
 - report.event:003
+- layout.lite:001
+- layout.lite:002
+- layout.lite:003
+- layout.lite:004
+- layout.lite:005
+- layout.lite:006
 - layout.lite:007
 - layout.lite:008
 - layout.lite:009
@@ -12,6 +19,9 @@ initial_targets:
 - layout.lite:011
 - layout.lite:012
 - glitch:000
+- flo.params.house0:000
+- flo.params.house0:001
+- flo.params.house0:002
 - flo.params.house0:003
 - flo.params.house0:004
 - flo.params.house0:005
@@ -24,13 +34,20 @@ initial_targets:
 - energy.instruction:000
 - new.command.tree:000
 - new.command.tree:001
+- snapshot.spaceheat:001
+- snapshot.spaceheat:002
 - snapshot.spaceheat:003
+- scada.params:000
+- scada.params:001
+- scada.params:002
 - scada.params:004
 - scada.params:005
 - ticklist.reed.report:000
 - ticklist.hall.report:000
+- report:001
 - report:002
 - report:003
+- atn.bid:001
 - atn.bid:002
 - bid:000
 - latest.price:000
@@ -157,8 +174,8 @@ worklist:
       '000':
         path: definitions/enums/relay.wiring.config/000.yaml
     spaceheat.make.model:
-      '003':
-        path: definitions/enums/spaceheat.make.model/003.yaml
+      '007':
+        path: definitions/enums/spaceheat.make.model/007.yaml
     spaceheat.telemetry.name:
       '006':
         path: definitions/enums/spaceheat.telemetry.name/006.yaml
@@ -172,6 +189,8 @@ worklist:
         path: definitions/enums/temp.calc.method/000.yaml
   types:
     atn.bid:
+      '001':
+        path: definitions/types/atn.bid/001.yaml
       '002':
         path: definitions/types/atn.bid/002.yaml
     bid:
@@ -197,6 +216,12 @@ worklist:
       '000':
         path: definitions/types/energy.instruction/000.yaml
     flo.params.house0:
+      '000':
+        path: definitions/types/flo.params.house0/000.yaml
+      '001':
+        path: definitions/types/flo.params.house0/001.yaml
+      '002':
+        path: definitions/types/flo.params.house0/002.yaml
       '003':
         path: definitions/types/flo.params.house0/003.yaml
       '004':
@@ -257,6 +282,14 @@ worklist:
       '000':
         path: definitions/types/gw1.tank.temp.calibration.map/000.yaml
     ha1.params:
+      '000':
+        path: definitions/types/ha1.params/000.yaml
+      '001':
+        path: definitions/types/ha1.params/001.yaml
+      '002':
+        path: definitions/types/ha1.params/002.yaml
+      '003':
+        path: definitions/types/ha1.params/003.yaml
       '004':
         path: definitions/types/ha1.params/004.yaml
       '005':
@@ -267,6 +300,8 @@ worklist:
       '000':
         path: definitions/types/heating.forecast/000.yaml
     i2c.multichannel.dt.relay.component.gt:
+      '001':
+        path: definitions/types/i2c.multichannel.dt.relay.component.gt/001.yaml
       '002':
         path: definitions/types/i2c.multichannel.dt.relay.component.gt/002.yaml
       '003':
@@ -275,6 +310,18 @@ worklist:
       '000':
         path: definitions/types/latest.price/000.yaml
     layout.lite:
+      '001':
+        path: definitions/types/layout.lite/001.yaml
+      '002':
+        path: definitions/types/layout.lite/002.yaml
+      '003':
+        path: definitions/types/layout.lite/003.yaml
+      '004':
+        path: definitions/types/layout.lite/004.yaml
+      '005':
+        path: definitions/types/layout.lite/005.yaml
+      '006':
+        path: definitions/types/layout.lite/006.yaml
       '007':
         path: definitions/types/layout.lite/007.yaml
       008:
@@ -299,28 +346,46 @@ worklist:
       '000':
         path: definitions/types/pico.flow.module.component.gt/000.yaml
     pico.tank.module.component.gt:
+      '000':
+        path: definitions/types/pico.tank.module.component.gt/000.yaml
+      '010':
+        path: definitions/types/pico.tank.module.component.gt/010.yaml
       '011':
         path: definitions/types/pico.tank.module.component.gt/011.yaml
     power.watts:
       '000':
         path: definitions/types/power.watts/000.yaml
     price.quantity.unitless:
+      '000':
+        path: definitions/types/price.quantity.unitless/000.yaml
       '001':
         path: definitions/types/price.quantity.unitless/001.yaml
     relay.actor.config:
+      '001':
+        path: definitions/types/relay.actor.config/001.yaml
       '002':
         path: definitions/types/relay.actor.config/002.yaml
     report:
+      '001':
+        path: definitions/types/report/001.yaml
       '002':
         path: definitions/types/report/002.yaml
       '003':
         path: definitions/types/report/003.yaml
     report.event:
+      '000':
+        path: definitions/types/report.event/000.yaml
       '002':
         path: definitions/types/report.event/002.yaml
       '003':
         path: definitions/types/report.event/003.yaml
     scada.params:
+      '000':
+        path: definitions/types/scada.params/000.yaml
+      '001':
+        path: definitions/types/scada.params/001.yaml
+      '002':
+        path: definitions/types/scada.params/002.yaml
       '004':
         path: definitions/types/scada.params/004.yaml
       '005':
@@ -335,6 +400,10 @@ worklist:
       '000':
         path: definitions/types/single.reading/000.yaml
     snapshot.spaceheat:
+      '001':
+        path: definitions/types/snapshot.spaceheat/001.yaml
+      '002':
+        path: definitions/types/snapshot.spaceheat/002.yaml
       '003':
         path: definitions/types/snapshot.spaceheat/003.yaml
     spaceheat.node.gt:
@@ -347,6 +416,9 @@ worklist:
     spaceheat.telemetry.quantity.projection:
       '000':
         path: definitions/types/spaceheat.telemetry.quantity.projection/000.yaml
+    synth.channel.gt:
+      '000':
+        path: definitions/types/synth.channel.gt/000.yaml
     ticklist.hall:
       '101':
         path: definitions/types/ticklist.hall/101.yaml

@@ -1,12 +1,11 @@
-"""Tests for deterministic (uuid5) message ids in the custom persistors
-(jm/custom-persistor-idempotency).
+"""Tests for deterministic (uuid5) message ids in the custom persistors.
 
-flo.params.house0 and weather.forecast previously minted messages.id with
-uuid4(), defeating the re-import idempotency the default path got in 7308766.
-They now derive the id via the shared default_message_id(...). These hermetic
-tests prove (A) the id is deterministic per persistor, and (B) the dispatch seam
-threads time_received through to the custom persistor (the actual root cause).
-No DB/AWS.
+flo.params.house0 and weather.forecast derive the id via the shared
+default_message_id(...) from the payload's own created time, so the rabbit
+and S3 paths (which differ only in time_received) mint the same id and the
+(timestamp, id) key dedupes across them. These hermetic tests prove (A) the
+id is deterministic and independent of time_received, and (B) the dispatch
+seam threads time_received through to the custom persistor. No DB/AWS.
 """
 
 import inspect
@@ -41,9 +40,10 @@ def test_weather_persistor_id_is_deterministic_uuid5():
     id2 = p.persist_v000(FROM_ALIAS, t, forecast).id
 
     assert id1 == id2  # same inputs -> same id (idempotent re-import)
-    assert id1 == default_message_id(FROM_ALIAS, "weather.forecast", t)
-    # a different persisted ms -> a different id
-    assert p.persist_v000(FROM_ALIAS, _t(PERSISTED_MS + 1000), forecast).id != id1
+    created = datetime.fromtimestamp(forecast.forecast_created_s, tz=UTC)
+    assert id1 == default_message_id(FROM_ALIAS, "weather.forecast", created)
+    # A different receipt time (the other transport path) mints the same id.
+    assert p.persist_v000(FROM_ALIAS, _t(PERSISTED_MS + 1000), forecast).id == id1
 
 
 def test_flo_persistor_id_is_deterministic_uuid5():
@@ -55,8 +55,9 @@ def test_flo_persistor_id_is_deterministic_uuid5():
     id2 = p.persist_v007(FROM_ALIAS, t, flo).id
 
     assert id1 == id2
-    assert id1 == default_message_id(FROM_ALIAS, "flo.params.house0", t)
-    assert p.persist_v007(FROM_ALIAS, _t(PERSISTED_MS + 1000), flo).id != id1
+    created = datetime.fromtimestamp(flo.params_generated_s, tz=UTC)
+    assert id1 == default_message_id(FROM_ALIAS, "flo.params.house0", created)
+    assert p.persist_v007(FROM_ALIAS, _t(PERSISTED_MS + 1000), flo).id == id1
 
 
 def test_dispatch_threads_time_received_to_custom_persistor():

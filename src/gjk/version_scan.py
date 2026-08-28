@@ -41,11 +41,13 @@ import argparse
 import json
 import logging
 import sys
+import time
 from collections import defaultdict
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 
 import boto3
 
@@ -62,10 +64,61 @@ WORLD_INSTANCE_NAME = "hw1__1"
 # objects -> read every version directly; at or above -> bisect for boundaries.
 DOWNLOAD_ALL_THRESHOLD = 100
 
+# Unknown proactor comm-infrastructure types on a separate vocabulary track,
+# not part of the version reconstruction. They flood the scan's need-list on
+# every window and obscure the types actually being reconstructed, so skip
+# them for now. Listed explicitly (not by prefix) so an authored sibling such
+# as gridworks.event.problem stays visible. Drop an entry when its word lands.
+IGNORED_TYPE_NAMES = frozenset({
+    "gridworks.event.comm.mqtt.connect",
+    "gridworks.event.comm.mqtt.connect.failed",
+    "gridworks.event.comm.mqtt.disconnect",
+    "gridworks.event.comm.mqtt.fully.subscribed",
+    "gridworks.event.comm.peer.active",
+    "gridworks.event.comm.response.timeout",
+    "gridworks.event.startup",
+    "gridworks.event.shutdown",
+    "gridworks.event.proactor.dbg",
+    "gridworks.event.relay.report",
+    "gridworks.event.relay.report.received",
+    "gridworks.event.admin.command.set.relay",
+    "gridworks.ping",
+    "gridworks.ack",
+})
+
+
+def ignored_type(type_name: str) -> bool:
+    """True for types deliberately excluded from the scan (see set above)."""
+    return type_name in IGNORED_TYPE_NAMES
+
+
 # Version sentinel for a payload with no Version field.
 NO_VERSION = "<no-version>"
 # Version sentinel for an object that could not be fetched/parsed into a payload.
 FETCH_ERROR = "<fetch-error>"
+
+# Specific (type_name, version) pairs deliberately REJECTED -- never authored,
+# never loaded, and not surfaced as a walk-back need. Unlike IGNORED_TYPE_NAMES
+# (whole types), this rejects one version of a type whose OTHER versions stay
+# in scope. gridworks.event.problem carries a pre-versioning proactor shape
+# (no Version field, nanosecond TimeNS) from the earliest archive; it is
+# ancient and will never be used -- only the versioned gridworks.event.problem
+# (reports) and the channels matter -- so its no-version pair is rejected while
+# the versioned form stays visible and loadable.
+# snapshot.spaceheat 000 is the pre-channel shape (a nested
+# telemetry.snapshot.spaceheat keyed by node alias + telemetry name, hex enum
+# symbols on some houses). It predates 2024-10-13, the start of database
+# population -- the readings of that era ride gt.sh.status, which JournalKeeper
+# does not accept -- so it is rejected rather than authored.
+REJECTED_TYPE_VERSIONS = frozenset({
+    ("gridworks.event.problem", NO_VERSION),
+    ("snapshot.spaceheat", "000"),
+})
+
+
+def rejected_pair(type_name: str, version: str) -> bool:
+    """True for a (type, version) pair deliberately rejected (see set above)."""
+    return (type_name, version) in REJECTED_TYPE_VERSIONS
 
 
 @dataclass
@@ -97,6 +150,11 @@ class TypeVersionReport:
     last_seen: datetime
     aliases: set[str] = field(default_factory=set)
     loadable: bool | None = None
+    # When loadable is False, exactly one of these explains it: the codec does
+    # not know the (type, version) — a new sema word version to author — or it
+    # does and the real payload still fails, a translation bug to raise.
+    needs_version: bool = False
+    decode_error: str | None = None
 
 
 def dates_in_range(start: datetime, end: datetime):
@@ -232,16 +290,27 @@ def flag_loadable(
     reports: dict[tuple[str, str], TypeVersionReport],
     sample_payloads: dict[tuple[str, str], dict],
 ) -> None:
-    """Decode one sample of each (type, version); set loadable = decodes cleanly."""
+    """Decode one sample of each (type, version) strictly and classify.
+
+    loadable=True: decodes cleanly. Otherwise needs_version marks a (type,
+    version) the codec does not know (author it), while decode_error carries
+    the failure for a version the codec DOES know — the sema definition
+    mistranslating the wire.
+    """
     for key, report in reports.items():
         payload = sample_payloads.get(key)
         if payload is None:
             continue
         try:
-            obj = codec.from_dict(payload, auto_upgrade=False, mode="degraded")
+            obj = codec.from_dict(payload, auto_upgrade=False)
             report.loadable = isinstance(obj, SemaType)
-        except Exception:  # noqa: BLE001 -- a decode failure is "not loadable"
+        except Exception as e:  # noqa: BLE001 -- classify every decode failure
             report.loadable = False
+            message = str(e)
+            if "Unsupported version" in message or "Unknown type" in message:
+                report.needs_version = True
+            else:
+                report.decode_error = message.replace("\n", " ")[:160]
 
 
 def accepted_types(logger) -> set[str]:
@@ -270,34 +339,59 @@ def log_report(
         f"{'first_seen':16}  {'last_seen':16}  houses",
         "-" * 100,
     ]
-    need_authoring = []
+    need_version = []
+    mismatched = []
     out_of_scope = 0
+    rejected = 0
     for (type_name, version), r in sorted(reports.items()):
-        load = "ok" if r.loadable else ("NO" if r.loadable is False else "?")
+        is_rejected = rejected_pair(type_name, version)
+        if is_rejected:
+            load = "rej"
+        elif r.loadable:
+            load = "ok"
+        elif r.loadable is None:
+            load = "?"
+        else:
+            load = "need" if r.needs_version else "MISM"
         is_accepted = type_name in accepted
         acc = "yes" if is_accepted else ("no" if accepted else "?")
         lines.append(
             f"{type_name:34} {version:>5} {r.count:>8} {load:>5} {acc:>4}  "
             f"{r.first_seen:%Y-%m-%d %H:%M}  {r.last_seen:%Y-%m-%d %H:%M}  {len(r.aliases)}"
         )
-        if r.loadable is False:
-            if is_accepted:
-                need_authoring.append((type_name, version, r.count))
-            else:
+        if is_rejected:
+            rejected += 1
+        elif r.loadable is False:
+            if not is_accepted:
                 out_of_scope += 1
+            elif r.needs_version:
+                need_version.append((type_name, version, r.count))
+            else:
+                mismatched.append((type_name, version, r.count, r.decode_error))
     lines.append("=" * 100)
-    if need_authoring:
+    if mismatched:
         lines.append(
-            "ACCEPTED versions the codec cannot decode -- need new sema word versions:"
+            "TRANSLATION MISMATCH -- versions the codec knows whose real payloads "
+            "fail to decode (fix the sema definition, do not add a version):"
         )
-        for type_name, version, count in need_authoring:
+        for type_name, version, count, error in mismatched:
+            lines.append(f"  - {type_name} v{version} ({count} messages): {error}")
+    if need_version:
+        lines.append("ACCEPTED types needing NEW sema word versions authored:")
+        for type_name, version, count in need_version:
             lines.append(f"  - {type_name} v{version} ({count} messages)")
-    else:
+    if not mismatched and not need_version:
         lines.append("Every accepted version found decodes with the current codec.")
     if out_of_scope:
         lines.append(
             f"({out_of_scope} more non-loadable (type, version) pairs are types JK "
             f"does not accept -- out of scope.)"
+        )
+    if rejected:
+        lines.append(
+            f"({rejected} (type, version) pair(s) deliberately REJECTED -- ancient "
+            f"pre-versioning shapes we will never author or load; see "
+            f"REJECTED_TYPE_VERSIONS.)"
         )
     lines.append("=" * 100)
     logger.info("\n".join(lines))
@@ -329,6 +423,13 @@ def main(argv=None):
         default=32,
         help="Concurrent S3 GETs for the download-all path",
     )
+    parser.add_argument(
+        "--save-samples",
+        type=str,
+        default=None,
+        help="Directory to write each (type, version)'s first payload as "
+        "<type.name>-<version>.json -- the wire evidence for authoring",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
 
@@ -340,8 +441,16 @@ def main(argv=None):
     logger.addHandler(handler)
 
     s3 = boto3.client("s3")
+    started = time.monotonic()
     logger.info(f"listing {args.start:%Y-%m-%d}..{args.end:%Y-%m-%d}")
     infos = list_message_infos(s3, args.start, args.end, logger)
+    ignored = sum(1 for i in infos if ignored_type(i.msg_type_name))
+    if ignored:
+        infos = [i for i in infos if not ignored_type(i.msg_type_name)]
+        logger.info(
+            f"ignoring {ignored} objects of {len(IGNORED_TYPE_NAMES)} deferred types"
+        )
+    listed = time.monotonic()
     logger.info(f"listed {len(infos)} objects; scanning versions")
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
@@ -349,6 +458,20 @@ def main(argv=None):
 
     flag_loadable(SemaCodec(), reports, sample_payloads)
     log_report(logger, reports, accepted_types(logger))
+
+    finished = time.monotonic()
+    logger.info(
+        f"elapsed {finished - started:.1f}s for {args.start:%Y-%m-%d}..{args.end:%Y-%m-%d} "
+        f"(listing {listed - started:.1f}s, scanning {finished - listed:.1f}s)"
+    )
+
+    if args.save_samples is not None:
+        samples_dir = Path(args.save_samples)
+        samples_dir.mkdir(parents=True, exist_ok=True)
+        for (type_name, version), payload in sorted(sample_payloads.items()):
+            path = samples_dir / f"{type_name}-{version}.json"
+            path.write_text(json.dumps(payload, indent=2) + "\n")
+        logger.info(f"wrote {len(sample_payloads)} sample payloads to {samples_dir}")
 
 
 if __name__ == "__main__":
