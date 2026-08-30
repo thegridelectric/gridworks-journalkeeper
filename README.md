@@ -1,9 +1,6 @@
 # GridWorks JournalKeeper
 
-[![PyPI](https://img.shields.io/pypi/v/gridworks-journalkeeper.svg)](https://pypi.org/project/gridworks-journalkeeper/)
-[![Status](https://img.shields.io/pypi/status/gridworks-journalkeeper.svg)](https://pypi.org/project/gridworks-journalkeeper/)
-[![Python Version](https://img.shields.io/pypi/pyversions/gridworks-journalkeeper)](https://pypi.org/project/gridworks-journalkeeper/)
-[![License](https://img.shields.io/pypi/l/gridworks-journalkeeper)](https://github.com/thegridelectric/gridworks-journalkeeper/blob/main/LICENSE)
+[![Python 3.12 | 3.13](https://img.shields.io/badge/python-3.12%20%7C%203.13-blue)](pyproject.toml)
 [![Tests](https://github.com/thegridelectric/gridworks-journalkeeper/actions/workflows/tests.yml/badge.svg)](https://github.com/thegridelectric/gridworks-journalkeeper/actions)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
@@ -143,19 +140,18 @@ The schema is owned by the sibling
 [`gridworks-data`](https://github.com/thegridelectric/gridworks-data)
 repo. Follow its README to bring up the
 `timescale/timescaledb-ha:pg18-ts2.25` container (typically on
-`5433:5432` with `POSTGRES_PASSWORD`), run the server-init script
-(`gw_admin` / `gw_writer` / `gw_reader` roles), and `uv run alembic
-upgrade head` to create the tables (`messages`, `g_nodes`,
-`reading_channels`, …).
+`5433:5432` with `POSTGRES_PASSWORD`), run the user-setup script
+(`gw_admin` / `gw_journalkeeper` / `gw_visualizer` roles — for the local
+container use `1_db_user_setup_dev.psql`, password = role name), and
+`uv run alembic upgrade head` to create the tables (`messages`,
+`g_nodes`, `reading_channels`, …).
 
-Then point this repo at it in `.env`:
+With the dev convention, no `.env` is needed: `db_url` defaults to
+`postgresql+psycopg2://gw_journalkeeper:gw_journalkeeper@localhost:5433/tsdb`.
+Production sets `GJK_DB_URL` in `.env`.
 
-```
-GJK_DB_URL=postgresql+psycopg2://gw_writer:<password>@localhost:5433/gridworks
-```
-
-`gw_writer` is the right role for an app that only inserts rows;
-`gw_admin` is reserved for migrations and `gw_reader` for analytics.
+`gw_journalkeeper` is the role for an app that inserts rows; `gw_admin`
+is reserved for migrations and `gw_visualizer` (web API), `gw_alerts` (gwalert) and `gw_analyst` (people) for read-only consumers.
 Migrations live in `gridworks-data`, not here.
 
 ---
