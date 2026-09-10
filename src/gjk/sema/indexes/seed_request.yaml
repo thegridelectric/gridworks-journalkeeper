@@ -69,6 +69,8 @@ initial_targets:
     gw.weather.cmd.nack: {}
 
   enums:
+    # The pico-cycler's per-pico health rows in report.StateList.
+    single.pico.state: {}
     gw1.unit: {}
     gw1.main.auto.state: {}
     gw1.lc.top.state: {}

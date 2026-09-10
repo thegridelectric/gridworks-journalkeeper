@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-08-26T11:18:47Z'
+  generated_at: '2026-09-10T13:47:55Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -60,6 +60,7 @@ initial_targets:
 - gw.weather.create.cmd:000
 - gw.weather.cmd.ack:000
 - gw.weather.cmd.nack:000
+- single.pico.state:000
 - gw1.unit:002
 - gw1.main.auto.state:001
 - gw1.lc.top.state:001
@@ -173,6 +174,9 @@ worklist:
     relay.wiring.config:
       '000':
         path: definitions/enums/relay.wiring.config/000.yaml
+    single.pico.state:
+      '000':
+        path: definitions/enums/single.pico.state/000.yaml
     spaceheat.make.model:
       '007':
         path: definitions/enums/spaceheat.make.model/007.yaml
