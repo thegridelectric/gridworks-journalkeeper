@@ -15,6 +15,7 @@ from gjk.pseudo_channels import (
     register_pseudo_channel_factory,
 )
 from gjk.sema.enums import (
+    Gw1ActorClass,
     Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
     Gw1LeafAllyBufferOnlyState,
@@ -24,6 +25,7 @@ from gjk.sema.enums import (
     Gw1MainAutoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
+from gjk.sema.enums import SinglePicoState
 from gjk.sema.types import ReportEvent
 from gjk.sema.types.old_versions.report_001 import Report001
 from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
@@ -86,11 +88,32 @@ class ReportEventPersistor:
         ],
     }
 
+    # Actor classes whose node is backed by one pico. The pico-cycler reports
+    # each pico's single.pico.state as a machine.states row keyed by that
+    # node's handle; each such node gets one enum pseudo channel.
+    PICO_ACTOR_CLASSES = {
+        Gw1ActorClass.ApiTankModule,
+        Gw1ActorClass.ApiFlowModule,
+        Gw1ActorClass.ApiBtuMeter,
+    }
+    PICO_STATE_CHANNEL_SUFFIX = "-pico-state"
+
+    @classmethod
+    def pico_state_channel(cls, node_name: str) -> SemaEnumPseudoChannel:
+        return SemaEnumPseudoChannel(
+            name=f"{node_name}{cls.PICO_STATE_CHANNEL_SUFFIX}",
+            display_name=f"{node_name} Pico State",
+            enum_type=SinglePicoState,
+        )
+
     @classmethod
     def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
         result: list[PseudoChannel] = [
             item for sublist in cls.STATE_CHANNELS.values() for item in sublist
         ]
+        for node in layout.sh_nodes:
+            if node.actor_class in cls.PICO_ACTOR_CLASSES:
+                result.append(cls.pico_state_channel(node.name))
 
         channel_names = {ch.name for ch in layout.data_channels}
         for ch_name in channel_names:
@@ -137,6 +160,11 @@ class ReportEventPersistor:
             # machine states to project.
             return
         for states in reportEvent.report.state_list:
+            if states.state_enum == SinglePicoState.enum_name():
+                self.collect_pico_state_readings(
+                    readings, states, reportEvent, message_id, db_channel_ids_by_name
+                )
+                continue
             machine_handle = (
                 str(states.machine_handle)
                 .replace("auto.h", "auto.lc")
@@ -185,6 +213,34 @@ class ReportEventPersistor:
                     self.logger.warn(
                         f"Unexpected enum {states.state_enum} found for state {states.machine_handle} (msg_id={message_id})"
                     )
+
+    def collect_pico_state_readings(
+        self,
+        readings: list[ReadingSql],
+        states,
+        reportEvent: ReportEventType,
+        message_id: uuid.UUID,
+        db_channel_ids_by_name: dict[str, uuid.UUID],
+    ):
+        """A single.pico.state row is keyed by the pico-backed node's handle;
+        its channel is named from the handle's last segment, the node name."""
+        node_name = str(states.machine_handle).split(".")[-1]
+        channel_name = f"{node_name}{self.PICO_STATE_CHANNEL_SUFFIX}"
+        db_channel_id = db_channel_ids_by_name.get(channel_name)
+        if db_channel_id is None:
+            self.dropped_readings[
+                (self.terminal_asset_alias(reportEvent), channel_name)
+            ] += len(states.unix_ms_list)
+            return
+        readings.extend(
+            ReadingSql(
+                channel_id=db_channel_id,
+                message_id=message_id,
+                timestamp=datetime.fromtimestamp(t_ms / 1000, timezone.utc),
+                value=self.get_sema_enum_value(SinglePicoState, state),
+            )
+            for t_ms, state in zip(states.unix_ms_list, states.state_list, strict=True)
+        )
 
     whitewire_pwr_threshold_default = 20
     whitewire_pwr_threshold_overrides = {

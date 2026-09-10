@@ -28,6 +28,7 @@ from gjk.sema.enums.market_quantity_unit import MarketQuantityUnit
 from gjk.sema.enums.relay_closed_or_open import RelayClosedOrOpen
 from gjk.sema.enums.relay_energization_state import RelayEnergizationState
 from gjk.sema.enums.relay_wiring_config import RelayWiringConfig
+from gjk.sema.enums.single_pico_state import SinglePicoState
 from gjk.sema.enums.spaceheat_make_model import SpaceheatMakeModel
 from gjk.sema.enums.spaceheat_telemetry_name import SpaceheatTelemetryName
 from gjk.sema.enums.spaceheat_unit import SpaceheatUnit
@@ -58,6 +59,7 @@ __all__ = [
     "RelayClosedOrOpen",
     "RelayEnergizationState",
     "RelayWiringConfig",
+    "SinglePicoState",
     "SpaceheatMakeModel",
     "SpaceheatTelemetryName",
     "SpaceheatUnit",

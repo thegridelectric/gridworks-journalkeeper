@@ -23,6 +23,7 @@ enums:
   relay.closed.or.open: relay.closed.or.open
   relay.energization.state: relay.energization.state
   relay.wiring.config: relay.wiring.config
+  single.pico.state: single.pico.state
   spaceheat.make.model: spaceheat.make.model
   spaceheat.telemetry.name: spaceheat.telemetry.name
   spaceheat.unit: spaceheat.unit

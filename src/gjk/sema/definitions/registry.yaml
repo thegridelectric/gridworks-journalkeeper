@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-08-16T16:30:00Z"
+  last_updated: "2026-09-09T16:00:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -379,6 +379,18 @@ enums:
       "000":
         schema_url: "https://schemas.electricity.works/enums/relay.wiring.config/000"
         created: "2024-09-17T19:18:00Z"
+        status: "published"
+
+  single.pico.state:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "Health state of one Pico microcontroller as judged by the scada's pico-cycler: Alive, Flatlined, or Zombie."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/single.pico.state/000"
+        created: "2026-09-07T16:45:00Z"
         status: "published"
 
   spaceheat.make.model:
