@@ -184,7 +184,9 @@ class JournalKeeper(ActorBase):
             return
 
         try:
-            self.persistor.persist_message(from_alias, datetime.now(UTC), sema_obj)
+            self.persistor.persist_message(
+                from_alias, datetime.now(UTC), sema_obj, live=True
+            )
         except Exception as e:
             self.logger.error(
                 f"Persist failed for {sema_obj.type_name} from {from_alias}: {e!r}"

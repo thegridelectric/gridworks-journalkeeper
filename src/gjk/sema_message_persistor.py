@@ -17,6 +17,7 @@ from gjk.message_persistence_info import (
 )
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
+from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.weather_bundle_persistor import WeatherBundlePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 
@@ -96,6 +97,13 @@ class SemaMessagePersistor:
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
                 WeatherBundlePersistor(logger),
+                # The registry alias is the universe's `<universe>.gnr` —
+                # derived from this service's own alias, never a second
+                # literal that can drift.
+                GNodeForestPersistor(
+                    logger,
+                    registry_alias=(f"{settings.service_alias.split('.')[0]}.gnr"),
+                ),
             ]
         }
 
@@ -190,16 +198,29 @@ class SemaMessagePersistor:
         return MessagePersistenceInfo(id=id, created_at=created_at)
 
     def persist_message(
-        self, from_alias: str, time_received: datetime, payload: SemaType
+        self,
+        from_alias: str,
+        time_received: datetime,
+        payload: SemaType,
+        *,
+        live: bool,
     ):
-        """Persist one message in its own transaction (the live path)."""
+        """Persist one message in its own transaction.
+
+        live: True when the message arrives from the broker (current fleet
+        traffic); False when replayed from the persistent store (S3 backfill).
+        The raw message is stored either way. A custom persistor that declares
+        ``fanout_on_import = False`` projects CURRENT state — its fan-out runs
+        only on live messages, so replayed history cannot regress the
+        projection."""
         with self.get_db() as db:
-            self.persist_in_session(db, from_alias, time_received, payload)
+            self.persist_in_session(db, from_alias, time_received, payload, live=live)
 
     def persist_messages(
         self, items: list[tuple[str, datetime, SemaType]]
     ) -> list[tuple[str, datetime, SemaType, Exception]]:
-        """Persist a batch in one transaction (the bulk-import path).
+        """Persist a batch in one transaction (the bulk-import path, so every
+        message is persisted with ``live=False``).
 
         One commit per batch instead of per message: a persist is several
         round trips (channel rows, message insert, readings insert, commit),
@@ -210,7 +231,9 @@ class SemaMessagePersistor:
         try:
             with self.get_db() as db:
                 for from_alias, time_received, payload in items:
-                    self.persist_in_session(db, from_alias, time_received, payload)
+                    self.persist_in_session(
+                        db, from_alias, time_received, payload, live=False
+                    )
             return []
         except Exception as batch_error:
             self.logger.warning(
@@ -219,13 +242,19 @@ class SemaMessagePersistor:
         failures = []
         for from_alias, time_received, payload in items:
             try:
-                self.persist_message(from_alias, time_received, payload)
+                self.persist_message(from_alias, time_received, payload, live=False)
             except Exception as e:
                 failures.append((from_alias, time_received, payload, e))
         return failures
 
     def persist_in_session(
-        self, db: Session, from_alias: str, time_received: datetime, payload: SemaType
+        self,
+        db: Session,
+        from_alias: str,
+        time_received: datetime,
+        payload: SemaType,
+        *,
+        live: bool,
     ):
         self.logger.debug(
             f"persisting message of type {payload.type_name}:{payload.version} from {from_alias} at {time_received.isoformat()}"
@@ -239,6 +268,8 @@ class SemaMessagePersistor:
         )
         if custom_fn is not None:
             persistence_info = custom_fn(from_alias, time_received, payload)
+            if not live and not custom_persistor.fanout_on_import:
+                persistence_info.additional_db_operations = None
         else:
             persistence_info = self.persist_message_default(
                 from_alias, payload, time_received

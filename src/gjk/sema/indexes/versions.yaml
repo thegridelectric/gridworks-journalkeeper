@@ -35,6 +35,13 @@ types:
           - ChannelId: remove
           - additionalProperties: true -> false
 
+  connectivity.edge.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version"
+
   data.channel.gt:
     latest_version: "002"
     versioning_strategy: "literal"
@@ -138,6 +145,33 @@ types:
         summary: "- AtomicList[]: fsm.atomic.report:000 -> 001"
       "000":
         summary: "Initial Sema version"
+
+  g.node.forest:
+    latest_version: "002"
+    versioning_strategy: "literal"
+    versions:
+      "002":
+        summary: "- Nodes rebind to g.node.gt:006; SendTimeMs joins required"
+      "001":
+        summary: "- SendTimeMs: new optional sender-clock stamp (epoch ms) at forest assembly; the registry stamps wall-clock — it is never simulated (sender-time standard, first adopter)"
+      "000":
+        summary: "Initial Sema version"
+
+  g.node.forest.request:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version"
+
+  g.node.gt:
+    latest_version: "006"
+    versioning_strategy: "literal"
+    versions:
+      "006":
+        summary: "- Axiom 2 (PhysicalGNodeLocations) becomes activation-conditioned: PositionPointId is mandatory only when Status is Active — a Pending physical GNode may be locationless"
+      "005":
+        summary: "adds axiom 6 GNodeAliasHasBody; no field changes"
 
   glitch:
     latest_version: "000"
@@ -536,6 +570,12 @@ types:
         summary: "Initial Sema version"
 
 enums:
+  base.g.node.class:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   change.relay.state:
     enum_type: "literal"
     note: "This enum is literal; version 000 is immutable and exclusive."
@@ -545,6 +585,12 @@ enums:
   fsm.report.type:
     enum_type: "literal"
     note: "This enum is literal; version 000 is immutable and exclusive."
+    versions:
+      "000": {}
+
+  g.node.status:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
     versions:
       "000": {}
 

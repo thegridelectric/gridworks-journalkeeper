@@ -17,6 +17,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
+from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
 from gjk.report_event_persistor import ReportEventPersistor
@@ -84,7 +85,7 @@ def test_dispatch_threads_time_received_to_custom_persistor():
     payload.type_name = "weather.forecast"
     payload.to_dict.return_value = {}
 
-    p.persist_message(FROM_ALIAS, t, payload)
+    p.persist_message(FROM_ALIAS, t, payload, live=True)
 
     custom.persist_v000.assert_called_once_with(FROM_ALIAS, t, payload)
 
@@ -96,6 +97,7 @@ def test_dispatch_threads_time_received_to_custom_persistor():
         WeatherForecastPersistor,
         ReportEventPersistor,
         LayoutLitePersistor,
+        GNodeForestPersistor,
     ],
 )
 def test_every_custom_persist_method_accepts_time_received(persistor_cls):

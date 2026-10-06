@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-09-15T17:51:21Z'
+  generated_at: '2026-10-05T14:16:50Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -35,6 +35,10 @@ initial_targets:
 - energy.instruction:000
 - new.command.tree:000
 - new.command.tree:001
+- g.node.forest:000
+- g.node.forest:001
+- g.node.forest:002
+- g.node.forest.request:000
 - snapshot.spaceheat:001
 - snapshot.spaceheat:002
 - snapshot.spaceheat:003
@@ -97,12 +101,18 @@ worklist:
     uuid4.str:
       path: definitions/formats/uuid4.str.yaml
   enums:
+    base.g.node.class:
+      '000':
+        path: definitions/enums/base.g.node.class/000.yaml
     change.relay.state:
       '000':
         path: definitions/enums/change.relay.state/000.yaml
     fsm.report.type:
       '000':
         path: definitions/enums/fsm.report.type/000.yaml
+    g.node.status:
+      '000':
+        path: definitions/enums/g.node.status/000.yaml
     gpm.from.hz.method:
       '000':
         path: definitions/enums/gpm.from.hz.method/000.yaml
@@ -207,6 +217,9 @@ worklist:
     channel.readings:
       '002':
         path: definitions/types/channel.readings/002.yaml
+    connectivity.edge.gt:
+      '000':
+        path: definitions/types/connectivity.edge.gt/000.yaml
     data.channel.gt:
       '001':
         path: definitions/types/data.channel.gt/001.yaml
@@ -247,6 +260,21 @@ worklist:
         path: definitions/types/fsm.full.report/000.yaml
       '001':
         path: definitions/types/fsm.full.report/001.yaml
+    g.node.forest:
+      '000':
+        path: definitions/types/g.node.forest/000.yaml
+      '001':
+        path: definitions/types/g.node.forest/001.yaml
+      '002':
+        path: definitions/types/g.node.forest/002.yaml
+    g.node.forest.request:
+      '000':
+        path: definitions/types/g.node.forest.request/000.yaml
+    g.node.gt:
+      '005':
+        path: definitions/types/g.node.gt/005.yaml
+      '006':
+        path: definitions/types/g.node.gt/006.yaml
     glitch:
       '000':
         path: definitions/types/glitch/000.yaml

@@ -63,6 +63,7 @@ def _persist(persistor, codec, payload: dict, alias: str):
         f"{alias}.scada",
         datetime.fromtimestamp(_created_ms(payload) / 1000, UTC),
         obj,
+        live=False,
     )
 
 

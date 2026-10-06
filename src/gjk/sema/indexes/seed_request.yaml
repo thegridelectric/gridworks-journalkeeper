@@ -40,6 +40,10 @@ initial_targets:
     new.command.tree:
       # Published set only (002 is staging) — same posture as layout.lite.
       versions: ["000", "001"]
+    g.node.forest:      # grid-node-registry's broadcast projection
+      include_all_versions: true
+    g.node.forest.request:      # bootstrap/resync against gnr's read API
+      include_all_versions: true
     snapshot.spaceheat:
       include_all_versions: true
     scada.params:

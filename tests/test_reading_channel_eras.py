@@ -130,7 +130,7 @@ def test_persist_messages_replays_one_by_one_after_batch_failure(monkeypatch):
     def get_db():
         yield FakeSession()
 
-    def persist_in_session(db, from_alias, time_received, payload):
+    def persist_in_session(db, from_alias, time_received, payload, *, live):
         calls.append(payload)
         if payload == "bad":
             raise ValueError("bad payload")

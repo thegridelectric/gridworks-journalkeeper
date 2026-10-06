@@ -55,6 +55,7 @@ class LayoutLitePersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = "layout.lite"
+        self.fanout_on_import = True  # history fan-out; replays welcome
         # (terminal_asset_alias, channel name) -> era rows added by add-only
         # syncs (an older layout's unit/type differed from the active row).
         # Read by the S3 importer's run summary.

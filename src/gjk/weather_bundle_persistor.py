@@ -40,6 +40,9 @@ class WeatherBundlePersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = GwWeatherForecastBundleGt.type_name_value()
+        # Channels are durable identities, not current-state: creating
+        # them from a replayed bundle is idempotent and desired.
+        self.fanout_on_import = True
 
     def persist_v000(
         self,

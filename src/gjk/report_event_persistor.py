@@ -128,6 +128,7 @@ class ReportEventPersistor:
     def __init__(self, logger):
         self.logger = logger
         self.target_message_type = "report.event"
+        self.fanout_on_import = True  # history fan-out; replays welcome
         self.enum_type_cache = {}
         # Load tallies, read by the S3 importer's run summary.
         # (terminal_asset_alias, channel name) -> readings with no channel row

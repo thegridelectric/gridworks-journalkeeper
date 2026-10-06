@@ -581,7 +581,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.2" },
     { name = "furo", marker = "extra == 'dev'", specifier = ">=2021.11.12" },
     { name = "gridworks-base", specifier = ">=0.5.14" },
-    { name = "gw-data", specifier = ">=0.3.1" },
+    { name = "gw-data", specifier = ">=0.4.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.930" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=0.16.1" },
     { name = "pendulum", specifier = ">=3.0.0" },
@@ -615,7 +615,7 @@ dev = [
 
 [[package]]
 name = "gw-data"
-version = "0.3.1"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
@@ -626,9 +626,9 @@ dependencies = [
     { name = "sqlalchemy-timescaledb" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/ff/3e2a139939201d2aea9d6148b52386a60bb3797b3f0a77186fa4d2a9b02c/gw_data-0.3.1.tar.gz", hash = "sha256:9b5912ea73e5099ee03a637c29a30980e1ab7fafa4b2d7987cb1fafaed336b21", size = 50896, upload-time = "2026-07-01T21:09:57.493Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/93/5ad2102bb470691dfeaa62b36593682f864a5390a3de7e2e0e8b94cb416a/gw_data-0.4.0.tar.gz", hash = "sha256:7cfd061a41db561f6e6e67f3ea20912895c8bb1fc0c7c5988ac3b208bc6e4e4b", size = 53474, upload-time = "2026-10-06T16:15:45.255Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f0/9d/88ea72ad14bb9b4fbbfa28b61ab371fea37e942f95bcbb75700b1a9635a3/gw_data-0.3.1-py3-none-any.whl", hash = "sha256:539c5a3db4b312428d488c053041a2b0b62fe3be018af5cd634b75daa8e073b3", size = 47519, upload-time = "2026-07-01T21:09:56.534Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/1c/0619caf2e5290d677729fb4f7b1fd41ee4fbf4995b975817d61a9b2eccb4/gw_data-0.4.0-py3-none-any.whl", hash = "sha256:fbdc704b39ffa568aa9ba770d98e2d0bb0b7299819861af5f529c351115afeaa", size = 49698, upload-time = "2026-10-06T16:15:44.215Z" },
 ]
 
 [[package]]
