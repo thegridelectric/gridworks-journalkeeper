@@ -3,9 +3,9 @@
 The six hand-seeded `gridworks.g_nodes` rows carry the fleet's aliases
 under GNodeIds the registry never issued. The mapping below IS the plan —
 old id -> registry id, verified against the live registry read API
-2026-07-30. In ONE transaction the script re-points
-`installations.g_node_id`, `connectivity_edges.from/to_g_node_id`, and
-the `g_nodes` primary key.
+2026-07-30. In ONE transaction the script moves each row to its registry
+id and re-points `installations.g_node_id` and
+`connectivity_edges.from/to_g_node_id` to it.
 
 Dry-run by default; pass --execute to apply. The database comes from
 GJK_DB_URL (point it at the target deliberately). Each row's alias must
@@ -98,15 +98,35 @@ def main() -> int:
         print(f"dry run — {len(pending)} re-ids planned; pass --execute to apply")
         return 0
 
+    # The foreign keys into g_nodes.id are NO ACTION and not deferrable, so
+    # neither the id nor a referrer can change first. Instead each row is
+    # copied under its new id (its alias parked, since alias is unique),
+    # the referrers re-pointed, and the old row deleted.
     with eng.begin() as c:
-        for _alias, old, new in pending:
+        cols = [
+            r[0]
+            for r in c.execute(
+                text(
+                    "select column_name from information_schema.columns"
+                    " where table_schema = 'gridworks' and table_name = 'g_nodes'"
+                    " and column_name not in ('id', 'alias')"
+                    " order by ordinal_position"
+                )
+            )
+        ]
+        rest = ", ".join(cols)
+        for alias, old, new in pending:
+            params = {"new": new, "old": old, "alias": alias}
             for stmt in (
+                "update gridworks.g_nodes set alias = alias || '.reid' where id = :old",
+                f"insert into gridworks.g_nodes (id, alias, {rest})"
+                f" select :new, :alias, {rest} from gridworks.g_nodes where id = :old",
                 "update gridworks.installations set g_node_id = :new where g_node_id = :old",
                 "update gridworks.connectivity_edges set from_g_node_id = :new where from_g_node_id = :old",
                 "update gridworks.connectivity_edges set to_g_node_id = :new where to_g_node_id = :old",
-                "update gridworks.g_nodes set id = :new where id = :old",
+                "delete from gridworks.g_nodes where id = :old",
             ):
-                c.execute(text(stmt), {"new": new, "old": old})
+                c.execute(text(stmt), params)
     print(f"applied {len(pending)} re-ids")
     return 0
 
