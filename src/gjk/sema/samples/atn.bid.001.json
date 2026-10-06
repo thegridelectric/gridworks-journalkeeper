@@ -1,0 +1,24 @@
+{
+  "TypeName": "atn.bid",
+  "Version": "001",
+  "BidderAlias": "hw1.isone.me.versant.keene.beech.scada",
+  "MarketSlotName": "e.rt60gate5.hw1.isone.ver.keene.1764291600",
+  "PqPairs": [
+    {
+      "TypeName": "price.quantity.unitless",
+      "Version": "001",
+      "PriceX1000": -100000,
+      "QuantityX1000": 9166
+    },
+    {
+      "TypeName": "price.quantity.unitless",
+      "Version": "001",
+      "PriceX1000": 85000,
+      "QuantityX1000": 0
+    }
+  ],
+  "InjectionIsPositive": true,
+  "PriceUnit": "USDPerMWh",
+  "QuantityUnit": "AvgkW",
+  "SignedMarketFeeTxn": "BogusAlgoSignature"
+}

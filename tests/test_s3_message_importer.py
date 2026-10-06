@@ -10,6 +10,8 @@ Hermetic — no AWS, no DB. Covers:
 import logging
 from datetime import UTC, datetime
 
+import pytest
+
 import gjk.s3_message_importer as imp_mod
 from gjk.s3_message_importer import S3MessageImporter
 
@@ -39,6 +41,7 @@ def _importer(pages, msg_types):
     imp.s3 = _FakeS3(pages)
     imp.aws_bucket_name = "gwdev"
     imp.world_instance_name = "hw1__1"
+    imp.alias_prefix = None
     imp.msg_types = msg_types
     imp.logger = LOG
     return imp
@@ -85,13 +88,21 @@ class _FakeImporter:
         self.download_calls += 1
         raise RuntimeError("boom")  # every message fails
 
+    prefetch = imp_mod.S3MessageImporter.prefetch
+
 
 class _FakePersistor:
+    custom_persistor_lookup: dict = {}
+    RECEIPT_TIME_KEYED_TYPES: frozenset = frozenset()
+
     def __init__(self, *_a, **_k):
         pass
 
     def all_known_message_types(self):
         return set()
+
+    def dedupable_message_types(self):
+        return self.all_known_message_types() - self.RECEIPT_TIME_KEYED_TYPES
 
     def persist_message(self, *_a, **_k):
         pass
@@ -117,8 +128,13 @@ def test_main_continues_past_failed_message(monkeypatch):
 
 
 class _KnownTypesPersistor(_FakePersistor):
+    RECEIPT_TIME_KEYED_TYPES = frozenset({"power.watts"})
+
     def all_known_message_types(self):
-        return {"report.event", "layout.lite"}
+        return {"report.event", "layout.lite", "power.watts"}
+
+    def dedupable_message_types(self):
+        return self.all_known_message_types() - self.RECEIPT_TIME_KEYED_TYPES
 
 
 def _run_main_capturing_msg_types(monkeypatch, argv):
@@ -126,7 +142,7 @@ def _run_main_capturing_msg_types(monkeypatch, argv):
     was constructed with (the type-selection outcome under test)."""
     captured = {}
 
-    def _fake_importer_factory(_settings, msg_types, _logger):
+    def _fake_importer_factory(_settings, msg_types, _logger, **_kw):
         captured["msg_types"] = msg_types
         fake = _FakeImporter()
         fake.find_messages_in_date_range = lambda start, end: []  # noqa: ARG005
@@ -165,3 +181,46 @@ def test_message_types_include_list_strips_whitespace(monkeypatch):
         ],
     )
     assert msg_types == {"report.event", "layout.lite"}
+
+
+def test_alias_prefix_skips_other_universes():
+    pages = [
+        {
+            "Contents": [
+                {
+                    "Key": "hw1__1/eventstore/20260108/d1.isone.ct.newhaven.orange1.scada-layout.lite-1767911926450-ear.json"
+                },
+                {
+                    "Key": "hw1__1/eventstore/20260108/hw1.isone.me.versant.keene.beech.scada-layout.lite-1767911926451-ear.json"
+                },
+            ]
+        }
+    ]
+    imp = _importer(pages, {"layout.lite"})
+    assert len(list(imp.find_messages_on_date(datetime(2026, 1, 8, tzinfo=UTC)))) == 2
+    imp = _importer(pages, {"layout.lite"})
+    imp.alias_prefix = "hw1."
+    out = list(imp.find_messages_on_date(datetime(2026, 1, 8, tzinfo=UTC)))
+    assert [m.from_alias for m in out] == ["hw1.isone.me.versant.keene.beech.scada"]
+
+
+def test_default_type_set_excludes_receipt_time_keyed(monkeypatch):
+    msg_types = _run_main_capturing_msg_types(
+        monkeypatch, ["--start", "2026-05-23", "--end", "2026-05-24"]
+    )
+    assert msg_types == {"report.event", "layout.lite"}
+
+
+def test_explicit_include_of_receipt_time_keyed_type_is_refused(monkeypatch):
+    with pytest.raises(SystemExit):
+        _run_main_capturing_msg_types(
+            monkeypatch,
+            [
+                "--start",
+                "2026-05-23",
+                "--end",
+                "2026-05-24",
+                "--message-types",
+                "power.watts",
+            ],
+        )

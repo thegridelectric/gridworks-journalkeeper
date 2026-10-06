@@ -1,0 +1,670 @@
+{
+  "MessageId": "f4a13cb8-b3e9-4558-a584-2caea59bccd8",
+  "TimeCreatedMs": 1730073900043,
+  "Src": "hw1.isone.me.versant.keene.beech.scada",
+  "TypeName": "report.event",
+  "Report": {
+    "FromGNodeAlias": "hw1.isone.me.versant.keene.beech.scada",
+    "FromGNodeInstanceId": "19ee09df-80ba-437b-b6c1-1eebe9d34801",
+    "AboutGNodeAlias": "hw1.isone.me.versant.keene.beech.ta",
+    "SlotStartUnixS": 1730073600,
+    "SlotDurationS": 300,
+    "ChannelReadingList": [
+      {
+        "ChannelName": "hp-odu-pwr",
+        "ValueList": [
+          208
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073619651
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "hp-idu-pwr",
+        "ValueList": [
+          12
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073605647
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "dist-pump-pwr",
+        "ValueList": [
+          30,
+          0
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073761680,
+          1730073762679
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "primary-pump-pwr",
+        "ValueList": [
+          0
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073664658
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "store-pump-pwr",
+        "ValueList": [
+          0
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073764679
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "oil-boiler-pwr",
+        "ValueList": [
+          0
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073704663
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone1-down-temp",
+        "ValueList": [
+          66000
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740602
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone1-down-set",
+        "ValueList": [
+          66000
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740602
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone1-down-state",
+        "ValueList": [
+          1
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740602
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone2-up-temp",
+        "ValueList": [
+          65000
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740599
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone2-up-set",
+        "ValueList": [
+          63000
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740599
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone2-up-state",
+        "ValueList": [
+          0
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740599
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "dist-swt",
+        "ValueList": [
+          69428,
+          68915,
+          68409,
+          67902,
+          67394,
+          66893,
+          66392,
+          65890
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073787094,
+          1730073798700,
+          1730073810705,
+          1730073822115,
+          1730073838724,
+          1730073852331,
+          1730073869742,
+          1730073889955
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "dist-rwt",
+        "ValueList": [
+          32466,
+          32975,
+          33487,
+          34029,
+          34530,
+          35031,
+          35535,
+          36056,
+          36620,
+          37146,
+          37665,
+          38172,
+          38757,
+          39270,
+          39788,
+          40306,
+          40834,
+          41351,
+          41864,
+          42382,
+          42883,
+          43385,
+          43907,
+          44434,
+          44944,
+          44434,
+          43929,
+          43426,
+          42906,
+          42347,
+          41842
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073600107,
+          1730073615494,
+          1730073626901,
+          1730073636598,
+          1730073649606,
+          1730073659813,
+          1730073669818,
+          1730073679024,
+          1730073686629,
+          1730073694836,
+          1730073701438,
+          1730073706842,
+          1730073712446,
+          1730073718250,
+          1730073725053,
+          1730073730056,
+          1730073734860,
+          1730073739462,
+          1730073742064,
+          1730073748268,
+          1730073752871,
+          1730073757475,
+          1730073761276,
+          1730073766681,
+          1730073771881,
+          1730073790895,
+          1730073798899,
+          1730073808105,
+          1730073820714,
+          1730073840126,
+          1730073892758
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "hp-lwt",
+        "ValueList": [
+          35813,
+          35310
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073654609,
+          1730073813908
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "hp-ewt",
+        "ValueList": [
+          31680,
+          31177
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073719250,
+          1730073897359
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "store-hot-pipe",
+        "ValueList": [
+          19098
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073601065
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "store-cold-pipe",
+        "ValueList": [
+          16939
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073741063
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-hot-pipe",
+        "ValueList": [
+          69517,
+          68994,
+          68478,
+          67970,
+          67461
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073797698,
+          1730073816511,
+          1730073840126,
+          1730073859537,
+          1730073890155
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone1-down-gw-temp",
+        "ValueList": [
+          18821,
+          19335
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073623101,
+          1730073833321
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "oat",
+        "ValueList": [
+          2221
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073740063
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "zone2-up-gw-temp",
+        "ValueList": [
+          18774,
+          18257,
+          18865,
+          18301,
+          18821,
+          18318
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073629573,
+          1730073639201,
+          1730073666016,
+          1730073669421,
+          1730073716649,
+          1730073726055
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-cold-pipe",
+        "ValueList": [
+          30531,
+          31034,
+          31540,
+          32043,
+          32548,
+          33110,
+          33646,
+          34155,
+          34657,
+          35162,
+          35676,
+          36182,
+          36704,
+          37214,
+          37721
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073629173,
+          1730073653208,
+          1730073669818,
+          1730073685629,
+          1730073700036,
+          1730073712247,
+          1730073727256,
+          1730073738663,
+          1730073748069,
+          1730073757073,
+          1730073764879,
+          1730073772683,
+          1730073781483,
+          1730073795098,
+          1730073815711
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-well",
+        "ValueList": [
+          63572
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073738061
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth1",
+        "ValueList": [
+          68830,
+          68780
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073676284,
+          1730073780005
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth2",
+        "ValueList": [
+          71310,
+          71190,
+          71100,
+          71080
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073613551,
+          1730073691981,
+          1730073780005,
+          1730073788570
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth3",
+        "ValueList": [
+          69400,
+          69290,
+          69180,
+          69070,
+          68960,
+          68850,
+          68740
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073603593,
+          1730073644946,
+          1730073671796,
+          1730073712976,
+          1730073746833,
+          1730073772186,
+          1730073897773
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth4",
+        "ValueList": [
+          38320,
+          38230,
+          38150,
+          38080,
+          37990,
+          37920,
+          37840,
+          37750,
+          37660,
+          37570,
+          37490,
+          37420,
+          37330,
+          37250,
+          37170,
+          37080,
+          37000,
+          36930,
+          36840,
+          36760,
+          36670,
+          36580,
+          36500,
+          36410,
+          36340,
+          36260,
+          36190,
+          36110,
+          36040,
+          36110,
+          36190,
+          36270,
+          36340
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073604904,
+          1730073609743,
+          1730073614587,
+          1730073618221,
+          1730073623060,
+          1730073626697,
+          1730073631631,
+          1730073636474,
+          1730073641314,
+          1730073646277,
+          1730073649911,
+          1730073653548,
+          1730073658461,
+          1730073662096,
+          1730073665734,
+          1730073669368,
+          1730073673020,
+          1730073676654,
+          1730073681499,
+          1730073685135,
+          1730073689974,
+          1730073694818,
+          1730073699660,
+          1730073704501,
+          1730073710548,
+          1730073716611,
+          1730073723863,
+          1730073737145,
+          1730073763728,
+          1730073795111,
+          1730073843357,
+          1730073855433,
+          1730073868714
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth1-micro-v",
+        "ValueList": [
+          764668,
+          765546
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073676284,
+          1730073780005
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth2-micro-v",
+        "ValueList": [
+          719103,
+          721139,
+          722845,
+          723147
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073613551,
+          1730073691981,
+          1730073780005,
+          1730073788570
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth3-micro-v",
+        "ValueList": [
+          753958,
+          755972,
+          757996,
+          760080,
+          762180,
+          764189,
+          766225
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073603593,
+          1730073644946,
+          1730073671796,
+          1730073712976,
+          1730073746833,
+          1730073772186,
+          1730073897773
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      },
+      {
+        "ChannelName": "buffer-depth4-micro-v",
+        "ValueList": [
+          1507910,
+          1510541,
+          1512847,
+          1514864,
+          1517222,
+          1519318,
+          1521553,
+          1524097,
+          1526665,
+          1529137,
+          1531317,
+          1533518,
+          1536065,
+          1538159,
+          1540556,
+          1542960,
+          1545281,
+          1547338,
+          1549987,
+          1552138,
+          1554751,
+          1557206,
+          1559661,
+          1561992,
+          1564098,
+          1566391,
+          1568435,
+          1570622,
+          1572657,
+          1570456,
+          1568455,
+          1566147,
+          1564133
+        ],
+        "ScadaReadTimeUnixMsList": [
+          1730073604904,
+          1730073609743,
+          1730073614587,
+          1730073618221,
+          1730073623060,
+          1730073626697,
+          1730073631631,
+          1730073636474,
+          1730073641314,
+          1730073646277,
+          1730073649911,
+          1730073653548,
+          1730073658461,
+          1730073662096,
+          1730073665734,
+          1730073669368,
+          1730073673020,
+          1730073676654,
+          1730073681499,
+          1730073685135,
+          1730073689974,
+          1730073694818,
+          1730073699660,
+          1730073704501,
+          1730073710548,
+          1730073716611,
+          1730073723863,
+          1730073737145,
+          1730073763728,
+          1730073795111,
+          1730073843357,
+          1730073855433,
+          1730073868714
+        ],
+        "TypeName": "channel.readings",
+        "Version": "002"
+      }
+    ],
+    "FsmActionList": [],
+    "FsmReportList": [],
+    "MessageCreatedMs": 1730073900043,
+    "Id": "f4a13cb8-b3e9-4558-a584-2caea59bccd8",
+    "TypeName": "report",
+    "Version": "001"
+  },
+  "Version": "000"
+}

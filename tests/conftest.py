@@ -105,13 +105,15 @@ def rabbit_url() -> str:
         DockerContainer("rabbitmq:3.13")
         .with_env("RABBITMQ_DEFAULT_USER", "tester")
         .with_env("RABBITMQ_DEFAULT_PASS", "tester")
+        # The vhost is the universe.run being joined (gwbase validates it).
+        .with_env("RABBITMQ_DEFAULT_VHOST", "d1__1")
         .with_exposed_ports(5672)
     )
     container.start()
     try:
         host = container.get_container_host_ip()
         port = container.get_exposed_port(5672)
-        url = f"amqp://tester:tester@{host}:{port}/"
+        url = f"amqp://tester:tester@{host}:{port}/d1__1"
 
         def _probe() -> None:
             conn = pika.BlockingConnection(pika.URLParameters(url))

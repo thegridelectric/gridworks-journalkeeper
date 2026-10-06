@@ -25,6 +25,7 @@ enums:
   relay.closed.or.open: relay.closed.or.open
   relay.energization.state: relay.energization.state
   relay.wiring.config: relay.wiring.config
+  single.pico.state: single.pico.state
   spaceheat.make.model: spaceheat.make.model
   spaceheat.telemetry.name: spaceheat.telemetry.name
   spaceheat.unit: spaceheat.unit
@@ -78,6 +79,7 @@ types:
   snapshot.spaceheat: snapshot.spaceheat
   spaceheat.node.gt: spaceheat.node.gt
   spaceheat.telemetry.quantity.projection: spaceheat.telemetry.quantity.projection
+  synth.channel.gt: synth.channel.gt
   ticklist.hall: ticklist.hall
   ticklist.hall.report: ticklist.hall.report
   ticklist.reed: ticklist.reed

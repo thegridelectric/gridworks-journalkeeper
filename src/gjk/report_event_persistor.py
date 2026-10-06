@@ -1,18 +1,21 @@
 import hashlib
 import uuid
+from collections import Counter
 from datetime import UTC, datetime, timezone
 
-from gw_data.db.models import ReadingChannelSql, ReadingSql
+from gw_data.db.models import ReadingSql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.reading_channel_eras import channel_ids_at, load_channel_rows
 from gjk.pseudo_channels import (
     ModernLayout,
     PseudoChannel,
     register_pseudo_channel_factory,
 )
 from gjk.sema.enums import (
+    Gw1ActorClass,
     Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
     Gw1LeafAllyBufferOnlyState,
@@ -22,9 +25,15 @@ from gjk.sema.enums import (
     Gw1MainAutoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
+from gjk.sema.enums import SinglePicoState
 from gjk.sema.types import ReportEvent
+from gjk.sema.types.old_versions.report_001 import Report001
+from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
+from gjk.sema.types.old_versions.report_event_003 import ReportEvent003
 from gjk.zone_heat_call_pseudo_channel import ZoneHeatCallPseudoChannel
+
+ReportEventType = ReportEvent | ReportEvent003 | ReportEvent002 | ReportEvent000
 
 
 class SemaEnumPseudoChannel(PseudoChannel):
@@ -80,11 +89,32 @@ class ReportEventPersistor:
         ],
     }
 
+    # Actor classes whose node is backed by one pico. The pico-cycler reports
+    # each pico's single.pico.state as a machine.states row keyed by that
+    # node's handle; each such node gets one enum pseudo channel.
+    PICO_ACTOR_CLASSES = {
+        Gw1ActorClass.ApiTankModule,
+        Gw1ActorClass.ApiFlowModule,
+        Gw1ActorClass.ApiBtuMeter,
+    }
+    PICO_STATE_CHANNEL_SUFFIX = "-pico-state"
+
+    @classmethod
+    def pico_state_channel(cls, node_name: str) -> SemaEnumPseudoChannel:
+        return SemaEnumPseudoChannel(
+            name=f"{node_name}{cls.PICO_STATE_CHANNEL_SUFFIX}",
+            display_name=f"{node_name} Pico State",
+            enum_type=SinglePicoState,
+        )
+
     @classmethod
     def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
         result: list[PseudoChannel] = [
             item for sublist in cls.STATE_CHANNELS.values() for item in sublist
         ]
+        for node in layout.sh_nodes:
+            if node.actor_class in cls.PICO_ACTOR_CLASSES:
+                result.append(cls.pico_state_channel(node.name))
 
         channel_names = {ch.name for ch in layout.data_channels}
         for ch_name in channel_names:
@@ -100,6 +130,13 @@ class ReportEventPersistor:
         self.target_message_type = "report.event"
         self.fanout_on_import = True  # history fan-out; replays welcome
         self.enum_type_cache = {}
+        # Load tallies, read by the S3 importer's run summary.
+        # (terminal_asset_alias, channel name) -> readings with no channel row
+        # whose era contains the report time.
+        self.dropped_readings: Counter[tuple[str, str]] = Counter()
+        # (enum name, value) -> state readings stored under the sha256
+        # fallback because the value is not in the vendored enum.
+        self.enum_fallbacks: Counter[tuple[str, str]] = Counter()
 
     def get_sema_enum_value(self, enum_type: type[SemaEnum], value_str: str) -> int:
         if value_str in enum_type.values():
@@ -110,16 +147,26 @@ class ReportEventPersistor:
             self.logger.warn(
                 f"Unrecognized enum value {value_str} in {enum_type.enum_name()} -- using hash value {hash_result} as default."
             )
+            self.enum_fallbacks[(enum_type.enum_name(), value_str)] += 1
             return hash_result
 
     def collect_channel_state_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
+        if isinstance(reportEvent.report, Report001):
+            # report:001 carries FsmActionList in place of StateList: no
+            # machine states to project.
+            return
         for states in reportEvent.report.state_list:
+            if states.state_enum == SinglePicoState.enum_name():
+                self.collect_pico_state_readings(
+                    readings, states, reportEvent, message_id, db_channel_ids_by_name
+                )
+                continue
             machine_handle = (
                 str(states.machine_handle)
                 .replace("auto.h", "auto.lc")
@@ -142,7 +189,11 @@ class ReportEventPersistor:
                     if channel.enum_type.enum_name() == states.state_enum:
                         found_channel = True
                         db_channel_id = db_channel_ids_by_name.get(channel.name)
-                        if db_channel_id is not None:
+                        if db_channel_id is None:
+                            self.dropped_readings[
+                                (self.terminal_asset_alias(reportEvent), channel.name)
+                            ] += len(states.unix_ms_list)
+                        else:
                             readings.extend(
                                 map(
                                     lambda t_s: ReadingSql(
@@ -165,6 +216,34 @@ class ReportEventPersistor:
                         f"Unexpected enum {states.state_enum} found for state {states.machine_handle} (msg_id={message_id})"
                     )
 
+    def collect_pico_state_readings(
+        self,
+        readings: list[ReadingSql],
+        states,
+        reportEvent: ReportEventType,
+        message_id: uuid.UUID,
+        db_channel_ids_by_name: dict[str, uuid.UUID],
+    ):
+        """A single.pico.state row is keyed by the pico-backed node's handle;
+        its channel is named from the handle's last segment, the node name."""
+        node_name = str(states.machine_handle).split(".")[-1]
+        channel_name = f"{node_name}{self.PICO_STATE_CHANNEL_SUFFIX}"
+        db_channel_id = db_channel_ids_by_name.get(channel_name)
+        if db_channel_id is None:
+            self.dropped_readings[
+                (self.terminal_asset_alias(reportEvent), channel_name)
+            ] += len(states.unix_ms_list)
+            return
+        readings.extend(
+            ReadingSql(
+                channel_id=db_channel_id,
+                message_id=message_id,
+                timestamp=datetime.fromtimestamp(t_ms / 1000, timezone.utc),
+                value=self.get_sema_enum_value(SinglePicoState, state),
+            )
+            for t_ms, state in zip(states.unix_ms_list, states.state_list, strict=True)
+        )
+
     whitewire_pwr_threshold_default = 20
     whitewire_pwr_threshold_overrides = {
         "hw1.isone.me.versant.keene.beech.scada": 100,
@@ -174,7 +253,7 @@ class ReportEventPersistor:
     def collect_zone_heat_call_readings(
         self,
         readings: list[ReadingSql],
-        reportEvent: ReportEvent | ReportEvent002,
+        reportEvent: ReportEventType,
         message_id: uuid.UUID,
         db_channel_ids_by_name: dict[str, uuid.UUID],
     ):
@@ -206,27 +285,28 @@ class ReportEventPersistor:
                         )
                     )
 
+    @staticmethod
+    def terminal_asset_alias(reportEvent: ReportEventType) -> str:
+        return reportEvent.report.from_g_node_alias.split(".scada")[0] + ".ta"
+
     def persist_readings(
-        self, db: Session, from_alias: str, reportEvent: ReportEvent | ReportEvent002
+        self, db: Session, from_alias: str, reportEvent: ReportEventType
     ):
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
-        db_channels = (
-            db
-            .query(ReadingChannelSql)
-            .filter(
-                ReadingChannelSql.deactivated_date.is_(None),
-                ReadingChannelSql.terminal_asset_alias == from_terminal_asset_alias,
-            )
-            .all()
+        report_time = datetime.fromtimestamp(reportEvent.time_created_ms / 1000, UTC)
+        db_channel_ids_by_name = channel_ids_at(
+            load_channel_rows(db, from_terminal_asset_alias), report_time
         )
 
         message_id = uuid.UUID(reportEvent.message_id)
 
-        db_channel_ids_by_name = {c.name: c.id for c in db_channels}
         readings: list[ReadingSql] = []
         for ch_readings in reportEvent.report.channel_reading_list:
             db_channel_id = db_channel_ids_by_name.get(ch_readings.channel_name)
             if db_channel_id is None:
+                self.dropped_readings[
+                    (from_terminal_asset_alias, ch_readings.channel_name)
+                ] += len(ch_readings.value_list)
                 continue
             else:
                 # Reports can duplicate the same timestamp and value, so we need to de-duplicate it.
@@ -260,6 +340,17 @@ class ReportEventPersistor:
             )
             db.execute(stmt, dicts)
 
+    def persist_v000(
+        self, from_alias: str, time_received: datetime, report: ReportEvent000
+    ):
+        return MessagePersistenceInfo(
+            id=report.message_id,
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
+            additional_db_operations=lambda db: self.persist_readings(
+                db, from_alias, report
+            ),
+        )
+
     def persist_v002(
         self, from_alias: str, time_received: datetime, report: ReportEvent002
     ):
@@ -272,8 +363,21 @@ class ReportEventPersistor:
         )
 
     def persist_v003(
+        self, from_alias: str, time_received: datetime, report: ReportEvent003
+    ):
+        return MessagePersistenceInfo(
+            id=report.message_id,
+            created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
+            additional_db_operations=lambda db: self.persist_readings(
+                db, from_alias, report
+            ),
+        )
+
+    def persist_v004(
         self, from_alias: str, time_received: datetime, report: ReportEvent
     ):
+        # 004 restores the propagation axioms, so message_id is Report.Id and
+        # time_created_ms is Report.MessageCreatedMs by construction.
         return MessagePersistenceInfo(
             id=report.message_id,
             created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),

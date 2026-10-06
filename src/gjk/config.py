@@ -17,23 +17,18 @@ class AwsClient(BaseModel):
 
 
 class Settings(ServiceSettings):
+    # The gridworks-data local container under its dev convention
+    # (password = role name). Production comes from .env.
     db_url: SecretStr = SecretStr(
-        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/journaldb_dev"
-    )
-    gbo_db_url: SecretStr = SecretStr(
-        "postgresql+psycopg2://journaldb:journaldb@localhost:5433/backofficedb_dev"
+        "postgresql+psycopg2://gw_journalkeeper:gw_journalkeeper@localhost:5433/tsdb"
     )
     aws: AwsClient = AwsClient()
-    ops_genie_api_key: SecretStr = SecretStr("OpsGenieAPIKey")
     # gwbase-native tap identity (replaces the old g_node_alias hack). JK is
     # not a GNode, so it carries no g_node_id / world_instance_alias / g-node
     # file. GJK_SERVICE_ALIAS overrides the default.
     service_alias: LeftRightDot = "d1.journal"
     service_name: str = "journalkeeper"  # XDG path segment for logs/state
     my_fqdn: str = "localhost"
-    visualizer_api_password: SecretStr = SecretStr("ThermostatAPIKey")
-    email_sender: SecretStr = SecretStr("email_sender")
-    email_password: SecretStr = SecretStr("email_password")
 
     model_config = ConfigDict(
         env_prefix="GJK_",
