@@ -1,12 +1,17 @@
 """Bootstrap/resync gw_data's registry projection from gnr's read API.
 
+Not part of normal operation: gnr's periodic snapshot broadcast keeps a
+running journalkeeper's projection current, and ``gnr snapshot`` on the
+registry box forces a resync over the bus. Run this when standing up a
+journalkeeper against a fresh database, to fill the projection without
+waiting for the next snapshot.
+
 One ``g.node.forest.request`` per requested root against
 ``POST <api-base>/gnr/g-node-forest-request``; each response projects
 through the same fan-out live broadcasts use
 (``GNodeForestPersistor.project_forest``). Projection only — no
 ``messages`` row: message rows witness bus traffic, and an API pull is
-not bus traffic. The periodic snapshot broadcast is the ongoing
-anti-entropy; this is the bootstrap and the manual resync.
+not bus traffic.
 
 Run from the repo root::
 
@@ -19,6 +24,7 @@ import argparse
 import logging
 import uuid
 
+import dotenv
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -79,7 +85,7 @@ def main() -> None:
     )
     parser.add_argument("roots", nargs="+", help="forest-root aliases to pull")
     args = parser.parse_args()
-    bootstrap(args.api_base, args.roots, Settings())
+    bootstrap(args.api_base, args.roots, Settings(_env_file=dotenv.find_dotenv()))  # type: ignore
 
 
 if __name__ == "__main__":
