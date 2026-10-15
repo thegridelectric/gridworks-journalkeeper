@@ -21,7 +21,6 @@ from gjk.sema.enums import (
     Gw1LeafAllyBufferOnlyState,
     Gw1LocalControlAllTanksState,
     Gw1LocalControlBufferOnlyState,
-    Gw1LocalControlStandbyTopState,
     Gw1MainAutoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
@@ -68,11 +67,6 @@ class ReportEventPersistor:
                 name="local-control-buffer-only-state",
                 display_name="Local Control Buffer Only State",
                 enum_type=Gw1LocalControlBufferOnlyState,
-            ),
-            SemaEnumPseudoChannel(
-                name="local-control-standby-state",
-                display_name="Local Control Standby State",
-                enum_type=Gw1LocalControlStandbyTopState,
             ),
         ],
         "ltn.la": [

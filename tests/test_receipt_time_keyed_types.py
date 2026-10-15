@@ -12,6 +12,7 @@ from gjk.sema_message_persistor import SemaMessagePersistor
 
 EXPECTED = frozenset({
     "atn.bid",
+    "gw.hack.alert.silences",
     "gw.weather.channel.gt",
     "gw.weather.cmd.ack",
     "gw.weather.cmd.nack",

@@ -104,10 +104,21 @@ types:
     versioning_strategy: literal
     versions:
       '001': definitions/types/gridworks.event.problem/001.yaml
-  gw.weather.channel.gt:
+  gw.alert:
     latest_version: '000'
     versioning_strategy: literal
     versions:
+      '000': definitions/types/gw.alert/000.yaml
+  gw.hack.alert.silences:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.hack.alert.silences/000.yaml
+  gw.weather.channel.gt:
+    latest_version: '001'
+    versioning_strategy: literal
+    versions:
+      '001': definitions/types/gw.weather.channel.gt/001.yaml
       '000': definitions/types/gw.weather.channel.gt/000.yaml
   gw.weather.cmd.ack:
     latest_version: '000'
@@ -120,9 +131,10 @@ types:
     versions:
       '000': definitions/types/gw.weather.cmd.nack/000.yaml
   gw.weather.create.cmd:
-    latest_version: '000'
+    latest_version: '001'
     versioning_strategy: literal
     versions:
+      '001': definitions/types/gw.weather.create.cmd/001.yaml
       '000': definitions/types/gw.weather.create.cmd/000.yaml
   gw.weather.forecast:
     latest_version: '000'
@@ -130,9 +142,10 @@ types:
     versions:
       '000': definitions/types/gw.weather.forecast/000.yaml
   gw.weather.forecast.bundle.gt:
-    latest_version: '000'
+    latest_version: '001'
     versioning_strategy: literal
     versions:
+      '001': definitions/types/gw.weather.forecast.bundle.gt/001.yaml
       '000': definitions/types/gw.weather.forecast.bundle.gt/000.yaml
   gw.weather.forecast.channel.gt:
     latest_version: '000'
@@ -149,6 +162,11 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/gw.weather.observation/000.yaml
+  gw.weather.seasonal.template.gt:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.weather.seasonal.template.gt/000.yaml
   gw1.tank.temp.calibration:
     latest_version: '000'
     versioning_strategy: literal
@@ -353,6 +371,29 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/gpm.from.hz.method/000.yaml
+  gw.alert.category:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.alert.category/000.yaml
+  gw.alert.state:
+    enum_type: literal
+    schema: definitions/enums/gw.alert.state/000.yaml
+  gw.fleet.alert.kind:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.fleet.alert.kind/000.yaml
+  gw.house.alert.kind:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.house.alert.kind/000.yaml
+  gw.platform.alert.kind:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.platform.alert.kind/000.yaml
   gw.weather.forecast.fidelity:
     enum_type: versioned
     latest_version: '000'
@@ -394,11 +435,6 @@ enums:
     latest_version: '001'
     versions:
       '001': definitions/enums/gw1.local.control.buffer.only.state/001.yaml
-  gw1.local.control.standby.top.state:
-    enum_type: versioned
-    latest_version: '001'
-    versions:
-      '001': definitions/enums/gw1.local.control.standby.top.state/001.yaml
   gw1.main.auto.state:
     enum_type: versioned
     latest_version: '001'
@@ -406,8 +442,9 @@ enums:
       '001': definitions/enums/gw1.main.auto.state/001.yaml
   gw1.quantity:
     enum_type: versioned
-    latest_version: '002'
+    latest_version: '003'
     versions:
+      '003': definitions/enums/gw1.quantity/003.yaml
       '002': definitions/enums/gw1.quantity/002.yaml
       '000': definitions/enums/gw1.quantity/000.yaml
   gw1.seasonal.storage.mode:
@@ -422,8 +459,9 @@ enums:
       '000': definitions/enums/gw1.system.mode/000.yaml
   gw1.unit:
     enum_type: versioned
-    latest_version: '002'
+    latest_version: '003'
     versions:
+      '003': definitions/enums/gw1.unit/003.yaml
       '002': definitions/enums/gw1.unit/002.yaml
       '000': definitions/enums/gw1.unit/000.yaml
   hz.calc.method:

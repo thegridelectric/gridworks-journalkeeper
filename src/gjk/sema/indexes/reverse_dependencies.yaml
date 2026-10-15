@@ -13,6 +13,7 @@ types:
   channel.readings:
     '002':
       used_by:
+      - gw.alert:000
       - report:001
       - report:002
       - report:003
@@ -81,19 +82,33 @@ types:
       used_by:
       - gw.weather.create.cmd:000
       - gw.weather.forecast.bundle.gt:000
+    '001':
+      used_by:
+      - gw.weather.create.cmd:001
+      - gw.weather.forecast.bundle.gt:001
   gw.weather.forecast.bundle.gt:
     '000':
       used_by:
       - gw.weather.create.cmd:000
+    '001':
+      used_by:
+      - gw.weather.create.cmd:001
   gw.weather.forecast.channel.gt:
     '000':
       used_by:
       - gw.weather.create.cmd:000
+      - gw.weather.create.cmd:001
       - gw.weather.forecast.bundle.gt:000
+      - gw.weather.forecast.bundle.gt:001
   gw.weather.location.gt:
     '000':
       used_by:
       - gw.weather.create.cmd:000
+      - gw.weather.create.cmd:001
+  gw.weather.seasonal.template.gt:
+    '000':
+      used_by:
+      - gw.weather.create.cmd:001
   gw1.tank.temp.calibration:
     '000':
       used_by:
@@ -326,6 +341,26 @@ enums:
     '000':
       used_by:
       - pico.flow.module.component.gt:000
+  gw.alert.category:
+    '000':
+      used_by:
+      - gw.alert:000
+  gw.alert.state:
+    '000':
+      used_by:
+      - gw.alert:000
+  gw.fleet.alert.kind:
+    '000':
+      used_by:
+      - gw.alert:000
+  gw.house.alert.kind:
+    '000':
+      used_by:
+      - gw.alert:000
+  gw.platform.alert.kind:
+    '000':
+      used_by:
+      - gw.alert:000
   gw.weather.forecast.fidelity:
     '000':
       used_by:
@@ -351,6 +386,9 @@ enums:
       used_by:
       - gw.weather.channel.gt:000
       - gw.weather.forecast.bundle.gt:000
+    '003':
+      used_by:
+      - gw.weather.channel.gt:001
   gw1.seasonal.storage.mode:
     '000':
       used_by:
@@ -375,6 +413,9 @@ enums:
     '002':
       used_by:
       - gw.weather.channel.gt:000
+    '003':
+      used_by:
+      - gw.weather.channel.gt:001
   hz.calc.method:
     '001':
       used_by:
@@ -482,12 +523,17 @@ formats:
     - g.node.gt:005
     - g.node.gt:006
     - glitch:000
+    - gw.alert:000
+    - gw.hack.alert.silences:000
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
     - gw.weather.forecast.channel.gt:000
     - gw.weather.forecast:000
     - gw.weather.location.gt:000
     - gw.weather.observation:000
+    - gw.weather.seasonal.template.gt:000
     - heating.forecast:000
     - latest.price:000
     - layout.lite:001
@@ -536,7 +582,9 @@ formats:
   non.empty.string:
     used_by:
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
     - gw.weather.forecast.channel.gt:000
     - gw.weather.location.gt:000
     - relay.actor.config:001
@@ -544,7 +592,9 @@ formats:
   non.negative.int:
     used_by:
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
   positive.int:
     used_by:
     - channel.config:000
@@ -559,7 +609,9 @@ formats:
     - flo.params.house0:006
     - flo.params.house0:007
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
     - gw.weather.forecast.channel.gt:000
     - layout.lite:001
     - layout.lite:002
@@ -619,10 +671,13 @@ formats:
   utc.iso8601.seconds:
     used_by:
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
     - gw.weather.forecast.channel.gt:000
     - gw.weather.forecast:000
     - gw.weather.observation:000
+    - gw.weather.seasonal.template.gt:000
   utc.milliseconds:
     used_by:
     - channel.readings:002
@@ -633,6 +688,7 @@ formats:
     - g.node.forest:002
     - glitch:000
     - gridworks.event.problem:001
+    - gw.alert:000
     - gw.weather.forecast:000
     - layout.lite:001
     - layout.lite:002
@@ -709,10 +765,14 @@ formats:
     - g.node.gt:005
     - g.node.gt:006
     - gridworks.event.problem:001
+    - gw.alert:000
     - gw.weather.channel.gt:000
+    - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
+    - gw.weather.forecast.bundle.gt:001
     - gw.weather.forecast.channel.gt:000
     - gw.weather.location.gt:000
+    - gw.weather.seasonal.template.gt:000
     - heating.forecast:000
     - i2c.multichannel.dt.relay.component.gt:001
     - i2c.multichannel.dt.relay.component.gt:002

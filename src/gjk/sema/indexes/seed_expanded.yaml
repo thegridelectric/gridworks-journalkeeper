@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-10-05T14:16:50Z'
+  generated_at: '2026-10-15T16:17:50Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -59,21 +59,25 @@ initial_targets:
 - gw.weather.observation:000
 - gw.weather.forecast:000
 - gw.weather.channel.gt:000
+- gw.weather.channel.gt:001
 - gw.weather.forecast.channel.gt:000
 - gw.weather.forecast.bundle.gt:000
+- gw.weather.forecast.bundle.gt:001
 - gw.weather.location.gt:000
 - gw.weather.create.cmd:000
+- gw.weather.create.cmd:001
 - gw.weather.cmd.ack:000
 - gw.weather.cmd.nack:000
+- gw.alert:000
+- gw.hack.alert.silences:000
 - single.pico.state:000
-- gw1.unit:002
+- gw1.unit:003
 - gw1.main.auto.state:001
 - gw1.lc.top.state:001
 - gw1.leaf.ally.all.tanks.state:001
 - gw1.leaf.ally.buffer.only.state:001
 - gw1.local.control.all.tanks.state:001
 - gw1.local.control.buffer.only.state:001
-- gw1.local.control.standby.top.state:001
 worklist:
   formats:
     handle.name:
@@ -116,6 +120,21 @@ worklist:
     gpm.from.hz.method:
       '000':
         path: definitions/enums/gpm.from.hz.method/000.yaml
+    gw.alert.category:
+      '000':
+        path: definitions/enums/gw.alert.category/000.yaml
+    gw.alert.state:
+      '000':
+        path: definitions/enums/gw.alert.state/000.yaml
+    gw.fleet.alert.kind:
+      '000':
+        path: definitions/enums/gw.fleet.alert.kind/000.yaml
+    gw.house.alert.kind:
+      '000':
+        path: definitions/enums/gw.house.alert.kind/000.yaml
+    gw.platform.alert.kind:
+      '000':
+        path: definitions/enums/gw.platform.alert.kind/000.yaml
     gw.weather.forecast.fidelity:
       '000':
         path: definitions/enums/gw.weather.forecast.fidelity/000.yaml
@@ -142,9 +161,6 @@ worklist:
     gw1.local.control.buffer.only.state:
       '001':
         path: definitions/enums/gw1.local.control.buffer.only.state/001.yaml
-    gw1.local.control.standby.top.state:
-      '001':
-        path: definitions/enums/gw1.local.control.standby.top.state/001.yaml
     gw1.main.auto.state:
       '001':
         path: definitions/enums/gw1.main.auto.state/001.yaml
@@ -153,6 +169,8 @@ worklist:
         path: definitions/enums/gw1.quantity/000.yaml
       '002':
         path: definitions/enums/gw1.quantity/002.yaml
+      '003':
+        path: definitions/enums/gw1.quantity/003.yaml
     gw1.seasonal.storage.mode:
       '000':
         path: definitions/enums/gw1.seasonal.storage.mode/000.yaml
@@ -164,6 +182,8 @@ worklist:
         path: definitions/enums/gw1.unit/000.yaml
       '002':
         path: definitions/enums/gw1.unit/002.yaml
+      '003':
+        path: definitions/enums/gw1.unit/003.yaml
     hz.calc.method:
       '001':
         path: definitions/enums/hz.calc.method/001.yaml
@@ -281,9 +301,17 @@ worklist:
     gridworks.event.problem:
       '001':
         path: definitions/types/gridworks.event.problem/001.yaml
+    gw.alert:
+      '000':
+        path: definitions/types/gw.alert/000.yaml
+    gw.hack.alert.silences:
+      '000':
+        path: definitions/types/gw.hack.alert.silences/000.yaml
     gw.weather.channel.gt:
       '000':
         path: definitions/types/gw.weather.channel.gt/000.yaml
+      '001':
+        path: definitions/types/gw.weather.channel.gt/001.yaml
     gw.weather.cmd.ack:
       '000':
         path: definitions/types/gw.weather.cmd.ack/000.yaml
@@ -293,12 +321,16 @@ worklist:
     gw.weather.create.cmd:
       '000':
         path: definitions/types/gw.weather.create.cmd/000.yaml
+      '001':
+        path: definitions/types/gw.weather.create.cmd/001.yaml
     gw.weather.forecast:
       '000':
         path: definitions/types/gw.weather.forecast/000.yaml
     gw.weather.forecast.bundle.gt:
       '000':
         path: definitions/types/gw.weather.forecast.bundle.gt/000.yaml
+      '001':
+        path: definitions/types/gw.weather.forecast.bundle.gt/001.yaml
     gw.weather.forecast.channel.gt:
       '000':
         path: definitions/types/gw.weather.forecast.channel.gt/000.yaml
@@ -308,6 +340,9 @@ worklist:
     gw.weather.observation:
       '000':
         path: definitions/types/gw.weather.observation/000.yaml
+    gw.weather.seasonal.template.gt:
+      '000':
+        path: definitions/types/gw.weather.seasonal.template.gt/000.yaml
     gw1.tank.temp.calibration:
       '000':
         path: definitions/types/gw1.tank.temp.calibration/000.yaml

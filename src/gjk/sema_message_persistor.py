@@ -17,6 +17,7 @@ from gjk.message_persistence_info import (
 )
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec, SemaType
+from gjk.alert_persistor import AlertPersistor
 from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.weather_bundle_persistor import WeatherBundlePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
@@ -66,6 +67,9 @@ class SemaMessagePersistor:
     # journal row MUST carry a created time or an id.
     BASIC_MSG_TYPES = [
         "atn.bid",
+        # The whole-list snapshot of houses whose alerts are not paged: no
+        # id and no created time by design (the list is the message).
+        "gw.hack.alert.silences",
         # The observation carries ObservationTime (the station's claim
         # time, ISO seconds) but no message-created field by design;
         # readings projection will key on ObservationTime later.
@@ -92,6 +96,7 @@ class SemaMessagePersistor:
         self.custom_persistor_lookup = {
             x.target_message_type: x
             for x in [
+                AlertPersistor(logger),
                 LayoutLitePersistor(logger),
                 ReportEventPersistor(logger),
                 FloParamsHouse0Persistor(logger),
@@ -129,6 +134,7 @@ class SemaMessagePersistor:
     RECEIPT_TIME_KEYED_TYPES = frozenset({
         # neither id nor created time
         "atn.bid",
+        "gw.hack.alert.silences",
         "gw.weather.cmd.ack",
         "gw.weather.cmd.nack",
         "gw.weather.create.cmd",

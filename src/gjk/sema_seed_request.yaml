@@ -64,13 +64,20 @@ initial_targets:
     # (messages-table only; readings projection comes later).
     gw.weather.observation: {}
     gw.weather.forecast: {}
-    gw.weather.channel.gt: {}
+    gw.weather.channel.gt:
+      include_all_versions: true
     gw.weather.forecast.channel.gt: {}
-    gw.weather.forecast.bundle.gt: {}
+    gw.weather.forecast.bundle.gt:
+      include_all_versions: true
     gw.weather.location.gt: {}
-    gw.weather.create.cmd: {}
+    gw.weather.create.cmd:
+      include_all_versions: true
     gw.weather.cmd.ack: {}
     gw.weather.cmd.nack: {}
+    # The alerter's words: the alert record (Firing / Resolved) and the
+    # snapshot of houses whose alerts are not paged.
+    gw.alert: {}
+    gw.hack.alert.silences: {}
 
   enums:
     # The pico-cycler's per-pico health rows in report.StateList.
@@ -82,4 +89,3 @@ initial_targets:
     gw1.leaf.ally.buffer.only.state: {}
     gw1.local.control.all.tanks.state: {}
     gw1.local.control.buffer.only.state: {}
-    gw1.local.control.standby.top.state: {}
