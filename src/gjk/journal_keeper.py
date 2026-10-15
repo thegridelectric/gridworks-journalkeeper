@@ -12,9 +12,11 @@ import logging
 import threading
 import time
 from datetime import UTC, datetime
+from typing import Any
 
 from gwbase.actor_base import ActorBase
-from gwbase.transport_encoding import RoutingEnvelope
+from gwbase.transport_encoding import RoutingEnvelope, WrappedRoutingEnvelope
+from gwbase.wrapped import unwrap_bytes
 
 from gjk.config import Settings
 from gjk.sema import SemaCodec, SemaType
@@ -85,11 +87,17 @@ class JournalKeeper(ActorBase):
     # ------------------------------------------------------------------
 
     def dispatch_message(self, *, envelope: RoutingEnvelope, body: bytes) -> None:
-        """Parse with SemaCodec, hand the SemaType to the persistor.
+        """Open the body by the envelope's category and hand the sema dict
+        to the persistor.
 
         The capture gate: the queue receives the whole bus, so this is
         where the capture set applies — on the parsed envelope's
         type_name, before any body decode.
+
+        A `gw` (wrapped) delivery is unwrapped here and its header's
+        MessageType checked against the routing key; an `rj` / `rjb`
+        delivery is the bare sema JSON. The body is never sniffed for a
+        `Payload` key: the routing key already says what the body is.
 
         Live AMQP counterpart to ``s3_message_importer.main()``'s loop.
         Errors are logged and swallowed — the live path keeps running,
@@ -97,7 +105,39 @@ class JournalKeeper(ActorBase):
         """
         if envelope.type_name not in self._known_types:
             return
-        self._persist_body(from_alias=envelope.from_alias, body=body)
+        payload: dict[str, Any] | None
+        if isinstance(envelope, WrappedRoutingEnvelope):
+            try:
+                header, payload = unwrap_bytes(body)
+            except ValueError as e:
+                self.logger.error(
+                    f"Dropped wrapped {envelope.type_name} from {envelope.from_alias}: {e}"
+                )
+                return
+            if header.message_type != envelope.type_name:
+                self.logger.error(
+                    f"Dropped wrapped {envelope.type_name} from {envelope.from_alias}: "
+                    f"header MessageType {header.message_type!r} disagrees with the "
+                    "routing key"
+                )
+                return
+        else:
+            payload = self._json_object(body, from_alias=envelope.from_alias)
+        if payload is None:
+            return
+        self._persist_payload(from_alias=envelope.from_alias, payload=payload)
+
+    def _json_object(self, body: bytes, *, from_alias: str) -> dict[str, Any] | None:
+        """The body as a JSON object, or None (logged) when it is not one."""
+        try:
+            d = json.loads(body.decode("utf-8"))
+        except Exception as e:
+            self.logger.error(f"Failed to decode body as JSON from {from_alias}: {e!r}")
+            return None
+        if not isinstance(d, dict):
+            self.logger.error(f"Body from {from_alias} is not a JSON object")
+            return None
+        return d
 
     def on_routing_key_parse_error(
         self, *, routing_key: str, body: bytes, error: ValueError
@@ -129,7 +169,12 @@ class JournalKeeper(ActorBase):
                 f"legacy_hack: persisting legacy broadcast key {routing_key!r} "
                 f"from {from_alias}"
             )
-            self._persist_body(from_alias=from_alias, body=body)
+            d = self._json_object(body, from_alias=from_alias)
+            if d is None:
+                return
+            # The legacy envelope: { "Header": {...}, "Payload": {...} }, or a
+            # bare payload on the oldest keys.
+            self._persist_payload(from_alias=from_alias, payload=d.get("Payload", d))
             return
         super().on_routing_key_parse_error(
             routing_key=routing_key, body=body, error=error
@@ -148,23 +193,13 @@ class JournalKeeper(ActorBase):
             pass
         return "unknown.broadcast.src"
 
-    def _persist_body(self, *, from_alias: str, body: bytes) -> None:
-        """Decode a wrapped message body and hand the SemaType to the persistor.
+    def _persist_payload(self, *, from_alias: str, payload: dict[str, Any]) -> None:
+        """Decode a bare sema dict and hand the SemaType to the persistor.
         Shared by the normal dispatch path and the broadcast ``legacy_hack``.
         Errors are logged and swallowed — the live path keeps running."""
         try:
-            msg_dict = json.loads(body.decode("utf-8"))
-        except Exception as e:
-            self.logger.error(f"Failed to decode body as JSON from {from_alias}: {e!r}")
-            return
-
-        # Messages on ear_tx come wrapped: { "Payload": {...}, ... }.
-        # Tolerate the rare unwrapped case (incoming dict already a SemaType).
-        payload_dict = msg_dict.get("Payload", msg_dict)
-
-        try:
             sema_obj = self.codec.from_dict(
-                payload_dict, auto_upgrade=False, mode="degraded"
+                payload, auto_upgrade=False, mode="degraded"
             )
         except Exception as e:
             self.logger.error(f"Codec decode failed from {from_alias}: {e!r}")

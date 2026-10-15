@@ -24,6 +24,7 @@ from pydantic import SecretStr
 from sqlalchemy import create_engine, text
 
 from gwbase.transport_encoding import gridworks_wrapped_routing_key
+from gwbase.wrapped import wrap_bytes
 
 pytestmark = pytest.mark.integration
 
@@ -78,7 +79,12 @@ def test_emitter_through_broker_to_journalkeeper(
         assert jk.consuming, "JournalKeeper never started consuming"
 
         sample = json.loads(SAMPLE_FILE.read_text())
-        body = json.dumps({"Payload": sample}).encode()
+        body = wrap_bytes(
+            src="d1.isone.me.versant.keene.beech.scada",
+            dst="d1.isone.me.versant.keene.beech",
+            inner_type_name=SAMPLE_TYPE,
+            inner_payload_dict=sample,
+        )
         routing_key = gridworks_wrapped_routing_key(
             from_alias="d1.isone.me.versant.keene.beech.scada",
             to_class_token="a",

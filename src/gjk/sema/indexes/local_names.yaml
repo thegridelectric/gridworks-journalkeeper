@@ -4,6 +4,11 @@ enums:
   fsm.report.type: fsm.report.type
   g.node.status: g.node.status
   gpm.from.hz.method: gpm.from.hz.method
+  gw.alert.category: gw.alert.category
+  gw.alert.state: gw.alert.state
+  gw.fleet.alert.kind: gw.fleet.alert.kind
+  gw.house.alert.kind: gw.house.alert.kind
+  gw.platform.alert.kind: gw.platform.alert.kind
   gw.weather.forecast.fidelity: gw.weather.forecast.fidelity
   gw1.actor.class: gw1.actor.class
   gw1.emission.method: gw1.emission.method
@@ -12,7 +17,6 @@ enums:
   gw1.leaf.ally.buffer.only.state: gw1.leaf.ally.buffer.only.state
   gw1.local.control.all.tanks.state: gw1.local.control.all.tanks.state
   gw1.local.control.buffer.only.state: gw1.local.control.buffer.only.state
-  gw1.local.control.standby.top.state: gw1.local.control.standby.top.state
   gw1.main.auto.state: gw1.main.auto.state
   gw1.quantity: gw1.quantity
   gw1.seasonal.storage.mode: gw1.seasonal.storage.mode
@@ -47,6 +51,8 @@ types:
   g.node.gt: g.node.gt
   glitch: glitch
   gridworks.event.problem: gridworks.event.problem
+  gw.alert: gw.alert
+  gw.hack.alert.silences: gw.hack.alert.silences
   gw.weather.channel.gt: gw.weather.channel.gt
   gw.weather.cmd.ack: gw.weather.cmd.ack
   gw.weather.cmd.nack: gw.weather.cmd.nack
@@ -56,6 +62,7 @@ types:
   gw.weather.forecast.channel.gt: gw.weather.forecast.channel.gt
   gw.weather.location.gt: gw.weather.location.gt
   gw.weather.observation: gw.weather.observation
+  gw.weather.seasonal.template.gt: gw.weather.seasonal.template.gt
   gw1.tank.temp.calibration: gw1.tank.temp.calibration
   gw1.tank.temp.calibration.map: gw1.tank.temp.calibration.map
   ha1.params: ha1.params

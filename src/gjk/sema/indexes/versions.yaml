@@ -187,10 +187,28 @@ types:
       "001":
         summary: "Initial Sema version"
 
-  gw.weather.channel.gt:
+  gw.alert:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
+      "000":
+        summary: "Initial Sema version. One word for both transitions (State), a Category choosing the Kind enum (axiom 1), House requiring a .ta AboutGNodeAlias (axiom 2), ResolvedMs iff Resolved (axiom 3)."
+
+  gw.hack.alert.silences:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version. Src and the list of silenced terminal asset aliases (axiom 1: every alias ends in .ta). A stop gap until an alert manager service owns silencing."
+
+  gw.weather.channel.gt:
+    latest_version: "001"
+    versioning_strategy: "literal"
+    versions:
+      "001":
+        summary: >
+          - Quantity: gw1.quantity 002 -> 003
+          - Unit: gw1.unit 002 -> 003
       "000":
         summary: "Initial version."
 
@@ -209,9 +227,13 @@ types:
         summary: "Initial version."
 
   gw.weather.create.cmd:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
+      "001":
+        summary: >
+          - Record: oneOf gains gw.weather.seasonal.template.gt/000
+          - Record: gw.weather.channel.gt and gw.weather.forecast.bundle.gt at 001
       "000":
         summary: "Initial version."
 
@@ -223,9 +245,11 @@ types:
         summary: "Initial version."
 
   gw.weather.forecast.bundle.gt:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
+      "001":
+        summary: "- TempObservationChannel, WindSpeedObservationChannel: gw.weather.channel.gt 000 -> 001"
       "000":
         summary: "Initial version."
 
@@ -244,6 +268,13 @@ types:
         summary: "Initial version."
 
   gw.weather.observation:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.seasonal.template.gt:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
@@ -269,10 +300,7 @@ types:
     versioning_strategy: "literal"
     versions:
       "006":
-        summary: >
-          - HpMaxKwEl: add as optional
-          - HpMaxKwTh: required -> optional
-          - HpTurnOnMinutes: add
+        summary: "HpMaxKwEl replaces HpMaxKwTh, required; the five Cop fields required; HpTurnOnMinutes added, required (the shape every scada has published at this version)"
       "005":
         summary: >
           - CopIntercept: add as optional
@@ -600,6 +628,36 @@ enums:
     versions:
       "000": {}
 
+  gw.alert.category:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw.alert.state:
+    enum_type: "literal"
+    note: "This enum is literal; version 000 is immutable and exclusive."
+    versions:
+      "000": {}
+
+  gw.fleet.alert.kind:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw.house.alert.kind:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw.platform.alert.kind:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   gw.weather.forecast.fidelity:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
@@ -651,12 +709,6 @@ enums:
     versions:
       "001": {}
 
-  gw1.local.control.standby.top.state:
-    enum_type: "versioned"
-    note: "This enum is versioned; new versions are additive only."
-    versions:
-      "001": {}
-
   gw1.main.auto.state:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
@@ -667,6 +719,10 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "003":
+        added_values:
+          - "Irradiance"
+          - "Currency"
       "002":
         added_values:
           - "WindSpeed"
@@ -688,6 +744,11 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
+      "003":
+        added_values:
+          - "WattsPerSquareMeter"
+          - "MilesPerHourX10"
+          - "FahrenheitX10"
       "002":
         added_values:
           - "DollarsX1000"
