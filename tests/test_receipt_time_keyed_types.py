@@ -21,6 +21,8 @@ EXPECTED = frozenset({
     "gw.weather.forecast.channel.gt",
     "gw.weather.location.gt",
     "gw.weather.observation",
+    "gw.weather.seasonal.template.gt",
+    "gw.weather.station.gt",
     "latest.price",
     "power.watts",
 })

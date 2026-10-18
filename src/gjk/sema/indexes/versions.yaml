@@ -202,15 +202,13 @@ types:
         summary: "Initial Sema version. Src and the list of silenced terminal asset aliases (axiom 1: every alias ends in .ta). A stop gap until an alert manager service owns silencing."
 
   gw.weather.channel.gt:
-    latest_version: "001"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
-      "001":
+      "002":
         summary: >
-          - Quantity: gw1.quantity 002 -> 003
-          - Unit: gw1.unit 002 -> 003
-      "000":
-        summary: "Initial version."
+          - LocationAlias: removed; StationAlias: add (the gw.weather.station.gt whose readings this series is)
+          - Name: derived from StationAlias and Quantity
 
   gw.weather.cmd.ack:
     latest_version: "000"
@@ -227,17 +225,26 @@ types:
         summary: "Initial version."
 
   gw.weather.create.cmd:
+    latest_version: "002"
+    versioning_strategy: "literal"
+    versions:
+      "002":
+        summary: >
+          - Record: gw.weather.forecast.bundle.gt 001 -> 002
+          - Record: gw.weather.channel.gt 001 -> 002
+          - Record: gw.weather.location.gt 000 -> 001
+          - Record: oneOf gains gw.weather.station.gt/000
+
+  gw.weather.forecast:
     latest_version: "001"
     versioning_strategy: "literal"
     versions:
       "001":
         summary: >
-          - Record: oneOf gains gw.weather.seasonal.template.gt/000
-          - Record: gw.weather.channel.gt and gw.weather.forecast.bundle.gt at 001
-      "000":
-        summary: "Initial version."
+          - SourceUpdatedTime, Fidelity, TempChannelName, TempValues, WindSpeedChannelName, WindSpeedValues: removed
+          - SeriesList: add (gw.weather.forecast.series 000, one per bound channel)
 
-  gw.weather.forecast:
+  gw.weather.forecast.binding:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
@@ -245,13 +252,13 @@ types:
         summary: "Initial version."
 
   gw.weather.forecast.bundle.gt:
-    latest_version: "001"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
-      "001":
-        summary: "- TempObservationChannel, WindSpeedObservationChannel: gw.weather.channel.gt 000 -> 001"
-      "000":
-        summary: "Initial version."
+      "002":
+        summary: >
+          - TempForecastChannel, TempObservationChannel, WindSpeedForecastChannel, WindSpeedObservationChannel: removed
+          - BindingList: add (gw.weather.forecast.binding 000, one per quantity)
 
   gw.weather.forecast.channel.gt:
     latest_version: "000"
@@ -260,14 +267,32 @@ types:
       "000":
         summary: "Initial version."
 
-  gw.weather.location.gt:
+  gw.weather.forecast.series:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
       "000":
         summary: "Initial version."
 
+  gw.weather.location.gt:
+    latest_version: "001"
+    versioning_strategy: "literal"
+    versions:
+      "001":
+        summary: >
+          - IcaoId, WbanId, GhcnId, CoopId: removed (station identifiers live on gw.weather.station.gt)
+          - Timezone: iana.timezone.str
+
   gw.weather.observation:
+    latest_version: "001"
+    versioning_strategy: "literal"
+    versions:
+      "001":
+        summary: >
+          - LocationAlias, TempChannelName, TempValue, WindSpeedChannelName, WindSpeedValue: removed
+          - StationAlias: add; ReadingList: add (gw.weather.observation.reading 000, one per reported channel)
+
+  gw.weather.observation.reading:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
@@ -275,6 +300,13 @@ types:
         summary: "Initial version."
 
   gw.weather.seasonal.template.gt:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
+  gw.weather.station.gt:
     latest_version: "000"
     versioning_strategy: "literal"
     versions:
@@ -723,9 +755,6 @@ enums:
         added_values:
           - "Irradiance"
           - "Currency"
-      "002":
-        added_values:
-          - "WindSpeed"
       "000": {}
 
   gw1.seasonal.storage.mode:
@@ -749,11 +778,6 @@ enums:
           - "WattsPerSquareMeter"
           - "MilesPerHourX10"
           - "FahrenheitX10"
-      "002":
-        added_values:
-          - "DollarsX1000"
-          - "MilesPerHourX1000"
-          - "KilowattHoursX1000"
       "000": {}
 
   hz.calc.method:

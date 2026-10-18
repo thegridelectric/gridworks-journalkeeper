@@ -25,7 +25,7 @@ WEATHER_GNODE = "d1.weather"
 
 def _sample_bundle() -> GwWeatherForecastBundleGt:
     payload = json.loads(
-        (SAMPLES / "gw.weather.forecast.bundle.gt.000.json").read_text()
+        (SAMPLES / "gw.weather.forecast.bundle.gt.002.json").read_text()
     )
     bundle = SemaCodec().from_dict(payload)
     assert isinstance(bundle, GwWeatherForecastBundleGt)
@@ -38,7 +38,7 @@ def test_message_id_is_the_bundles_own_uuid() -> None:
     p = WeatherBundlePersistor(logging.getLogger("test_weather_bundle"))
     bundle = _sample_bundle()
     t = datetime.fromtimestamp(1786550460, tz=UTC)
-    info = p.persist_v000(WEATHER_GNODE, t, bundle)
+    info = p.persist_v002(WEATHER_GNODE, t, bundle)
     # Records are durable identities: replayed broadcast → same id.
     assert info.id == bundle.id
     assert info.created_at is None
@@ -46,10 +46,7 @@ def test_message_id_is_the_bundles_own_uuid() -> None:
 
 
 def test_flat_channel_name_is_dash_rendering() -> None:
-    assert (
-        flat_channel_name("us.me.millinocket.temperature")
-        == "us-me-millinocket-temperature"
-    )
+    assert flat_channel_name("kmlt.temperature") == "kmlt-temperature"
 
 
 def test_bundle_creates_observation_channels_once(timescale_db_url: str) -> None:
@@ -63,7 +60,7 @@ def test_bundle_creates_observation_channels_once(timescale_db_url: str) -> None
 
     try:
         for _ in range(2):  # create-if-absent: a re-run adds nothing
-            info = p.persist_v000(WEATHER_GNODE, t, bundle)
+            info = p.persist_v002(WEATHER_GNODE, t, bundle)
             with factory() as db:
                 info.additional_db_operations(db)
                 db.commit()
@@ -79,17 +76,15 @@ def test_bundle_creates_observation_channels_once(timescale_db_url: str) -> None
                 .all()
             )
             by_name = {r.name: r for r in rows}
-            expected = {
-                flat_channel_name(bundle.temp_observation_channel.name),
-                flat_channel_name(bundle.wind_speed_observation_channel.name),
-            }
-            assert set(by_name) == expected
-            temp = by_name[flat_channel_name(bundle.temp_observation_channel.name)]
+            observed = [b.observation_channel for b in bundle.binding_list]
+            assert set(by_name) == {flat_channel_name(c.name) for c in observed}
+            first = observed[0]
+            row = by_name[flat_channel_name(first.name)]
             # OBSERVATION channels only, on the record's own facts, scoped
             # to the weather GNode (the fleet-scoped series has no TA).
-            assert temp.unit == bundle.temp_observation_channel.unit
-            assert temp.display_name == bundle.temp_observation_channel.display_name
-            assert temp.channel_type == PseudoChannel.CHANNEL_TYPE
+            assert row.unit == first.unit
+            assert row.display_name == first.display_name
+            assert row.channel_type == PseudoChannel.CHANNEL_TYPE
     finally:
         with factory() as db:
             db.query(ReadingChannelSql).filter(

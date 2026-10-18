@@ -5,10 +5,11 @@ from gjk.sema.types.gw_weather_forecast_bundle_gt import GwWeatherForecastBundle
 from gjk.sema.types.gw_weather_forecast_channel_gt import GwWeatherForecastChannelGt
 from gjk.sema.types.gw_weather_location_gt import GwWeatherLocationGt
 from gjk.sema.types.gw_weather_seasonal_template_gt import GwWeatherSeasonalTemplateGt
+from gjk.sema.types.gw_weather_station_gt import GwWeatherStationGt
 
 
 class GwWeatherCreateCmd(SemaType):
-    """Sema: https://schemas.electricity.works/types/gw.weather.create.cmd/001"""
+    """Sema: https://schemas.electricity.works/types/gw.weather.create.cmd/002"""
 
     record: (
         GwWeatherChannelGt
@@ -16,7 +17,8 @@ class GwWeatherCreateCmd(SemaType):
         | GwWeatherForecastChannelGt
         | GwWeatherLocationGt
         | GwWeatherSeasonalTemplateGt
+        | GwWeatherStationGt
     )
     proof: str | None = None
     type_name: Literal["gw.weather.create.cmd"] = "gw.weather.create.cmd"
-    version: Literal["001"] = "001"
+    version: Literal["002"] = "002"

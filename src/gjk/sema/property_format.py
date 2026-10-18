@@ -11,7 +11,11 @@ HANDLE_NAME_PATTERN = re.compile(
     r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*)*$"
 )
 
+IANA_TIMEZONE_STR_PATTERN = re.compile(r"^[A-Za-z_]+(/[A-Za-z0-9_+-]+){0,2}$")
+
 LEFT_RIGHT_DOT_PATTERN = re.compile(r"^[a-z][a-z0-9]*(\.[a-z0-9]+)*$")
+
+LOWERCASE_TOKEN_PATTERN = re.compile(r"^[a-z][a-z0-9]*$")
 
 MARKET_SLOT_NAME_PATTERN = re.compile(
     r"^[erd]\.[a-z][a-z0-9]*(?:-[a-z0-9]+)*\.[a-z][a-z0-9]*(?:\.[a-z0-9]+)*\.[0-9]{10}$"
@@ -41,12 +45,32 @@ def is_handle_name(v: str) -> str:
     return v
 
 
+def is_iana_timezone_str(v: str) -> str:
+    if not isinstance(v, str):
+        raise ValueError(f"<{v}>: iana.timezone.str must be a string.")
+
+    if not IANA_TIMEZONE_STR_PATTERN.fullmatch(v):
+        raise ValueError(f"<{v}>: Fails iana.timezone.str format.")
+
+    return v
+
+
 def is_left_right_dot(v: str) -> str:
     if not isinstance(v, str):
         raise ValueError(f"<{v}>: LeftRightDot must be a string.")
 
     if not LEFT_RIGHT_DOT_PATTERN.fullmatch(v):
         raise ValueError(f"<{v}>: Fails LeftRightDot format.")
+
+    return v
+
+
+def is_lowercase_token(v: str) -> str:
+    if not isinstance(v, str):
+        raise ValueError(f"<{v}>: LowercaseToken must be a string.")
+
+    if not LOWERCASE_TOKEN_PATTERN.fullmatch(v):
+        raise ValueError(f"<{v}>: Fails LowercaseToken format.")
 
     return v
 
@@ -171,9 +195,19 @@ HandleName = Annotated[
     BeforeValidator(is_handle_name),
 ]
 
+IanaTimezoneStr = Annotated[
+    str,
+    BeforeValidator(is_iana_timezone_str),
+]
+
 LeftRightDot = Annotated[
     str,
     BeforeValidator(is_left_right_dot),
+]
+
+LowercaseToken = Annotated[
+    str,
+    BeforeValidator(is_lowercase_token),
 ]
 
 MarketSlotName = Annotated[
