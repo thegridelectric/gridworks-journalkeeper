@@ -13,6 +13,7 @@ from typing import Literal, NamedTuple
 import boto3
 import dotenv
 
+from gjk.retired_versions import is_retired
 from gjk.config import Settings
 from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
@@ -70,12 +71,13 @@ class VersionCounts:
     ok: int = 0  # decoded into a known SemaType
     degraded: int = 0  # codec returned a degraded type (version not known)
     failed: int = 0  # decode raised (keyed under version=PARSE_FAIL)
+    retired: int = 0  # a version the journal refuses (retired_versions.py)
 
 
 class DailyKey(NamedTuple):
     """One cell of the per-day outcome tally: the S3 key's UTC day, the
     sending alias, the decoded (or key-named) type and version, and the
-    outcome (`ok` / `degraded` / `failed`)."""
+    outcome (`ok` / `degraded` / `failed` / `retired`)."""
 
     day: date
     from_alias: str
@@ -138,6 +140,7 @@ class RunSummary:
                     "ok": c.ok,
                     "degraded": c.degraded,
                     "failed": c.failed,
+                    "retired": c.retired,
                 }
                 for (t, v), c in sorted(self.versions.items())
             ],
@@ -298,13 +301,13 @@ def log_run_summary(logger, summary: RunSummary) -> None:
         "=" * 78,
         f"RUN SUMMARY (messages processed: {summary.messages_processed})",
         "-" * 78,
-        f"{'type_name':40} {'version':>9} {'ok':>8} {'degraded':>9} {'failed':>7}",
+        f"{'type_name':40} {'version':>9} {'ok':>8} {'degraded':>9} {'failed':>7} {'retired':>8}",
         "-" * 78,
     ]
     degraded = []
     for (type_name, version), c in sorted(summary.versions.items()):
         lines.append(
-            f"{type_name:40} {version:>9} {c.ok:>8} {c.degraded:>9} {c.failed:>7}"
+            f"{type_name:40} {version:>9} {c.ok:>8} {c.degraded:>9} {c.failed:>7} {c.retired:>8}"
         )
         if c.degraded:
             degraded.append((type_name, version, c.degraded))
@@ -528,6 +531,14 @@ def main(argv=None):
             byte_counter += msg_length
             msg_text = msg_bytes.decode("utf-8")
             msg_dict = json.loads(msg_text)
+            if is_retired(msg_dict["Payload"]):
+                summary.count(
+                    msg_info,
+                    msg_dict["Payload"]["TypeName"],
+                    msg_dict["Payload"]["Version"],
+                    "retired",
+                )
+                continue
             sema_obj = codec.from_dict(
                 msg_dict["Payload"], auto_upgrade=False, mode="degraded"
             )

@@ -44,18 +44,15 @@ class WeatherBundlePersistor:
         # them from a replayed bundle is idempotent and desired.
         self.fanout_on_import = True
 
-    def persist_v000(
+    def persist_v002(
         self,
         from_alias: str,
         time_received: datetime,
         bundle: GwWeatherForecastBundleGt,
     ) -> MessagePersistenceInfo:
         def ensure_channels(db: Session) -> None:
-            for record in (
-                bundle.temp_observation_channel,
-                bundle.wind_speed_observation_channel,
-            ):
-                self._ensure_channel(db, from_alias, record)
+            for binding in bundle.binding_list:
+                self._ensure_channel(db, from_alias, binding.observation_channel)
 
         return MessagePersistenceInfo(
             # Records are durable identities: the bundle's own uuid is the
