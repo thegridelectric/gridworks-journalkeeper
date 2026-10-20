@@ -669,7 +669,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.2" },
     { name = "furo", marker = "extra == 'dev'", specifier = ">=2021.11.12" },
     { name = "gridworks-base", specifier = ">=0.6.0" },
-    { name = "gw-data", specifier = ">=0.4.0" },
+    { name = "gw-data", specifier = ">=0.6.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.930" },
     { name = "myst-parser", marker = "extra == 'dev'", specifier = ">=0.16.1" },
     { name = "pendulum", specifier = ">=3.0.0" },
@@ -703,7 +703,7 @@ dev = [
 
 [[package]]
 name = "gw-data"
-version = "0.4.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
@@ -714,9 +714,9 @@ dependencies = [
     { name = "sqlalchemy-timescaledb" },
     { name = "uvicorn", extra = ["standard"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/16/93/5ad2102bb470691dfeaa62b36593682f864a5390a3de7e2e0e8b94cb416a/gw_data-0.4.0.tar.gz", hash = "sha256:7cfd061a41db561f6e6e67f3ea20912895c8bb1fc0c7c5988ac3b208bc6e4e4b", size = 53474, upload-time = "2026-10-06T16:15:45.255Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/a7/d84da6847dc1ea78e8532a64d2fdd1299dd0d76e3a1d4871c5a7b32bf841/gw_data-0.6.0.tar.gz", hash = "sha256:c99438b0fe4f37da867e1eee8f839656c3b9786a91ad0dfddeacefd12289b45f", size = 66270, upload-time = "2026-10-20T21:56:54.792Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d7/1c/0619caf2e5290d677729fb4f7b1fd41ee4fbf4995b975817d61a9b2eccb4/gw_data-0.4.0-py3-none-any.whl", hash = "sha256:fbdc704b39ffa568aa9ba770d98e2d0bb0b7299819861af5f529c351115afeaa", size = 49698, upload-time = "2026-10-06T16:15:44.215Z" },
+    { url = "https://files.pythonhosted.org/packages/95/5d/78956f27442dee2514d0abbf6476d8501ed5e49d570c6f8b950d687f2cd1/gw_data-0.6.0-py3-none-any.whl", hash = "sha256:890c8a97ba6e69333c2883aed809fe35617b125bfbce3102e27938c9af6e8e0b", size = 49032, upload-time = "2026-10-20T21:56:53.504Z" },
 ]
 
 [[package]]

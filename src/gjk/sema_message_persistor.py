@@ -303,3 +303,5 @@ class SemaMessagePersistor:
 
         if persistence_info.additional_db_operations is not None:
             persistence_info.additional_db_operations(db)
+        if live and persistence_info.live_only_db_operations is not None:
+            persistence_info.live_only_db_operations(db)

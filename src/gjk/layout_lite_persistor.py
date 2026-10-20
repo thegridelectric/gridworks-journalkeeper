@@ -7,6 +7,7 @@ from gw_data.db.models import MessageSql, ReadingChannelSql
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from gjk.layouts_projection import LayoutsProjection
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
 from gjk.pseudo_channels import (
@@ -60,6 +61,7 @@ class LayoutLitePersistor:
         # syncs (an older layout's unit/type differed from the active row).
         # Read by the S3 importer's run summary.
         self.skipped_mismatches: Counter[tuple[str, str]] = Counter()
+        self.layouts = LayoutsProjection(logger)
 
     class ReadingChannelSyncProcess:
         """Reconcile a TA's active reading_channels rows with one layout.
@@ -350,6 +352,9 @@ class LayoutLitePersistor:
             id=layout.message_id,
             created_at=datetime.fromtimestamp(layout.message_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.sync_reading_channels(
+                db, from_alias, layout
+            ),
+            live_only_db_operations=lambda db: self.layouts.project(
                 db, from_alias, layout
             ),
         )
