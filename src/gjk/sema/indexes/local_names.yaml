@@ -6,9 +6,12 @@ enums:
   gpm.from.hz.method: gpm.from.hz.method
   gw.alert.category: gw.alert.category
   gw.alert.state: gw.alert.state
+  gw.dispatch.refusal.reason: gw.dispatch.refusal.reason
   gw.fleet.alert.kind: gw.fleet.alert.kind
   gw.house.alert.kind: gw.house.alert.kind
   gw.platform.alert.kind: gw.platform.alert.kind
+  gw.standby.posture: gw.standby.posture
+  gw.top.state: gw.top.state
   gw.weather.forecast.fidelity: gw.weather.forecast.fidelity
   gw1.actor.class: gw1.actor.class
   gw1.emission.method: gw1.emission.method
@@ -20,6 +23,7 @@ enums:
   gw1.main.auto.state: gw1.main.auto.state
   gw1.quantity: gw1.quantity
   gw1.seasonal.storage.mode: gw1.seasonal.storage.mode
+  gw1.service.mode: gw1.service.mode
   gw1.system.mode: gw1.system.mode
   gw1.unit: gw1.unit
   hz.calc.method: hz.calc.method
@@ -33,6 +37,7 @@ enums:
   spaceheat.make.model: spaceheat.make.model
   spaceheat.telemetry.name: spaceheat.telemetry.name
   spaceheat.unit: spaceheat.unit
+  ta.validation.state: ta.validation.state
   temp.calc.method: temp.calc.method
 types:
   atn.bid: atn.bid
@@ -53,6 +58,7 @@ types:
   gridworks.event.problem: gridworks.event.problem
   gw.alert: gw.alert
   gw.hack.alert.silences: gw.hack.alert.silences
+  gw.house.operating.status: gw.house.operating.status
   gw.weather.channel.gt: gw.weather.channel.gt
   gw.weather.cmd.ack: gw.weather.cmd.ack
   gw.weather.cmd.nack: gw.weather.cmd.nack

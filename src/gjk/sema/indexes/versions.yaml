@@ -188,11 +188,11 @@ types:
         summary: "Initial Sema version"
 
   gw.alert:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
-      "000":
-        summary: "Initial Sema version. One word for both transitions (State), a Category choosing the Kind enum (axiom 1), House requiring a .ta AboutGNodeAlias (axiom 2), ResolvedMs iff Resolved (axiom 3)."
+      "001":
+        summary: "- Kind: gw.house.alert.kind 000 -> 001"
 
   gw.hack.alert.silences:
     latest_version: "000"
@@ -200,6 +200,13 @@ types:
     versions:
       "000":
         summary: "Initial Sema version. Src and the list of silenced terminal asset aliases (axiom 1: every alias ends in .ta). A stop gap until an alert manager service owns silencing."
+
+  gw.house.operating.status:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version. ScadaAlias + ValidationState (from the deed) + Standby x StandbyPosture + SeasonalStorageMode + ServiceMode + AcceptsDispatch x DispatchRefusalReason (the derived answer, present iff refusing, axiom 1; Standby refuses as OperatorHold, axiom 2) + TopState + ScadaBlind + LtnDispatching + CreatedMs. The slow facts of the LTN-scada agreement; nothing that cycles inside a healthy hour."
 
   gw.weather.channel.gt:
     latest_version: "001"
@@ -640,6 +647,12 @@ enums:
     versions:
       "000": {}
 
+  gw.dispatch.refusal.reason:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
   gw.fleet.alert.kind:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
@@ -650,9 +663,24 @@ enums:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
-      "000": {}
+      "001":
+        added_values:
+          - "ScadaSilent"
+          - "LtnSilent"
 
   gw.platform.alert.kind:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw.standby.posture:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw.top.state:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
@@ -729,6 +757,12 @@ enums:
       "000": {}
 
   gw1.seasonal.storage.mode:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  gw1.service.mode:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:
@@ -830,6 +864,12 @@ enums:
     note: "This enum is versioned; new versions are additive only."
     versions:
       "001": {}
+
+  ta.validation.state:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
 
   temp.calc.method:
     enum_type: "versioned"

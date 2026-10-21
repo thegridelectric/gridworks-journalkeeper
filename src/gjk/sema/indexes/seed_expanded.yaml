@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-10-15T16:17:50Z'
+  generated_at: '2026-10-21T18:00:17Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -42,6 +42,7 @@ initial_targets:
 - snapshot.spaceheat:001
 - snapshot.spaceheat:002
 - snapshot.spaceheat:003
+- gw.house.operating.status:000
 - scada.params:000
 - scada.params:001
 - scada.params:002
@@ -68,7 +69,7 @@ initial_targets:
 - gw.weather.create.cmd:001
 - gw.weather.cmd.ack:000
 - gw.weather.cmd.nack:000
-- gw.alert:000
+- gw.alert:001
 - gw.hack.alert.silences:000
 - single.pico.state:000
 - gw1.unit:003
@@ -126,15 +127,24 @@ worklist:
     gw.alert.state:
       '000':
         path: definitions/enums/gw.alert.state/000.yaml
+    gw.dispatch.refusal.reason:
+      '000':
+        path: definitions/enums/gw.dispatch.refusal.reason/000.yaml
     gw.fleet.alert.kind:
       '000':
         path: definitions/enums/gw.fleet.alert.kind/000.yaml
     gw.house.alert.kind:
-      '000':
-        path: definitions/enums/gw.house.alert.kind/000.yaml
+      '001':
+        path: definitions/enums/gw.house.alert.kind/001.yaml
     gw.platform.alert.kind:
       '000':
         path: definitions/enums/gw.platform.alert.kind/000.yaml
+    gw.standby.posture:
+      '000':
+        path: definitions/enums/gw.standby.posture/000.yaml
+    gw.top.state:
+      '000':
+        path: definitions/enums/gw.top.state/000.yaml
     gw.weather.forecast.fidelity:
       '000':
         path: definitions/enums/gw.weather.forecast.fidelity/000.yaml
@@ -174,6 +184,9 @@ worklist:
     gw1.seasonal.storage.mode:
       '000':
         path: definitions/enums/gw1.seasonal.storage.mode/000.yaml
+    gw1.service.mode:
+      '000':
+        path: definitions/enums/gw1.service.mode/000.yaml
     gw1.system.mode:
       '000':
         path: definitions/enums/gw1.system.mode/000.yaml
@@ -219,6 +232,9 @@ worklist:
     spaceheat.unit:
       '001':
         path: definitions/enums/spaceheat.unit/001.yaml
+    ta.validation.state:
+      '000':
+        path: definitions/enums/ta.validation.state/000.yaml
     temp.calc.method:
       '000':
         path: definitions/enums/temp.calc.method/000.yaml
@@ -302,11 +318,14 @@ worklist:
       '001':
         path: definitions/types/gridworks.event.problem/001.yaml
     gw.alert:
-      '000':
-        path: definitions/types/gw.alert/000.yaml
+      '001':
+        path: definitions/types/gw.alert/001.yaml
     gw.hack.alert.silences:
       '000':
         path: definitions/types/gw.hack.alert.silences/000.yaml
+    gw.house.operating.status:
+      '000':
+        path: definitions/types/gw.house.operating.status/000.yaml
     gw.weather.channel.gt:
       '000':
         path: definitions/types/gw.weather.channel.gt/000.yaml

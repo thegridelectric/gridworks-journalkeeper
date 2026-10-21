@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://schemas.electricity.works/enums/gw.house.alert.kind/000"
+$id: "https://schemas.electricity.works/enums/gw.house.alert.kind/001"
 
 title: "gw.house.alert.kind"
 type: "string"
@@ -22,12 +22,14 @@ enum:
   - "HpNotResponding"
   - "HpRunningOnpeak"
   - "LocalControlActive"
+  - "ScadaSilent"
+  - "LtnSilent"
 
 default: "Unknown"
 
 x-gridworks:
   owner: "gridworks-energy"
-  version: "000"
+  version: "001"
   value_descriptions:
     "Unknown": >
       A kind this decoder does not know. Never raised; a decoder on an
@@ -35,8 +37,9 @@ x-gridworks:
       later version, and a manager that decodes it logs and drops the
       alert rather than paging.
     "NoData": >
-      A registered, live house has sent no readings for longer than the
-      silence threshold (10 minutes).
+      The scada and its LeafTransactiveNode are both speaking and no
+      reports are arriving for longer than the silence threshold (10
+      minutes).
     "ScadaRebootLoop": >
       The scada has booted repeatedly in a short span (more than 5 layout
       reports in 5 minutes).
@@ -63,3 +66,8 @@ x-gridworks:
     "LocalControlActive": >
       The house has fallen back to local control; its LeafTransactiveNode
       is not dispatching it.
+    "ScadaSilent": >
+      Nothing has been heard from the scada inside the fresh window.
+    "LtnSilent": >
+      The scada is speaking and its LeafTransactiveNode is not; the scada
+      sends no reports without an LTN.

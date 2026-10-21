@@ -1,0 +1,8 @@
+staging: true
+staging_words:
+- enum gw.dispatch.refusal.reason:000
+- enum gw.standby.posture:000
+- enum gw.top.state:000
+- enum gw1.service.mode:000
+- enum ta.validation.state:000
+- type gw.house.operating.status:000

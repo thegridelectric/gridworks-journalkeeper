@@ -7,7 +7,8 @@ from gw_data.db.models import MessageSql, ReadingChannelSql
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from gjk.layouts_projection import LayoutsProjection
+from gjk.house_status_projection import HouseStatusProjection
+from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
 from gjk.pseudo_channels import (
@@ -53,8 +54,9 @@ REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
 class LayoutLitePersistor:
-    def __init__(self, logger):
+    def __init__(self, logger, house_status: HouseStatusProjection):
         self.logger = logger
+        self.house_status = house_status
         self.target_message_type = "layout.lite"
         self.fanout_on_import = True  # history fan-out; replays welcome
         # (terminal_asset_alias, channel name) -> era rows added by add-only
@@ -354,10 +356,16 @@ class LayoutLitePersistor:
             additional_db_operations=lambda db: self.sync_reading_channels(
                 db, from_alias, layout
             ),
-            live_only_db_operations=lambda db: self.layouts.project(
+            live_only_db_operations=lambda db: self.project_live(
                 db, from_alias, layout
             ),
         )
+
+    def project_live(self, db: Session, from_alias: str, layout: ModernLayout) -> None:
+        """The current-state projections a live layout feeds: the layouts row,
+        then the derived operating status of a house on the old scada code."""
+        self.layouts.project(db, from_alias, layout)
+        self.house_status.derive(db, terminal_asset_alias(layout.from_g_node_alias))
 
     def persist_v001(
         self, from_alias: str, time_received: datetime, layout: LayoutLite001

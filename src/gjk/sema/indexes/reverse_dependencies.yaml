@@ -13,7 +13,7 @@ types:
   channel.readings:
     '002':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
       - report:001
       - report:002
       - report:003
@@ -344,23 +344,35 @@ enums:
   gw.alert.category:
     '000':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
   gw.alert.state:
     '000':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
+  gw.dispatch.refusal.reason:
+    '000':
+      used_by:
+      - gw.house.operating.status:000
   gw.fleet.alert.kind:
     '000':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
   gw.house.alert.kind:
-    '000':
+    '001':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
   gw.platform.alert.kind:
     '000':
       used_by:
-      - gw.alert:000
+      - gw.alert:001
+  gw.standby.posture:
+    '000':
+      used_by:
+      - gw.house.operating.status:000
+  gw.top.state:
+    '000':
+      used_by:
+      - gw.house.operating.status:000
   gw.weather.forecast.fidelity:
     '000':
       used_by:
@@ -392,11 +404,16 @@ enums:
   gw1.seasonal.storage.mode:
     '000':
       used_by:
+      - gw.house.operating.status:000
       - layout.lite:008
       - layout.lite:009
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
+  gw1.service.mode:
+    '000':
+      used_by:
+      - gw.house.operating.status:000
   gw1.system.mode:
     '000':
       used_by:
@@ -479,6 +496,10 @@ enums:
       - channel.config:000
       - relay.actor.config:001
       - relay.actor.config:002
+  ta.validation.state:
+    '000':
+      used_by:
+      - gw.house.operating.status:000
   temp.calc.method:
     '000':
       used_by:
@@ -523,8 +544,9 @@ formats:
     - g.node.gt:005
     - g.node.gt:006
     - glitch:000
-    - gw.alert:000
+    - gw.alert:001
     - gw.hack.alert.silences:000
+    - gw.house.operating.status:000
     - gw.weather.channel.gt:000
     - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000
@@ -688,7 +710,8 @@ formats:
     - g.node.forest:002
     - glitch:000
     - gridworks.event.problem:001
-    - gw.alert:000
+    - gw.alert:001
+    - gw.house.operating.status:000
     - gw.weather.forecast:000
     - layout.lite:001
     - layout.lite:002
@@ -765,7 +788,7 @@ formats:
     - g.node.gt:005
     - g.node.gt:006
     - gridworks.event.problem:001
-    - gw.alert:000
+    - gw.alert:001
     - gw.weather.channel.gt:000
     - gw.weather.channel.gt:001
     - gw.weather.forecast.bundle.gt:000

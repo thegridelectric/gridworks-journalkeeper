@@ -18,6 +18,7 @@ from gjk.sema.types.gw1_tank_temp_calibration import Gw1TankTempCalibration
 from gjk.sema.types.gw1_tank_temp_calibration_map import Gw1TankTempCalibrationMap
 from gjk.sema.types.gw_alert import GwAlert
 from gjk.sema.types.gw_hack_alert_silences import GwHackAlertSilences
+from gjk.sema.types.gw_house_operating_status import GwHouseOperatingStatus
 from gjk.sema.types.gw_weather_channel_gt import GwWeatherChannelGt
 from gjk.sema.types.gw_weather_cmd_ack import GwWeatherCmdAck
 from gjk.sema.types.gw_weather_cmd_nack import GwWeatherCmdNack
@@ -83,6 +84,7 @@ __all__ = [
     "Gw1TankTempCalibrationMap",
     "GwAlert",
     "GwHackAlertSilences",
+    "GwHouseOperatingStatus",
     "GwWeatherChannelGt",
     "GwWeatherCmdAck",
     "GwWeatherCmdNack",

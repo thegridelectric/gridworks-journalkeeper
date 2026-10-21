@@ -1,0 +1,16 @@
+{
+  "ScadaAlias": "hw1.isone.me.versant.keene.oak.scada",
+  "ValidationState": "ValidatedRealAssetAndGps",
+  "Standby": false,
+  "StandbyPosture": "NoHeatingOrCooling",
+  "SeasonalStorageMode": "AllTanks",
+  "ServiceMode": "Heating",
+  "AcceptsDispatch": false,
+  "DispatchRefusalReason": "ScadaBlind",
+  "TopState": "Auto",
+  "ScadaBlind": true,
+  "LtnDispatching": false,
+  "CreatedMs": 1792535486521,
+  "TypeName": "gw.house.operating.status",
+  "Version": "000"
+}

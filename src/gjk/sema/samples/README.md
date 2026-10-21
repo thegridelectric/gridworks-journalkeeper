@@ -5,7 +5,7 @@ an `examples:` block. Generated from the authored examples (never edited
 by hand) and consumed by `roundtrip.py`. A type version without a sample
 is silently untested by the round-trip, so its absence is recorded here.
 
-Coverage: **90 of 112** seeded type versions have a sample.
+Coverage: **94 of 113** seeded type versions have a sample.
 
 Seeded type versions lacking a sample (no `examples:`):
 
@@ -16,15 +16,12 @@ Seeded type versions lacking a sample (no `examples:`):
 - `fsm.full.report.001`
 - `glitch.000`
 - `gridworks.event.problem.001`
-- `gw.alert.000`
-- `gw.hack.alert.silences.000`
 - `heating.forecast.000`
 - `latest.price.000`
 - `machine.states.000`
 - `power.watts.000`
 - `scada.params.005`
 - `single.reading.000`
-- `spaceheat.telemetry.quantity.projection.000`
 - `synth.channel.gt.000`
 - `ticklist.hall.101`
 - `ticklist.hall.report.000`

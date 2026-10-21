@@ -1,5 +1,22 @@
 # Sema vocabulary snapshot (GENERATED)
 
+## ⚠ STAGING SNAPSHOT — PLEASE ONLY USE IN DEV
+
+This snapshot contains STAGING vocabulary: mutable words that run on dev
+brokers only. It MUST NOT be used against hybrid or production brokers.
+
+Staging words in this snapshot:
+
+- enum gw.dispatch.refusal.reason:000
+- enum gw.standby.posture:000
+- enum gw.top.state:000
+- enum gw1.service.mode:000
+- enum ta.validation.state:000
+- type gw.house.operating.status:000
+
+When these words promote to published, rebuild without `--allow-staged` to
+get a publication-grade snapshot (and this section disappears).
+
 This directory is a **vendored Sema snapshot**: a self-contained, generated
 subset of the Sema vocabulary. **Never hand-edit it.** To change it, edit the
 seed (`../sema_seed_request.yaml`) or the definitions in the sema repo, then

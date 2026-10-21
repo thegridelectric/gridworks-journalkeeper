@@ -25,6 +25,7 @@ from gw_data.db.models import GNodeSql, LayoutSql, MessageSql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from gjk.house_status_projection import HouseStatusProjection
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
 from gjk.rebuild_layouts import rebuild
@@ -70,7 +71,7 @@ def test_terminal_asset_alias_from_scada_alias():
 
 
 def test_layout_lite_persistence_info_projects_live_only():
-    p = LayoutLitePersistor(LOGGER)
+    p = LayoutLitePersistor(LOGGER, HouseStatusProjection(LOGGER))
     info = p.persist_v011(
         BEECH_SCADA, datetime.now(UTC), decode(SemaCodec(), layout_011(1784940626155))
     )
@@ -84,7 +85,7 @@ def test_layout_lite_persistence_info_projects_live_only():
 def test_projection_runs_only_live(live: bool, projected: bool):
     """A persistent-store replay syncs channels as before and leaves the
     layouts projection alone."""
-    persistor = LayoutLitePersistor(LOGGER)
+    persistor = LayoutLitePersistor(LOGGER, HouseStatusProjection(LOGGER))
     projected_layouts: list[object] = []
     synced: list[object] = []
     persistor.layouts.project = lambda db, from_alias, layout: projected_layouts.append(
@@ -93,6 +94,7 @@ def test_projection_runs_only_live(live: bool, projected: bool):
     persistor.sync_reading_channels = lambda db, from_alias, layout: synced.append(
         layout
     )
+    persistor.house_status.derive = lambda db, ta_alias: False
 
     shell = SemaMessagePersistor.__new__(SemaMessagePersistor)
     shell.logger = LOGGER

@@ -17,13 +17,17 @@ from gjk.sema.enums.gw1_local_control_buffer_only_state import (
 from gjk.sema.enums.gw1_main_auto_state import Gw1MainAutoState
 from gjk.sema.enums.gw1_quantity import Gw1Quantity
 from gjk.sema.enums.gw1_seasonal_storage_mode import Gw1SeasonalStorageMode
+from gjk.sema.enums.gw1_service_mode import Gw1ServiceMode
 from gjk.sema.enums.gw1_system_mode import Gw1SystemMode
 from gjk.sema.enums.gw1_unit import Gw1Unit
 from gjk.sema.enums.gw_alert_category import GwAlertCategory
 from gjk.sema.enums.gw_alert_state import GwAlertState
+from gjk.sema.enums.gw_dispatch_refusal_reason import GwDispatchRefusalReason
 from gjk.sema.enums.gw_fleet_alert_kind import GwFleetAlertKind
 from gjk.sema.enums.gw_house_alert_kind import GwHouseAlertKind
 from gjk.sema.enums.gw_platform_alert_kind import GwPlatformAlertKind
+from gjk.sema.enums.gw_standby_posture import GwStandbyPosture
+from gjk.sema.enums.gw_top_state import GwTopState
 from gjk.sema.enums.gw_weather_forecast_fidelity import GwWeatherForecastFidelity
 from gjk.sema.enums.hz_calc_method import HzCalcMethod
 from gjk.sema.enums.log_level import LogLevel
@@ -36,6 +40,7 @@ from gjk.sema.enums.single_pico_state import SinglePicoState
 from gjk.sema.enums.spaceheat_make_model import SpaceheatMakeModel
 from gjk.sema.enums.spaceheat_telemetry_name import SpaceheatTelemetryName
 from gjk.sema.enums.spaceheat_unit import SpaceheatUnit
+from gjk.sema.enums.ta_validation_state import TaValidationState
 from gjk.sema.enums.temp_calc_method import TempCalcMethod
 
 __all__ = [
@@ -54,13 +59,17 @@ __all__ = [
     "Gw1MainAutoState",
     "Gw1Quantity",
     "Gw1SeasonalStorageMode",
+    "Gw1ServiceMode",
     "Gw1SystemMode",
     "Gw1Unit",
     "GwAlertCategory",
     "GwAlertState",
+    "GwDispatchRefusalReason",
     "GwFleetAlertKind",
     "GwHouseAlertKind",
     "GwPlatformAlertKind",
+    "GwStandbyPosture",
+    "GwTopState",
     "GwWeatherForecastFidelity",
     "HzCalcMethod",
     "LogLevel",
@@ -73,5 +82,6 @@ __all__ = [
     "SpaceheatMakeModel",
     "SpaceheatTelemetryName",
     "SpaceheatUnit",
+    "TaValidationState",
     "TempCalcMethod",
 ]

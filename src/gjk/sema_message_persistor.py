@@ -9,6 +9,8 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.config import Settings
 from gjk.flo_params_house0_persistor import FloParamsHouse0Persistor
+from gjk.house_operating_status_persistor import HouseOperatingStatusPersistor
+from gjk.house_status_projection import HouseStatusProjection
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.message_persistence_info import (
     MESSAGE_ID_NAMESPACE,
@@ -16,6 +18,7 @@ from gjk.message_persistence_info import (
     default_message_id,
 )
 from gjk.report_event_persistor import ReportEventPersistor
+from gjk.snapshot_spaceheat_persistor import SnapshotSpaceheatPersistor
 from gjk.sema import SemaCodec, SemaType
 from gjk.alert_persistor import AlertPersistor
 from gjk.g_node_forest_persistor import GNodeForestPersistor
@@ -34,7 +37,6 @@ class SemaMessagePersistor:
         "energy.instruction": "send_time_ms",
         "gw.weather.forecast": "message_created_ms",
         "new.command.tree": "unix_ms",
-        "snapshot.spaceheat": "snapshot_time_unix_ms",
         "scada.params": "unix_time_ms",
         "ticklist.reed.report": "scada_received_unix_ms",
         "ticklist.hall.report": "scada_received_unix_ms",
@@ -93,11 +95,15 @@ class SemaMessagePersistor:
         self.Session = sessionmaker(bind=engine)
         self.logger = logger
 
+        # One projection shared by the three persistors that feed it.
+        house_status = HouseStatusProjection(logger)
         self.custom_persistor_lookup = {
             x.target_message_type: x
             for x in [
                 AlertPersistor(logger),
-                LayoutLitePersistor(logger),
+                HouseOperatingStatusPersistor(logger, house_status),
+                LayoutLitePersistor(logger, house_status),
+                SnapshotSpaceheatPersistor(logger, house_status),
                 ReportEventPersistor(logger),
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
@@ -168,7 +174,18 @@ class SemaMessagePersistor:
         self, from_alias: str, payload: SemaType, time_received: datetime
     ):
         created_at = None
-        created_at_ms_field = self.MSG_CREATED_AT_FIELDS_MS.get(payload.type_name)
+        # The sender-time standard: a word says CreatedMs, or SendTimeMs when
+        # it is reassembled per send, and needs no entry in the tables below.
+        standard_ms = getattr(payload, "created_ms", None) or getattr(
+            payload, "send_time_ms", None
+        )
+        if standard_ms:
+            created_at = datetime.fromtimestamp(standard_ms / 1000, tz=UTC)
+        created_at_ms_field = (
+            None
+            if standard_ms
+            else self.MSG_CREATED_AT_FIELDS_MS.get(payload.type_name)
+        )
         if created_at_ms_field:
             created_at_ms = getattr(payload, created_at_ms_field, None)
             if created_at_ms:

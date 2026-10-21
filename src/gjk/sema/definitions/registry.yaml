@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-10-15T15:30:00Z"
+  last_updated: "2026-10-21T17:40:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -161,6 +161,18 @@ enums:
     created: "2026-09-16T17:45:00Z"
     status: "published"
 
+  gw.dispatch.refusal.reason:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "The scada's one vocabulary for declining or ending dispatch: NoTaDeed, OperatorHold, ServiceContractBroken, ScadaBlind, InAdmin. Default OperatorHold so an unknown reason reads as the house held out."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw.dispatch.refusal.reason/000"
+        created: "2026-09-30T18:35:00Z"
+        status: "staging"
+
   gw.fleet.alert.kind:
     latest_version: "000"
     owner: gridworks-energy
@@ -174,16 +186,19 @@ enums:
         status: "published"
 
   gw.house.alert.kind:
-    latest_version: "000"
+    latest_version: "001"
     owner: gridworks-energy
     enum_type: "versioned"
     description: "The condition a house alert is about, one value per detector, named for what a human acts on rather than the detector's mechanism."
 
     versions:
-      "000":
-        schema_url: "https://schemas.electricity.works/enums/gw.house.alert.kind/000"
-        created: "2026-09-15T19:35:00Z"
+      "001":
+        schema_url: "https://schemas.electricity.works/enums/gw.house.alert.kind/001"
+        created: "2026-10-19T12:10:00Z"
         status: "published"
+        added_values:
+          - "ScadaSilent"
+          - "LtnSilent"
 
   gw.platform.alert.kind:
     latest_version: "000"
@@ -196,6 +211,30 @@ enums:
         schema_url: "https://schemas.electricity.works/enums/gw.platform.alert.kind/000"
         created: "2026-09-16T17:45:00Z"
         status: "published"
+
+  gw.standby.posture:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "What a scada in Standby does to the plant: MonitorOnly (energizes nothing) or NoHeatingOrCooling (holds every heat source off); the intent behind the house's EnergizedStandbyRelays list. Default MonitorOnly so an unknown posture touches nothing."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw.standby.posture/000"
+        created: "2026-09-30T18:35:00Z"
+        status: "staging"
+
+  gw.top.state:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "Who holds the scada's command tree: Auto (the scada's own control) or Admin (an admin session)."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw.top.state/000"
+        created: "2026-09-29T22:05:00Z"
+        status: "staging"
 
   gw.weather.forecast.fidelity:
     latest_version: "000"
@@ -349,6 +388,18 @@ enums:
         schema_url: "https://schemas.electricity.works/enums/gw1.seasonal.storage.mode/000"
         created: "2026-01-14T18:04:00Z"
         status: "published"
+
+  gw1.service.mode:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "Thermal service the system provides: Heating / Cooling. Selects the local control machine on a plant that can do both, and gates heating contracts at the LTN."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw1.service.mode/000"
+        created: "2026-08-13T11:55:00Z"
+        status: "staging"
 
   gw1.system.mode:
     latest_version: "000"
@@ -528,6 +579,18 @@ enums:
         schema_url: "https://schemas.electricity.works/enums/spaceheat.unit/001"
         created: "2024-09-02T15:00:00Z"
         status: "published"
+
+  ta.validation.state:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "What a TaValidator has vouched for about a terminal asset; carried by ta.deed, UnValidated with no deed."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/ta.validation.state/000"
+        created: "2026-09-09T02:05:00Z"
+        status: "staging"
 
   temp.calc.method:
     latest_version: "000"
@@ -1026,24 +1089,24 @@ types:
             - "uuid4.str"
 
   gw.alert:
-    latest_version: "000"
+    latest_version: "001"
     owner: gridworks-energy
     versioning_strategy: "literal"
     description: "An alerting service's report that a condition needing human attention has started (Firing) or stopped (Resolved) holding, about a house, the fleet, or a platform service."
 
     versions:
-      "000":
-        schema_url: "https://schemas.electricity.works/types/gw.alert/000"
-        created: "2026-09-16T17:45:00Z"
+      "001":
+        schema_url: "https://schemas.electricity.works/types/gw.alert/001"
+        created: "2026-10-19T12:15:00Z"
         status: "published"
-        summary: "Initial Sema version. One word for both transitions (State), a Category choosing the Kind enum (axiom 1), House requiring a .ta AboutGNodeAlias (axiom 2), ResolvedMs iff Resolved (axiom 3)."
+        summary: "- Kind: gw.house.alert.kind 000 -> 001"
         direct_dependencies:
           structural:
             - "channel.readings:002"
             - "gw.alert.category:000"
             - "gw.alert.state:000"
             - "gw.fleet.alert.kind:000"
-            - "gw.house.alert.kind:000"
+            - "gw.house.alert.kind:001"
             - "gw.platform.alert.kind:000"
             - "left.right.dot"
             - "utc.milliseconds"
@@ -1065,11 +1128,34 @@ types:
           structural:
             - "left.right.dot"
 
+  gw.house.operating.status:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "How a house is operating in one record: validation state, standby and its posture, storage mode, service mode, whether it accepts dispatch and why not, who holds the command tree, whether the scada is blind, and whether the LTN is dispatching. Sent once at startup and on change."
+
+    versions:
+      "000":
+        status: "staging"
+        schema_url: "https://schemas.electricity.works/types/gw.house.operating.status/000"
+        created: "2026-09-30T18:35:00Z"
+        summary: "Initial version. ScadaAlias + ValidationState (from the deed) + Standby x StandbyPosture + SeasonalStorageMode + ServiceMode + AcceptsDispatch x DispatchRefusalReason (the derived answer, present iff refusing, axiom 1; Standby refuses as OperatorHold, axiom 2) + TopState + ScadaBlind + LtnDispatching + CreatedMs. The slow facts of the LTN-scada agreement; nothing that cycles inside a healthy hour."
+        direct_dependencies:
+          structural:
+            - "gw.dispatch.refusal.reason:000"
+            - "gw.standby.posture:000"
+            - "gw.top.state:000"
+            - "gw1.seasonal.storage.mode:000"
+            - "gw1.service.mode:000"
+            - "left.right.dot"
+            - "ta.validation.state:000"
+            - "utc.milliseconds"
+
   gw.weather.channel.gt:
     latest_version: "001"
     owner: gridworks-energy
     versioning_strategy: "literal"
-    description: "An observed weather series: one quantity at one place, the ground-truth series forecasters are scored against."
+    description: "An observed weather series: one quantity measured by one station, the ground-truth series forecasters are scored against."
 
     versions:
       "001":
@@ -1168,7 +1254,7 @@ types:
     latest_version: "000"
     owner: gridworks-energy
     versioning_strategy: "literal"
-    description: "Temperatures and wind speeds over a shared slice grid for a location, emitted per bundle by the GridWorks weather forecast service for flexible-load optimization."
+    description: "Weather series over a shared slice grid for a location, emitted per bundle by the GridWorks weather forecast service for flexible-load optimization; the bundle declares which series, each with its own fidelity."
 
     versions:
       "000":
@@ -1187,7 +1273,7 @@ types:
     latest_version: "001"
     owner: gridworks-energy
     versioning_strategy: "literal"
-    description: "The subscribable curated set of forecast channels sharing one slice grid and emission schedule; embeds the forecast channels and their observed targets."
+    description: "The subscribable curated set of forecast channels sharing one slice grid and emission schedule; embeds each forecast channel with its observed target and declares which series its broadcasts hold."
 
     versions:
       "001":
@@ -1247,7 +1333,7 @@ types:
     latest_version: "000"
     owner: gridworks-energy
     versioning_strategy: "literal"
-    description: "The place anchor for weather channels: provider-neutral coordinates, timezone, and station identifiers."
+    description: "The place anchor for weather bundles, stations and templates: coordinates and timezone; instruments are station records."
 
     versions:
       "000":
@@ -1265,7 +1351,7 @@ types:
     latest_version: "000"
     owner: gridworks-energy
     versioning_strategy: "literal"
-    description: "One station observation: air temperature and wind speed at a location at ObservationTime; Interpolated marks gap-recovery fill."
+    description: "One station observation: the readings one station took at ObservationTime, one per observed channel it reported; Interpolated marks gap-recovery fill."
 
     versions:
       "000":
