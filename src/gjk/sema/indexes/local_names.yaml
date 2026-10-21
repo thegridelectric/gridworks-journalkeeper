@@ -64,11 +64,15 @@ types:
   gw.weather.cmd.nack: gw.weather.cmd.nack
   gw.weather.create.cmd: gw.weather.create.cmd
   gw.weather.forecast: gw.weather.forecast
+  gw.weather.forecast.binding: gw.weather.forecast.binding
   gw.weather.forecast.bundle.gt: gw.weather.forecast.bundle.gt
   gw.weather.forecast.channel.gt: gw.weather.forecast.channel.gt
+  gw.weather.forecast.series: gw.weather.forecast.series
   gw.weather.location.gt: gw.weather.location.gt
   gw.weather.observation: gw.weather.observation
+  gw.weather.observation.reading: gw.weather.observation.reading
   gw.weather.seasonal.template.gt: gw.weather.seasonal.template.gt
+  gw.weather.station.gt: gw.weather.station.gt
   gw1.tank.temp.calibration: gw1.tank.temp.calibration
   gw1.tank.temp.calibration.map: gw1.tank.temp.calibration.map
   ha1.params: ha1.params

@@ -1,25 +1,21 @@
 from typing import Literal
 from pydantic import StrictInt, model_validator
 from gjk.sema.base import SemaType
+from gjk.sema.property_format import IanaTimezoneStr
 from gjk.sema.property_format import LeftRightDot
-from gjk.sema.property_format import NonEmptyString
 from gjk.sema.property_format import UUID4Str
 
 
 class GwWeatherLocationGt(SemaType):
-    """Sema: https://schemas.electricity.works/types/gw.weather.location.gt/000"""
+    """Sema: https://schemas.electricity.works/types/gw.weather.location.gt/001"""
 
     alias: LeftRightDot
     latitude_microdegrees: StrictInt
     longitude_microdegrees: StrictInt
-    timezone: NonEmptyString
-    icao_id: NonEmptyString | None = None
-    wban_id: NonEmptyString | None = None
-    ghcn_id: NonEmptyString | None = None
-    coop_id: NonEmptyString | None = None
+    timezone: IanaTimezoneStr
     id: UUID4Str
     type_name: Literal["gw.weather.location.gt"] = "gw.weather.location.gt"
-    version: Literal["000"] = "000"
+    version: Literal["001"] = "001"
 
     @model_validator(mode="after")
     def check_axiom_1(self) -> "GwWeatherLocationGt":

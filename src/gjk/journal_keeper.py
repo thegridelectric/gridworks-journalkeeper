@@ -18,6 +18,7 @@ from gwbase.actor_base import ActorBase
 from gwbase.transport_encoding import RoutingEnvelope, WrappedRoutingEnvelope
 from gwbase.wrapped import unwrap_bytes
 
+from gjk.retired_versions import is_retired
 from gjk.config import Settings
 from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
@@ -197,6 +198,12 @@ class JournalKeeper(ActorBase):
         """Decode a bare sema dict and hand the SemaType to the persistor.
         Shared by the normal dispatch path and the broadcast ``legacy_hack``.
         Errors are logged and swallowed — the live path keeps running."""
+        if is_retired(payload):
+            self.logger.info(
+                f"Retired {payload.get('TypeName')} v{payload.get('Version')} "
+                f"from {from_alias} — not persisting"
+            )
+            return
         try:
             sema_obj = self.codec.from_dict(
                 payload, auto_upgrade=False, mode="degraded"

@@ -133,7 +133,7 @@ def test_weather_words_ride_radio_and_direct_keys(
     timescale_db_url: str, rabbit_url: str, monkeypatch, tmp_path
 ) -> None:
     """The type token is not terminal on these keys: the observation
-    broadcast carries its radio tail (the location alias) after the
+    broadcast carries its radio tail (the station alias) after the
     type, and the create command is a direct key with to-class.to-alias
     after the type. Both must still reach JK's queue (the `#.<type>.#`
     binding) and land as messages rows, bodies unwrapped as gwwf
@@ -155,10 +155,10 @@ def test_weather_words_ride_radio_and_direct_keys(
     )
 
     samples = Path(__file__).resolve().parents[1] / "src" / "gjk" / "sema" / "samples"
-    observation = json.loads((samples / "gw.weather.observation.000.json").read_text())
-    create_cmd = json.loads((samples / "gw.weather.create.cmd.000.json").read_text())
+    observation = json.loads((samples / "gw.weather.observation.001.json").read_text())
+    create_cmd = json.loads((samples / "gw.weather.create.cmd.002.json").read_text())
     bundle = json.loads(
-        (samples / "gw.weather.forecast.bundle.gt.000.json").read_text()
+        (samples / "gw.weather.forecast.bundle.gt.002.json").read_text()
     )
     cases = [
         (
@@ -178,7 +178,7 @@ def test_weather_words_ride_radio_and_direct_keys(
                 type_name="gw.weather.observation",
                 from_alias="d1.weather",
                 from_class=TransportClass.WeatherForecastService,
-                radio_channel=observation["LocationAlias"],
+                radio_channel=observation["StationAlias"],
             ).routing_key,
         ),
         (
@@ -263,8 +263,8 @@ def test_weather_words_ride_radio_and_direct_keys(
                 )
             }
         assert channels == {
-            bundle["TempObservationChannel"]["Name"].replace(".", "-"),
-            bundle["WindSpeedObservationChannel"]["Name"].replace(".", "-"),
+            b["ObservationChannel"]["Name"].replace(".", "-")
+            for b in bundle["BindingList"]
         }
         conn.close()
         eng.dispose()

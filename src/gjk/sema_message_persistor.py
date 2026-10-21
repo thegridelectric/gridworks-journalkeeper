@@ -58,6 +58,8 @@ class SemaMessagePersistor:
         "gw.weather.channel.gt": "id",
         "gw.weather.forecast.channel.gt": "id",
         "gw.weather.location.gt": "id",
+        "gw.weather.seasonal.template.gt": "id",
+        "gw.weather.station.gt": "id",
         # Obsolete message types
         "report": "id",
     }
@@ -152,6 +154,8 @@ class SemaMessagePersistor:
         "gw.weather.forecast.bundle.gt",
         "gw.weather.forecast.channel.gt",
         "gw.weather.location.gt",
+        "gw.weather.seasonal.template.gt",
+        "gw.weather.station.gt",
     })
 
     def dedupable_message_types(self) -> set[str]:

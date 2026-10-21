@@ -64,25 +64,19 @@ initial_targets:
       include_all_versions: true
     latest.price:
       include_all_versions: true
-    # The gw.weather vocabulary: journaled from its first broadcast
-    # (messages-table only; readings projection comes later). Pinned to
-    # the versions the weather persistor implements: a later version
-    # (bundle 002 binds series the journal cannot fabricate) enters with
-    # the persistor code for it, not with a sema move.
-    gw.weather.observation:
-      versions: ["000"]
-    gw.weather.forecast:
-      versions: ["000"]
-    gw.weather.channel.gt:
-      versions: ["000", "001"]
-    gw.weather.forecast.channel.gt:
-      versions: ["000"]
-    gw.weather.forecast.bundle.gt:
-      versions: ["000", "001"]
-    gw.weather.location.gt:
-      versions: ["000"]
-    gw.weather.create.cmd:
-      versions: ["000", "001"]
+    # The gw.weather vocabulary, latest versions only: the service emits
+    # nothing older, and an older version on the wire or in the archive is
+    # retired (gjk/retired_versions.py), never decoded. Journaled
+    # messages-table only; the readings projection comes later.
+    gw.weather.observation: {}
+    gw.weather.forecast: {}
+    gw.weather.channel.gt: {}
+    gw.weather.forecast.channel.gt: {}
+    gw.weather.forecast.bundle.gt: {}
+    gw.weather.location.gt: {}
+    gw.weather.station.gt: {}
+    gw.weather.seasonal.template.gt: {}
+    gw.weather.create.cmd: {}
     gw.weather.cmd.ack: {}
     gw.weather.cmd.nack: {}
     # The alerter's words: the alert record (Firing / Resolved) and the
