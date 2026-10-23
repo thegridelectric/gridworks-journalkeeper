@@ -34,14 +34,22 @@ pytestmark = pytest.mark.integration
 
 
 def _load(name: str, alias: str, shift_ms: int = 0) -> dict:
-    """Read a sample, re-homing it from beech to `alias` (message id included,
-    so the messages row is unique per test) and optionally shifting its
-    creation time."""
+    """Read a sample, re-homing it from beech to `alias` (message id and
+    channel Ids included, so the rows are unique per test) and optionally
+    shifting its creation time."""
     text = (SAMPLES / name).read_text().replace(BEECH, alias)
     payload = json.loads(text)
     seed = f"{alias}|{payload['MessageId']}"
     new_id = str(uuid.UUID(int=random.Random(seed).getrandbits(128), version=4))
     payload["MessageId"] = new_id
+    for key in ("DataChannels", "DerivedChannels", "SynthChannels"):
+        for channel in payload.get(key) or []:
+            channel["Id"] = str(
+                uuid.UUID(
+                    int=random.Random(f"{alias}|{channel['Id']}").getrandbits(128),
+                    version=4,
+                )
+            )
     if "Report" in payload and "Id" in payload["Report"]:
         payload["Report"]["Id"] = new_id
     if shift_ms:

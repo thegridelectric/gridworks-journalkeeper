@@ -84,4 +84,4 @@ def test_pico_rows_project_into_the_node_channel_as_enum_indexes():
         SinglePicoState.values().index("Flatlined"),
         SinglePicoState.values().index("Zombie"),
     ]
-    assert persistor.enum_fallbacks == {}
+    assert persistor.refused_states == {}

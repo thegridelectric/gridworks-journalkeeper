@@ -1,4 +1,5 @@
-import hashlib
+import importlib
+import pkgutil
 import uuid
 from collections import Counter
 from datetime import UTC, datetime, timezone
@@ -7,11 +8,13 @@ from gw_data.db.models import ReadingSql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from gjk.channel_resolver import ChannelResolver
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.reading_channel_eras import channel_ids_at, load_channel_rows
+from gjk.reading_channel_eras import load_channel_rows
 from gw_data.db.models import ReadingChannelSql
 
 import gjk.sema.enums as sema_enums
+import gjk.sema.enums.old_versions as old_enums
 from gjk.pseudo_channels import (
     DERIVED_ERA_LAYOUTS,
     ModernLayout,
@@ -40,15 +43,47 @@ ReportEventType = ReportEvent | ReportEvent003 | ReportEvent002 | ReportEvent000
 
 
 class SemaEnumPseudoChannel(PseudoChannel):
-    def __init__(self, name: str, display_name: str, enum_type: type[SemaEnum]):
+    """A channel whose readings are a machine's states, as positions in the
+    enum's value list. `unit_type` is the enum name; `unit` is the enum
+    version a 013 layout declares for the machine, or "Enum" for a channel
+    the handle map names on an older layout, which declares no version."""
+
+    def __init__(
+        self,
+        name: str,
+        display_name: str,
+        enum_type: type[SemaEnum],
+        version: str | None = None,
+    ):
         super().__init__(
-            name, display_name, unit="Enum", unit_type=enum_type.enum_name()
+            name,
+            display_name,
+            unit=version if version is not None else "Enum",
+            unit_type=enum_type.enum_name(),
         )
         self.enum_type = enum_type
 
 
-# Every enum the snapshot vendors, by its sema name: what a layout's
-# StateMachines declaration resolves to.
+def vendored_enums() -> list[type[SemaEnum]]:
+    """Every enum the snapshot vendors: the current version of each and the
+    old versions kept beside them."""
+    modules = [sema_enums] + [
+        importlib.import_module(f"{old_enums.__name__}.{m.name}")
+        for m in pkgutil.iter_modules(old_enums.__path__)
+    ]
+    return [
+        e
+        for module in modules
+        for e in vars(module).values()
+        if isinstance(e, type)
+        and issubclass(e, SemaEnum)
+        and e is not SemaEnum
+        and e.enum_name.__func__ is not SemaEnum.enum_name.__func__
+    ]
+
+
+# The current version of every vendored enum, by sema name: what the handle
+# map's channels on a pre-013 layout are typed by.
 ENUMS_BY_NAME: dict[str, type[SemaEnum]] = {
     e.enum_name(): e
     for e in vars(sema_enums).values()
@@ -56,6 +91,11 @@ ENUMS_BY_NAME: dict[str, type[SemaEnum]] = {
     and issubclass(e, SemaEnum)
     and e is not SemaEnum
     and e.enum_name.__func__ is not SemaEnum.enum_name.__func__
+}
+# Every vendored enum by (name, version): what a 013 layout's StateMachines
+# declaration resolves to.
+ENUMS_BY_NAME_AND_VERSION: dict[tuple[str, str], type[SemaEnum]] = {
+    (e.enum_name(), e.enum_version()): e for e in vendored_enums()
 }
 
 
@@ -81,6 +121,11 @@ class ReportEventPersistor:
         ("la", Gw1LeafAllyBufferOnlyState.enum_name()): "ltn-buffer-only-state",
     }
     STATE_CHANNEL_SUFFIX = "-state"
+    # (terminal_asset_alias, enum, version) -> machines a layout declared
+    # with an enum version the snapshot does not vendor: no channel, no
+    # readings, until the snapshot is re-vendored. Read by the S3 importer's
+    # run summary; shared by every instance since the factory is a classmethod.
+    unvendored_machines: Counter[tuple[str, str, str]] = Counter()
 
     STATE_CHANNELS: dict[str, list[SemaEnumPseudoChannel]] = {
         "auto": [
@@ -152,15 +197,20 @@ class ReportEventPersistor:
         cls, machine: GwStateMachine
     ) -> SemaEnumPseudoChannel | None:
         """One enum pseudo channel per machine a 013 layout declares, resolved
-        to the vendored enum of the declared name. None when the snapshot
-        lacks the enum: the states stay in `messages` and nothing projects."""
-        enum_type = ENUMS_BY_NAME.get(machine.state_enum)
+        to the vendored enum of the declared name and version. None when the
+        snapshot lacks that version: the states stay in `messages` and
+        nothing projects until the snapshot is re-vendored."""
+        enum_type = ENUMS_BY_NAME_AND_VERSION.get((
+            machine.state_enum,
+            machine.state_enum_version,
+        ))
         if enum_type is None:
             return None
         return SemaEnumPseudoChannel(
             name=cls.declared_state_channel_name(machine.node_name, machine.state_enum),
             display_name=f"{machine.node_name} {machine.state_enum}",
             enum_type=enum_type,
+            version=machine.state_enum_version,
         )
 
     @classmethod
@@ -169,8 +219,16 @@ class ReportEventPersistor:
         if isinstance(layout, LayoutLite):
             for machine in layout.state_machines:
                 channel = cls.declared_state_channel(machine)
-                if channel is not None:
-                    result.append(channel)
+                if channel is None:
+                    cls.unvendored_machines[
+                        (
+                            layout.from_g_node_alias.split(".scada")[0] + ".ta",
+                            machine.state_enum,
+                            machine.state_enum_version,
+                        )
+                    ] += 1
+                    continue
+                result.append(channel)
         else:
             result.extend(
                 item for sublist in cls.STATE_CHANNELS.values() for item in sublist
@@ -197,27 +255,44 @@ class ReportEventPersistor:
         self.logger = logger
         self.target_message_type = "report.event"
         self.fanout_on_import = True  # history fan-out; replays welcome
-        self.enum_type_cache = {}
+        self.resolver = ChannelResolver()
         # Load tallies, read by the S3 importer's run summary.
         # (terminal_asset_alias, channel name) -> readings with no channel row
-        # whose era contains the report time.
+        # for the report time.
         self.dropped_readings: Counter[tuple[str, str]] = Counter()
-        # (enum name, value) -> state readings stored under the sha256
-        # fallback because the value is not in the vendored enum.
-        self.enum_fallbacks: Counter[tuple[str, str]] = Counter()
+        # (enum name, value) -> state readings refused because the value is
+        # not in the channel's enum version.
+        self.refused_states: Counter[tuple[str, str]] = Counter()
         self.db_channel_rows_by_id: dict[uuid.UUID, ReadingChannelSql] = {}
 
-    def get_sema_enum_value(self, enum_type: type[SemaEnum], value_str: str) -> int:
-        if value_str in enum_type.values():
-            return enum_type.values().index(value_str)
-        else:
-            hash_object = hashlib.sha256(value_str.encode())
-            hash_result = int(hash_object.hexdigest(), 16)
-            self.logger.warn(
-                f"Unrecognized enum value {value_str} in {enum_type.enum_name()} -- using hash value {hash_result} as default."
+    def state_readings(
+        self,
+        enum_type: type[SemaEnum],
+        channel_id: uuid.UUID,
+        message_id: uuid.UUID,
+        unix_ms_list: list[int],
+        state_list: list[str],
+    ) -> list[ReadingSql]:
+        """A machine's states as readings: each value is the state's position
+        in the enum's value list. A state the enum lacks is refused."""
+        values = enum_type.values()
+        readings: list[ReadingSql] = []
+        for t_ms, state in zip(unix_ms_list, state_list, strict=True):
+            if state not in values:
+                self.logger.warn(
+                    f"State {state} is not in {enum_type.enum_name()} {enum_type.enum_version()}: refused"
+                )
+                self.refused_states[(enum_type.enum_name(), state)] += 1
+                continue
+            readings.append(
+                ReadingSql(
+                    channel_id=channel_id,
+                    message_id=message_id,
+                    timestamp=datetime.fromtimestamp(t_ms / 1000, timezone.utc),
+                    value=values.index(state),
+                )
             )
-            self.enum_fallbacks[(enum_type.enum_name(), value_str)] += 1
-            return hash_result
+        return readings
 
     def collect_channel_state_readings(
         self,
@@ -268,18 +343,12 @@ class ReportEventPersistor:
                             ] += len(states.unix_ms_list)
                         else:
                             readings.extend(
-                                map(
-                                    lambda t_s: ReadingSql(
-                                        channel_id=db_channel_id,
-                                        message_id=message_id,
-                                        timestamp=datetime.fromtimestamp(
-                                            t_s[0] / 1000, timezone.utc
-                                        ),
-                                        value=self.get_sema_enum_value(
-                                            channel.enum_type, t_s[1]
-                                        ),
-                                    ),
-                                    zip(states.unix_ms_list, states.state_list),
+                                self.state_readings(
+                                    channel.enum_type,
+                                    db_channel_id,
+                                    message_id,
+                                    states.unix_ms_list,
+                                    states.state_list,
                                 )
                             )
                         break
@@ -298,9 +367,9 @@ class ReportEventPersistor:
     ) -> bool:
         """Project a machine's states into the channel its 013 layout
         declared: the channel named for the hosting node (the handle's last
-        segment) and typed by the row's enum. True when the row was taken.
-        A house on an older layout has no such channel and falls through to
-        the handle map."""
+        segment) and typed by the row's enum and version. True when the row
+        was taken. A house on an older layout has no such channel and falls
+        through to the handle map."""
         node_name = str(states.machine_handle).split(".")[-1]
         channel_name = self.declared_state_channel_name(node_name, states.state_enum)
         db_channel_id = db_channel_ids_by_name.get(channel_name)
@@ -309,17 +378,17 @@ class ReportEventPersistor:
         row = self.db_channel_rows_by_id[db_channel_id]
         if row.unit_type != states.state_enum:
             return False
-        enum_type = ENUMS_BY_NAME.get(states.state_enum)
+        enum_type = ENUMS_BY_NAME_AND_VERSION.get((row.unit_type, row.unit))
         if enum_type is None:
             return False
         readings.extend(
-            ReadingSql(
-                channel_id=db_channel_id,
-                message_id=message_id,
-                timestamp=datetime.fromtimestamp(t_ms / 1000, timezone.utc),
-                value=self.get_sema_enum_value(enum_type, state),
+            self.state_readings(
+                enum_type,
+                db_channel_id,
+                message_id,
+                states.unix_ms_list,
+                states.state_list,
             )
-            for t_ms, state in zip(states.unix_ms_list, states.state_list, strict=True)
         )
         return True
 
@@ -342,13 +411,13 @@ class ReportEventPersistor:
             ] += len(states.unix_ms_list)
             return
         readings.extend(
-            ReadingSql(
-                channel_id=db_channel_id,
-                message_id=message_id,
-                timestamp=datetime.fromtimestamp(t_ms / 1000, timezone.utc),
-                value=self.get_sema_enum_value(SinglePicoState, state),
+            self.state_readings(
+                SinglePicoState,
+                db_channel_id,
+                message_id,
+                states.unix_ms_list,
+                states.state_list,
             )
-            for t_ms, state in zip(states.unix_ms_list, states.state_list, strict=True)
         )
 
     whitewire_pwr_threshold_default = 20
@@ -409,7 +478,9 @@ class ReportEventPersistor:
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
         report_time = datetime.fromtimestamp(reportEvent.time_created_ms / 1000, UTC)
         channel_rows = load_channel_rows(db, from_terminal_asset_alias)
-        db_channel_ids_by_name = channel_ids_at(channel_rows, report_time)
+        db_channel_ids_by_name = self.resolver.resolve(
+            db, from_alias, from_terminal_asset_alias, channel_rows, report_time
+        )
         self.db_channel_rows_by_id: dict[uuid.UUID, ReadingChannelSql] = {
             r.id: r for r in channel_rows
         }
