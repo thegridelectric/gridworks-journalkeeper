@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from gjk.house_status_projection import HouseStatusProjection
 from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
-from gjk.channel_resolver import declared_rows, row_id_for
+from gjk.channel_resolver import declared_rows, rows_of, same_definition
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
 from gjk.pseudo_channels import ModernLayout, layout_created_ms
@@ -42,13 +42,16 @@ class LayoutLitePersistor:
     class ReadingChannelSyncProcess:
         """Reconcile a TA's reading_channels rows with one layout.
 
-        A row is the channel the layout's Id names (data, derived and synth
-        channels) or, for a pseudo channel, the uuid5 of its definition. The
-        newest layout persisted for the TA is the authority on what is
-        active: a declared channel with a row has that row active, one with
-        no row gets one, and an active row the layout does not declare is
-        retired at the layout's time. One row of a name is active at a time,
-        so a declared channel retires any other active row of its name.
+        A row is one (name, definition) of the TA; a declared channel is
+        the row of its name and definition in any era, and gets a new row
+        when none exists. The row's `channel_id` is written from the layout
+        on every sync (data, derived and synth channels; a pseudo row has
+        none), so a renamed channel's rows share it. The newest layout
+        persisted for the TA is the authority on what is active: a declared
+        channel's row is active, and an active row the layout does not
+        declare is retired at the layout's time. One row of a name is active
+        at a time, so a declared channel retires any other active row of its
+        name.
 
         A layout older than the newest persisted (a bulk back-fill, a
         replayed queue) runs add-only: it never touches an active row, and a
@@ -88,15 +91,15 @@ class LayoutLitePersistor:
         def reconcile(self, row: ReadingChannelSql):
             """Apply one declared channel, as the row it would be, to the rows."""
             self.declared_names.add(row.name)
-            row.id = row_id_for(row, self.rows_by_id)
-            existing = self.rows_by_id.get(row.id)
+            same = rows_of(row, self.all_rows)
             if self.add_only:
-                if existing is None:
+                if not same:
                     self.add_era_row(row)
                 return
-            if existing is not None and existing.deactivated_date is None:
-                return
             other = self.active_by_name.get(row.name)
+            if other is not None and same_definition(other, row):
+                other.channel_id = row.channel_id
+                return
             if other is not None:
                 self.logger.info(
                     f"Channel {row.name} for {self.terminal_asset_alias}: "
@@ -105,14 +108,26 @@ class LayoutLitePersistor:
                 )
                 other.deactivated_date = self.msg_timestamp
                 self.retired.append(other)
-            if existing is None:
-                self.new_rows.append(row)
-                self.all_rows.append(row)
-                self.rows_by_id[row.id] = row
-                self.active_by_name[row.name] = row
-            else:
+            if same:
+                # the row of this definition retired most recently comes back
+                existing = max(same, key=lambda r: r.deactivated_date)
+                existing.channel_id = row.channel_id
                 self.reactivated.append(existing)
                 self.active_by_name[row.name] = existing
+            else:
+                self.add_row(row)
+                self.active_by_name[row.name] = row
+
+        def add_row(self, row: ReadingChannelSql):
+            """A new row. Its primary key is the layout's channel Id while no
+            row holds that Id, else a fresh uuid4; a pseudo row brings the
+            uuid5 of its definition."""
+            if row.id is None:
+                held = row.channel_id is None or row.channel_id in self.rows_by_id
+                row.id = uuid.uuid4() if held else row.channel_id
+            self.new_rows.append(row)
+            self.all_rows.append(row)
+            self.rows_by_id[row.id] = row
 
         def add_era_row(self, row: ReadingChannelSql):
             """Record a channel an older layout declares as a retired era.
@@ -130,9 +145,7 @@ class LayoutLitePersistor:
             )
             self.skipped_mismatches[(self.terminal_asset_alias, row.name)] += 1
             row.deactivated_date = self.era_boundary
-            self.new_rows.append(row)
-            self.all_rows.append(row)
-            self.rows_by_id[row.id] = row
+            self.add_row(row)
 
         def execute(self):
             self.all_rows = load_channel_rows(self.db, self.terminal_asset_alias)
