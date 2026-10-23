@@ -123,4 +123,4 @@ def test_persist_v004_projects_channel_and_pico_state_readings():
     assert [r["value"] for r in pico_rows] == [
         SinglePicoState.values().index(v) for v in source_state.state_list
     ]
-    assert persistor.enum_fallbacks == {}
+    assert persistor.refused_states == {}

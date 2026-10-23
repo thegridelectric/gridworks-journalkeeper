@@ -18,10 +18,11 @@ from gw_data.db.models import ReadingChannelSql
 from gjk.house_status_projection import HouseStatusProjection
 from gjk.layout_lite_persistor import LayoutLitePersistor
 from gjk.pseudo_channels import layout_created_ms
-from gjk.report_event_persistor import ENUMS_BY_NAME, ReportEventPersistor
+from gjk.report_event_persistor import ENUMS_BY_NAME_AND_VERSION, ReportEventPersistor
 from gjk.sema import SemaCodec
 from gjk.sema.enums import (
     AquastatControlState,
+    Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
     Gw1LocalControlAllTanksState,
     Gw1MainAutoState,
@@ -43,6 +44,9 @@ TA = "hw1.isone.me.versant.keene.beech.ta"
 ALIAS = "hw1.isone.me.versant.keene.beech.scada"
 
 
+ENUMS_BY_NAME_AND_VERSION_NAMES = {name for name, _ in ENUMS_BY_NAME_AND_VERSION}
+
+
 def layout(path: Path):
     return SemaCodec().from_dict(json.loads(path.read_text()), auto_upgrade=False)
 
@@ -55,14 +59,15 @@ def report_with(state_rows: list[dict]):
     return SemaCodec().from_dict(d, auto_upgrade=False)
 
 
-def channel(name: str, unit_type: str) -> ReadingChannelSql:
+def channel(name: str, enum_type) -> ReadingChannelSql:
+    """A row as a 013 layout sync makes it: the enum name and version."""
     return ReadingChannelSql(
         id=uuid.uuid4(),
         name=name,
         terminal_asset_alias=TA,
         display_name=name,
-        unit="Enum",
-        unit_type=unit_type,
+        unit=enum_type.enum_version(),
+        unit_type=enum_type.enum_name(),
         channel_type="gjk.pseudo",
         deactivated_date=None,
     )
@@ -90,14 +95,20 @@ def test_both_families_decode_as_013():
 def test_every_declared_machine_gets_one_channel_typed_by_its_enum():
     lite = layout(WILLOW_013)
     by_name = {pc.name: pc for pc in ReportEventPersistor.get_pseudo_channels(lite)}
-    declared = {m.node_name: m.state_enum for m in lite.state_machines}
-    for node, enum_name in declared.items():
+    declared = {
+        m.node_name: (m.state_enum, m.state_enum_version) for m in lite.state_machines
+    }
+    for node, (enum_name, version) in declared.items():
         name = ReportEventPersistor.declared_state_channel_name(node, enum_name)
-        assert by_name[name].unit == "Enum"
+        assert by_name[name].unit == version
         assert by_name[name].unit_type == enum_name
-        assert by_name[name].enum_type is ENUMS_BY_NAME[enum_name]
+        assert (
+            by_name[name].enum_type is ENUMS_BY_NAME_AND_VERSION[(enum_name, version)]
+        )
     # One channel per machine, and nothing from the handle map.
-    state_channels = [pc for pc in by_name.values() if pc.unit == "Enum"]
+    state_channels = [
+        pc for pc in by_name.values() if pc.unit_type in ENUMS_BY_NAME_AND_VERSION_NAMES
+    ]
     assert len(state_channels) == len(lite.state_machines)
     assert "local-control-buffer-only-state" not in by_name
 
@@ -119,11 +130,21 @@ def test_channel_names_continue_the_old_stream_and_follow_the_node_otherwise():
     )
 
 
-def test_a_machine_whose_enum_the_snapshot_lacks_gets_no_channel():
+def test_a_machine_whose_enum_version_the_snapshot_lacks_gets_no_channel():
     machine = GwStateMachine(
         node_name="relay9", state_enum="not.a.vendored.enum", state_enum_version="000"
     )
     assert ReportEventPersistor.declared_state_channel(machine) is None
+    newer = GwStateMachine(
+        node_name="s", state_enum=GwTopState.enum_name(), state_enum_version="999"
+    )
+    assert ReportEventPersistor.declared_state_channel(newer) is None
+    ReportEventPersistor.unvendored_machines.clear()
+    lite = layout(WILLOW_013)
+    lite.state_machines.append(newer)
+    ReportEventPersistor.get_pseudo_channels(lite)
+    [(_, enum_name, version)] = ReportEventPersistor.unvendored_machines
+    assert (enum_name, version) == (GwTopState.enum_name(), "999")
 
 
 def test_an_older_layout_keeps_the_handle_map():
@@ -134,8 +155,8 @@ def test_an_older_layout_keeps_the_handle_map():
 
 
 def test_state_rows_project_into_the_hosting_node_channel():
-    aquastat = channel("aquastat-ctrl-relay-state", AquastatControlState.enum_name())
-    top = channel("s-state", GwTopState.enum_name())
+    aquastat = channel("aquastat-ctrl-relay-state", AquastatControlState)
+    top = channel("s-state", GwTopState)
     persistor, db = persist(
         [aquastat, top],
         report_with([
@@ -162,14 +183,14 @@ def test_state_rows_project_into_the_hosting_node_channel():
         AquastatControlState.values().index("Scada"),
     ]
     assert by_channel[top.id] == [GwTopState.values().index("Admin")]
-    assert persistor.enum_fallbacks == {}
+    assert persistor.refused_states == {}
 
 
 def test_a_node_channel_of_another_enum_is_not_written():
     # The channel row's unit_type is the declared enum; a row that names a
     # different enum for the same node is left to the handle map (which has
     # no entry) and tallied nowhere but the log.
-    lc = channel("local-control-top-state", "gw1.lc.top.state")
+    lc = channel("local-control-top-state", Gw1LcTopState)
     _, db = persist(
         [lc],
         report_with([

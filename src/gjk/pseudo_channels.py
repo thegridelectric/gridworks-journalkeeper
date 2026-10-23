@@ -45,7 +45,7 @@ type DerivedEraLayout = (
     | LayoutLite007
 )
 type ModernLayout = DerivedEraLayout | SynthEraLayout
-# The runtime form of DerivedEraLayout, for isinstance.
+# The runtime forms, for isinstance.
 DERIVED_ERA_LAYOUTS = (
     LayoutLite,
     LayoutLite012,
@@ -55,6 +55,15 @@ DERIVED_ERA_LAYOUTS = (
     LayoutLite008,
     LayoutLite007,
 )
+SYNTH_ERA_LAYOUTS = (
+    LayoutLite006,
+    LayoutLite005,
+    LayoutLite004,
+    LayoutLite003,
+    LayoutLite002,
+    LayoutLite001,
+)
+MODERN_LAYOUTS = DERIVED_ERA_LAYOUTS + SYNTH_ERA_LAYOUTS
 
 
 def layout_created_ms(layout: ModernLayout) -> int:

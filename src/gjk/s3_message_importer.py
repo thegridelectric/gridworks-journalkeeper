@@ -93,7 +93,7 @@ class RunSummary:
     split by day and sender, for reconciling against S3 listings and the
     DB after a load; the three channel tallies come from the persistors and
     are the MISM signals of a back-fill: readings that found no channel row,
-    enum values outside the vendored vocabulary, and era rows the layout sync
+    state values outside the vendored enum version, refused, and era rows the layout sync
     had to add.
     """
 
@@ -101,7 +101,7 @@ class RunSummary:
         self.versions: dict[tuple[str, str], VersionCounts] = defaultdict(VersionCounts)
         self.daily: Counter[DailyKey] = Counter()
         self.dropped_readings: Counter[tuple[str, str]] = Counter()
-        self.enum_fallbacks: Counter[tuple[str, str]] = Counter()
+        self.refused_states: Counter[tuple[str, str]] = Counter()
         self.era_rows: Counter[tuple[str, str]] = Counter()
         self.messages_processed = 0
 
@@ -127,7 +127,7 @@ class RunSummary:
     def take_persistor_tallies(self, msg_persistor: SemaMessagePersistor) -> None:
         for persistor in msg_persistor.custom_persistor_lookup.values():
             self.dropped_readings.update(getattr(persistor, "dropped_readings", {}))
-            self.enum_fallbacks.update(getattr(persistor, "enum_fallbacks", {}))
+            self.refused_states.update(getattr(persistor, "refused_states", {}))
             self.era_rows.update(getattr(persistor, "skipped_mismatches", {}))
 
     def to_jsonable(self) -> dict:
@@ -152,9 +152,9 @@ class RunSummary:
                 {"terminal_asset_alias": ta, "channel": ch, "count": n}
                 for (ta, ch), n in sorted(self.dropped_readings.items())
             ],
-            "enum_fallbacks": [
+            "refused_states": [
                 {"enum": e, "value": v, "count": n}
-                for (e, v), n in sorted(self.enum_fallbacks.items())
+                for (e, v), n in sorted(self.refused_states.items())
             ],
             "era_rows": [
                 {"terminal_asset_alias": ta, "channel": ch, "count": n}
@@ -325,7 +325,10 @@ def log_run_summary(logger, summary: RunSummary) -> None:
             "Dropped readings (no channel row for the report time)",
             summary.dropped_readings,
         ),
-        ("Enum fallbacks (value not in vendored enum)", summary.enum_fallbacks),
+        (
+            "Refused states (value not in the vendored enum version)",
+            summary.refused_states,
+        ),
         ("Era rows added by add-only layout syncs", summary.era_rows),
     ):
         if tally:

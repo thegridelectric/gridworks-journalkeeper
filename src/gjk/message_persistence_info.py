@@ -26,6 +26,21 @@ def default_message_id(from_alias: str, type_name: str, at: datetime) -> str:
     return str(uuid.uuid5(MESSAGE_ID_NAMESPACE, f"{from_alias}|{type_name}|{at_ms}"))
 
 
+# Fixed namespace for the ids of pseudo channels, which no layout names: the
+# same definition for a terminal asset is the same row across layouts.
+PSEUDO_CHANNEL_ID_NAMESPACE = uuid.UUID("7a1e0c5d-2b64-4f3e-9d0a-5c1b8e6f2a41")
+
+
+def pseudo_channel_id(
+    terminal_asset_alias: str, name: str, unit_type: str, unit: str
+) -> uuid.UUID:
+    """The reading_channels id of a pseudo channel: a uuid5 of its definition."""
+    return uuid.uuid5(
+        PSEUDO_CHANNEL_ID_NAMESPACE,
+        f"{terminal_asset_alias}|{name}|{unit_type}|{unit}",
+    )
+
+
 @dataclass
 class MessagePersistenceInfo:
     id: UUID4Str

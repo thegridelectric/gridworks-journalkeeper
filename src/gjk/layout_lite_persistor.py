@@ -1,6 +1,5 @@
 import uuid
 from collections import Counter
-from collections.abc import Callable
 from datetime import UTC, datetime
 
 from gw_data.db.models import MessageSql, ReadingChannelSql
@@ -9,20 +8,11 @@ from sqlalchemy.orm import Session
 
 from gjk.house_status_projection import HouseStatusProjection
 from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
+from gjk.channel_resolver import declared_rows, row_id_for
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
-from gjk.pseudo_channels import (
-    DerivedEraLayout,
-    ModernLayout,
-    PseudoChannel,
-    SynthEraLayout,
-    get_pseudo_channels,
-    layout_created_ms,
-)
-from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
-from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
-from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
-from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
+from gjk.pseudo_channels import ModernLayout, layout_created_ms
+from gjk.sema.types import LayoutLite
 from gjk.sema.types.old_versions.layout_lite_001 import LayoutLite001
 from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 from gjk.sema.types.old_versions.layout_lite_003 import LayoutLite003
@@ -36,24 +26,6 @@ from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
-# layout.lite versions whose channel projection is SynthChannels (007+ carry
-# DerivedChannels instead). v001 predates SynthChannels altogether and v002
-# carries them optionally; both sync as an empty synth set.
-SYNTH_ERA_LAYOUTS = (
-    LayoutLite006,
-    LayoutLite005,
-    LayoutLite004,
-    LayoutLite003,
-    LayoutLite002,
-    LayoutLite001,
-)
-
-# The only synth channels that ever appear in report.event readings — present
-# from the beginning of the archive, kept as synth channels for the synth
-# era. The other synth channels in a layout are unreported intermediates and
-# get no reading_channels rows.
-REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
-
 
 class LayoutLitePersistor:
     def __init__(self, logger, house_status: HouseStatusProjection):
@@ -62,21 +34,27 @@ class LayoutLitePersistor:
         self.target_message_type = "layout.lite"
         self.fanout_on_import = True  # history fan-out; replays welcome
         # (terminal_asset_alias, channel name) -> era rows added by add-only
-        # syncs (an older layout's unit/type differed from the active row).
+        # syncs (a channel an older layout declares with no row of its own).
         # Read by the S3 importer's run summary.
         self.skipped_mismatches: Counter[tuple[str, str]] = Counter()
         self.layouts = LayoutsProjection(logger)
 
     class ReadingChannelSyncProcess:
-        """Reconcile a TA's active reading_channels rows with one layout.
+        """Reconcile a TA's reading_channels rows with one layout.
 
-        The newest layout persisted for the TA is the authority on what is
-        active. A layout older than that (a bulk back-fill, a replayed queue)
-        runs add-only: it never deactivates an active row, so live channels
-        survive an old layout arriving late. A channel it carries that is not
-        active in the same definition gets an era row — retired at the
-        earliest newer layout's time — so readings from its era attach to a
-        row with the right unit (see reading_channel_eras).
+        A row is the channel the layout's Id names (data, derived and synth
+        channels) or, for a pseudo channel, the uuid5 of its definition. The
+        newest layout persisted for the TA is the authority on what is
+        active: a declared channel with a row has that row active, one with
+        no row gets one, and an active row the layout does not declare is
+        retired at the layout's time. One row of a name is active at a time,
+        so a declared channel retires any other active row of its name.
+
+        A layout older than the newest persisted (a bulk back-fill, a
+        replayed queue) runs add-only: it never touches an active row, and a
+        declared channel with no row gets one retired at the earliest newer
+        layout's time, so readings from its era have a row with the right
+        unit (see reading_channel_eras).
         """
 
         def __init__(
@@ -99,189 +77,69 @@ class LayoutLitePersistor:
             self.skipped_mismatches = skipped_mismatches
             self.add_only = False
             self.era_boundary: datetime | None = None
+            self.all_rows: list[ReadingChannelSql] = []
+            self.rows_by_id: dict[uuid.UUID, ReadingChannelSql] = {}
+            self.active_by_name: dict[str, ReadingChannelSql] = {}
+            self.declared_names: set[str] = set()
+            self.retired: list[ReadingChannelSql] = []
+            self.reactivated: list[ReadingChannelSql] = []
+            self.new_rows: list[ReadingChannelSql] = []
 
-        def reconcile(
-            self,
-            name: str,
-            db_channel: ReadingChannelSql | None,
-            matches: bool,
-            make_row: Callable[[], ReadingChannelSql],
-            mismatch_detail: str,
-        ):
-            """Apply one layout channel against its active DB row (if any).
-
-            No row: add one. Row with the same unit/type: keep it. Row with a
-            different unit/type: deactivate it and add a fresh one. Add-only
-            (an older layout): the active row is never touched; whatever this
-            layout carries that is not active in the same definition is
-            recorded as an era row, since the newest layout has superseded it.
-            """
-            if db_channel is None:
-                if self.add_only:
-                    self.add_era_row(name, make_row(), "no active row")
-                else:
-                    self.new_db_channels.append(make_row())
+        def reconcile(self, row: ReadingChannelSql):
+            """Apply one declared channel, as the row it would be, to the rows."""
+            self.declared_names.add(row.name)
+            row.id = row_id_for(row, self.rows_by_id)
+            existing = self.rows_by_id.get(row.id)
+            if self.add_only:
+                if existing is None:
+                    self.add_era_row(row)
                 return
-            if not matches:
-                if self.add_only:
-                    self.add_era_row(name, make_row(), mismatch_detail)
-                else:
-                    self.logger.info(
-                        f"Found channel {name} for {self.terminal_asset_alias} with mismatched unit/type in DB: {mismatch_detail}"
-                    )
-                    self.new_db_channels.append(make_row())
-                    db_channel.deactivated_date = self.msg_timestamp
-            del self.existing_db_channels_by_name[name]
+            if existing is not None and existing.deactivated_date is None:
+                return
+            other = self.active_by_name.get(row.name)
+            if other is not None:
+                self.logger.info(
+                    f"Channel {row.name} for {self.terminal_asset_alias}: "
+                    f"{other.channel_type}:{other.unit_type}:{other.unit} retired for "
+                    f"{row.channel_type}:{row.unit_type}:{row.unit}"
+                )
+                other.deactivated_date = self.msg_timestamp
+                self.retired.append(other)
+            if existing is None:
+                self.new_rows.append(row)
+                self.all_rows.append(row)
+                self.rows_by_id[row.id] = row
+                self.active_by_name[row.name] = row
+            else:
+                self.reactivated.append(existing)
+                self.active_by_name[row.name] = existing
 
-        def add_era_row(self, name: str, row: ReadingChannelSql, mismatch_detail: str):
-            """Record an older definition of an active channel as a retired era.
+        def add_era_row(self, row: ReadingChannelSql):
+            """Record a channel an older layout declares as a retired era.
 
-            The era ends at the earliest layout newer than this one. Another
-            definition already stamped at that boundary was loaded from an
-            even older layout, so its era ends here instead. A row with this
-            very definition already present means the era is recorded.
+            The era ends at the earliest layout newer than this one. A row of
+            the name already stamped at that boundary was loaded from an even
+            older layout, so its era ends here instead.
             """
             assert self.era_boundary is not None
-            same_name = [r for r in self.all_rows if r.name == name]
-            for r in same_name:
-                if (
-                    r.unit == row.unit
-                    and r.unit_type == row.unit_type
-                    and r.channel_type == row.channel_type
-                ):
-                    return
-            for r in same_name:
-                if r.deactivated_date == self.era_boundary:
+            for r in self.all_rows:
+                if r.name == row.name and r.deactivated_date == self.era_boundary:
                     r.deactivated_date = self.msg_timestamp
             self.logger.info(
-                f"Era row for {name} on {self.terminal_asset_alias} retired at {self.era_boundary.isoformat()} ({mismatch_detail})"
+                f"Era row for {row.name} on {self.terminal_asset_alias} retired at {self.era_boundary.isoformat()} ({row.channel_type}:{row.unit_type}:{row.unit})"
             )
-            self.skipped_mismatches[(self.terminal_asset_alias, name)] += 1
+            self.skipped_mismatches[(self.terminal_asset_alias, row.name)] += 1
             row.deactivated_date = self.era_boundary
-            self.new_db_channels.append(row)
+            self.new_rows.append(row)
             self.all_rows.append(row)
-
-        def data_channel_to_db(
-            self, dc: DataChannelGt | DataChannelGt001
-        ) -> ReadingChannelSql:
-            return ReadingChannelSql(
-                id=uuid.uuid4(),
-                name=dc.name,
-                terminal_asset_alias=dc.terminal_asset_alias,
-                display_name=dc.display_name,
-                unit=dc.telemetry_name,
-                unit_type=SpaceheatTelemetryName.enum_name(),
-                channel_type=DataChannelGt.type_name_value(),
-            )
-
-        def derived_channel_to_db(
-            self, dc: DerivedChannelGt | DerivedChannelGt000
-        ) -> ReadingChannelSql:
-            return ReadingChannelSql(
-                id=uuid.uuid4(),
-                name=dc.name,
-                terminal_asset_alias=dc.terminal_asset_alias,
-                display_name=dc.display_name,
-                unit=dc.output_unit if dc.output_unit is not None else "Unknown",
-                unit_type=Gw1Unit.enum_name(),
-                channel_type=DerivedChannelGt.type_name_value(),
-            )
-
-        def synth_channel_to_db(self, sc: SynthChannelGt) -> ReadingChannelSql:
-            return ReadingChannelSql(
-                id=uuid.uuid4(),
-                name=sc.name,
-                terminal_asset_alias=sc.terminal_asset_alias,
-                display_name=sc.display_name,
-                unit=sc.telemetry_name,
-                unit_type=SpaceheatTelemetryName.enum_name(),
-                channel_type=SynthChannelGt.type_name_value(),
-            )
-
-        def pseudo_channel_to_db(self, pc: PseudoChannel) -> ReadingChannelSql:
-            return ReadingChannelSql(
-                id=uuid.uuid4(),
-                name=pc.name,
-                terminal_asset_alias=self.terminal_asset_alias,
-                display_name=pc.display_name,
-                unit=pc.unit,
-                unit_type=pc.unit_type,
-                channel_type=PseudoChannel.CHANNEL_TYPE,
-            )
-
-        def sync_data_channels(self):
-            for dc in self.layout.data_channels:
-                db_channel = self.existing_db_channels_by_name.get(dc.name)
-                self.reconcile(
-                    dc.name,
-                    db_channel,
-                    db_channel is not None
-                    and db_channel.unit == dc.telemetry_name
-                    and db_channel.unit_type == SpaceheatTelemetryName.enum_name()
-                    and db_channel.channel_type == DataChannelGt.type_name_value(),
-                    lambda dc=dc: self.data_channel_to_db(dc),
-                    f"{db_channel and db_channel.channel_type}:{db_channel and db_channel.unit_type}:{db_channel and db_channel.unit}/{dc.telemetry_name}",
-                )
-
-        def sync_derived_channels(self, layout: DerivedEraLayout):
-            for dc in layout.derived_channels:
-                db_channel = self.existing_db_channels_by_name.get(dc.name)
-                self.reconcile(
-                    dc.name,
-                    db_channel,
-                    db_channel is not None
-                    and db_channel.unit == dc.output_unit
-                    and db_channel.unit_type == Gw1Unit.enum_name()
-                    and db_channel.channel_type == DerivedChannelGt.type_name_value(),
-                    lambda dc=dc: self.derived_channel_to_db(dc),
-                    f"{db_channel and db_channel.channel_type}:{db_channel and db_channel.unit_type}:{db_channel and db_channel.unit}/{dc.output_unit}",
-                )
-
-        def sync_synth_channels(self, layout: SynthEraLayout):
-            # Only the reported synth channels get rows; see
-            # REPORTED_SYNTH_CHANNELS.
-            if isinstance(layout, LayoutLite001):
-                synth_channels = []
-            elif isinstance(layout, LayoutLite002):
-                synth_channels = layout.synth_channels or []
-            else:
-                synth_channels = layout.synth_channels
-            for sc in synth_channels:
-                if sc.name not in REPORTED_SYNTH_CHANNELS:
-                    continue
-                db_channel = self.existing_db_channels_by_name.get(sc.name)
-                self.reconcile(
-                    sc.name,
-                    db_channel,
-                    db_channel is not None
-                    and db_channel.unit == sc.telemetry_name
-                    and db_channel.unit_type == SpaceheatTelemetryName.enum_name()
-                    and db_channel.channel_type == SynthChannelGt.type_name_value(),
-                    lambda sc=sc: self.synth_channel_to_db(sc),
-                    f"{db_channel and db_channel.channel_type}:{db_channel and db_channel.unit_type}:{db_channel and db_channel.unit}/{sc.telemetry_name}",
-                )
-
-        def sync_pseudo_channels(self):
-            for pc in get_pseudo_channels(self.layout):
-                db_channel = self.existing_db_channels_by_name.get(pc.name)
-                self.reconcile(
-                    pc.name,
-                    db_channel,
-                    db_channel is not None
-                    and db_channel.unit == pc.unit
-                    and db_channel.unit_type == pc.unit_type
-                    and db_channel.channel_type == PseudoChannel.CHANNEL_TYPE,
-                    lambda pc=pc: self.pseudo_channel_to_db(pc),
-                    f"{db_channel and db_channel.channel_type}:{db_channel and db_channel.unit_type}:{db_channel and db_channel.unit}/{pc.unit_type}:{pc.unit}",
-                )
+            self.rows_by_id[row.id] = row
 
         def execute(self):
             self.all_rows = load_channel_rows(self.db, self.terminal_asset_alias)
-            self.existing_db_channels_by_name = {
-                c.name: c for c in self.all_rows if c.deactivated_date is None
+            self.rows_by_id = {r.id: r for r in self.all_rows}
+            self.active_by_name = {
+                r.name: r for r in self.all_rows if r.deactivated_date is None
             }
-
-            self.new_db_channels = []
 
             # This layout's own messages row is already in the session, so a
             # strictly newer timestamp means a newer layout has been persisted.
@@ -297,7 +155,7 @@ class LayoutLitePersistor:
             self.add_only = (
                 newest_layout_ts is not None and newest_layout_ts > self.msg_timestamp
             )
-            if newest_layout_ts is not None and self.add_only:
+            if self.add_only:
                 self.era_boundary = (
                     self.db
                     .query(func.min(MessageSql.timestamp))
@@ -313,26 +171,26 @@ class LayoutLitePersistor:
                     f"Layout from {self.msg_timestamp.isoformat()} for {self.terminal_asset_alias} is older than the newest persisted ({newest_layout_ts.isoformat()}): add-only sync, era boundary {self.era_boundary.isoformat()}"
                 )
 
-            # Look at every channel (data, derived/synth, and pseudo)
-            #   If it does not exist as active in the database, add it
-            #   If it exists with a different unit or unit type, deactivate it and add a new one
-
-            self.sync_data_channels()
-            if isinstance(self.layout, SYNTH_ERA_LAYOUTS):
-                self.sync_synth_channels(self.layout)
-            else:
-                self.sync_derived_channels(self.layout)
-            self.sync_pseudo_channels()
+            for row in declared_rows(self.layout, self.terminal_asset_alias):
+                self.reconcile(row)
 
             if not self.add_only:
-                for db_only_channel in self.existing_db_channels_by_name.values():
-                    self.logger.info(
-                        f"Data channel {db_only_channel.name} for {db_only_channel.terminal_asset_alias} exists only in the database"
-                    )
-                    db_only_channel.deactivated_date = self.msg_timestamp
+                for name, row in list(self.active_by_name.items()):
+                    if name not in self.declared_names:
+                        self.logger.info(
+                            f"Channel {name} for {self.terminal_asset_alias} exists only in the database"
+                        )
+                        row.deactivated_date = self.msg_timestamp
+                        self.retired.append(row)
 
-            for ch in self.new_db_channels:
-                self.db.add(ch)
+            # Retirements flush first: one row of a name is active at a time,
+            # and the rows below take the retired rows' place.
+            if self.retired:
+                self.db.flush()
+            for row in self.reactivated:
+                row.deactivated_date = None
+            for row in self.new_rows:
+                self.db.add(row)
             self.db.flush()
             forget_channel_rows(self.db, self.terminal_asset_alias)
 

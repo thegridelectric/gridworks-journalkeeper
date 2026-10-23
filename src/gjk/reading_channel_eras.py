@@ -1,17 +1,19 @@
-"""Which reading_channels row a reading belongs to, by time.
+"""Which reading_channels row a reading belongs to, by time: the era rule.
 
-A `(terminal_asset_alias, name)` can carry several rows over its life: one
-active (`deactivated_date IS NULL`) and any number of retired ones, each
-ending at its `deactivated_date`. Rows carry no start date, so an era is
-identified only by its end: the row whose era contains a time `t` is the one
-with the earliest `deactivated_date` after `t`, and the active row when no
-retired row ends after `t`.
+A `(terminal_asset_alias, name)` has several rows over its life: one active
+(`deactivated_date IS NULL`) and any number of retired ones, each ending at
+its `deactivated_date`. Rows have no start date, so an era is identified
+only by its end: the row whose era contains a time `t` is the one with the
+earliest `deactivated_date` after `t`, and the active row when no retired
+row ends after `t`.
 
-Live JournalKeeper only ever needs the active row. The S3 back-fill needs
-the era rows because a channel's definition — its unit — can change across
-layouts under the same name (`buffer-depth1`: `WaterTempCTimes1000` data
-channel through 2025, `FahrenheitX100` derived channel from 2026), and the
-front end reads `reading_channels.unit` to scale what it plots.
+The rule is the fallback of `channel_resolver`: a row minted before rows
+took the layout's channel Id has an id no layout names, so a reading of
+its name resolves by time. A channel's unit changes across layouts under
+one name (`buffer-depth1`: `WaterTempCTimes1000` data channel through
+2025, `FahrenheitX100` derived channel from 2026), and the front end reads
+`reading_channels.unit` to scale what it plots, so the era has to be the
+right one.
 """
 
 import uuid
