@@ -26,7 +26,7 @@ from datetime import UTC, datetime
 from gw_data.db.models import GNodeSql, LayoutSql
 from sqlalchemy.orm import Session
 
-from gjk.pseudo_channels import ModernLayout
+from gjk.pseudo_channels import ModernLayout, layout_created_ms
 
 
 def terminal_asset_alias(scada_alias: str) -> str:
@@ -50,7 +50,7 @@ class LayoutsProjection:
                 f"layout.lite from {from_alias}: no g_nodes row for {ta_alias} — not projected"
             )
             return
-        sent_at = datetime.fromtimestamp(layout.message_created_ms / 1000, UTC)
+        sent_at = datetime.fromtimestamp(layout_created_ms(layout) / 1000, UTC)
         payload = layout.to_dict()
 
         row = db.get(LayoutSql, ta.id)

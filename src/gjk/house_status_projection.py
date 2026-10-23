@@ -37,8 +37,9 @@ from gjk.sema.enums import (
     GwTopState,
     TaValidationState,
 )
-from gjk.sema.types import GwHouseOperatingStatus, LayoutLite, SnapshotSpaceheat
+from gjk.sema.types import GwHouseOperatingStatus, SnapshotSpaceheat
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
+from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
 SOURCE_SCADA = "scada"
 SOURCE_DERIVED = "derived"
@@ -46,8 +47,9 @@ SNAPSHOT_SPACEHEAT = "snapshot.spaceheat"
 TOP_STATE_ENUM = "top.state"
 MAIN_AUTO_STATE_ENUM = "gw1.main.auto.state"
 
-# The layout versions that say the system mode, which the derivation needs.
-type ModeLayout = LayoutLite011 | LayoutLite
+# The layout versions that say the system mode, which the derivation needs;
+# a scada on 013 sends the status word itself.
+type ModeLayout = LayoutLite011 | LayoutLite012
 
 
 def snapshot_state(snapshot: SnapshotSpaceheat | None, state_enum: str) -> str | None:
@@ -194,7 +196,7 @@ class HouseStatusProjection:
         if layout_row is None:
             return False
         layout = self.codec.from_dict(layout_row.payload, auto_upgrade=False)
-        if not isinstance(layout, (LayoutLite011, LayoutLite)):
+        if not isinstance(layout, (LayoutLite011, LayoutLite012)):
             return False
         status = derived_status(
             layout, self.newest_snapshot(db, layout.from_g_node_alias)

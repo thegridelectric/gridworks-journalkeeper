@@ -36,6 +36,7 @@ class SemaMessagePersistor:
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.weather.forecast": "message_created_ms",
+        "gw.scada.commit": "message_created_ms",
         "new.command.tree": "unix_ms",
         "scada.params": "unix_time_ms",
         "ticklist.reed.report": "scada_received_unix_ms",

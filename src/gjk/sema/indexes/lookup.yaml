@@ -36,15 +36,19 @@ types:
     versions:
       '000': definitions/types/connectivity.edge.gt/000.yaml
   data.channel.gt:
-    latest_version: '002'
+    latest_version: '004'
     versioning_strategy: literal
     versions:
+      '004': definitions/types/data.channel.gt/004.yaml
+      '003': definitions/types/data.channel.gt/003.yaml
       '002': definitions/types/data.channel.gt/002.yaml
       '001': definitions/types/data.channel.gt/001.yaml
   derived.channel.gt:
-    latest_version: '001'
+    latest_version: '003'
     versioning_strategy: literal
     versions:
+      '003': definitions/types/derived.channel.gt/003.yaml
+      '002': definitions/types/derived.channel.gt/002.yaml
       '001': definitions/types/derived.channel.gt/001.yaml
       '000': definitions/types/derived.channel.gt/000.yaml
   energy.instruction:
@@ -119,6 +123,16 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/gw.house.operating.status/000.yaml
+  gw.scada.commit:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.scada.commit/000.yaml
+  gw.state.machine:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.state.machine/000.yaml
   gw.weather.channel.gt:
     latest_version: '002'
     versioning_strategy: literal
@@ -199,6 +213,12 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/gw1.tank.temp.calibration.map/000.yaml
+  gw1.unit.quantity.projection:
+    latest_version: '001'
+    versioning_strategy: literal
+    versions:
+      '001': definitions/types/gw1.unit.quantity.projection/001.yaml
+      '000': definitions/types/gw1.unit.quantity.projection/000.yaml
   ha1.params:
     latest_version: '006'
     versioning_strategy: literal
@@ -228,9 +248,10 @@ types:
     versions:
       '000': definitions/types/latest.price/000.yaml
   layout.lite:
-    latest_version: '012'
+    latest_version: '013'
     versioning_strategy: literal
     versions:
+      '013': definitions/types/layout.lite/013.yaml
       '012': definitions/types/layout.lite/012.yaml
       '011': definitions/types/layout.lite/011.yaml
       '010': definitions/types/layout.lite/010.yaml
@@ -330,16 +351,19 @@ types:
       '002': definitions/types/snapshot.spaceheat/002.yaml
       '001': definitions/types/snapshot.spaceheat/001.yaml
   spaceheat.node.gt:
-    latest_version: '301'
+    latest_version: '303'
     versioning_strategy: literal
     versions:
+      '303': definitions/types/spaceheat.node.gt/303.yaml
+      '302': definitions/types/spaceheat.node.gt/302.yaml
       '301': definitions/types/spaceheat.node.gt/301.yaml
       '300': definitions/types/spaceheat.node.gt/300.yaml
       '200': definitions/types/spaceheat.node.gt/200.yaml
   spaceheat.telemetry.quantity.projection:
-    latest_version: '000'
+    latest_version: '001'
     versioning_strategy: literal
     versions:
+      '001': definitions/types/spaceheat.telemetry.quantity.projection/001.yaml
       '000': definitions/types/spaceheat.telemetry.quantity.projection/000.yaml
   synth.channel.gt:
     latest_version: '000'
@@ -372,6 +396,9 @@ types:
     versions:
       '000': definitions/types/weather.forecast/000.yaml
 enums:
+  aquastat.control.state:
+    enum_type: literal
+    schema: definitions/enums/aquastat.control.state/000.yaml
   base.g.node.class:
     enum_type: versioned
     latest_version: '000'
@@ -380,6 +407,11 @@ enums:
   change.relay.state:
     enum_type: literal
     schema: definitions/enums/change.relay.state/000.yaml
+  five.v.boss.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/five.v.boss.state/000.yaml
   fsm.report.type:
     enum_type: literal
     schema: definitions/enums/fsm.report.type/000.yaml
@@ -438,8 +470,10 @@ enums:
       '000': definitions/enums/gw.weather.forecast.fidelity/000.yaml
   gw1.actor.class:
     enum_type: versioned
-    latest_version: '011'
+    latest_version: '014'
     versions:
+      '014': definitions/enums/gw1.actor.class/014.yaml
+      '013': definitions/enums/gw1.actor.class/013.yaml
       '011': definitions/enums/gw1.actor.class/011.yaml
       009: definitions/enums/gw1.actor.class/009.yaml
   gw1.emission.method:
@@ -477,11 +511,17 @@ enums:
     latest_version: '001'
     versions:
       '001': definitions/enums/gw1.main.auto.state/001.yaml
+  gw1.nolan.lc.buffer.only.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw1.nolan.lc.buffer.only.state/000.yaml
   gw1.quantity:
     enum_type: versioned
     latest_version: '003'
     versions:
       '003': definitions/enums/gw1.quantity/003.yaml
+      '001': definitions/enums/gw1.quantity/001.yaml
       '000': definitions/enums/gw1.quantity/000.yaml
   gw1.seasonal.storage.mode:
     enum_type: versioned
@@ -503,7 +543,24 @@ enums:
     latest_version: '003'
     versions:
       '003': definitions/enums/gw1.unit/003.yaml
+      '001': definitions/enums/gw1.unit/001.yaml
       '000': definitions/enums/gw1.unit/000.yaml
+  gw2.lc.top.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw2.lc.top.state/000.yaml
+  heat.pump.control:
+    enum_type: literal
+    schema: definitions/enums/heat.pump.control/000.yaml
+  hp.boss.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/hp.boss.state/000.yaml
+  hp.loop.keep.send:
+    enum_type: literal
+    schema: definitions/enums/hp.loop.keep.send/000.yaml
   hz.calc.method:
     enum_type: versioned
     latest_version: '001'
@@ -522,6 +579,14 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/market.quantity.unit/000.yaml
+  pico.cycler.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/pico.cycler.state/000.yaml
+  primary.pump.control:
+    enum_type: literal
+    schema: definitions/enums/primary.pump.control/000.yaml
   relay.closed.or.open:
     enum_type: literal
     schema: definitions/enums/relay.closed.or.open/000.yaml
@@ -533,6 +598,11 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/relay.wiring.config/000.yaml
+  sieg.valve.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/sieg.valve.state/000.yaml
   single.pico.state:
     enum_type: versioned
     latest_version: '000'
@@ -554,6 +624,14 @@ enums:
     latest_version: '001'
     versions:
       '001': definitions/enums/spaceheat.unit/001.yaml
+  spruce.hack.hp.state:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/spruce.hack.hp.state/000.yaml
+  store.flow.relay:
+    enum_type: literal
+    schema: definitions/enums/store.flow.relay/000.yaml
   ta.validation.state:
     enum_type: versioned
     latest_version: '000'
@@ -564,7 +642,14 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/temp.calc.method/000.yaml
+  valve.open.or.closed:
+    enum_type: literal
+    schema: definitions/enums/valve.open.or.closed/000.yaml
+  zone.call.source:
+    enum_type: literal
+    schema: definitions/enums/zone.call.source/000.yaml
 formats:
+  git.commit: definitions/formats/git.commit.yaml
   handle.name: definitions/formats/handle.name.yaml
   iana.timezone.str: definitions/formats/iana.timezone.str.yaml
   left.right.dot: definitions/formats/left.right.dot.yaml
@@ -574,6 +659,7 @@ formats:
   non.negative.int: definitions/formats/non.negative.int.yaml
   positive.int: definitions/formats/positive.int.yaml
   positive.int.as.str: definitions/formats/positive.int.as.str.yaml
+  sema.version: definitions/formats/sema.version.yaml
   spaceheat.name: definitions/formats/spaceheat.name.yaml
   utc.iso8601.seconds: definitions/formats/utc.iso8601.seconds.yaml
   utc.milliseconds: definitions/formats/utc.milliseconds.yaml

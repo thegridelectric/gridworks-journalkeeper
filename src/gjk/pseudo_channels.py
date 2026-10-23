@@ -22,6 +22,7 @@ from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
+from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
 # Every layout.lite version JK persists natively, split by channel
 # projection: 001-006 are the historical SynthChannels-era versions
@@ -36,6 +37,7 @@ type SynthEraLayout = (
 )
 type DerivedEraLayout = (
     LayoutLite
+    | LayoutLite012
     | LayoutLite011
     | LayoutLite010
     | LayoutLite009
@@ -43,6 +45,23 @@ type DerivedEraLayout = (
     | LayoutLite007
 )
 type ModernLayout = DerivedEraLayout | SynthEraLayout
+# The runtime form of DerivedEraLayout, for isinstance.
+DERIVED_ERA_LAYOUTS = (
+    LayoutLite,
+    LayoutLite012,
+    LayoutLite011,
+    LayoutLite010,
+    LayoutLite009,
+    LayoutLite008,
+    LayoutLite007,
+)
+
+
+def layout_created_ms(layout: ModernLayout) -> int:
+    """The sender's clock on the layout: CreatedMs from 013, MessageCreatedMs before."""
+    if isinstance(layout, LayoutLite):
+        return layout.created_ms
+    return layout.message_created_ms
 
 
 class PseudoChannel:
