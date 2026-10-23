@@ -16,8 +16,12 @@ from gjk.sema.types.glitch import Glitch
 from gjk.sema.types.gridworks_event_problem import GridworksEventProblem
 from gjk.sema.types.gw1_tank_temp_calibration import Gw1TankTempCalibration
 from gjk.sema.types.gw1_tank_temp_calibration_map import Gw1TankTempCalibrationMap
+from gjk.sema.types.gw1_unit_quantity_projection import Gw1UnitQuantityProjection
 from gjk.sema.types.gw_alert import GwAlert
 from gjk.sema.types.gw_hack_alert_silences import GwHackAlertSilences
+from gjk.sema.types.gw_house_operating_status import GwHouseOperatingStatus
+from gjk.sema.types.gw_scada_commit import GwScadaCommit
+from gjk.sema.types.gw_state_machine import GwStateMachine
 from gjk.sema.types.gw_weather_channel_gt import GwWeatherChannelGt
 from gjk.sema.types.gw_weather_cmd_ack import GwWeatherCmdAck
 from gjk.sema.types.gw_weather_cmd_nack import GwWeatherCmdNack
@@ -85,8 +89,12 @@ __all__ = [
     "GridworksEventProblem",
     "Gw1TankTempCalibration",
     "Gw1TankTempCalibrationMap",
+    "Gw1UnitQuantityProjection",
     "GwAlert",
     "GwHackAlertSilences",
+    "GwHouseOperatingStatus",
+    "GwScadaCommit",
+    "GwStateMachine",
     "GwWeatherChannelGt",
     "GwWeatherCmdAck",
     "GwWeatherCmdNack",

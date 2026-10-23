@@ -3,14 +3,14 @@ from pydantic import model_validator
 from gjk.sema.base import SemaType
 from gjk.sema.property_format import LeftRightDot
 from gjk.sema.property_format import UTCMilliseconds
-from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
+from gjk.sema.types.old_versions.spaceheat_node_gt_301 import SpaceheatNodeGt301
 
 
 class NewCommandTree(SemaType):
     """Sema: https://schemas.electricity.works/types/new.command.tree/001"""
 
     from_g_node_alias: LeftRightDot
-    sh_nodes: list[SpaceheatNodeGt]
+    sh_nodes: list[SpaceheatNodeGt301]
     unix_ms: UTCMilliseconds
     type_name: Literal["new.command.tree"] = "new.command.tree"
     version: Literal["001"] = "001"

@@ -18,11 +18,11 @@ initial_targets:
     report.event:
       versions: ["000", "002", "003", "004"]
     layout.lite:
-      # Published set only (013+ are staging): gjk is a prod service, so
-      # its snapshot is publication-grade; widen when scada promotes.
-      # The walk-back extends this backward; 002/003 are historical back-fill
-      # versions the S3 archive still carries and JK must decode.
-      versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012"]
+      # Every published version: gjk is a prod service, so its snapshot is
+      # publication-grade. The walk-back extends this backward; 002/003 are
+      # historical back-fill versions the S3 archive still carries and JK
+      # must decode.
+      versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013"]
     glitch:
       include_all_versions: true
     flo.params.house0:
@@ -46,8 +46,14 @@ initial_targets:
       include_all_versions: true
     snapshot.spaceheat:
       include_all_versions: true
+    gw.house.operating.status:
+      # Staging until promoted after the dev run: the house status projection
+      # and the dashboard summary read it. Regen with --allow-staged until then.
+      include_all_versions: true
     scada.params:
       include_all_versions: true
+    # The commit a scada runs, announced once per run at boot.
+    gw.scada.commit: {}
     ticklist.reed.report:
       include_all_versions: true
     ticklist.hall.report:
@@ -90,3 +96,21 @@ initial_targets:
     gw1.leaf.ally.buffer.only.state: {}
     gw1.local.control.all.tanks.state: {}
     gw1.local.control.buffer.only.state: {}
+    # Every enum a scada declares in layout.lite StateMachines: the report
+    # persistor resolves a machine's states against the declared enum.
+    aquastat.control.state: {}
+    five.v.boss.state: {}
+    gw.top.state: {}
+    gw1.nolan.lc.buffer.only.state: {}
+    gw2.lc.top.state: {}
+    heat.pump.control: {}
+    hp.boss.state: {}
+    hp.loop.keep.send: {}
+    pico.cycler.state: {}
+    primary.pump.control: {}
+    relay.closed.or.open: {}
+    sieg.valve.state: {}
+    spruce.hack.hp.state: {}
+    store.flow.relay: {}
+    valve.open.or.closed: {}
+    zone.call.source: {}

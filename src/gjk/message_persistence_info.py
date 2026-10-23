@@ -31,3 +31,8 @@ class MessagePersistenceInfo:
     id: UUID4Str
     created_at: datetime | None
     additional_db_operations: Callable[[Session], None] | None = None
+    # A current-state projection fed by this message: runs only when the
+    # message arrives live from the broker, never on a persistent-store
+    # replay, whatever the persistor's fanout_on_import says about
+    # additional_db_operations.
+    live_only_db_operations: Callable[[Session], None] | None = None

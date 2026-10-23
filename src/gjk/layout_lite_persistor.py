@@ -7,6 +7,8 @@ from gw_data.db.models import MessageSql, ReadingChannelSql
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from gjk.house_status_projection import HouseStatusProjection
+from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
 from gjk.pseudo_channels import (
@@ -15,6 +17,7 @@ from gjk.pseudo_channels import (
     PseudoChannel,
     SynthEraLayout,
     get_pseudo_channels,
+    layout_created_ms,
 )
 from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
 from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
@@ -31,6 +34,7 @@ from gjk.sema.types.old_versions.layout_lite_008 import LayoutLite008
 from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
+from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
 
 # layout.lite versions whose channel projection is SynthChannels (007+ carry
 # DerivedChannels instead). v001 predates SynthChannels altogether and v002
@@ -52,14 +56,16 @@ REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
 class LayoutLitePersistor:
-    def __init__(self, logger):
+    def __init__(self, logger, house_status: HouseStatusProjection):
         self.logger = logger
+        self.house_status = house_status
         self.target_message_type = "layout.lite"
         self.fanout_on_import = True  # history fan-out; replays welcome
         # (terminal_asset_alias, channel name) -> era rows added by add-only
         # syncs (an older layout's unit/type differed from the active row).
         # Read by the S3 importer's run summary.
         self.skipped_mismatches: Counter[tuple[str, str]] = Counter()
+        self.layouts = LayoutsProjection(logger)
 
     class ReadingChannelSyncProcess:
         """Reconcile a TA's active reading_channels rows with one layout.
@@ -87,7 +93,7 @@ class LayoutLitePersistor:
             self.layout = layout
             self.from_alias = from_alias
             self.msg_timestamp = datetime.fromtimestamp(
-                layout.message_created_ms / 1000, UTC
+                layout_created_ms(layout) / 1000, UTC
             )
             self.terminal_asset_alias = terminal_asset_alias
             self.skipped_mismatches = skipped_mismatches
@@ -348,11 +354,24 @@ class LayoutLitePersistor:
     def persist(self, from_alias: str, layout: ModernLayout):
         return MessagePersistenceInfo(
             id=layout.message_id,
-            created_at=datetime.fromtimestamp(layout.message_created_ms / 1000, tz=UTC),
+            created_at=datetime.fromtimestamp(layout_created_ms(layout) / 1000, tz=UTC),
             additional_db_operations=lambda db: self.sync_reading_channels(
                 db, from_alias, layout
             ),
+            live_only_db_operations=lambda db: self.project_live(
+                db, from_alias, layout
+            ),
         )
+
+    def project_live(self, db: Session, from_alias: str, layout: ModernLayout) -> None:
+        """The current-state projections a live layout feeds: the layouts row,
+        then the derived operating status of a house on the old scada code.
+        A scada that sends 013 sends gw.house.operating.status itself, so
+        nothing is derived from its layout."""
+        self.layouts.project(db, from_alias, layout)
+        if isinstance(layout, LayoutLite):
+            return
+        self.house_status.derive(db, terminal_asset_alias(layout.from_g_node_alias))
 
     def persist_v001(
         self, from_alias: str, time_received: datetime, layout: LayoutLite001
@@ -410,6 +429,11 @@ class LayoutLitePersistor:
         return self.persist(from_alias, layout)
 
     def persist_v012(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite012
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v013(
         self, from_alias: str, time_received: datetime, layout: LayoutLite
     ):
         return self.persist(from_alias, layout)

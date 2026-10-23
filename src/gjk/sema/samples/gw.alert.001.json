@@ -1,6 +1,6 @@
 {
   "TypeName": "gw.alert",
-  "Version": "000",
+  "Version": "001",
   "Src": "hw1.alerts",
   "Category": "House",
   "Kind": "NoData",

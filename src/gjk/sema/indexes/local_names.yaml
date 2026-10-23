@@ -1,14 +1,19 @@
 enums:
+  aquastat.control.state: aquastat.control.state
   base.g.node.class: base.g.node.class
   change.relay.state: change.relay.state
+  five.v.boss.state: five.v.boss.state
   fsm.report.type: fsm.report.type
   g.node.status: g.node.status
   gpm.from.hz.method: gpm.from.hz.method
   gw.alert.category: gw.alert.category
   gw.alert.state: gw.alert.state
+  gw.dispatch.refusal.reason: gw.dispatch.refusal.reason
   gw.fleet.alert.kind: gw.fleet.alert.kind
   gw.house.alert.kind: gw.house.alert.kind
   gw.platform.alert.kind: gw.platform.alert.kind
+  gw.standby.posture: gw.standby.posture
+  gw.top.state: gw.top.state
   gw.weather.forecast.fidelity: gw.weather.forecast.fidelity
   gw1.actor.class: gw1.actor.class
   gw1.emission.method: gw1.emission.method
@@ -18,22 +23,36 @@ enums:
   gw1.local.control.all.tanks.state: gw1.local.control.all.tanks.state
   gw1.local.control.buffer.only.state: gw1.local.control.buffer.only.state
   gw1.main.auto.state: gw1.main.auto.state
+  gw1.nolan.lc.buffer.only.state: gw1.nolan.lc.buffer.only.state
   gw1.quantity: gw1.quantity
   gw1.seasonal.storage.mode: gw1.seasonal.storage.mode
+  gw1.service.mode: gw1.service.mode
   gw1.system.mode: gw1.system.mode
   gw1.unit: gw1.unit
+  gw2.lc.top.state: gw2.lc.top.state
+  heat.pump.control: heat.pump.control
+  hp.boss.state: hp.boss.state
+  hp.loop.keep.send: hp.loop.keep.send
   hz.calc.method: hz.calc.method
   log.level: log.level
   market.price.unit: market.price.unit
   market.quantity.unit: market.quantity.unit
+  pico.cycler.state: pico.cycler.state
+  primary.pump.control: primary.pump.control
   relay.closed.or.open: relay.closed.or.open
   relay.energization.state: relay.energization.state
   relay.wiring.config: relay.wiring.config
+  sieg.valve.state: sieg.valve.state
   single.pico.state: single.pico.state
   spaceheat.make.model: spaceheat.make.model
   spaceheat.telemetry.name: spaceheat.telemetry.name
   spaceheat.unit: spaceheat.unit
+  spruce.hack.hp.state: spruce.hack.hp.state
+  store.flow.relay: store.flow.relay
+  ta.validation.state: ta.validation.state
   temp.calc.method: temp.calc.method
+  valve.open.or.closed: valve.open.or.closed
+  zone.call.source: zone.call.source
 types:
   atn.bid: atn.bid
   bid: bid
@@ -53,6 +72,9 @@ types:
   gridworks.event.problem: gridworks.event.problem
   gw.alert: gw.alert
   gw.hack.alert.silences: gw.hack.alert.silences
+  gw.house.operating.status: gw.house.operating.status
+  gw.scada.commit: gw.scada.commit
+  gw.state.machine: gw.state.machine
   gw.weather.channel.gt: gw.weather.channel.gt
   gw.weather.cmd.ack: gw.weather.cmd.ack
   gw.weather.cmd.nack: gw.weather.cmd.nack
@@ -69,6 +91,7 @@ types:
   gw.weather.station.gt: gw.weather.station.gt
   gw1.tank.temp.calibration: gw1.tank.temp.calibration
   gw1.tank.temp.calibration.map: gw1.tank.temp.calibration.map
+  gw1.unit.quantity.projection: gw1.unit.quantity.projection
   ha1.params: ha1.params
   heating.forecast: heating.forecast
   i2c.multichannel.dt.relay.component.gt: i2c.multichannel.dt.relay.component.gt

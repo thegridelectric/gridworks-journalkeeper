@@ -1,5 +1,5 @@
 $schema: "https://json-schema.org/draft/2020-12/schema"
-$id: "https://schemas.electricity.works/types/gw.alert/000"
+$id: "https://schemas.electricity.works/types/gw.alert/001"
 
 title: "gw.alert"
 type: object
@@ -23,7 +23,7 @@ properties:
 
   Kind:
     oneOf:
-      - $ref: "https://schemas.electricity.works/enums/gw.house.alert.kind/000"
+      - $ref: "https://schemas.electricity.works/enums/gw.house.alert.kind/001"
       - $ref: "https://schemas.electricity.works/enums/gw.fleet.alert.kind/000"
       - $ref: "https://schemas.electricity.works/enums/gw.platform.alert.kind/000"
     description: >
@@ -80,7 +80,7 @@ properties:
     const: "gw.alert"
 
   Version:
-    const: "000"
+    const: "001"
 
 required:
   - Src
@@ -103,7 +103,7 @@ examples:
       "State": "Firing",
       "AlertId": "99af8401-9c4a-4ab9-a584-a96ca8f09b46",
       "Summary": "ltn silent for 10.1 minutes; scada does not send up reports with no ltn (hw1.isone.me.versant.keene.oak.ta)",
-      "Version": "000",
+      "Version": "001",
       "Category": "House",
       "Evidence": [],
       "RaisedMs": 1792090806438,
@@ -117,7 +117,7 @@ examples:
       "State": "Resolved",
       "AlertId": "99af8401-9c4a-4ab9-a584-a96ca8f09b46",
       "Summary": "data again after 11.0 minutes (hw1.isone.me.versant.keene.oak.ta)",
-      "Version": "000",
+      "Version": "001",
       "Category": "House",
       "Evidence": [
         {
