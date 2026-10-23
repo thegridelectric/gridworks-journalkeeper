@@ -1,15 +1,13 @@
 """Which reading_channels row each channel of a layout or a report is.
 
-A row's id is the channel's Id in the layout (data, derived and synth
-channels) or, for a pseudo channel, the uuid5 of its definition
-(`pseudo_channel_id`). A layout Id names one definition: name, unit, unit
-type and channel type. Layouts from before that rule reuse an Id for
-another definition (a rename, a synth channel become derived, a unit
-change), and the row of a later definition under an Id a row already
-holds is keyed by the uuid5 of the Id and the definition (`row_id_for`).
+A row is one (name, definition) of a terminal asset, where the definition
+is the unit, unit type and channel type. Its `channel_id` is the layout's
+channel Id for the pair (data, derived and synth channels), the lineage
+key a renamed channel's rows share; a pseudo channel has none. The row's
+primary key is a surrogate.
 
 A report names its channels by name only, so the layout in force at the
-report's time says which Id a name means:
+report's time says which definition a name means:
 
 - the terminal asset's row in `layouts` when the report is at or after its
   send time (the live case: that row is the newest layout the journal has
@@ -17,9 +15,10 @@ report's time says which Id a name means:
 - the newest layout.lite message from the scada at or before the report
   (the back-fill case).
 
-A name whose row does not exist yet was journaled before rows took the
-layout's Id; it resolves through the era rule (`channel_ids_at`). The
-rekey that gives every row its layout Id retires that fallback.
+The reading then goes to the row of that (name, definition) whose era
+contains the report's time (`reading_channel_eras`). A report from before
+the first layout the journal has from its scada has no layout in force
+and routes by name alone through the same era rule.
 """
 
 import uuid
@@ -52,14 +51,9 @@ from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 # unreported intermediates and get no reading_channels rows.
 REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
-# Fixed namespace for the row of a definition under an Id a row of another
-# definition already holds.
-CHANNEL_ID_NAMESPACE = uuid.UUID("c2a7f1e4-8d3b-4b6e-a5f0-9e1d2c3b4a56")
-
-
 def data_channel_row(dc: DataChannelGt | DataChannelGt001) -> ReadingChannelSql:
     return ReadingChannelSql(
-        id=uuid.UUID(dc.id),
+        channel_id=uuid.UUID(dc.id),
         name=dc.name,
         terminal_asset_alias=dc.terminal_asset_alias,
         display_name=dc.display_name,
@@ -73,7 +67,7 @@ def derived_channel_row(
     dc: DerivedChannelGt | DerivedChannelGt000,
 ) -> ReadingChannelSql:
     return ReadingChannelSql(
-        id=uuid.UUID(dc.id),
+        channel_id=uuid.UUID(dc.id),
         name=dc.name,
         terminal_asset_alias=dc.terminal_asset_alias,
         display_name=dc.display_name,
@@ -85,7 +79,7 @@ def derived_channel_row(
 
 def synth_channel_row(sc: SynthChannelGt) -> ReadingChannelSql:
     return ReadingChannelSql(
-        id=uuid.UUID(sc.id),
+        channel_id=uuid.UUID(sc.id),
         name=sc.name,
         terminal_asset_alias=sc.terminal_asset_alias,
         display_name=sc.display_name,
@@ -144,17 +138,12 @@ def same_definition(a: ReadingChannelSql, b: ReadingChannelSql) -> bool:
     )
 
 
-def row_id_for(
-    declared: ReadingChannelSql, rows_by_id: dict[uuid.UUID, ReadingChannelSql]
-) -> uuid.UUID:
-    """The id of the row for a declared channel, given the rows that exist."""
-    held = rows_by_id.get(declared.id)
-    if held is None or same_definition(held, declared):
-        return declared.id
-    return uuid.uuid5(
-        CHANNEL_ID_NAMESPACE,
-        f"{declared.id}|{declared.channel_type}|{declared.unit_type}|{declared.unit}|{declared.name}",
-    )
+def rows_of(
+    declared: ReadingChannelSql, rows: list[ReadingChannelSql]
+) -> list[ReadingChannelSql]:
+    """The rows (any era) that are the declared channel: same name, same
+    definition."""
+    return [r for r in rows if r.name == declared.name and same_definition(r, declared)]
 
 
 class ChannelResolver:
@@ -204,10 +193,9 @@ class ChannelResolver:
         t: datetime,
     ) -> dict[str, uuid.UUID]:
         """Channel name -> row id for a report at time t."""
-        by_name = channel_ids_at(rows, t)
         found = self.layout_in_force(db, from_alias, terminal_asset_alias, t)
         if found is None:
-            return by_name
+            return channel_ids_at(rows, t)
         message_id, payload = found
         if message_id not in self.rows_by_layout:
             layout = self.codec.from_dict(payload, auto_upgrade=False)
@@ -215,9 +203,7 @@ class ChannelResolver:
             self.rows_by_layout[message_id] = list(
                 declared_rows(layout, terminal_asset_alias)
             )
-        rows_by_id = {r.id: r for r in rows}
+        by_name: dict[str, uuid.UUID] = {}
         for declared in self.rows_by_layout[message_id]:
-            row_id = row_id_for(declared, rows_by_id)
-            if row_id in rows_by_id:
-                by_name[declared.name] = row_id
+            by_name.update(channel_ids_at(rows_of(declared, rows), t))
         return by_name

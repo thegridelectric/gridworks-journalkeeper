@@ -7,13 +7,12 @@ only by its end: the row whose era contains a time `t` is the one with the
 earliest `deactivated_date` after `t`, and the active row when no retired
 row ends after `t`.
 
-The rule is the fallback of `channel_resolver`: a row minted before rows
-took the layout's channel Id has an id no layout names, so a reading of
-its name resolves by time. A channel's unit changes across layouts under
-one name (`buffer-depth1`: `WaterTempCTimes1000` data channel through
-2025, `FahrenheitX100` derived channel from 2026), and the front end reads
-`reading_channels.unit` to scale what it plots, so the era has to be the
-right one.
+`channel_resolver` applies the rule to the rows of one (name, definition),
+so a definition that was active twice (a house that moved between two
+layouts and back) routes each reading to the row of its own era, and to
+all rows of a name for a report from before the first layout the journal
+has from its scada. The front end reads `reading_channels.unit` to scale
+what it plots, so the era has to be the right one.
 """
 
 import uuid
