@@ -54,7 +54,7 @@ def test_channel_ids_at_ignores_names_with_only_past_eras():
 
 
 def test_report_persistor_tallies_dropped_readings_when_no_channels():
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     report = SemaCodec().from_dict(
         json.loads((SAMPLES / "beech-report.event-002-2025-10-13.json").read_text()),
         auto_upgrade=False,

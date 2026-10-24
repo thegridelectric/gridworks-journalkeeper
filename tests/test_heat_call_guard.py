@@ -61,7 +61,7 @@ def beech_report(extra_readings: list[dict] | None = None):
 
 
 def readings_by_channel(rows: list[ReadingChannelSql], report) -> dict:
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     db = MagicMock()
     db.info = {}
     db.query.return_value.filter.return_value.all.return_value = rows

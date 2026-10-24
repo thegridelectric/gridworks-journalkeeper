@@ -76,7 +76,7 @@ def channel(name: str, enum_type) -> ReadingChannelSql:
 def persist(
     rows: list[ReadingChannelSql], report
 ) -> tuple[ReportEventPersistor, MagicMock]:
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     db = MagicMock()
     db.info = {}
     db.query.return_value.filter.return_value.all.return_value = rows

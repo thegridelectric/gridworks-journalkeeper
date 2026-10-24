@@ -7,23 +7,28 @@ key a renamed channel's rows share; a pseudo channel has none. The row's
 primary key is a surrogate.
 
 A report names its channels by name only, so the layout in force at the
-report's time says which definition a name means:
-
-- the terminal asset's row in `layouts` when the report is at or after its
-  send time (the live case: that row is the newest layout the journal has
-  seen), else
-- the newest layout.lite message from the scada at or before the report
-  (the back-fill case).
+report's time says which definition a name means: the newest layout.lite
+message from the scada at or before the report. The terminal asset's row
+in `layouts` is the live projection of that same message; the resolver
+reads it as a cache that must agree, and logs a row that names another
+message (a layout the live path missed and a back-fill brought).
 
 The reading then goes to the row of that (name, definition) whose era
 contains the report's time (`reading_channel_eras`). A report from before
 the first layout the journal has from its scada has no layout in force
 and routes by name alone through the same era rule.
+
+The row a name resolves to holds the layout's Id for that name as its
+`channel_id` (a pseudo row holds none); the resolution says what the
+layout declared so the report persistor can check that and tally a
+disagreement.
 """
 
+import logging
 import uuid
 from collections.abc import Iterator
 from datetime import datetime
+from typing import NamedTuple
 
 from gw_data.db.models import LayoutSql, MessageSql, ReadingChannelSql
 from sqlalchemy.orm import Session
@@ -50,6 +55,7 @@ from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 # from the beginning of the archive. The other synth channels in a layout are
 # unreported intermediates and get no reading_channels rows.
 REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
+
 
 def data_channel_row(dc: DataChannelGt | DataChannelGt001) -> ReadingChannelSql:
     return ReadingChannelSql(
@@ -146,43 +152,90 @@ def rows_of(
     return [r for r in rows if r.name == declared.name and same_definition(r, declared)]
 
 
+class KnownLayout(NamedTuple):
+    """The newest layout.lite message seen from one scada: a later report
+    only looks for a layout between this one's time and its own. In-process
+    cache state, not durable data: no sema word retires it."""
+
+    message_id: uuid.UUID
+    timestamp: datetime
+    payload: dict
+
+
+class Resolution(NamedTuple):
+    """Where a report's channel names go. `row_ids`: name -> the
+    reading_channels row id. `declared_ids`: name -> the channel Id the
+    layout in force declares (None for a pseudo channel); empty when no
+    layout is in force and the names routed by the era rule alone.
+    In-process routing state, not durable data: no sema word retires it."""
+
+    row_ids: dict[str, uuid.UUID]
+    declared_ids: dict[str, uuid.UUID | None]
+
+
 class ChannelResolver:
-    def __init__(self):
+    def __init__(self, logger: logging.Logger):
+        self.logger = logger
         self.codec = SemaCodec()
         # layout message id -> the rows that layout declares. Layouts are
         # rare messages, so the cache stays small across a back-fill.
         self.rows_by_layout: dict[uuid.UUID, list[ReadingChannelSql]] = {}
+        # scada alias -> the newest layout.lite message seen from it
+        self.newest_by_alias: dict[str, KnownLayout] = {}
+        # layouts rows already reported as naming another message
+        self.stale_rows_logged: set[uuid.UUID] = set()
 
     def layout_in_force(
         self, db: Session, from_alias: str, terminal_asset_alias: str, t: datetime
     ) -> tuple[uuid.UUID, dict] | None:
-        """The (message id, payload) of the layout in force at t, if any."""
-        current = (
+        """The (message id, payload) of the newest layout.lite from the scada
+        at or before t, if any."""
+        query = db.query(MessageSql).filter(
+            MessageSql.from_alias == from_alias,
+            MessageSql.message_type_name == LayoutLite.type_name_value(),
+            MessageSql.timestamp <= t,
+        )
+        known = self.newest_by_alias.get(from_alias)
+        if known is not None and known.timestamp <= t:
+            query = query.filter(MessageSql.timestamp > known.timestamp)
+        msg = query.order_by(MessageSql.timestamp.desc()).first()
+        if isinstance(msg, MessageSql):
+            found = KnownLayout(msg.id, msg.timestamp, msg.payload)
+        elif known is not None and known.timestamp <= t:
+            found = known
+        else:
+            return None
+        if known is None or found.timestamp >= known.timestamp:
+            self.newest_by_alias[from_alias] = found
+        self.check_projection(db, terminal_asset_alias, found, t)
+        return found.message_id, found.payload
+
+    def check_projection(
+        self, db: Session, terminal_asset_alias: str, found: KnownLayout, t: datetime
+    ) -> None:
+        """The `layouts` row is the live projection of the newest layout. A row
+        sent at or before t that names another message is stale, logged once
+        per row."""
+        row = (
             db
             .query(LayoutSql)
             .filter(LayoutSql.terminal_asset_alias == terminal_asset_alias)
             .one_or_none()
         )
         if (
-            isinstance(current, LayoutSql)
-            and current.message_id is not None
-            and current.sent_at <= t
+            not isinstance(row, LayoutSql)
+            or row.message_id is None
+            or row.sent_at > t
+            or row.message_id == found.message_id
+            or row.message_id in self.stale_rows_logged
         ):
-            return current.message_id, current.payload
-        msg = (
-            db
-            .query(MessageSql)
-            .filter(
-                MessageSql.from_alias == from_alias,
-                MessageSql.message_type_name == LayoutLite.type_name_value(),
-                MessageSql.timestamp <= t,
-            )
-            .order_by(MessageSql.timestamp.desc())
-            .first()
+            return
+        self.stale_rows_logged.add(row.message_id)
+        self.logger.warning(
+            f"layouts row for {terminal_asset_alias} is message {row.message_id} "
+            f"sent {row.sent_at.isoformat()}; the newest layout.lite at "
+            f"{t.isoformat()} is {found.message_id} sent {found.timestamp.isoformat()}"
         )
-        if not isinstance(msg, MessageSql):
-            return None
-        return msg.id, msg.payload
 
     def resolve(
         self,
@@ -191,11 +244,12 @@ class ChannelResolver:
         terminal_asset_alias: str,
         rows: list[ReadingChannelSql],
         t: datetime,
-    ) -> dict[str, uuid.UUID]:
-        """Channel name -> row id for a report at time t."""
+    ) -> Resolution:
+        """Channel name -> row id for a report at time t, with what the layout
+        in force declared each name to be."""
         found = self.layout_in_force(db, from_alias, terminal_asset_alias, t)
         if found is None:
-            return channel_ids_at(rows, t)
+            return Resolution(channel_ids_at(rows, t), {})
         message_id, payload = found
         if message_id not in self.rows_by_layout:
             layout = self.codec.from_dict(payload, auto_upgrade=False)
@@ -203,7 +257,9 @@ class ChannelResolver:
             self.rows_by_layout[message_id] = list(
                 declared_rows(layout, terminal_asset_alias)
             )
-        by_name: dict[str, uuid.UUID] = {}
+        row_ids: dict[str, uuid.UUID] = {}
+        declared_ids: dict[str, uuid.UUID | None] = {}
         for declared in self.rows_by_layout[message_id]:
-            by_name.update(channel_ids_at(rows_of(declared, rows), t))
-        return by_name
+            row_ids.update(channel_ids_at(rows_of(declared, rows), t))
+            declared_ids[declared.name] = declared.channel_id
+        return Resolution(row_ids, declared_ids)

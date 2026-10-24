@@ -80,7 +80,7 @@ def test_a_004_wrapper_that_disagrees_with_its_report_is_rejected(field, value):
 
 def test_persist_v004_keys_the_message_by_the_reports_own_id_and_time():
     event = _report_event()
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     assert getattr(persistor, f"persist_v{event.version}") == persistor.persist_v004
     info = persistor.persist_v004(ALIAS, datetime.now(tz=UTC), event)
     assert info.id == event.report.id
@@ -92,7 +92,7 @@ def test_persist_v004_keys_the_message_by_the_reports_own_id_and_time():
 
 def test_persist_v004_projects_channel_and_pico_state_readings():
     event = _report_event()
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     temp = _channel("buffer-depth1-device", unit="Celcius")
     pico = _channel(
         "buffer-pico-state", unit="Enum", unit_type=SinglePicoState.enum_name()
