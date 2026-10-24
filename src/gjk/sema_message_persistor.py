@@ -107,7 +107,7 @@ class SemaMessagePersistor:
                 HouseOperatingStatusPersistor(logger, house_status),
                 LayoutLitePersistor(logger, house_status),
                 SnapshotSpaceheatPersistor(logger, house_status),
-                ReportEventPersistor(logger),
+                ReportEventPersistor(logger, settings.service_alias),
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
                 WeatherBundlePersistor(logger),

@@ -15,6 +15,7 @@ import dotenv
 
 from gjk.retired_versions import is_retired
 from gjk.config import Settings
+from gjk.report_event_persistor import MismatchKey
 from gjk.sema import SemaCodec, SemaType
 from gjk.sema_message_persistor import SemaMessagePersistor
 
@@ -102,6 +103,7 @@ class RunSummary:
         self.daily: Counter[DailyKey] = Counter()
         self.dropped_readings: Counter[tuple[str, str]] = Counter()
         self.refused_states: Counter[tuple[str, str]] = Counter()
+        self.channel_id_mismatches: Counter[MismatchKey] = Counter()
         self.era_rows: Counter[tuple[str, str]] = Counter()
         self.messages_processed = 0
 
@@ -128,6 +130,9 @@ class RunSummary:
         for persistor in msg_persistor.custom_persistor_lookup.values():
             self.dropped_readings.update(getattr(persistor, "dropped_readings", {}))
             self.refused_states.update(getattr(persistor, "refused_states", {}))
+            self.channel_id_mismatches.update(
+                getattr(persistor, "channel_id_mismatches", {})
+            )
             self.era_rows.update(getattr(persistor, "skipped_mismatches", {}))
 
     def to_jsonable(self) -> dict:
@@ -155,6 +160,16 @@ class RunSummary:
             "refused_states": [
                 {"enum": e, "value": v, "count": n}
                 for (e, v), n in sorted(self.refused_states.items())
+            ],
+            "channel_id_mismatches": [
+                {
+                    "terminal_asset_alias": k.terminal_asset_alias,
+                    "channel": k.channel,
+                    "declared_id": str(k.declared_id),
+                    "row_channel_id": str(k.row_channel_id),
+                    "count": n,
+                }
+                for k, n in sorted(self.channel_id_mismatches.items(), key=str)
             ],
             "era_rows": [
                 {"terminal_asset_alias": ta, "channel": ch, "count": n}
@@ -335,6 +350,13 @@ def log_run_summary(logger, summary: RunSummary) -> None:
             lines.append(f"{title}:")
             for (a, b), n in sorted(tally.items()):
                 lines.append(f"  - {a} / {b} ({n})")
+    if summary.channel_id_mismatches:
+        lines.append("Channel Id mismatches (row channel_id is not the layout's Id):")
+        for k, n in sorted(summary.channel_id_mismatches.items(), key=str):
+            lines.append(
+                f"  - {k.terminal_asset_alias} / {k.channel}: layout "
+                f"{k.declared_id}, row {k.row_channel_id} ({n})"
+            )
     lines.append("=" * 78)
     logger.info("\n".join(lines))
 

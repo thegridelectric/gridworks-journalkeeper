@@ -2,14 +2,15 @@ import importlib
 import pkgutil
 import uuid
 from collections import Counter
-from datetime import UTC, datetime, timezone
+from datetime import UTC, date, datetime, timezone
+from typing import NamedTuple
 
-from gw_data.db.models import ReadingSql
+from gw_data.db.models import MessageSql, ReadingSql
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from gjk.channel_resolver import ChannelResolver
-from gjk.message_persistence_info import MessagePersistenceInfo
+from gjk.channel_resolver import ChannelResolver, Resolution
+from gjk.message_persistence_info import MessagePersistenceInfo, default_message_id
 from gjk.reading_channel_eras import load_channel_rows
 from gw_data.db.models import ReadingChannelSql
 
@@ -23,6 +24,7 @@ from gjk.pseudo_channels import (
 )
 from gjk.sema.enums import (
     Gw1ActorClass,
+    LogLevel,
     Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
     Gw1LeafAllyBufferOnlyState,
@@ -32,7 +34,7 @@ from gjk.sema.enums import (
     SinglePicoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
-from gjk.sema.types import GwStateMachine, LayoutLite, ReportEvent
+from gjk.sema.types import Glitch, GwStateMachine, LayoutLite, ReportEvent
 from gjk.sema.types.old_versions.report_001 import Report001
 from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
@@ -97,6 +99,22 @@ ENUMS_BY_NAME: dict[str, type[SemaEnum]] = {
 ENUMS_BY_NAME_AND_VERSION: dict[tuple[str, str], type[SemaEnum]] = {
     (e.enum_name(), e.enum_version()): e for e in vendored_enums()
 }
+
+
+class MismatchKey(NamedTuple):
+    """One disagreement between the layout in force and the journal: the row
+    a channel name resolved to holds a `channel_id` other than the Id the
+    layout declares for that name. In-process tally state, not durable data;
+    the glitch it raises is the word."""
+
+    terminal_asset_alias: str
+    channel: str
+    declared_id: uuid.UUID | None
+    row_channel_id: uuid.UUID | None
+
+
+# The node a journalkeeper glitch reports from.
+GLITCH_NODE = "channel-resolver"
 
 
 class ReportEventPersistor:
@@ -251,11 +269,13 @@ class ReportEventPersistor:
 
         return result
 
-    def __init__(self, logger):
+    def __init__(self, logger, service_alias: str):
         self.logger = logger
+        # the alias a glitch of the journalkeeper's own is journaled under
+        self.service_alias = service_alias
         self.target_message_type = "report.event"
         self.fanout_on_import = True  # history fan-out; replays welcome
-        self.resolver = ChannelResolver()
+        self.resolver = ChannelResolver(logger)
         # Load tallies, read by the S3 importer's run summary.
         # (terminal_asset_alias, channel name) -> readings with no channel row
         # for the report time.
@@ -263,6 +283,14 @@ class ReportEventPersistor:
         # (enum name, value) -> state readings refused because the value is
         # not in the channel's enum version.
         self.refused_states: Counter[tuple[str, str]] = Counter()
+        # readings routed to a row whose channel_id is not the Id the layout
+        # in force declares for the name.
+        self.channel_id_mismatches: Counter[MismatchKey] = Counter()
+        # the keys the report being persisted mismatched on; read by the
+        # live-only glitch step.
+        self.mismatched_in_report: set[MismatchKey] = set()
+        # key -> the UTC day its last glitch was journaled
+        self.glitch_days: dict[MismatchKey, date] = {}
         self.db_channel_rows_by_id: dict[uuid.UUID, ReadingChannelSql] = {}
 
     def state_readings(
@@ -478,12 +506,14 @@ class ReportEventPersistor:
         from_terminal_asset_alias = from_alias.split(".scada")[0] + ".ta"
         report_time = datetime.fromtimestamp(reportEvent.time_created_ms / 1000, UTC)
         channel_rows = load_channel_rows(db, from_terminal_asset_alias)
-        db_channel_ids_by_name = self.resolver.resolve(
+        resolution = self.resolver.resolve(
             db, from_alias, from_terminal_asset_alias, channel_rows, report_time
         )
+        db_channel_ids_by_name = resolution.row_ids
         self.db_channel_rows_by_id: dict[uuid.UUID, ReadingChannelSql] = {
             r.id: r for r in channel_rows
         }
+        self.mismatched_in_report = set()
 
         message_id = uuid.UUID(reportEvent.message_id)
 
@@ -496,6 +526,13 @@ class ReportEventPersistor:
                 ] += len(ch_readings.value_list)
                 continue
             else:
+                self.check_channel_id(
+                    from_terminal_asset_alias,
+                    ch_readings.channel_name,
+                    db_channel_id,
+                    resolution,
+                    len(ch_readings.value_list),
+                )
                 # Reports can duplicate the same timestamp and value, so we need to de-duplicate it.
                 readings_by_ts = {}
                 for ts, value in zip(
@@ -527,6 +564,69 @@ class ReportEventPersistor:
             )
             db.execute(stmt, dicts)
 
+    def check_channel_id(
+        self,
+        terminal_asset_alias: str,
+        name: str,
+        row_id: uuid.UUID,
+        resolution: Resolution,
+        n_readings: int,
+    ) -> None:
+        """The row a name resolved to holds the Id the layout in force declares
+        for it (none for a pseudo row). A disagreement is tallied, not
+        refused: the readings are the row's, the bookkeeping is wrong."""
+        if name not in resolution.declared_ids:
+            return
+        row = self.db_channel_rows_by_id[row_id]
+        declared = resolution.declared_ids[name]
+        if row.channel_id == declared:
+            return
+        key = MismatchKey(terminal_asset_alias, name, declared, row.channel_id)
+        self.channel_id_mismatches[key] += n_readings
+        self.mismatched_in_report.add(key)
+
+    def journal_mismatch_glitches(self, db: Session, now: datetime) -> None:
+        """One Warning glitch per mismatch key per UTC day, journaled under the
+        journalkeeper's own alias so the alerter's reports see it. The count
+        is the readings tallied under the key since this process started."""
+        for i, key in enumerate(sorted(self.mismatched_in_report, key=str)):
+            if self.glitch_days.get(key) == now.date():
+                continue
+            self.glitch_days[key] = now.date()
+            created = datetime.fromtimestamp(
+                int(now.timestamp() * 1000 + i) / 1000, tz=UTC
+            )
+            glitch = Glitch(
+                from_g_node_alias=self.service_alias,
+                node=GLITCH_NODE,
+                type=LogLevel.Warning,
+                summary=f"channel-id-mismatch {key.channel} at {key.terminal_asset_alias}",
+                details=(
+                    f"The layout in force declares {key.channel} with Id "
+                    f"{key.declared_id}; the reading_channels row its readings go "
+                    f"to holds channel_id {key.row_channel_id}. "
+                    f"{self.channel_id_mismatches[key]} readings since the "
+                    "journalkeeper started."
+                ),
+                created_ms=int(created.timestamp() * 1000),
+            )
+            msg = MessageSql(
+                id=uuid.UUID(
+                    default_message_id(self.service_alias, glitch.type_name, created)
+                ),
+                timestamp=created,
+                created_at=created,
+                persisted_at=now,
+                from_alias=self.service_alias,
+                message_type_name=glitch.type_name,
+                payload=glitch.to_dict(),
+            )
+            stmt = insert(MessageSql).on_conflict_do_nothing(
+                index_elements=["timestamp", "id"]
+            )
+            db.execute(stmt, [msg.__dict__])
+            self.logger.warning(f"{glitch.summary}: {glitch.details}")
+
     def persist_v000(
         self, from_alias: str, time_received: datetime, report: ReportEvent000
     ):
@@ -535,6 +635,9 @@ class ReportEventPersistor:
             created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
+            ),
+            live_only_db_operations=lambda db: self.journal_mismatch_glitches(
+                db, time_received
             ),
         )
 
@@ -547,6 +650,9 @@ class ReportEventPersistor:
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
             ),
+            live_only_db_operations=lambda db: self.journal_mismatch_glitches(
+                db, time_received
+            ),
         )
 
     def persist_v003(
@@ -557,6 +663,9 @@ class ReportEventPersistor:
             created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
+            ),
+            live_only_db_operations=lambda db: self.journal_mismatch_glitches(
+                db, time_received
             ),
         )
 
@@ -570,6 +679,9 @@ class ReportEventPersistor:
             created_at=datetime.fromtimestamp(report.time_created_ms / 1000, tz=UTC),
             additional_db_operations=lambda db: self.persist_readings(
                 db, from_alias, report
+            ),
+            live_only_db_operations=lambda db: self.journal_mismatch_glitches(
+                db, time_received
             ),
         )
 

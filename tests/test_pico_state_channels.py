@@ -62,7 +62,7 @@ def test_every_pico_backed_node_gets_a_state_channel():
 
 
 def test_pico_rows_without_a_channel_are_tallied_as_dropped():
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     db = MagicMock()
     db.info = {}
     db.query.return_value.filter.return_value.all.return_value = []
@@ -72,7 +72,7 @@ def test_pico_rows_without_a_channel_are_tallied_as_dropped():
 
 
 def test_pico_rows_project_into_the_node_channel_as_enum_indexes():
-    persistor = ReportEventPersistor(logging.getLogger("test"))
+    persistor = ReportEventPersistor(logging.getLogger("test"), "d1.journal")
     channel = _channel("buffer-pico-state")
     db = MagicMock()
     db.info = {}
