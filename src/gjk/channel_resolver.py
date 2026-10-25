@@ -53,7 +53,9 @@ from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 
 # The only synth channels that ever appear in report.event readings, present
 # from the beginning of the archive. The other synth channels in a layout are
-# unreported intermediates and get no reading_channels rows.
+# unreported intermediates and get no reading_channels rows. A synth channel
+# is a derived channel declared by a layout before 007, and its row is of
+# the derived kind: one lineage per name across the rename.
 REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
@@ -91,7 +93,7 @@ def synth_channel_row(sc: SynthChannelGt) -> ReadingChannelSql:
         display_name=sc.display_name,
         unit=sc.telemetry_name,
         unit_type=SpaceheatTelemetryName.enum_name(),
-        channel_type=SynthChannelGt.type_name_value(),
+        channel_type=DerivedChannelGt.type_name_value(),
     )
 
 
