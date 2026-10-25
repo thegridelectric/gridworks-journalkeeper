@@ -24,6 +24,7 @@ from gjk.alert_persistor import AlertPersistor
 from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.weather_bundle_persistor import WeatherBundlePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
+from gjk.weather_observation_persistor import WeatherObservationPersistor
 
 # Re-exported from message_persistence_info so existing importers (and tests)
 # can keep importing MESSAGE_ID_NAMESPACE from here.
@@ -77,7 +78,7 @@ class SemaMessagePersistor:
         "gw.hack.alert.silences",
         # The observation carries ObservationTime (the station's claim
         # time, ISO seconds) but no message-created field by design;
-        # readings projection will key on ObservationTime later.
+        # WeatherObservationPersistor writes its readings at ObservationTime.
         "gw.weather.observation",
         # The create round: the journal carries every minting act, not
         # only the eventstore. CommandHash is a sha256 hex, not a uuid,
@@ -111,6 +112,7 @@ class SemaMessagePersistor:
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
                 WeatherBundlePersistor(logger),
+                WeatherObservationPersistor(logger),
                 # The registry alias is the universe's `<universe>.gnr` —
                 # derived from this service's own alias, never a second
                 # literal that can drift.

@@ -1,5 +1,5 @@
 from gjk.pseudo_channels import PseudoChannel
-from gjk.sema.enums import Gw1Unit
+from gjk.sema.enums import Gw1Unit, GwChannelKind
 
 
 class ZoneHeatCallPseudoChannel(PseudoChannel):
@@ -9,4 +9,5 @@ class ZoneHeatCallPseudoChannel(PseudoChannel):
             display_name="Heat Call",
             unit=Gw1Unit.Unitless,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.HeatCallSynth,
         )

@@ -27,6 +27,7 @@ from gjk.sema.enums import (
     Gw1LocalControlAllTanksState,
     Gw1MainAutoState,
     Gw2LcTopState,
+    GwChannelKind,
     GwTopState,
     SinglePicoState,
 )
@@ -68,7 +69,7 @@ def channel(name: str, enum_type) -> ReadingChannelSql:
         display_name=name,
         unit=enum_type.enum_version(),
         unit_type=enum_type.enum_name(),
-        channel_type="gjk.pseudo",
+        channel_type=GwChannelKind.StateMachine.value,
         deactivated_date=None,
     )
 

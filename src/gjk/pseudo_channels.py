@@ -3,13 +3,16 @@
 #   2. We store readings for (in the readings table)
 #   3. Is not a DataChannel or a DerivedChannel defined in the hardware layout
 #
-# This includes things like price, weather, ShNode states, etc.
+# This includes things like price, weather, ShNode states, etc. Each one
+# says what kind of thing it is (gw.channel.kind), and the row's
+# channel_type is that kind.
 #
 # LayoutLitePersistor syncs the registered pseudo-channels with the database.
 # Other persistors query the pseudo-channels from the database and store readings for them.
 
 from collections.abc import Callable
 
+from gjk.sema.enums import GwChannelKind
 from gjk.sema.types import LayoutLite
 from gjk.sema.types.old_versions.layout_lite_001 import LayoutLite001
 from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
@@ -74,13 +77,19 @@ def layout_created_ms(layout: ModernLayout) -> int:
 
 
 class PseudoChannel:
-    CHANNEL_TYPE = "gjk.pseudo"
-
-    def __init__(self, name: str, display_name: str, unit, unit_type: str):
+    def __init__(
+        self,
+        name: str,
+        display_name: str,
+        unit: str,
+        unit_type: str,
+        kind: GwChannelKind,
+    ):
         self.name = name
         self.display_name = display_name
         self.unit = unit
         self.unit_type = unit_type
+        self.kind = kind
 
 
 type PseudoChannelFactory = Callable[[ModernLayout], list[PseudoChannel]]

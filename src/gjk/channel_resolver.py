@@ -44,7 +44,7 @@ from gjk.pseudo_channels import (
 )
 from gjk.reading_channel_eras import channel_ids_at
 from gjk.sema import SemaCodec
-from gjk.sema.enums import Gw1Unit, SpaceheatTelemetryName
+from gjk.sema.enums import Gw1Unit, GwChannelKind, SpaceheatTelemetryName
 from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
 from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
@@ -53,7 +53,10 @@ from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 
 # The only synth channels that ever appear in report.event readings, present
 # from the beginning of the archive. The other synth channels in a layout are
-# unreported intermediates and get no reading_channels rows.
+# unreported intermediates and get no reading_channels rows. A synth channel
+# is a derived channel declared by a layout before 007 (the list was of
+# synth.channel.gt), so its row is of the DerivedChannel kind: one lineage
+# per name across the rename.
 REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
@@ -65,7 +68,7 @@ def data_channel_row(dc: DataChannelGt | DataChannelGt001) -> ReadingChannelSql:
         display_name=dc.display_name,
         unit=dc.telemetry_name,
         unit_type=SpaceheatTelemetryName.enum_name(),
-        channel_type=DataChannelGt.type_name_value(),
+        channel_type=GwChannelKind.DataChannel.value,
     )
 
 
@@ -79,7 +82,7 @@ def derived_channel_row(
         display_name=dc.display_name,
         unit=dc.output_unit if dc.output_unit is not None else "Unknown",
         unit_type=Gw1Unit.enum_name(),
-        channel_type=DerivedChannelGt.type_name_value(),
+        channel_type=GwChannelKind.DerivedChannel.value,
     )
 
 
@@ -91,7 +94,7 @@ def synth_channel_row(sc: SynthChannelGt) -> ReadingChannelSql:
         display_name=sc.display_name,
         unit=sc.telemetry_name,
         unit_type=SpaceheatTelemetryName.enum_name(),
-        channel_type=SynthChannelGt.type_name_value(),
+        channel_type=GwChannelKind.DerivedChannel.value,
     )
 
 
@@ -105,7 +108,7 @@ def pseudo_channel_row(
         display_name=pc.display_name,
         unit=pc.unit,
         unit_type=pc.unit_type,
-        channel_type=PseudoChannel.CHANNEL_TYPE,
+        channel_type=pc.kind.value,
     )
 
 

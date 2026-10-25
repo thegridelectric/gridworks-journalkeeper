@@ -433,6 +433,11 @@ enums:
   gw.alert.state:
     enum_type: literal
     schema: definitions/enums/gw.alert.state/000.yaml
+  gw.channel.kind:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/gw.channel.kind/000.yaml
   gw.dispatch.refusal.reason:
     enum_type: versioned
     latest_version: '000'

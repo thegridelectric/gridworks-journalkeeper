@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-10-23T01:25:00Z"
+  last_updated: "2026-10-25T21:04:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -208,6 +208,18 @@ enums:
     schema_url: "https://schemas.electricity.works/enums/gw.alert.state/000"
     created: "2026-09-16T17:45:00Z"
     status: "published"
+
+  gw.channel.kind:
+    latest_version: "000"
+    owner: gridworks-energy
+    enum_type: "versioned"
+    description: "What kind of thing a reading channel records, named by the declaring list: a layout's DataChannel or DerivedChannel, a layout's StateMachine, or a journal service's HeatCallSynth, WeatherForecast, WeatherObserved or FloParams. Default Unknown so a reader does not act on a kind it does not know."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/enums/gw.channel.kind/000"
+        created: "2026-10-25T11:55:00Z"
+        status: "published"
 
   gw.dispatch.refusal.reason:
     latest_version: "000"

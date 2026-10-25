@@ -24,13 +24,14 @@ from gjk.pseudo_channels import (
 )
 from gjk.sema.enums import (
     Gw1ActorClass,
-    LogLevel,
     Gw1LcTopState,
     Gw1LeafAllyAllTanksState,
     Gw1LeafAllyBufferOnlyState,
     Gw1LocalControlAllTanksState,
     Gw1LocalControlBufferOnlyState,
     Gw1MainAutoState,
+    GwChannelKind,
+    LogLevel,
     SinglePicoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
@@ -62,6 +63,7 @@ class SemaEnumPseudoChannel(PseudoChannel):
             display_name,
             unit=version if version is not None else "Enum",
             unit_type=enum_type.enum_name(),
+            kind=GwChannelKind.StateMachine,
         )
         self.enum_type = enum_type
 
