@@ -14,8 +14,8 @@ from gw_data.db.models import ReadingChannelSql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from gjk.pseudo_channels import PseudoChannel
 from gjk.sema import SemaCodec
+from gjk.sema.enums import GwChannelKind
 from gjk.sema.types import GwWeatherForecastBundleGt
 from gjk.weather_bundle_persistor import WeatherBundlePersistor, flat_channel_name
 
@@ -84,7 +84,8 @@ def test_bundle_creates_observation_channels_once(timescale_db_url: str) -> None
             # to the weather GNode (the fleet-scoped series has no TA).
             assert row.unit == first.unit
             assert row.display_name == first.display_name
-            assert row.channel_type == PseudoChannel.CHANNEL_TYPE
+            assert row.channel_type == GwChannelKind.WeatherObserved.value
+            assert str(row.channel_id) == first.id
     finally:
         with factory() as db:
             db.query(ReadingChannelSql).filter(

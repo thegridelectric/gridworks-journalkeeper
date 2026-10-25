@@ -11,7 +11,7 @@ from gjk.pseudo_channels import (
     PseudoChannel,
     register_pseudo_channel_factory,
 )
-from gjk.sema.enums import Gw1Unit
+from gjk.sema.enums import Gw1Unit, GwChannelKind
 from gjk.sema.types import WeatherForecast
 
 
@@ -22,12 +22,14 @@ class WeatherForecastPersistor:
             display_name="Forecast Wind Speed",
             unit=Gw1Unit.MilesPerHourX1000,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.WeatherForecast,
         ),
         PseudoChannel(
             name="forecast-oat",
             display_name="Forecast Outdoor Air Temp",
             unit=Gw1Unit.FahrenheitX100,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.WeatherForecast,
         ),
     ]
 

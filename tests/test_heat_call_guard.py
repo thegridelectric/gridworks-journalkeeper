@@ -14,7 +14,7 @@ from gw_data.db.models import ReadingChannelSql
 
 from gjk.report_event_persistor import ReportEventPersistor
 from gjk.sema import SemaCodec
-from gjk.sema.enums import Gw1Unit
+from gjk.sema.enums import Gw1Unit, GwChannelKind
 from gjk.zone_heat_call_pseudo_channel import ZoneHeatCallPseudoChannel
 
 SAMPLES = Path(__file__).parent / "data" / "sample_messages"
@@ -81,8 +81,12 @@ def test_a_declared_heat_call_channel_gets_no_pseudo_channel():
 
 
 def test_whitewire_readings_alone_synthesize_heat_call():
-    whitewire = channel(WHITEWIRE, "W", Gw1Unit.enum_name(), "data.channel.gt")
-    heat_call = channel(HEAT_CALL, "Unitless", Gw1Unit.enum_name(), "gjk.pseudo")
+    whitewire = channel(
+        WHITEWIRE, "W", Gw1Unit.enum_name(), GwChannelKind.DataChannel.value
+    )
+    heat_call = channel(
+        HEAT_CALL, "Unitless", Gw1Unit.enum_name(), GwChannelKind.HeatCallSynth.value
+    )
     by_channel = readings_by_channel([whitewire, heat_call], beech_report())
     threshold = ReportEventPersistor.whitewire_pwr_threshold_overrides[ALIAS]
     assert by_channel[heat_call.id] == [
@@ -91,9 +95,11 @@ def test_whitewire_readings_alone_synthesize_heat_call():
 
 
 def test_a_report_carrying_heat_call_readings_gets_none_synthesized():
-    whitewire = channel(WHITEWIRE, "W", Gw1Unit.enum_name(), "data.channel.gt")
+    whitewire = channel(
+        WHITEWIRE, "W", Gw1Unit.enum_name(), GwChannelKind.DataChannel.value
+    )
     heat_call = channel(
-        HEAT_CALL, "Unitless", Gw1Unit.enum_name(), "derived.channel.gt"
+        HEAT_CALL, "Unitless", Gw1Unit.enum_name(), GwChannelKind.DerivedChannel.value
     )
     reported = {
         "ChannelName": HEAT_CALL,

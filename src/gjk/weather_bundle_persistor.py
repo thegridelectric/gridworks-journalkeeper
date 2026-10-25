@@ -12,9 +12,12 @@ NOT-NULL table shape ``terminal_asset_alias`` carries the
 broadcasting weather GNode's alias — the owning source, matching the
 messages rows' from_alias.
 
-No sema word covers the reading-channel row yet: the hand-built shape
-here (flat name, hand-kept unit_type, magic channel_type) is retired
-by ``gjk.pseudo.channel.gt`` when that word is authored — the channel
+The row is the record's index: ``channel_id`` is the record's Id, the
+unit is the record's, and the kind is WeatherObserved. The station and
+the rest of the record are read from the journaled record by that Id.
+No sema word covers the reading-channel row itself yet: the hand-built
+shape here (flat name, hand-kept unit_type) is retired by
+``gjk.pseudo.channel.gt`` when that word is authored — the channel
 table then becomes the word's projection.
 """
 
@@ -25,8 +28,7 @@ from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.pseudo_channels import PseudoChannel
-from gjk.sema.enums import Gw1Unit
+from gjk.sema.enums import Gw1Unit, GwChannelKind
 from gjk.sema.types import GwWeatherChannelGt, GwWeatherForecastBundleGt
 
 
@@ -85,7 +87,7 @@ class WeatherBundlePersistor:
             if (
                 existing.unit != record.unit
                 or existing.unit_type != Gw1Unit.enum_name()
-                or existing.channel_type != PseudoChannel.CHANNEL_TYPE
+                or existing.channel_type != GwChannelKind.WeatherObserved.value
             ):
                 self.logger.warning(
                     f"reading channel {name} ({from_alias}) exists with "
@@ -102,7 +104,8 @@ class WeatherBundlePersistor:
                 display_name=record.display_name,
                 unit=record.unit,
                 unit_type=Gw1Unit.enum_name(),
-                channel_type=PseudoChannel.CHANNEL_TYPE,
+                channel_type=GwChannelKind.WeatherObserved.value,
+                channel_id=uuid.UUID(record.id),
             )
         )
         self.logger.info(

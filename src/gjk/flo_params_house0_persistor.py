@@ -11,7 +11,7 @@ from gjk.pseudo_channels import (
     PseudoChannel,
     register_pseudo_channel_factory,
 )
-from gjk.sema.enums import Gw1Unit
+from gjk.sema.enums import Gw1Unit, GwChannelKind
 from gjk.sema.types.flo_params_house0 import FloParamsHouse0
 from gjk.sema.types.old_versions.flo_params_house0_000 import FloParamsHouse0000
 from gjk.sema.types.old_versions.flo_params_house0_001 import FloParamsHouse0001
@@ -40,18 +40,21 @@ class FloParamsHouse0Persistor:
             display_name="$/MWh x1000",
             unit=Gw1Unit.KilowattHoursX1000,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.FloParams,
         ),
         PseudoChannel(
             name="lmp-usd-per-mwh",
             display_name="$/MWh x1000",
             unit=Gw1Unit.DollarsX1000,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.FloParams,
         ),
         PseudoChannel(
             name="total-usd-per-mwh",
             display_name="$/MWh x1000",
             unit=Gw1Unit.DollarsX1000,
             unit_type=Gw1Unit.enum_name(),
+            kind=GwChannelKind.FloParams,
         ),
     ]
 

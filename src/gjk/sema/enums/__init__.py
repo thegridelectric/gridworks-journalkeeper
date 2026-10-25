@@ -26,6 +26,7 @@ from gjk.sema.enums.gw1_unit import Gw1Unit
 from gjk.sema.enums.gw2_lc_top_state import Gw2LcTopState
 from gjk.sema.enums.gw_alert_category import GwAlertCategory
 from gjk.sema.enums.gw_alert_state import GwAlertState
+from gjk.sema.enums.gw_channel_kind import GwChannelKind
 from gjk.sema.enums.gw_dispatch_refusal_reason import GwDispatchRefusalReason
 from gjk.sema.enums.gw_fleet_alert_kind import GwFleetAlertKind
 from gjk.sema.enums.gw_house_alert_kind import GwHouseAlertKind
@@ -82,6 +83,7 @@ __all__ = [
     "Gw2LcTopState",
     "GwAlertCategory",
     "GwAlertState",
+    "GwChannelKind",
     "GwDispatchRefusalReason",
     "GwFleetAlertKind",
     "GwHouseAlertKind",

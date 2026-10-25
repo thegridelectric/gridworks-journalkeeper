@@ -8,6 +8,7 @@ enums:
   gpm.from.hz.method: gpm.from.hz.method
   gw.alert.category: gw.alert.category
   gw.alert.state: gw.alert.state
+  gw.channel.kind: gw.channel.kind
   gw.dispatch.refusal.reason: gw.dispatch.refusal.reason
   gw.fleet.alert.kind: gw.fleet.alert.kind
   gw.house.alert.kind: gw.house.alert.kind
