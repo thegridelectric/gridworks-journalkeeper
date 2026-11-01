@@ -178,6 +178,13 @@ class RunSummary:
         }
 
 
+def word_of(obj: dict) -> dict:
+    """The sema word in an eventstore object. The ear stores a gwbase
+    message as the word itself; a scada's MQTT-era object is an envelope
+    whose Payload is the word."""
+    return obj["Payload"] if "Header" in obj and "Payload" in obj else obj
+
+
 class S3MessageInfo:
     def __init__(self, key_str: str):
         self.key_str = key_str
@@ -555,18 +562,11 @@ def main(argv=None):
             (msg_bytes, msg_length) = download.result()
             byte_counter += msg_length
             msg_text = msg_bytes.decode("utf-8")
-            msg_dict = json.loads(msg_text)
-            if is_retired(msg_dict["Payload"]):
-                summary.count(
-                    msg_info,
-                    msg_dict["Payload"]["TypeName"],
-                    msg_dict["Payload"]["Version"],
-                    "retired",
-                )
+            word = word_of(json.loads(msg_text))
+            if is_retired(word):
+                summary.count(msg_info, word["TypeName"], word["Version"], "retired")
                 continue
-            sema_obj = codec.from_dict(
-                msg_dict["Payload"], auto_upgrade=False, mode="degraded"
-            )
+            sema_obj = codec.from_dict(word, auto_upgrade=False, mode="degraded")
             if isinstance(sema_obj, SemaType):
                 logger.debug(
                     f"Successfully parsed {sema_obj.type_name} (v{sema_obj.version}) from {msg_info.key_str} (persisted at {msg_info.persist_time.isoformat()})"
