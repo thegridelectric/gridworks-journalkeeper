@@ -109,6 +109,7 @@ types:
     '000':
       used_by:
       - gw.weather.forecast:001
+      - gw.weather.forecast:002
   gw.weather.location.gt:
     '001':
       used_by:
@@ -617,6 +618,7 @@ formats:
     - gw.weather.forecast.channel.gt:000
     - gw.weather.forecast.series:000
     - gw.weather.forecast:001
+    - gw.weather.forecast:002
     - gw.weather.location.gt:001
     - gw.weather.observation.reading:000
     - gw.weather.seasonal.template.gt:000
@@ -775,6 +777,7 @@ formats:
     - gw.weather.forecast.channel.gt:000
     - gw.weather.forecast.series:000
     - gw.weather.forecast:001
+    - gw.weather.forecast:002
     - gw.weather.observation:001
     - gw.weather.seasonal.template.gt:000
     - gw.weather.station.gt:000
@@ -792,6 +795,7 @@ formats:
     - gw.house.operating.status:000
     - gw.scada.commit:000
     - gw.weather.forecast:001
+    - gw.weather.forecast:002
     - layout.lite:001
     - layout.lite:002
     - layout.lite:003
@@ -878,6 +882,7 @@ formats:
     - gw.weather.channel.gt:002
     - gw.weather.forecast.bundle.gt:002
     - gw.weather.forecast.channel.gt:000
+    - gw.weather.forecast:002
     - gw.weather.location.gt:001
     - gw.weather.seasonal.template.gt:000
     - gw.weather.station.gt:000

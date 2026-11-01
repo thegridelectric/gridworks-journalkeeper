@@ -12,18 +12,23 @@ from gjk.sema.property_format import UUID4Str
 MESSAGE_ID_NAMESPACE = uuid.UUID("3f2504e0-4f89-41d3-9a0c-0305e82c3301")
 
 
-def default_message_id(from_alias: str, type_name: str, at: datetime) -> str:
+def default_message_id(
+    from_alias: str, type_name: str, at: datetime, *, subject: str | None = None
+) -> str:
     """Deterministic message id for a payload that carries no id of its own.
 
     `at` is the message's own created time when the payload has one, so the
     rabbit and S3 paths mint the same id and the (timestamp, id) key dedupes
     across them; only a payload with neither an id nor a created time falls
     back to the receipt time, which differs by path (see
-    SemaMessagePersistor for the list). Shared by the default persist path and
-    every custom persistor so they can't diverge.
+    SemaMessagePersistor for the list). `subject` tells apart the messages
+    one sender sends at one time about different things (a weather bundle's
+    name). Shared by the default persist path and every custom persistor so
+    they can't diverge.
     """
     at_ms = int(at.timestamp() * 1000)
-    return str(uuid.uuid5(MESSAGE_ID_NAMESPACE, f"{from_alias}|{type_name}|{at_ms}"))
+    parts = [from_alias, type_name, *([subject] if subject else []), str(at_ms)]
+    return str(uuid.uuid5(MESSAGE_ID_NAMESPACE, "|".join(parts)))
 
 
 # Fixed namespace for the ids of pseudo channels, which no layout names: the
