@@ -69,7 +69,10 @@ initial_targets:
     # retired (gjk/retired_versions.py), never decoded. Journaled
     # messages-table only; the readings projection comes later.
     gw.weather.observation: {}
-    gw.weather.forecast: {}
+    # Both versions the service has emitted: 001 rows key on the bundle
+    # name, 002 rows on the forecast's own uid (GwWeatherForecastPersistor).
+    gw.weather.forecast:
+      versions: ["001", "002"]
     gw.weather.channel.gt: {}
     gw.weather.forecast.channel.gt: {}
     gw.weather.forecast.bundle.gt: {}

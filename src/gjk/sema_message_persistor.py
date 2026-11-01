@@ -22,6 +22,7 @@ from gjk.snapshot_spaceheat_persistor import SnapshotSpaceheatPersistor
 from gjk.sema import SemaCodec, SemaType
 from gjk.alert_persistor import AlertPersistor
 from gjk.g_node_forest_persistor import GNodeForestPersistor
+from gjk.gw_weather_forecast_persistor import GwWeatherForecastPersistor
 from gjk.weather_bundle_persistor import WeatherBundlePersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 from gjk.weather_observation_persistor import WeatherObservationPersistor
@@ -36,7 +37,6 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
-        "gw.weather.forecast": "message_created_ms",
         "gw.scada.commit": "message_created_ms",
         "new.command.tree": "unix_ms",
         "scada.params": "unix_time_ms",
@@ -56,7 +56,8 @@ class SemaMessagePersistor:
         # Weather records are durable identities; their own uuid is the
         # message id, so a record replayed through the bus dedupes. (The
         # bundle is absent here: WeatherBundlePersistor owns it, keeping
-        # the same natural-id rule.)
+        # the same natural-id rule, and GwWeatherForecastPersistor the
+        # forecast.)
         "gw.weather.channel.gt": "id",
         "gw.weather.forecast.channel.gt": "id",
         "gw.weather.location.gt": "id",
@@ -111,6 +112,7 @@ class SemaMessagePersistor:
                 ReportEventPersistor(logger, settings.service_alias),
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
+                GwWeatherForecastPersistor(logger),
                 WeatherBundlePersistor(logger),
                 WeatherObservationPersistor(logger),
                 # The registry alias is the universe's `<universe>.gnr` —

@@ -491,6 +491,18 @@ types:
       types:
       - gw.weather.forecast.series:000
       versionless_types: []
+    '002':
+      enums:
+      - gw.weather.forecast.fidelity:000
+      - gw1.quantity:003
+      formats:
+      - left.right.dot
+      - utc.iso8601.seconds
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - gw.weather.forecast.series:000
+      versionless_types: []
   gw.weather.forecast.binding:
     '000':
       enums:

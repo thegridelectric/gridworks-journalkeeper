@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-10-25T21:16:06Z'
+  generated_at: '2026-11-01T16:10:39Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -61,6 +61,7 @@ initial_targets:
 - latest.price:000
 - gw.weather.observation:001
 - gw.weather.forecast:001
+- gw.weather.forecast:002
 - gw.weather.channel.gt:002
 - gw.weather.forecast.channel.gt:000
 - gw.weather.forecast.bundle.gt:002
@@ -430,6 +431,8 @@ worklist:
     gw.weather.forecast:
       '001':
         path: definitions/types/gw.weather.forecast/001.yaml
+      '002':
+        path: definitions/types/gw.weather.forecast/002.yaml
     gw.weather.forecast.binding:
       '000':
         path: definitions/types/gw.weather.forecast.binding/000.yaml
