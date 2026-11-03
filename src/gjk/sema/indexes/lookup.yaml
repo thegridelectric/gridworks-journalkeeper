@@ -56,6 +56,17 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/energy.instruction/000.yaml
+  flo.optimal.path:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/flo.optimal.path/000.yaml
+  flo.params:
+    latest_version: '001'
+    versioning_strategy: literal
+    versions:
+      '001': definitions/types/flo.params/001.yaml
+      '000': definitions/types/flo.params/000.yaml
   flo.params.house0:
     latest_version: '007'
     versioning_strategy: literal
@@ -68,6 +79,22 @@ types:
       '002': definitions/types/flo.params.house0/002.yaml
       '001': definitions/types/flo.params.house0/001.yaml
       '000': definitions/types/flo.params.house0/000.yaml
+  flo.recommendation:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/flo.recommendation/000.yaml
+  flo.tuning.alice:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/flo.tuning.alice/000.yaml
+  flo.tuning.bruce:
+    latest_version: '001'
+    versioning_strategy: literal
+    versions:
+      '001': definitions/types/flo.tuning.bruce/001.yaml
+      '000': definitions/types/flo.tuning.bruce/000.yaml
   fsm.atomic.report:
     latest_version: '001'
     versioning_strategy: literal

@@ -165,17 +165,18 @@ def test_persist_payload_gates_decodable_but_uncaptured_types() -> None:
     """The legacy_hack path has no envelope to pre-gate on: a decodable
     type outside the capture set must still not persist (decodable ≠
     captured — the snapshot deliberately holds vocabulary gjk does not
-    persist, e.g. bid)."""
+    persist, e.g. machine.states)."""
     from gjk.sema import SemaType
 
     jk = _make_bare_jk()
     sema_obj = MagicMock(spec=SemaType)
-    sema_obj.type_name = "bid"
+    sema_obj.type_name = "machine.states"
     sema_obj.version = "000"
     jk.codec.from_dict.return_value = sema_obj
 
     jk._persist_payload(
-        from_alias="test.alias", payload={"TypeName": "bid", "Version": "000"}
+        from_alias="test.alias",
+        payload={"TypeName": "machine.states", "Version": "000"},
     )
 
     jk.persistor.persist_message.assert_not_called()

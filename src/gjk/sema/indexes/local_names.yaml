@@ -63,7 +63,12 @@ types:
   data.channel.gt: data.channel.gt
   derived.channel.gt: derived.channel.gt
   energy.instruction: energy.instruction
+  flo.optimal.path: flo.optimal.path
+  flo.params: flo.params
   flo.params.house0: flo.params.house0
+  flo.recommendation: flo.recommendation
+  flo.tuning.alice: flo.tuning.alice
+  flo.tuning.bruce: flo.tuning.bruce
   fsm.atomic.report: fsm.atomic.report
   fsm.full.report: fsm.full.report
   g.node.forest: g.node.forest

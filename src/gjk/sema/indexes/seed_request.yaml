@@ -25,6 +25,12 @@ initial_targets:
       versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013"]
     glitch:
       include_all_versions: true
+    flo.params:
+      include_all_versions: true
+    flo.optimal.path:
+      include_all_versions: true
+    flo.recommendation:
+      include_all_versions: true
     flo.params.house0:
       include_all_versions: true
     gridworks.event.problem:

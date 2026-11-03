@@ -35,6 +35,8 @@ __all__ = ["MESSAGE_ID_NAMESPACE", "SemaMessagePersistor"]
 class SemaMessagePersistor:
     MSG_CREATED_AT_FIELDS_MS = {
         "glitch": "created_ms",
+        "flo.params": "created_ms",
+        "flo.recommendation": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.scada.commit": "message_created_ms",
@@ -74,6 +76,8 @@ class SemaMessagePersistor:
     # journal row MUST carry a created time or an id.
     BASIC_MSG_TYPES = [
         "atn.bid",
+        "bid",
+        "flo.optimal.path",
         # The whole-list snapshot of houses whose alerts are not paged: no
         # id and no created time by design (the list is the message).
         "gw.hack.alert.silences",
@@ -147,6 +151,8 @@ class SemaMessagePersistor:
     RECEIPT_TIME_KEYED_TYPES = frozenset({
         # neither id nor created time
         "atn.bid",
+        "bid",
+        "flo.optimal.path",
         "gw.hack.alert.silences",
         "gw.weather.cmd.ack",
         "gw.weather.cmd.nack",

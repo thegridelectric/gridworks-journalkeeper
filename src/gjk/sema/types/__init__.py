@@ -6,7 +6,12 @@ from gjk.sema.types.connectivity_edge_gt import ConnectivityEdgeGt
 from gjk.sema.types.data_channel_gt import DataChannelGt
 from gjk.sema.types.derived_channel_gt import DerivedChannelGt
 from gjk.sema.types.energy_instruction import EnergyInstruction
+from gjk.sema.types.flo_optimal_path import FloOptimalPath
+from gjk.sema.types.flo_params import FloParams
 from gjk.sema.types.flo_params_house0 import FloParamsHouse0
+from gjk.sema.types.flo_recommendation import FloRecommendation
+from gjk.sema.types.flo_tuning_alice import FloTuningAlice
+from gjk.sema.types.flo_tuning_bruce import FloTuningBruce
 from gjk.sema.types.fsm_atomic_report import FsmAtomicReport
 from gjk.sema.types.fsm_full_report import FsmFullReport
 from gjk.sema.types.g_node_forest import GNodeForest
@@ -79,7 +84,12 @@ __all__ = [
     "DataChannelGt",
     "DerivedChannelGt",
     "EnergyInstruction",
+    "FloOptimalPath",
+    "FloParams",
     "FloParamsHouse0",
+    "FloRecommendation",
+    "FloTuningAlice",
+    "FloTuningBruce",
     "FsmAtomicReport",
     "FsmFullReport",
     "GNodeForest",
