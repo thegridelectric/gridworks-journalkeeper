@@ -37,7 +37,6 @@ class SemaMessagePersistor:
         "glitch": "created_ms",
         "flo.params": "created_ms",
         "flo.recommendation": "created_ms",
-        "slow.contract.rejection": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.scada.commit": "message_created_ms",
