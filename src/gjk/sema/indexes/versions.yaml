@@ -93,6 +93,22 @@ types:
       "000":
         summary: "Initial Sema version"
 
+  flo.optimal.path:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "StartUnixS, StepDurationMinutes, HpAvgWList (W), StoreWhList (Wh); axiom StepListLengths."
+
+  flo.params:
+    latest_version: "001"
+    versioning_strategy: "literal"
+    versions:
+      "001":
+        summary: "- Tuning: flo.tuning.bruce 000 -> 001, NumLayers assigned as TanksModeled times TempSensorsPerTank"
+      "000":
+        summary: "GNodeAlias, CreatedMs, StartUnixS, StepDurationMinutes, the five per-step forecast lists, WeatherForecastId, SeasonalStorageMode with TanksModeled/GallonsPerTank/TempSensorsPerTank, initial store state, heat pump and COP facts, PriceMax/PriceMin, optional PreviousOptimalPath and PreviousEstimateElecUsdMwhNow, Tuning (oneOf flo.tuning.alice, flo.tuning.bruce); axioms StepListLengths, ThermoclinesWithinTheStore, BufferIsOneTank, PriceBounds, PreviousRunTogether."
+
   flo.params.house0:
     latest_version: "007"
     versioning_strategy: "literal"
@@ -145,6 +161,29 @@ types:
           - HpTurnOnMinutes: add
       "000":
         summary: "Earliest wire shape (single shape, seen 2025-01-04 to 2025-01-06), back-filled from S3 evidence. As v001 but without CopMin, CopMinOatF, HpIsOff, HpTurnOnMinutes and the v001-era optional fields (BufferAvailableKwh, HouseAvailableKwh, InitialBottomTempF, DischargingDdDeltaTF)."
+
+  flo.recommendation:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Bid fields (BidderAlias, PqPairs, PriceUnit, QuantityUnit), OptimalPathList index-linked to PqPairs, FloName, FloRepo, FloGitCommit, CreatedMs; axioms AtLeastOnePair, PathPerPair, FirstStepIsTheBid, PairsDescend, PathsStartTogether."
+
+  flo.tuning.alice:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "TypeName and Version only."
+
+  flo.tuning.bruce:
+    latest_version: "001"
+    versioning_strategy: "literal"
+    versions:
+      "001":
+        summary: "- NumLayers: add"
+      "000":
+        summary: "Storage loss, heat pump thermal bounds and lift, the RWT line per load bucket, the RSWT, short-cycle and stability penalties, terminal cost; axioms OneLinePerBucket, BucketsAscend."
 
   fsm.atomic.report:
     latest_version: "001"

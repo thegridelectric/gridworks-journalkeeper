@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-11-01T16:00:00Z"
+  last_updated: "2026-11-02T18:20:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -1055,6 +1055,63 @@ types:
             - "utc.milliseconds"
             - "utc.seconds"
 
+  flo.optimal.path:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "A FLO's expected operating path over its horizon for one first-step electricity choice: heat pump average power and store energy per step."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/flo.optimal.path/000"
+        created: "2026-11-01T15:20:00Z"
+        status: "published"
+        summary: "StartUnixS, StepDurationMinutes, HpAvgWList (W), StoreWhList (Wh); axiom StepListLengths."
+        direct_dependencies:
+          structural:
+            - "positive.int"
+            - "utc.seconds"
+
+  flo.params:
+    latest_version: "001"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "One request to a FLO for one market slot: bidder, step grid, price and weather forecasts, the modeled store and its state, heat pump facts, market price bounds, and the tuning whose TypeName names the optimizer."
+
+    versions:
+      "001":
+        schema_url: "https://schemas.electricity.works/types/flo.params/001"
+        created: "2026-11-02T17:45:00Z"
+        status: "published"
+        summary: "- Tuning: flo.tuning.bruce 000 -> 001, NumLayers assigned as TanksModeled times TempSensorsPerTank"
+        direct_dependencies:
+          structural:
+            - "flo.optimal.path:000"
+            - "flo.tuning.alice:000"
+            - "flo.tuning.bruce:001"
+            - "gw1.seasonal.storage.mode:000"
+            - "left.right.dot"
+            - "positive.int"
+            - "utc.milliseconds"
+            - "utc.seconds"
+            - "uuid4.str"
+      "000":
+        schema_url: "https://schemas.electricity.works/types/flo.params/000"
+        created: "2026-11-01T16:30:00Z"
+        status: "published"
+        summary: "GNodeAlias, CreatedMs, StartUnixS, StepDurationMinutes, the five per-step forecast lists, WeatherForecastId, SeasonalStorageMode with TanksModeled/GallonsPerTank/TempSensorsPerTank, initial store state, heat pump and COP facts, PriceMax/PriceMin, optional PreviousOptimalPath and PreviousEstimateElecUsdMwhNow, Tuning (oneOf flo.tuning.alice, flo.tuning.bruce); axioms StepListLengths, ThermoclinesWithinTheStore, BufferIsOneTank, PriceBounds, PreviousRunTogether."
+        direct_dependencies:
+          structural:
+            - "flo.optimal.path:000"
+            - "flo.tuning.alice:000"
+            - "flo.tuning.bruce:000"
+            - "gw1.seasonal.storage.mode:000"
+            - "left.right.dot"
+            - "positive.int"
+            - "utc.milliseconds"
+            - "utc.seconds"
+            - "uuid4.str"
+
   flo.params.house0:
     latest_version: "007"
     owner: gridworks-energy
@@ -1158,6 +1215,69 @@ types:
             - "positive.int"
             - "utc.seconds"
             - "uuid4.str"
+
+  flo.recommendation:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "A FLO's answer to one flo.params request: the bid curve to submit for the slot and, per price-quantity pair, the optimal path that quantity leads to, with the FLO's provenance."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/flo.recommendation/000"
+        created: "2026-11-01T15:50:00Z"
+        status: "published"
+        summary: "Bid fields (BidderAlias, PqPairs, PriceUnit, QuantityUnit), OptimalPathList index-linked to PqPairs, FloName, FloRepo, FloGitCommit, CreatedMs; axioms AtLeastOnePair, PathPerPair, FirstStepIsTheBid, PairsDescend, PathsStartTogether."
+        direct_dependencies:
+          structural:
+            - "flo.optimal.path:000"
+            - "git.commit"
+            - "left.right.dot"
+            - "market.price.unit:000"
+            - "market.quantity.unit:000"
+            - "non.empty.string"
+            - "price.quantity.unitless:001"
+            - "utc.milliseconds"
+
+  flo.tuning.alice:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Tuning of the alice FLO, which has none; naming it in operational params means no optimizer runs."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/flo.tuning.alice/000"
+        created: "2026-11-01T16:25:00Z"
+        status: "published"
+        summary: "TypeName and Version only."
+        direct_dependencies:
+          structural: []
+
+  flo.tuning.bruce:
+    latest_version: "001"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "Tuning knobs of the bruce FLO: plant model constants no house word states, the store model's layer count, and its penalty weights."
+
+    versions:
+      "001":
+        schema_url: "https://schemas.electricity.works/types/flo.tuning.bruce/001"
+        created: "2026-11-02T17:45:00Z"
+        status: "published"
+        summary: "- NumLayers: add"
+        direct_dependencies:
+          structural:
+            - "non.negative.int"
+            - "positive.int"
+      "000":
+        schema_url: "https://schemas.electricity.works/types/flo.tuning.bruce/000"
+        created: "2026-11-01T16:20:00Z"
+        status: "published"
+        summary: "Storage loss, heat pump thermal bounds and lift, the RWT line per load bucket, the RSWT, short-cycle and stability penalties, terminal cost; axioms OneLinePerBucket, BucketsAscend."
+        direct_dependencies:
+          structural:
+            - "non.negative.int"
 
   fsm.atomic.report:
     latest_version: "001"
