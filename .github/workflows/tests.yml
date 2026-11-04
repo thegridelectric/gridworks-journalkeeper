@@ -5,34 +5,17 @@ on:
   pull_request:
 
 jobs:
-  tests:
+  ci:
+    name: ci / 3.12
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
 
-      - name: Start World Broker
-        uses: namoshek/rabbitmq-github-action@v1
-        with:
-          version: "3.9.13"
-          ports: "1885:1885 4369:4369 5672:5672 15672:15672 15674:15674 25672:25672"
-          config: ${{ github.workspace }}/.ci/rabbitmq.conf
-          container-name: "rabbit"
-
-      # setup-uv owns both Python (python-version) and caching (enable-cache,
-      # keyed on uv.lock) — a separate setup-python step and a manual
-      # actions/cache on ~/.cache/uv were double provisioning / double caching.
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
           enable-cache: true
 
-      - name: Sync dependencies (uv-native; replaces the old `make venv` / `make dev`)
-        # `--all-extras` picks up pytest etc. from [project.optional-dependencies];
-        # `--all-groups` covers [dependency-groups]. gjk's pyproject uses both.
-        run: uv sync --all-extras --all-groups --locked
-
-      - name: Run tests
-        run: uv run pytest tests/
+      - name: Run ci.sh
+        run: ./ci.sh

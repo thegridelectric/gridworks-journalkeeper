@@ -60,7 +60,14 @@ uv sync --all-extras    # installs runtime + dev deps
 cp template.env .env    # then edit .env with your local broker + db URL
 ```
 
-Run tests:
+Run the gate (what the GitHub workflow runs: locked sync, ruff check, ruff
+format check, pytest):
+
+```bash
+./ci.sh
+```
+
+Or just the tests:
 
 ```bash
 uv run pytest
@@ -76,13 +83,7 @@ and **self-skips** when Docker is unavailable. Run just it with:
 uv run pytest -m integration
 ```
 
-Lint:
-
-```bash
-uv run ruff check .
-```
-
-Type-check:
+Type-check (not yet part of the gate):
 
 ```bash
 uv run mypy --strict src
@@ -233,16 +234,15 @@ This triggers the Release workflow.
 This repository uses:
 
 - `ruff` for linting and formatting
-- `mypy` for type checking
 - `pytest` for tests
+- `ci.sh` as the one gate, run locally and by the GitHub workflow
+- `mypy` for type checking (not yet in the gate)
 - `pre-commit` for enforcement (optional)
 
 Before committing:
 
 ```bash
-uv run ruff check .
-uv run mypy --strict src
-uv run pytest
+./ci.sh
 ```
 
 Or, if you have `pre-commit` installed:
