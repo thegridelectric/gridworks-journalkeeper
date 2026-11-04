@@ -42,6 +42,7 @@ class SemaMessagePersistor:
         "gw.scada.commit": "message_created_ms",
         "new.command.tree": "unix_ms",
         "scada.params": "unix_time_ms",
+        "slow.contract.rejection": "message_created_ms",
         "ticklist.reed.report": "scada_received_unix_ms",
         "ticklist.hall.report": "scada_received_unix_ms",
         # Obsolete message types

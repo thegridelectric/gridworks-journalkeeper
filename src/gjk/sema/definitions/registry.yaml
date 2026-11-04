@@ -1,6 +1,6 @@
 metadata:
   registry_version: "1.0"
-  last_updated: "2026-11-02T18:20:00Z"
+  last_updated: "2026-11-03T21:05:00Z"
   maintainer: "gridworks-energy"
 
 formats:
@@ -2318,12 +2318,36 @@ types:
             - "relay.closed.or.open:000"
 
   new.command.tree:
-    latest_version: "001"
+    latest_version: "003"
     owner: gridworks-energy
     versioning_strategy: "literal"
     description: "Full set of SpaceheatNodes describing a SCADA node's actor command hierarchy, sent to its LeafTransactiveNode."
 
     versions:
+      "003":
+        schema_url: "https://schemas.electricity.works/types/new.command.tree/003"
+        created: "2026-09-08T21:20:00Z"
+        status: "published"
+        summary: "- ShNodes: spaceheat.node.gt:302 -> 303 - Axiom 2 ActuatorLeaves: FiveVBoss joins the command-node classes"
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "spaceheat.node.gt:303"
+            - "utc.milliseconds"
+          axiom:
+            - "gw1.actor.class:014"
+      "002":
+        schema_url: "https://schemas.electricity.works/types/new.command.tree/002"
+        created: "2026-08-12T18:25:00Z"
+        status: "published"
+        summary: "- ShNodes: spaceheat.node.gt:301 -> 302 - Axiom 2 ActuatorLeaves: every actuator (Relay / ZeroTenOutputer / HpTwin) is a dotted-handle leaf; every dotted-handle leaf is an actuator or a command node (LocalControl / LeafAlly / PicoCycler / HpBoss / SiegLoop, or a NoActor child of the LocalControl node). gw1.actor.class:013 joins the axiom dependencies."
+        direct_dependencies:
+          structural:
+            - "left.right.dot"
+            - "spaceheat.node.gt:302"
+            - "utc.milliseconds"
+          axiom:
+            - "gw1.actor.class:013"
       "001":
         schema_url: "https://schemas.electricity.works/types/new.command.tree/001"
         created: "2026-06-26T03:35:00Z"
@@ -2718,6 +2742,25 @@ types:
           structural:
             - "spaceheat.name"
             - "utc.milliseconds"
+
+  slow.contract.rejection:
+    latest_version: "000"
+    owner: gridworks-energy
+    versioning_strategy: "literal"
+    description: "A scada's refusal of an LTN slow dispatch contract offer: the offered ContractId and the reason."
+
+    versions:
+      "000":
+        schema_url: "https://schemas.electricity.works/types/slow.contract.rejection/000"
+        created: "2026-10-13T11:00:00Z"
+        status: "published"
+        summary: "Initial Sema version. FromGNodeAlias + ContractId + Reason (gw.dispatch.refusal.reason) + MessageCreatedMs."
+        direct_dependencies:
+          structural:
+            - "gw.dispatch.refusal.reason:000"
+            - "left.right.dot"
+            - "utc.milliseconds"
+            - "uuid4.str"
 
   snapshot.spaceheat:
     latest_version: "003"
