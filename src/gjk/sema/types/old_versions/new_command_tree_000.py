@@ -3,7 +3,7 @@ from pydantic import model_validator
 from gjk.sema.base import SemaType
 from gjk.sema.property_format import LeftRightDot
 from gjk.sema.property_format import UTCMilliseconds
-from gjk.sema.types.new_command_tree import NewCommandTree
+from gjk.sema.types.old_versions.new_command_tree_001 import NewCommandTree001
 from gjk.sema.types.old_versions.spaceheat_node_gt_200 import SpaceheatNodeGt200
 from gjk.sema.types.old_versions.spaceheat_node_gt_300 import SpaceheatNodeGt300
 from gjk.sema.types.old_versions.spaceheat_node_gt_301 import SpaceheatNodeGt301
@@ -43,7 +43,7 @@ class NewCommandTree000(SemaType):
                     )
         return self
 
-    def upgrade(self) -> NewCommandTree:
+    def upgrade(self) -> NewCommandTree001:
         """- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"""
         data = self.model_dump()
         lifted: list[SpaceheatNodeGt301] = []
@@ -54,4 +54,4 @@ class NewCommandTree000(SemaType):
             lifted.append(current)
         data["sh_nodes"] = lifted
         data["version"] = "001"
-        return NewCommandTree.model_validate(data)
+        return NewCommandTree001.model_validate(data)

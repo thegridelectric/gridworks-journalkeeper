@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-11-03T15:38:10Z'
+  generated_at: '2026-11-04T05:18:10Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -40,6 +40,9 @@ initial_targets:
 - energy.instruction:000
 - new.command.tree:000
 - new.command.tree:001
+- new.command.tree:002
+- new.command.tree:003
+- slow.contract.rejection:000
 - g.node.forest:000
 - g.node.forest:001
 - g.node.forest:002
@@ -557,6 +560,10 @@ worklist:
         path: definitions/types/new.command.tree/000.yaml
       '001':
         path: definitions/types/new.command.tree/001.yaml
+      '002':
+        path: definitions/types/new.command.tree/002.yaml
+      '003':
+        path: definitions/types/new.command.tree/003.yaml
     pico.flow.module.component.gt:
       '000':
         path: definitions/types/pico.flow.module.component.gt/000.yaml
@@ -616,6 +623,9 @@ worklist:
     single.reading:
       '000':
         path: definitions/types/single.reading/000.yaml
+    slow.contract.rejection:
+      '000':
+        path: definitions/types/slow.contract.rejection/000.yaml
     snapshot.spaceheat:
       '001':
         path: definitions/types/snapshot.spaceheat/001.yaml

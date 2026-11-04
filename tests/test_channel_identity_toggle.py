@@ -135,7 +135,9 @@ def test_toggling_layouts_reuses_the_two_rows_and_routes_by_layout_in_force(
         _load(REPORT, alias, 5 * HOUR_MS),
         _with_celsius(_load(LAYOUT, alias, 6 * HOUR_MS), str(second_id)),
         _load(REPORT, alias, 7 * HOUR_MS),
-        _renamed(_with_celsius(_load(LAYOUT, alias, 8 * HOUR_MS), str(second_id)), RENAMED),
+        _renamed(
+            _with_celsius(_load(LAYOUT, alias, 8 * HOUR_MS), str(second_id)), RENAMED
+        ),
         _renamed(_load(REPORT, alias, 9 * HOUR_MS), RENAMED),
     ]
     for payload in steps:
