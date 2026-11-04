@@ -61,7 +61,7 @@ cp template.env .env    # then edit .env with your local broker + db URL
 ```
 
 Run the gate (what the GitHub workflow runs: locked sync, ruff check, ruff
-format check, pytest):
+format check, pyright, pytest):
 
 ```bash
 ./ci.sh
@@ -83,10 +83,10 @@ and **self-skips** when Docker is unavailable. Run just it with:
 uv run pytest -m integration
 ```
 
-Type-check (not yet part of the gate):
+Type-check alone:
 
 ```bash
-uv run mypy --strict src
+uv run pyright
 ```
 
 ### Optional: pre-commit
@@ -236,7 +236,7 @@ This repository uses:
 - `ruff` for linting and formatting
 - `pytest` for tests
 - `ci.sh` as the one gate, run locally and by the GitHub workflow
-- `mypy` for type checking (not yet in the gate)
+- `pyright` for type checking
 - `pre-commit` for enforcement (optional)
 
 Before committing:

@@ -305,7 +305,7 @@ class SemaMessagePersistor:
             if custom_persistor is not None
             else None
         )
-        if custom_fn is not None:
+        if custom_persistor is not None and custom_fn is not None:
             persistence_info = custom_fn(from_alias, time_received, payload)
             if not live and not custom_persistor.fanout_on_import:
                 persistence_info.additional_db_operations = None

@@ -26,6 +26,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from gjk.config import Settings
 from gjk.layouts_projection import LayoutsProjection
+from gjk.pseudo_channels import DERIVED_ERA_LAYOUTS, SYNTH_ERA_LAYOUTS
 from gjk.sema.codec import SemaCodec
 
 LOGGER = logging.getLogger("rebuild_layouts")
@@ -59,6 +60,7 @@ def rebuild(db: Session, codec: SemaCodec, projection: LayoutsProjection) -> int
     count = 0
     for msg in newest_layout_messages(db):
         layout = codec.from_dict(msg.payload, auto_upgrade=False)
+        assert isinstance(layout, DERIVED_ERA_LAYOUTS + SYNTH_ERA_LAYOUTS)
         projection.project(db, msg.from_alias, layout)
         count += 1
     return count

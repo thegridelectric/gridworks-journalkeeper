@@ -2,7 +2,8 @@
 
 from gwbase.config import ServiceSettings
 from gwbase.transport_format import LeftRightDot
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, SecretStr
+from pydantic_settings import SettingsConfigDict
 
 DEFAULT_ENV_FILE = ".env"
 
@@ -30,7 +31,7 @@ class Settings(ServiceSettings):
     service_name: str = "journalkeeper"  # XDG path segment for logs/state
     my_fqdn: str = "localhost"
 
-    model_config = ConfigDict(
+    model_config = SettingsConfigDict(
         env_prefix="GJK_",
         env_nested_delimiter="__",
         extra="ignore",
