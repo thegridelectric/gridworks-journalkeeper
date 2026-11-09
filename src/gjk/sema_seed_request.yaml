@@ -31,6 +31,8 @@ initial_targets:
       include_all_versions: true
     flo.recommendation:
       include_all_versions: true
+    flo.previous.run:
+      include_all_versions: true
     flo.params.house0:
       include_all_versions: true
     gridworks.event.problem:
