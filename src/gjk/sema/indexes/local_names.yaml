@@ -66,7 +66,10 @@ types:
   flo.optimal.path: flo.optimal.path
   flo.params: flo.params
   flo.params.house0: flo.params.house0
+  flo.path.penalties.bruce: flo.path.penalties.bruce
+  flo.previous.run: flo.previous.run
   flo.recommendation: flo.recommendation
+  flo.tank.store.path: flo.tank.store.path
   flo.tuning.alice: flo.tuning.alice
   flo.tuning.bruce: flo.tuning.bruce
   fsm.atomic.report: fsm.atomic.report
