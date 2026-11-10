@@ -123,8 +123,10 @@ class LayoutLitePersistor:
             row holds that Id, else a fresh uuid4; a pseudo row brings the
             uuid5 of its definition."""
             if row.id is None:
-                held = row.channel_id is None or row.channel_id in self.rows_by_id
-                row.id = uuid.uuid4() if held else row.channel_id
+                if row.channel_id is None or row.channel_id in self.rows_by_id:
+                    row.id = uuid.uuid4()
+                else:
+                    row.id = row.channel_id
             self.new_rows.append(row)
             self.all_rows.append(row)
             self.rows_by_id[row.id] = row
@@ -180,6 +182,7 @@ class LayoutLitePersistor:
                     .scalar()
                 )
                 assert self.era_boundary is not None
+                assert newest_layout_ts is not None
                 self.logger.info(
                     f"Layout from {self.msg_timestamp.isoformat()} for {self.terminal_asset_alias} is older than the newest persisted ({newest_layout_ts.isoformat()}): add-only sync, era boundary {self.era_boundary.isoformat()}"
                 )
@@ -201,7 +204,9 @@ class LayoutLitePersistor:
             if self.retired:
                 self.db.flush()
             for row in self.reactivated:
-                row.deactivated_date = None
+                # gw_data types the nullable column as Mapped[datetime]; the
+                # ignore goes when it becomes Mapped[datetime | None].
+                row.deactivated_date = None  # pyright: ignore[reportAttributeAccessIssue]
             for row in self.new_rows:
                 self.db.add(row)
             self.db.flush()

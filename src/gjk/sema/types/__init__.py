@@ -66,6 +66,7 @@ from gjk.sema.types.sim_pico_tank_module_component_gt import (
 )
 from gjk.sema.types.single_machine_state import SingleMachineState
 from gjk.sema.types.single_reading import SingleReading
+from gjk.sema.types.slow_contract_rejection import SlowContractRejection
 from gjk.sema.types.snapshot_spaceheat import SnapshotSpaceheat
 from gjk.sema.types.spaceheat_node_gt import SpaceheatNodeGt
 from gjk.sema.types.spaceheat_telemetry_quantity_projection import (
@@ -143,6 +144,7 @@ __all__ = [
     "SimPicoTankModuleComponentGt",
     "SingleMachineState",
     "SingleReading",
+    "SlowContractRejection",
     "SnapshotSpaceheat",
     "SpaceheatNodeGt",
     "SpaceheatTelemetryQuantityProjection",

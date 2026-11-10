@@ -559,9 +559,17 @@ types:
         summary: "Initial Sema version"
 
   new.command.tree:
-    latest_version: "001"
+    latest_version: "003"
     versioning_strategy: "literal"
     versions:
+      "003":
+        summary: >
+          - ShNodes: spaceheat.node.gt:302 -> 303
+          - Axiom 2 ActuatorLeaves: FiveVBoss joins the command-node classes
+      "002":
+        summary: >
+          - ShNodes: spaceheat.node.gt:301 -> 302
+          - Axiom 2 ActuatorLeaves: every actuator (Relay / ZeroTenOutputer / HpTwin) is a dotted-handle leaf; every dotted-handle leaf is an actuator or a command node (LocalControl / LeafAlly / PicoCycler / HpBoss / SiegLoop, or a NoActor child of the LocalControl node). gw1.actor.class:013 joins the axiom dependencies.
       "001":
         summary: "- ShNodes: spaceheat.node.gt:301 only (drop the multi-version oneOf; retroactive registration of the wire version the spruce scada emitted from 2026-01-28)"
       "000":
@@ -683,6 +691,13 @@ types:
     versions:
       "000":
         summary: "Initial Sema version"
+
+  slow.contract.rejection:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial Sema version. FromGNodeAlias + ContractId + Reason (gw.dispatch.refusal.reason) + MessageCreatedMs."
 
   snapshot.spaceheat:
     latest_version: "003"

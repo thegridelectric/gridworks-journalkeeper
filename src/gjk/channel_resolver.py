@@ -47,7 +47,9 @@ from gjk.sema import SemaCodec
 from gjk.sema.enums import Gw1Unit, GwChannelKind, SpaceheatTelemetryName
 from gjk.sema.types import DataChannelGt, DerivedChannelGt, LayoutLite, SynthChannelGt
 from gjk.sema.types.old_versions.data_channel_gt_001 import DataChannelGt001
+from gjk.sema.types.old_versions.data_channel_gt_002 import DataChannelGt002
 from gjk.sema.types.old_versions.derived_channel_gt_000 import DerivedChannelGt000
+from gjk.sema.types.old_versions.derived_channel_gt_001 import DerivedChannelGt001
 from gjk.sema.types.old_versions.layout_lite_001 import LayoutLite001
 from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 
@@ -60,7 +62,9 @@ from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
 REPORTED_SYNTH_CHANNELS = ("required-energy", "usable-energy")
 
 
-def data_channel_row(dc: DataChannelGt | DataChannelGt001) -> ReadingChannelSql:
+def data_channel_row(
+    dc: DataChannelGt | DataChannelGt002 | DataChannelGt001,
+) -> ReadingChannelSql:
     return ReadingChannelSql(
         channel_id=uuid.UUID(dc.id),
         name=dc.name,
@@ -73,7 +77,7 @@ def data_channel_row(dc: DataChannelGt | DataChannelGt001) -> ReadingChannelSql:
 
 
 def derived_channel_row(
-    dc: DerivedChannelGt | DerivedChannelGt000,
+    dc: DerivedChannelGt | DerivedChannelGt001 | DerivedChannelGt000,
 ) -> ReadingChannelSql:
     return ReadingChannelSql(
         channel_id=uuid.UUID(dc.id),

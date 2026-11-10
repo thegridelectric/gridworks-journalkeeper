@@ -1353,6 +1353,32 @@ types:
       types:
       - spaceheat.node.gt:301
       versionless_types: []
+    '002':
+      enums:
+      - gw1.actor.class:013
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - spaceheat.node.gt:302
+      versionless_types: []
+    '003':
+      enums:
+      - gw1.actor.class:014
+      formats:
+      - handle.name
+      - left.right.dot
+      - positive.int
+      - spaceheat.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - spaceheat.node.gt:303
+      versionless_types: []
   pico.flow.module.component.gt:
     '000':
       enums:
@@ -1662,6 +1688,16 @@ types:
       formats:
       - spaceheat.name
       - utc.milliseconds
+      types: []
+      versionless_types: []
+  slow.contract.rejection:
+    '000':
+      enums:
+      - gw.dispatch.refusal.reason:000
+      formats:
+      - left.right.dot
+      - utc.milliseconds
+      - uuid4.str
       types: []
       versionless_types: []
   snapshot.spaceheat:

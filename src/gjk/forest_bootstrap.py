@@ -31,6 +31,9 @@ from sqlalchemy.orm import sessionmaker
 
 from gjk.config import Settings
 from gjk.g_node_forest_persistor import AnyForest, GNodeForestPersistor
+from gjk.sema.types import GNodeForest
+from gjk.sema.types.old_versions.g_node_forest_000 import GNodeForest000
+from gjk.sema.types.old_versions.g_node_forest_001 import GNodeForest001
 from gjk.sema.codec import SemaCodec
 from gjk.sema.types import GNodeForestRequest
 
@@ -49,7 +52,12 @@ def fetch_forest(api_base: str, root: str, codec: SemaCodec) -> AnyForest:
         raise ValueError(
             f"expected g.node.forest for root {root}, got {payload.get('TypeName')!r}"
         )
-    return codec.from_dict(payload)
+    forest = codec.from_dict(payload)
+    if not isinstance(forest, (GNodeForest, GNodeForest000, GNodeForest001)):
+        raise ValueError(
+            f"decoded {type(forest).__name__} for root {root}, not a forest"
+        )
+    return forest
 
 
 def bootstrap(api_base: str, roots: list[str], settings: Settings) -> None:

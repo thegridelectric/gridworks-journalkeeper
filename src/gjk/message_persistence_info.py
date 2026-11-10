@@ -55,4 +55,4 @@ class MessagePersistenceInfo:
     # message arrives live from the broker, never on a persistent-store
     # replay, whatever the persistor's fanout_on_import says about
     # additional_db_operations.
-    live_only_db_operations: Callable[[Session], None] | None = None
+    live_only_db_operations: Callable[[Session], object] | None = None

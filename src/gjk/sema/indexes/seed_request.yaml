@@ -46,8 +46,9 @@ initial_targets:
     energy.instruction:
       include_all_versions: true
     new.command.tree:
-      # Published set only (002 is staging) — same posture as layout.lite.
-      versions: ["000", "001"]
+      versions: ["000", "001", "002", "003"]
+    # A scada's refusal of an LTN's slow dispatch contract offer.
+    slow.contract.rejection: {}
     g.node.forest:      # grid-node-registry's broadcast projection
       include_all_versions: true
     g.node.forest.request:      # bootstrap/resync against gnr's read API

@@ -31,6 +31,7 @@ ALL_MSG_TYPES = [
     "flo.params.house0",
     "gridworks.ping",
     "slow.contract.heartbeat",
+    "slow.contract.rejection",
     "snapshot.spaceheat",
     "power.watts",
     "glitch",

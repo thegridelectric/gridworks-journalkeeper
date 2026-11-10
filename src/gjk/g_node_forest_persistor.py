@@ -28,6 +28,7 @@ from gjk.message_persistence_info import MessagePersistenceInfo, default_message
 from gjk.sema.types import ConnectivityEdgeGt, GNodeForest, GNodeGt
 from gjk.sema.types.old_versions.g_node_forest_000 import GNodeForest000
 from gjk.sema.types.old_versions.g_node_forest_001 import GNodeForest001
+from gjk.sema.types.old_versions.g_node_gt_005 import GNodeGt005
 
 type AnyForest = GNodeForest | GNodeForest000 | GNodeForest001
 
@@ -107,7 +108,9 @@ class GNodeForestPersistor:
         for edge in forest.edges:
             self._upsert_edge(db, edge, sent_at)
 
-    def _upsert_node(self, db: Session, gt: GNodeGt, sent_at: datetime | None) -> None:
+    def _upsert_node(
+        self, db: Session, gt: GNodeGt | GNodeGt005, sent_at: datetime | None
+    ) -> None:
         node_id = uuid.UUID(gt.g_node_id)
         # The registry's opaque location identity, stored verbatim — gw_data
         # holds no position content, so there is nothing local to resolve

@@ -32,7 +32,8 @@ class JournalKeeper(ActorBase):
         logger: logging.Logger | None = None,
     ) -> None:
         super().__init__(settings=settings)
-        self.settings: Settings = settings
+        # Narrows ActorBase's ServiceSettings to this service's own class.
+        self.settings: Settings = settings  # pyright: ignore[reportIncompatibleVariableOverride]
         self.codec: SemaCodec = codec
         # ActorBase built the XDG file logger (gwbase logging_setup); an
         # injected logger is the override seam for harness scripts only.
@@ -69,6 +70,7 @@ class JournalKeeper(ActorBase):
             self.queue_name,
             self._consume_exchange,
         )
+        assert self._single_channel is not None
         self._single_channel.queue_bind(
             self.queue_name,
             self._consume_exchange,
