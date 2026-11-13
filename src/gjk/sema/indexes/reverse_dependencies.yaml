@@ -43,6 +43,7 @@ types:
     '004':
       used_by:
       - layout.lite:013
+      - layout.lite:014
   derived.channel.gt:
     '000':
       used_by:
@@ -58,11 +59,13 @@ types:
     '003':
       used_by:
       - layout.lite:013
+      - layout.lite:014
   flo.optimal.path:
     '000':
       used_by:
       - flo.params:000
       - flo.params:001
+      - flo.params:002
       - flo.previous.run:000
       - flo.recommendation:000
       - flo.recommendation:001
@@ -79,6 +82,7 @@ types:
       used_by:
       - flo.params:000
       - flo.params:001
+      - flo.params:002
   flo.tuning.bruce:
     '000':
       used_by:
@@ -86,6 +90,7 @@ types:
     '001':
       used_by:
       - flo.params:001
+      - flo.params:002
   fsm.atomic.report:
     '000':
       used_by:
@@ -115,6 +120,15 @@ types:
     '000':
       used_by:
       - layout.lite:013
+      - layout.lite:014
+  gw.tou.tariff:
+    '000':
+      used_by:
+      - layout.lite:014
+  gw.tou.window:
+    '000':
+      used_by:
+      - gw.tou.tariff:000
   gw.weather.channel.gt:
     '002':
       used_by:
@@ -276,6 +290,10 @@ types:
       - layout.lite:010
       - layout.lite:011
       - layout.lite:012
+  price.component:
+    '000':
+      used_by:
+      - latest.price:001
   price.quantity.unitless:
     '000':
       used_by:
@@ -356,6 +374,7 @@ types:
     '303':
       used_by:
       - layout.lite:013
+      - layout.lite:014
       - new.command.tree:003
   spaceheat.telemetry.quantity.projection:
     '000':
@@ -392,6 +411,10 @@ enums:
       used_by:
       - relay.actor.config:001
       - relay.actor.config:002
+  day.of.week:
+    '000':
+      used_by:
+      - gw.tou.window:000
   fsm.report.type:
     '000':
       used_by:
@@ -428,6 +451,10 @@ enums:
     '001':
       used_by:
       - gw.alert:001
+  gw.market.product.name:
+    '001':
+      used_by:
+      - gw.price.forecast:000
   gw.platform.alert.kind:
     '000':
       used_by:
@@ -490,6 +517,7 @@ enums:
       used_by:
       - flo.params:000
       - flo.params:001
+      - flo.params:002
       - gw.house.operating.status:000
       - layout.lite:008
       - layout.lite:009
@@ -547,7 +575,9 @@ enums:
       - flo.previous.run:000
       - flo.recommendation:000
       - flo.recommendation:001
+      - gw.price.forecast:000
       - latest.price:000
+      - latest.price:001
   market.quantity.unit:
     '000':
       used_by:
@@ -557,6 +587,11 @@ enums:
       - flo.previous.run:000
       - flo.recommendation:000
       - flo.recommendation:001
+  price.component.name:
+    '000':
+      used_by:
+      - latest.price:001
+      - price.component:000
   relay.closed.or.open:
     '000':
       used_by:
@@ -622,8 +657,12 @@ formats:
     - spaceheat.node.gt:301
     - spaceheat.node.gt:302
     - spaceheat.node.gt:303
+  hh.mm:
+    used_by:
+    - gw.tou.window:000
   iana.timezone.str:
     used_by:
+    - gw.tou.tariff:000
     - gw.weather.location.gt:001
   left.right.dot:
     used_by:
@@ -649,6 +688,7 @@ formats:
     - flo.params.house0:007
     - flo.params:000
     - flo.params:001
+    - flo.params:002
     - flo.recommendation:000
     - flo.recommendation:001
     - fsm.atomic.report:000
@@ -663,8 +703,10 @@ formats:
     - gw.alert:001
     - gw.hack.alert.silences:000
     - gw.house.operating.status:000
+    - gw.price.forecast:000
     - gw.scada.commit:000
     - gw.state.machine:000
+    - gw.tou.tariff:000
     - gw.weather.channel.gt:002
     - gw.weather.forecast.bundle.gt:002
     - gw.weather.forecast.channel.gt:000
@@ -676,6 +718,7 @@ formats:
     - gw.weather.seasonal.template.gt:000
     - heating.forecast:000
     - latest.price:000
+    - latest.price:001
     - layout.lite:001
     - layout.lite:002
     - layout.lite:003
@@ -689,6 +732,7 @@ formats:
     - layout.lite:011
     - layout.lite:012
     - layout.lite:013
+    - layout.lite:014
     - machine.states:000
     - new.command.tree:000
     - new.command.tree:001
@@ -728,6 +772,7 @@ formats:
     - atn.bid:002
     - bid:000
     - latest.price:000
+    - latest.price:001
   non.empty.string:
     used_by:
     - flo.recommendation:000
@@ -763,6 +808,7 @@ formats:
     - flo.params.house0:007
     - flo.params:000
     - flo.params:001
+    - flo.params:002
     - flo.tank.store.path:000
     - flo.tuning.bruce:001
     - gw.weather.channel.gt:002
@@ -852,6 +898,7 @@ formats:
     - energy.instruction:000
     - flo.params:000
     - flo.params:001
+    - flo.params:002
     - flo.previous.run:000
     - flo.recommendation:000
     - flo.recommendation:001
@@ -863,9 +910,11 @@ formats:
     - gridworks.event.problem:001
     - gw.alert:001
     - gw.house.operating.status:000
+    - gw.price.forecast:000
     - gw.scada.commit:000
     - gw.weather.forecast:001
     - gw.weather.forecast:002
+    - latest.price:001
     - layout.lite:001
     - layout.lite:002
     - layout.lite:003
@@ -879,6 +928,7 @@ formats:
     - layout.lite:011
     - layout.lite:012
     - layout.lite:013
+    - layout.lite:014
     - machine.states:000
     - new.command.tree:000
     - new.command.tree:001
@@ -922,6 +972,8 @@ formats:
     - flo.params.house0:007
     - flo.params:000
     - flo.params:001
+    - flo.params:002
+    - gw.price.forecast:000
     - heating.forecast:000
     - report:001
     - report:002
@@ -948,6 +1000,7 @@ formats:
     - flo.params.house0:007
     - flo.params:000
     - flo.params:001
+    - flo.params:002
     - fsm.atomic.report:000
     - fsm.atomic.report:001
     - fsm.full.report:000
@@ -957,6 +1010,7 @@ formats:
     - g.node.gt:006
     - gridworks.event.problem:001
     - gw.alert:001
+    - gw.price.forecast:000
     - gw.weather.channel.gt:002
     - gw.weather.forecast.bundle.gt:002
     - gw.weather.forecast.channel.gt:000
@@ -969,6 +1023,7 @@ formats:
     - i2c.multichannel.dt.relay.component.gt:002
     - i2c.multichannel.dt.relay.component.gt:003
     - latest.price:000
+    - latest.price:001
     - layout.lite:001
     - layout.lite:002
     - layout.lite:003
@@ -982,6 +1037,7 @@ formats:
     - layout.lite:011
     - layout.lite:012
     - layout.lite:013
+    - layout.lite:014
     - pico.flow.module.component.gt:000
     - pico.tank.module.component.gt:000
     - pico.tank.module.component.gt:010

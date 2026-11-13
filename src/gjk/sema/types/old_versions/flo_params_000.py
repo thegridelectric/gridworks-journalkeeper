@@ -8,8 +8,8 @@ from gjk.sema.property_format import UTCMilliseconds
 from gjk.sema.property_format import UTCSeconds
 from gjk.sema.property_format import UUID4Str
 from gjk.sema.types.flo_optimal_path import FloOptimalPath
-from gjk.sema.types.flo_params import FloParams
 from gjk.sema.types.flo_tuning_alice import FloTuningAlice
+from gjk.sema.types.old_versions.flo_params_001 import FloParams001
 from gjk.sema.types.old_versions.flo_tuning_bruce_000 import FloTuningBruce000
 
 
@@ -134,7 +134,7 @@ class FloParams000(SemaType):
             )
         return self
 
-    def upgrade(self) -> FloParams:
+    def upgrade(self) -> FloParams001:
         """
         - Tuning: flo.tuning.bruce 000 -> 001, NumLayers assigned as
           TanksModeled times TempSensorsPerTank
@@ -145,4 +145,4 @@ class FloParams000(SemaType):
             tuning["num_layers"] = data["tanks_modeled"] * data["temp_sensors_per_tank"]
             tuning["version"] = "001"
         data["version"] = "001"
-        return FloParams.model_validate(data)
+        return FloParams001.model_validate(data)

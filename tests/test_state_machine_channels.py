@@ -33,6 +33,7 @@ from gjk.sema.enums import (
 )
 from gjk.sema.types import GwStateMachine, LayoutLite
 from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
+from gjk.sema.types.old_versions.layout_lite_013 import LayoutLite013
 
 SAMPLES = Path(__file__).parent / "data" / "sample_messages"
 # Real emissions of two simulated houses booted on jm/spruce-unlimbo
@@ -88,7 +89,7 @@ def persist(
 def test_both_families_decode_as_013():
     for path in (WILLOW_013, NOLAN_013):
         decoded = layout(path)
-        assert isinstance(decoded, LayoutLite)
+        assert isinstance(decoded, LayoutLite013)
         assert decoded.state_machines
     assert isinstance(layout(BEECH_011).__class__, type)
 
@@ -208,10 +209,31 @@ def test_a_node_channel_of_another_enum_is_not_written():
 
 def test_013_persistence_info_takes_created_ms_and_derives_no_status():
     lite = layout(WILLOW_013)
-    assert isinstance(lite, LayoutLite)
+    assert isinstance(lite, LayoutLite013)
     house_status = MagicMock(spec=HouseStatusProjection)
     persistor = LayoutLitePersistor(logging.getLogger("test"), house_status)
     info = persistor.persist_v013(ALIAS, None, lite)
+    assert info.id == lite.message_id
+    assert (
+        info.created_at.timestamp() * 1000 == layout_created_ms(lite) == lite.created_ms
+    )
+    db = MagicMock()
+    persistor.layouts = MagicMock()
+    info.live_only_db_operations(db)
+    persistor.layouts.project.assert_called_once()
+    house_status.derive.assert_not_called()
+
+
+def test_014_persistence_info_takes_created_ms_and_derives_no_status():
+    example = yaml.safe_load(
+        Path("src/gjk/sema/definitions/types/layout.lite/014.yaml").read_text()
+    )["examples"][0]
+    lite = SemaCodec().from_dict(json.loads(example), auto_upgrade=False)
+    assert isinstance(lite, LayoutLite)
+    assert lite.tariff.on_peak_windows
+    house_status = MagicMock(spec=HouseStatusProjection)
+    persistor = LayoutLitePersistor(logging.getLogger("test"), house_status)
+    info = persistor.persist_v014(ALIAS, None, lite)
     assert info.id == lite.message_id
     assert (
         info.created_at.timestamp() * 1000 == layout_created_ms(lite) == lite.created_ms

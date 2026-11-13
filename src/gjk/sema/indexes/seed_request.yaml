@@ -18,11 +18,11 @@ initial_targets:
     report.event:
       versions: ["000", "002", "003", "004"]
     layout.lite:
-      # Every published version: gjk is a prod service, so its snapshot is
-      # publication-grade. The walk-back extends this backward; 002/003 are
-      # historical back-fill versions the S3 archive still carries and JK
-      # must decode.
-      versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013"]
+      # Every version a scada has sent or sends: the walk-back extends this
+      # backward; 002/003 are historical back-fill versions the S3 archive
+      # still carries and JK must decode. 014 is staging and runs on dev
+      # until promoted.
+      versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013", "014"]
     glitch:
       include_all_versions: true
     flo.params:
@@ -73,6 +73,9 @@ initial_targets:
       include_all_versions: true
     latest.price:
       include_all_versions: true
+    # The price service's forecast, journaled whole: the panel draws the
+    # forecast a house's flo.params names by its id.
+    gw.price.forecast: {}
     # The gw.weather vocabulary, latest versions only: the service emits
     # nothing older, and an older version on the wire or in the archive is
     # retired (gjk/retired_versions.py), never decoded. Journaled

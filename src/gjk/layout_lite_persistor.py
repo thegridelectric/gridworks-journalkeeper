@@ -11,7 +11,11 @@ from gjk.layouts_projection import LayoutsProjection, terminal_asset_alias
 from gjk.channel_resolver import declared_rows, rows_of, same_definition
 from gjk.message_persistence_info import MessagePersistenceInfo
 from gjk.reading_channel_eras import forget_channel_rows, load_channel_rows
-from gjk.pseudo_channels import ModernLayout, layout_created_ms
+from gjk.pseudo_channels import (
+    DECLARED_MACHINES_LAYOUTS,
+    ModernLayout,
+    layout_created_ms,
+)
 from gjk.sema.types import LayoutLite
 from gjk.sema.types.old_versions.layout_lite_001 import LayoutLite001
 from gjk.sema.types.old_versions.layout_lite_002 import LayoutLite002
@@ -25,6 +29,7 @@ from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
+from gjk.sema.types.old_versions.layout_lite_013 import LayoutLite013
 
 
 class LayoutLitePersistor:
@@ -242,10 +247,10 @@ class LayoutLitePersistor:
     def project_live(self, db: Session, from_alias: str, layout: ModernLayout) -> None:
         """The current-state projections a live layout feeds: the layouts row,
         then the derived operating status of a house on the old scada code.
-        A scada that sends 013 sends gw.house.operating.status itself, so
-        nothing is derived from its layout."""
+        A scada that sends 013 or newer sends gw.house.operating.status
+        itself, so nothing is derived from its layout."""
         self.layouts.project(db, from_alias, layout)
-        if isinstance(layout, LayoutLite):
+        if isinstance(layout, DECLARED_MACHINES_LAYOUTS):
             return
         self.house_status.derive(db, terminal_asset_alias(layout.from_g_node_alias))
 
@@ -310,6 +315,11 @@ class LayoutLitePersistor:
         return self.persist(from_alias, layout)
 
     def persist_v013(
+        self, from_alias: str, time_received: datetime, layout: LayoutLite013
+    ):
+        return self.persist(from_alias, layout)
+
+    def persist_v014(
         self, from_alias: str, time_received: datetime, layout: LayoutLite
     ):
         return self.persist(from_alias, layout)

@@ -2,6 +2,7 @@ enums:
   aquastat.control.state: aquastat.control.state
   base.g.node.class: base.g.node.class
   change.relay.state: change.relay.state
+  day.of.week: day.of.week
   five.v.boss.state: five.v.boss.state
   fsm.report.type: fsm.report.type
   g.node.status: g.node.status
@@ -12,6 +13,7 @@ enums:
   gw.dispatch.refusal.reason: gw.dispatch.refusal.reason
   gw.fleet.alert.kind: gw.fleet.alert.kind
   gw.house.alert.kind: gw.house.alert.kind
+  gw.market.product.name: gw.market.product.name
   gw.platform.alert.kind: gw.platform.alert.kind
   gw.standby.posture: gw.standby.posture
   gw.top.state: gw.top.state
@@ -39,6 +41,7 @@ enums:
   market.price.unit: market.price.unit
   market.quantity.unit: market.quantity.unit
   pico.cycler.state: pico.cycler.state
+  price.component.name: price.component.name
   primary.pump.control: primary.pump.control
   relay.closed.or.open: relay.closed.or.open
   relay.energization.state: relay.energization.state
@@ -82,8 +85,11 @@ types:
   gw.alert: gw.alert
   gw.hack.alert.silences: gw.hack.alert.silences
   gw.house.operating.status: gw.house.operating.status
+  gw.price.forecast: gw.price.forecast
   gw.scada.commit: gw.scada.commit
   gw.state.machine: gw.state.machine
+  gw.tou.tariff: gw.tou.tariff
+  gw.tou.window: gw.tou.window
   gw.weather.channel.gt: gw.weather.channel.gt
   gw.weather.cmd.ack: gw.weather.cmd.ack
   gw.weather.cmd.nack: gw.weather.cmd.nack
@@ -111,6 +117,7 @@ types:
   pico.flow.module.component.gt: pico.flow.module.component.gt
   pico.tank.module.component.gt: pico.tank.module.component.gt
   power.watts: power.watts
+  price.component: price.component
   price.quantity.unitless: price.quantity.unitless
   relay.actor.config: relay.actor.config
   report: report

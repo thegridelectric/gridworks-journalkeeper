@@ -17,6 +17,7 @@ from gw_data.db.models import ReadingChannelSql
 import gjk.sema.enums as sema_enums
 import gjk.sema.enums.old_versions as old_enums
 from gjk.pseudo_channels import (
+    DECLARED_MACHINES_LAYOUTS,
     DERIVED_ERA_LAYOUTS,
     ModernLayout,
     PseudoChannel,
@@ -35,7 +36,7 @@ from gjk.sema.enums import (
     SinglePicoState,
 )
 from gjk.sema.enums.gw_str_enum import SemaEnum
-from gjk.sema.types import Glitch, GwStateMachine, LayoutLite, ReportEvent
+from gjk.sema.types import Glitch, GwStateMachine, ReportEvent
 from gjk.sema.types.old_versions.report_001 import Report001
 from gjk.sema.types.old_versions.report_event_000 import ReportEvent000
 from gjk.sema.types.old_versions.report_event_002 import ReportEvent002
@@ -236,7 +237,7 @@ class ReportEventPersistor:
     @classmethod
     def get_pseudo_channels(cls, layout: ModernLayout) -> list[PseudoChannel]:
         result: list[PseudoChannel] = []
-        if isinstance(layout, LayoutLite):
+        if isinstance(layout, DECLARED_MACHINES_LAYOUTS):
             for machine in layout.state_machines:
                 channel = cls.declared_state_channel(machine)
                 if channel is None:

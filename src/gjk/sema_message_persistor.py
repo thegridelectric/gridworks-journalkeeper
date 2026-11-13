@@ -38,6 +38,7 @@ class SemaMessagePersistor:
         "flo.params": "created_ms",
         "flo.recommendation": "created_ms",
         "flo.previous.run": "created_ms",
+        "gw.price.forecast": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.scada.commit": "message_created_ms",
@@ -56,6 +57,8 @@ class SemaMessagePersistor:
 
     MSG_ID_FIELDS = {
         "gridworks.event.problem": "message_id",
+        # The forecast's own identity: the id a house's flo.params names.
+        "gw.price.forecast": "forecast_uid",
         "scada.params": "message_id",
         # Weather records are durable identities; their own uuid is the
         # message id, so a record replayed through the bus dedupes. (The

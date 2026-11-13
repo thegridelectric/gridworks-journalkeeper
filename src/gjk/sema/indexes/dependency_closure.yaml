@@ -203,6 +203,21 @@ types:
       - flo.tuning.alice:000
       - flo.tuning.bruce:001
       versionless_types: []
+    '002':
+      enums:
+      - gw1.seasonal.storage.mode:000
+      formats:
+      - left.right.dot
+      - non.negative.int
+      - positive.int
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - flo.optimal.path:000
+      - flo.tuning.alice:000
+      - flo.tuning.bruce:001
+      versionless_types: []
   flo.params.house0:
     '000':
       enums:
@@ -530,6 +545,18 @@ types:
       - utc.milliseconds
       types: []
       versionless_types: []
+  gw.price.forecast:
+    '000':
+      enums:
+      - gw.market.product.name:001
+      - market.price.unit:000
+      formats:
+      - left.right.dot
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types: []
+      versionless_types: []
   gw.scada.commit:
     '000':
       enums: []
@@ -546,6 +573,25 @@ types:
       - left.right.dot
       - sema.version
       - spaceheat.name
+      types: []
+      versionless_types: []
+  gw.tou.tariff:
+    '000':
+      enums:
+      - day.of.week:000
+      formats:
+      - hh.mm
+      - iana.timezone.str
+      - left.right.dot
+      types:
+      - gw.tou.window:000
+      versionless_types: []
+  gw.tou.window:
+    '000':
+      enums:
+      - day.of.week:000
+      formats:
+      - hh.mm
       types: []
       versionless_types: []
   gw.weather.channel.gt:
@@ -853,6 +899,18 @@ types:
       - market.slot.name
       - uuid4.str
       types: []
+      versionless_types: []
+    '001':
+      enums:
+      - market.price.unit:000
+      - price.component.name:000
+      formats:
+      - left.right.dot
+      - market.slot.name
+      - utc.milliseconds
+      - uuid4.str
+      types:
+      - price.component:000
       versionless_types: []
   layout.lite:
     '001':
@@ -1313,6 +1371,35 @@ types:
       - spaceheat.node.gt:303
       - spaceheat.telemetry.quantity.projection:001
       versionless_types: []
+    '014':
+      enums:
+      - day.of.week:000
+      - gw1.actor.class:014
+      - gw1.emission.method:000
+      - gw1.quantity:003
+      - gw1.unit:003
+      - spaceheat.telemetry.name:007
+      formats:
+      - handle.name
+      - hh.mm
+      - iana.timezone.str
+      - left.right.dot
+      - positive.int
+      - sema.version
+      - spaceheat.name
+      - utc.milliseconds
+      - utc.seconds
+      - uuid4.str
+      types:
+      - data.channel.gt:004
+      - derived.channel.gt:003
+      - gw.state.machine:000
+      - gw.tou.tariff:000
+      - gw.tou.window:000
+      - gw1.unit.quantity.projection:001
+      - spaceheat.node.gt:303
+      - spaceheat.telemetry.quantity.projection:001
+      versionless_types: []
   machine.states:
     '000':
       enums:
@@ -1430,6 +1517,13 @@ types:
   power.watts:
     '000':
       enums: []
+      formats: []
+      types: []
+      versionless_types: []
+  price.component:
+    '000':
+      enums:
+      - price.component.name:000
       formats: []
       types: []
       versionless_types: []
