@@ -26,6 +26,7 @@ from gjk.sema.types.old_versions.layout_lite_009 import LayoutLite009
 from gjk.sema.types.old_versions.layout_lite_010 import LayoutLite010
 from gjk.sema.types.old_versions.layout_lite_011 import LayoutLite011
 from gjk.sema.types.old_versions.layout_lite_012 import LayoutLite012
+from gjk.sema.types.old_versions.layout_lite_013 import LayoutLite013
 
 # Every layout.lite version JK persists natively, split by channel
 # projection: 001-006 are the historical SynthChannels-era versions
@@ -40,6 +41,7 @@ type SynthEraLayout = (
 )
 type DerivedEraLayout = (
     LayoutLite
+    | LayoutLite013
     | LayoutLite012
     | LayoutLite011
     | LayoutLite010
@@ -51,6 +53,7 @@ type ModernLayout = DerivedEraLayout | SynthEraLayout
 # The runtime forms, for isinstance.
 DERIVED_ERA_LAYOUTS = (
     LayoutLite,
+    LayoutLite013,
     LayoutLite012,
     LayoutLite011,
     LayoutLite010,
@@ -67,11 +70,15 @@ SYNTH_ERA_LAYOUTS = (
     LayoutLite001,
 )
 MODERN_LAYOUTS = DERIVED_ERA_LAYOUTS + SYNTH_ERA_LAYOUTS
+# From 013 on a layout declares its StateMachines and stamps CreatedMs, and
+# its scada sends gw.house.operating.status itself.
+type DeclaredMachinesLayout = LayoutLite | LayoutLite013
+DECLARED_MACHINES_LAYOUTS = (LayoutLite, LayoutLite013)
 
 
 def layout_created_ms(layout: ModernLayout) -> int:
     """The sender's clock on the layout: CreatedMs from 013, MessageCreatedMs before."""
-    if isinstance(layout, LayoutLite):
+    if isinstance(layout, DECLARED_MACHINES_LAYOUTS):
         return layout.created_ms
     return layout.message_created_ms
 

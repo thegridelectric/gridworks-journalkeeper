@@ -101,9 +101,13 @@ types:
         summary: "StartUnixS, StepDurationMinutes, HpAvgWList (W), StoreWhList (Wh); axiom StepListLengths."
 
   flo.params:
-    latest_version: "001"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
+      "002":
+        summary: >
+          - PriceUsdMwhList: add, in place of LmpUsdMwhList and DistUsdMwhList
+          - PriceForecastId: add
       "001":
         summary: "- Tuning: flo.tuning.bruce 000 -> 001, NumLayers assigned as TanksModeled times TempSensorsPerTank"
       "000":
@@ -292,6 +296,13 @@ types:
       "000":
         summary: "Initial version. ScadaAlias + ValidationState (from the deed) + Standby x StandbyPosture + SeasonalStorageMode + ServiceMode + AcceptsDispatch x DispatchRefusalReason (the derived answer, present iff refusing, axiom 1; Standby refuses as OperatorHold, axiom 2) + TopState + ScadaBlind + LtnDispatching + CreatedMs. The slow facts of the LTN-scada agreement; nothing that cycles inside a healthy hour."
 
+  gw.price.forecast:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
+
   gw.scada.commit:
     latest_version: "000"
     versioning_strategy: "literal"
@@ -305,6 +316,20 @@ types:
     versions:
       "000":
         summary: "Initial version."
+
+  gw.tou.tariff:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version: Alias (left.right.dot), DisplayName, TimezoneStr (iana.timezone.str, the new format word replacing a bare string), OnPeakWindows (gw.tou.window list). Axiom 1: per-day window non-overlap (moved here from the two operational-params words)."
+
+  gw.tou.window:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version: Start (inclusive) and End (exclusive) hh.mm plus Days (day.of.week list). Axioms: Start strictly before End (no midnight wrap); Days non-empty and duplicate-free."
 
   gw.weather.channel.gt:
     latest_version: "002"
@@ -489,16 +514,24 @@ types:
         summary: "Earliest wire shape, back-filled from S3 evidence. As v002 but its ConfigList element is relay.actor.config:001 (pre-DeEnergizedState / EnergizedState)."
 
   latest.price:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
+      "001":
+        summary: >
+          - PriceTimes1000: renamed PriceX1000
+          - Components: add, assigned as one Unknown component with the whole price
+          - TariffAlias: add (optional)
+          - CreatedMs: add (optional)
       "000":
         summary: "Initial Sema version"
 
   layout.lite:
-    latest_version: "013"
+    latest_version: "014"
     versioning_strategy: "literal"
     versions:
+      "014":
+        summary: "- Tariff: add (gw.tou.tariff 000), the time-of-use tariff the home is billed on, as the running scada's operational params state it; a reader lays its on-peak windows over any time range without a hand-kept copy."
       "013":
         summary: >
           - ShNodes: spaceheat.node.gt:301 -> 303
@@ -601,6 +634,13 @@ types:
     versions:
       "000":
         summary: "Initial Sema version"
+
+  price.component:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "Initial version."
 
   price.quantity.unitless:
     latest_version: "001"
@@ -802,6 +842,12 @@ enums:
     versions:
       "000": {}
 
+  day.of.week:
+    enum_type: "literal"
+    note: "This enum is literal; version 000 is immutable and exclusive."
+    versions:
+      "000": {}
+
   five.v.boss.state:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
@@ -864,6 +910,14 @@ enums:
         added_values:
           - "ScadaSilent"
           - "LtnSilent"
+
+  gw.market.product.name:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "001":
+        added_values:
+          - "rt60gate1"
 
   gw.platform.alert.kind:
     enum_type: "versioned"
@@ -1050,6 +1104,12 @@ enums:
       "000": {}
 
   pico.cycler.state:
+    enum_type: "versioned"
+    note: "This enum is versioned; new versions are additive only."
+    versions:
+      "000": {}
+
+  price.component.name:
     enum_type: "versioned"
     note: "This enum is versioned; new versions are additive only."
     versions:

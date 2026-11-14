@@ -62,9 +62,10 @@ types:
     versions:
       '000': definitions/types/flo.optimal.path/000.yaml
   flo.params:
-    latest_version: '001'
+    latest_version: '002'
     versioning_strategy: literal
     versions:
+      '002': definitions/types/flo.params/002.yaml
       '001': definitions/types/flo.params/001.yaml
       '000': definitions/types/flo.params/000.yaml
   flo.params.house0:
@@ -166,6 +167,11 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/gw.house.operating.status/000.yaml
+  gw.price.forecast:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.price.forecast/000.yaml
   gw.scada.commit:
     latest_version: '000'
     versioning_strategy: literal
@@ -176,6 +182,16 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/gw.state.machine/000.yaml
+  gw.tou.tariff:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.tou.tariff/000.yaml
+  gw.tou.window:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/gw.tou.window/000.yaml
   gw.weather.channel.gt:
     latest_version: '002'
     versioning_strategy: literal
@@ -287,14 +303,16 @@ types:
       '002': definitions/types/i2c.multichannel.dt.relay.component.gt/002.yaml
       '001': definitions/types/i2c.multichannel.dt.relay.component.gt/001.yaml
   latest.price:
-    latest_version: '000'
+    latest_version: '001'
     versioning_strategy: literal
     versions:
+      '001': definitions/types/latest.price/001.yaml
       '000': definitions/types/latest.price/000.yaml
   layout.lite:
-    latest_version: '013'
+    latest_version: '014'
     versioning_strategy: literal
     versions:
+      '014': definitions/types/layout.lite/014.yaml
       '013': definitions/types/layout.lite/013.yaml
       '012': definitions/types/layout.lite/012.yaml
       '011': definitions/types/layout.lite/011.yaml
@@ -338,6 +356,11 @@ types:
     versioning_strategy: literal
     versions:
       '000': definitions/types/power.watts/000.yaml
+  price.component:
+    latest_version: '000'
+    versioning_strategy: literal
+    versions:
+      '000': definitions/types/price.component/000.yaml
   price.quantity.unitless:
     latest_version: '001'
     versioning_strategy: literal
@@ -458,6 +481,9 @@ enums:
   change.relay.state:
     enum_type: literal
     schema: definitions/enums/change.relay.state/000.yaml
+  day.of.week:
+    enum_type: literal
+    schema: definitions/enums/day.of.week/000.yaml
   five.v.boss.state:
     enum_type: versioned
     latest_version: '000'
@@ -504,6 +530,11 @@ enums:
     latest_version: '001'
     versions:
       '001': definitions/enums/gw.house.alert.kind/001.yaml
+  gw.market.product.name:
+    enum_type: versioned
+    latest_version: '001'
+    versions:
+      '001': definitions/enums/gw.market.product.name/001.yaml
   gw.platform.alert.kind:
     enum_type: versioned
     latest_version: '000'
@@ -640,6 +671,11 @@ enums:
     latest_version: '000'
     versions:
       '000': definitions/enums/pico.cycler.state/000.yaml
+  price.component.name:
+    enum_type: versioned
+    latest_version: '000'
+    versions:
+      '000': definitions/enums/price.component.name/000.yaml
   primary.pump.control:
     enum_type: literal
     schema: definitions/enums/primary.pump.control/000.yaml
@@ -707,6 +743,7 @@ enums:
 formats:
   git.commit: definitions/formats/git.commit.yaml
   handle.name: definitions/formats/handle.name.yaml
+  hh.mm: definitions/formats/hh.mm.yaml
   iana.timezone.str: definitions/formats/iana.timezone.str.yaml
   left.right.dot: definitions/formats/left.right.dot.yaml
   lowercase.token: definitions/formats/lowercase.token.yaml
