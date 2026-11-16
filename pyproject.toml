@@ -30,7 +30,7 @@ dependencies = [
     "requests>=2.32.3",
     "pytz>=2024.2",
     "result>=0.17.0",
-    "gridworks-base>=0.6.0",
+    "gridworks-base>=0.7.3",
     "gw_data>=0.8.0"
 ]
 

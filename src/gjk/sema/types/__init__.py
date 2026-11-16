@@ -33,6 +33,7 @@ from gjk.sema.types.gw_scada_commit import GwScadaCommit
 from gjk.sema.types.gw_state_machine import GwStateMachine
 from gjk.sema.types.gw_tou_tariff import GwTouTariff
 from gjk.sema.types.gw_tou_window import GwTouWindow
+from gjk.sema.types.gw_weather_archive_cmd import GwWeatherArchiveCmd
 from gjk.sema.types.gw_weather_channel_gt import GwWeatherChannelGt
 from gjk.sema.types.gw_weather_cmd_ack import GwWeatherCmdAck
 from gjk.sema.types.gw_weather_cmd_nack import GwWeatherCmdNack
@@ -119,6 +120,7 @@ __all__ = [
     "GwStateMachine",
     "GwTouTariff",
     "GwTouWindow",
+    "GwWeatherArchiveCmd",
     "GwWeatherChannelGt",
     "GwWeatherCmdAck",
     "GwWeatherCmdNack",

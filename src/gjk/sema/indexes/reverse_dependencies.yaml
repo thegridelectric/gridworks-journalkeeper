@@ -707,6 +707,7 @@ formats:
     - gw.scada.commit:000
     - gw.state.machine:000
     - gw.tou.tariff:000
+    - gw.weather.archive.cmd:000
     - gw.weather.channel.gt:002
     - gw.weather.forecast.bundle.gt:002
     - gw.weather.forecast.channel.gt:000
@@ -763,6 +764,7 @@ formats:
     - weather.forecast:000
   lowercase.token:
     used_by:
+    - gw.weather.archive.cmd:000
     - gw.weather.channel.gt:002
     - gw.weather.observation:001
     - gw.weather.station.gt:000
@@ -883,6 +885,7 @@ formats:
     - ticklist.reed.report:000
   utc.iso8601.seconds:
     used_by:
+    - gw.weather.archive.cmd:000
     - gw.weather.channel.gt:002
     - gw.weather.forecast.bundle.gt:002
     - gw.weather.forecast.channel.gt:000
@@ -912,6 +915,7 @@ formats:
     - gw.house.operating.status:000
     - gw.price.forecast:000
     - gw.scada.commit:000
+    - gw.weather.archive.cmd:000
     - gw.weather.forecast:001
     - gw.weather.forecast:002
     - latest.price:001

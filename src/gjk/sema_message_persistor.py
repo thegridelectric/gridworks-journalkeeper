@@ -40,6 +40,8 @@ class SemaMessagePersistor:
         "flo.recommendation": "created_ms",
         "flo.previous.run": "created_ms",
         "gw.price.forecast": "created_ms",
+        # The archive round, the minting act that fills a station's past.
+        "gw.weather.archive.cmd": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.scada.commit": "message_created_ms",

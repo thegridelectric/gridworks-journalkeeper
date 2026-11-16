@@ -92,6 +92,7 @@ initial_targets:
     gw.weather.station.gt: {}
     gw.weather.seasonal.template.gt: {}
     gw.weather.create.cmd: {}
+    gw.weather.archive.cmd: {}
     gw.weather.cmd.ack: {}
     gw.weather.cmd.nack: {}
     # The alerter's words: the alert record (Firing / Resolved) and the
