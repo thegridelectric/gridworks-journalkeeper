@@ -1,7 +1,8 @@
-"""The bundle-creation → observed-series pseudo-channel mechanism.
+"""The bundle broadcast ensures the observed-series reading channels it
+binds.
 
 Hermetic half: the natural message id and the channel derivation,
-against the REAL snapshot sample (no mocks — the derivation rules are
+against the REAL snapshot sample (no mocks: the derivation rules are
 the contract under test). DB half: create-if-absent idempotency
 against the migrated harness DB.
 """
@@ -17,7 +18,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from gjk.sema import SemaCodec
 from gjk.sema.enums import GwChannelKind
 from gjk.sema.types import GwWeatherForecastBundleGt
-from gjk.weather_bundle_persistor import WeatherBundlePersistor, flat_channel_name
+from gjk.weather_bundle_persistor import WeatherBundlePersistor
+from gjk.weather_channel_persistor import flat_channel_name
 
 SAMPLES = Path(__file__).resolve().parents[1] / "src" / "gjk" / "sema" / "samples"
 WEATHER_GNODE = "d1.weather"

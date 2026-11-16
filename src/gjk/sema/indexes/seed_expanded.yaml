@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-11-14T22:43:22Z'
+  generated_at: '2026-11-16T05:54:22Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -82,6 +82,7 @@ initial_targets:
 - gw.weather.station.gt:000
 - gw.weather.seasonal.template.gt:000
 - gw.weather.create.cmd:002
+- gw.weather.archive.cmd:000
 - gw.weather.cmd.ack:000
 - gw.weather.cmd.nack:000
 - gw.alert:001
@@ -481,6 +482,9 @@ worklist:
     gw.tou.window:
       '000':
         path: definitions/types/gw.tou.window/000.yaml
+    gw.weather.archive.cmd:
+      '000':
+        path: definitions/types/gw.weather.archive.cmd/000.yaml
     gw.weather.channel.gt:
       '002':
         path: definitions/types/gw.weather.channel.gt/002.yaml

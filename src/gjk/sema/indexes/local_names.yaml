@@ -90,6 +90,7 @@ types:
   gw.state.machine: gw.state.machine
   gw.tou.tariff: gw.tou.tariff
   gw.tou.window: gw.tou.window
+  gw.weather.archive.cmd: gw.weather.archive.cmd
   gw.weather.channel.gt: gw.weather.channel.gt
   gw.weather.cmd.ack: gw.weather.cmd.ack
   gw.weather.cmd.nack: gw.weather.cmd.nack

@@ -24,6 +24,7 @@ from gjk.alert_persistor import AlertPersistor
 from gjk.g_node_forest_persistor import GNodeForestPersistor
 from gjk.gw_weather_forecast_persistor import GwWeatherForecastPersistor
 from gjk.weather_bundle_persistor import WeatherBundlePersistor
+from gjk.weather_channel_persistor import WeatherChannelPersistor
 from gjk.weather_forecast_persistor import WeatherForecastPersistor
 from gjk.weather_observation_persistor import WeatherObservationPersistor
 
@@ -39,6 +40,8 @@ class SemaMessagePersistor:
         "flo.recommendation": "created_ms",
         "flo.previous.run": "created_ms",
         "gw.price.forecast": "created_ms",
+        # The archive round, the minting act that fills a station's past.
+        "gw.weather.archive.cmd": "created_ms",
         "gridworks.event.problem": "time_created_ms",
         "energy.instruction": "send_time_ms",
         "gw.scada.commit": "message_created_ms",
@@ -62,10 +65,9 @@ class SemaMessagePersistor:
         "scada.params": "message_id",
         # Weather records are durable identities; their own uuid is the
         # message id, so a record replayed through the bus dedupes. (The
-        # bundle is absent here: WeatherBundlePersistor owns it, keeping
-        # the same natural-id rule, and GwWeatherForecastPersistor the
-        # forecast.)
-        "gw.weather.channel.gt": "id",
+        # channel and the bundle are absent here: WeatherChannelPersistor
+        # and WeatherBundlePersistor own them, keeping the same natural-id
+        # rule, and GwWeatherForecastPersistor the forecast.)
         "gw.weather.forecast.channel.gt": "id",
         "gw.weather.location.gt": "id",
         "gw.weather.seasonal.template.gt": "id",
@@ -122,6 +124,7 @@ class SemaMessagePersistor:
                 FloParamsHouse0Persistor(logger),
                 WeatherForecastPersistor(logger),
                 GwWeatherForecastPersistor(logger),
+                WeatherChannelPersistor(logger),
                 WeatherBundlePersistor(logger),
                 WeatherObservationPersistor(logger),
                 # The registry alias is the universe's `<universe>.gnr` —

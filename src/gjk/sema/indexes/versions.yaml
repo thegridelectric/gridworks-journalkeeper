@@ -331,6 +331,13 @@ types:
       "000":
         summary: "Initial version: Start (inclusive) and End (exclusive) hh.mm plus Days (day.of.week list). Axioms: Start strictly before End (no midnight wrap); Days non-empty and duplicate-free."
 
+  gw.weather.archive.cmd:
+    latest_version: "000"
+    versioning_strategy: "literal"
+    versions:
+      "000":
+        summary: "- Initial version"
+
   gw.weather.channel.gt:
     latest_version: "002"
     versioning_strategy: "literal"
