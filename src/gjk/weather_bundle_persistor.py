@@ -1,41 +1,22 @@
-"""Observed-series pseudo-channels — created when a bundle record
-broadcast arrives.
+"""The bundle broadcast ensures the observed-series reading channels it
+binds.
 
-A gw.weather.forecast.bundle.gt broadcast is the sign its embedded
-observation channels are about to start flowing (the weather service
-emits per bundle), so that is the moment gjk ensures each observed
-series has a reading channel. OBSERVATION channels only — a forecast
-channel never gets a reading channel (readings stay
-current-weather-only; forecast messages live in the messages table).
-The series is fleet-scoped, owned by no terminal asset; on today's
-NOT-NULL table shape ``terminal_asset_alias`` carries the
-broadcasting weather GNode's alias — the owning source, matching the
-messages rows' from_alias.
-
-The row is the record's index: ``channel_id`` is the record's Id, the
-unit is the record's, and the kind is WeatherObserved. The station and
-the rest of the record are read from the journaled record by that Id.
-No sema word covers the reading-channel row itself yet: the hand-built
-shape here (flat name, hand-kept unit_type) is retired by
-``gjk.pseudo.channel.gt`` when that word is authored — the channel
-table then becomes the word's projection.
+A gw.weather.forecast.bundle.gt broadcast embeds its observation
+channel records, so the journal ensures each has a reading channel
+when the bundle arrives, through the same create-if-absent path the
+channel record's own broadcast takes (``weather_channel_persistor``).
+OBSERVATION channels only: a forecast channel never gets a reading
+channel (readings stay current-weather-only; forecast messages live
+in the messages table).
 """
 
-import uuid
 from datetime import datetime
 
-from gw_data.db.models import ReadingChannelSql
 from sqlalchemy.orm import Session
 
 from gjk.message_persistence_info import MessagePersistenceInfo
-from gjk.sema.enums import Gw1Unit, GwChannelKind
-from gjk.sema.types import GwWeatherChannelGt, GwWeatherForecastBundleGt
-
-
-def flat_channel_name(name: str) -> str:
-    """The reading-channel rendering of a gw.weather channel Name
-    (LeftRightDot → today's dash-separated channel-name form)."""
-    return name.replace(".", "-")
+from gjk.sema.types import GwWeatherForecastBundleGt
+from gjk.weather_channel_persistor import ensure_channel
 
 
 class WeatherBundlePersistor:
@@ -54,60 +35,13 @@ class WeatherBundlePersistor:
     ) -> MessagePersistenceInfo:
         def ensure_channels(db: Session) -> None:
             for binding in bundle.binding_list:
-                self._ensure_channel(db, from_alias, binding.observation_channel)
+                ensure_channel(db, self.logger, from_alias, binding.observation_channel)
 
         return MessagePersistenceInfo(
             # Records are durable identities: the bundle's own uuid is the
-            # message id, so a replayed broadcast dedupes. No created_at —
-            # records carry no message-created time by design.
+            # message id, so a replayed broadcast dedupes. No created_at:
+            # records have no message-created time by design.
             id=bundle.id,
             created_at=None,
             additional_db_operations=ensure_channels,
-        )
-
-    def _ensure_channel(
-        self, db: Session, from_alias: str, record: GwWeatherChannelGt
-    ) -> None:
-        """Create-if-absent, keyed on (owner alias, flat name) among
-        active rows — idempotent for live re-delivery and S3 re-import.
-        An existing row that disagrees with the record is logged, never
-        silently mutated (that disagreement is a human conversation)."""
-        name = flat_channel_name(record.name)
-        existing = (
-            db
-            .query(ReadingChannelSql)
-            .filter(
-                ReadingChannelSql.deactivated_date.is_(None),
-                ReadingChannelSql.terminal_asset_alias == from_alias,
-                ReadingChannelSql.name == name,
-            )
-            .first()
-        )
-        if existing is not None:
-            if (
-                existing.unit != record.unit
-                or existing.unit_type != Gw1Unit.enum_name()
-                or existing.channel_type != GwChannelKind.WeatherObserved.value
-            ):
-                self.logger.warning(
-                    f"reading channel {name} ({from_alias}) exists with "
-                    f"{existing.channel_type}:{existing.unit_type}:{existing.unit}, "
-                    f"disagreeing with the {record.name} record ({record.unit}) — "
-                    "leaving it untouched"
-                )
-            return
-        db.add(
-            ReadingChannelSql(
-                id=uuid.uuid4(),
-                name=name,
-                terminal_asset_alias=from_alias,
-                display_name=record.display_name,
-                unit=record.unit,
-                unit_type=Gw1Unit.enum_name(),
-                channel_type=GwChannelKind.WeatherObserved.value,
-                channel_id=uuid.UUID(record.id),
-            )
-        )
-        self.logger.info(
-            f"created observed-series reading channel {name} ({from_alias})"
         )
