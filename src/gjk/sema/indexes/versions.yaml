@@ -101,9 +101,11 @@ types:
         summary: "StartUnixS, StepDurationMinutes, HpAvgWList (W), StoreWhList (Wh); axiom StepListLengths."
 
   flo.params:
-    latest_version: "002"
+    latest_version: "003"
     versioning_strategy: "literal"
     versions:
+      "003":
+        summary: "- Tuning: flo.tuning.bruce 001 -> 002"
       "002":
         summary: >
           - PriceUsdMwhList: add, in place of LmpUsdMwhList and DistUsdMwhList
@@ -167,9 +169,11 @@ types:
         summary: "Earliest wire shape (single shape, seen 2025-01-04 to 2025-01-06), back-filled from S3 evidence. As v001 but without CopMin, CopMinOatF, HpIsOff, HpTurnOnMinutes and the v001-era optional fields (BufferAvailableKwh, HouseAvailableKwh, InitialBottomTempF, DischargingDdDeltaTF)."
 
   flo.path.penalties.bruce:
-    latest_version: "000"
+    latest_version: "001"
     versioning_strategy: "literal"
     versions:
+      "001":
+        summary: "- UnmetLoadPenaltyUsdList: add, assigned zeros"
       "000":
         summary: "RswtPenaltyUsdList, StabilityPenaltyUsdList, ShortCyclePenaltyUsdList (USD per step), TerminalCostUsd, TerminalCostEmptyStoreUsd, PathCostUsd; axioms PenaltyListLengths, TerminalCostBound."
 
@@ -181,9 +185,11 @@ types:
         summary: "Path (flo.optimal.path), ClearedPairIndex, ClearedPair with PriceUnit and QuantityUnit, NextSlotPriceX1000, CreatedMs; axiom PathStartsAtTheBid."
 
   flo.recommendation:
-    latest_version: "001"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
+      "002":
+        summary: "- PathPenaltiesList: flo.path.penalties.bruce 000 -> 001"
       "001":
         summary: >
           - StoreStateList: add (optional, oneOf flo.tank.store.path)
@@ -206,9 +212,13 @@ types:
         summary: "TypeName and Version only."
 
   flo.tuning.bruce:
-    latest_version: "001"
+    latest_version: "002"
     versioning_strategy: "literal"
     versions:
+      "002":
+        summary: >
+          - UnmetLoadPenaltyEnabled: add, assigned false
+          - UnmetLoadPenaltyWeight: add, assigned 10
       "001":
         summary: "- NumLayers: add"
       "000":

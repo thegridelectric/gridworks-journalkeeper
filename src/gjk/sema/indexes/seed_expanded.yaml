@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-11-16T05:54:22Z'
+  generated_at: '2026-11-18T16:13:34Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -25,9 +25,11 @@ initial_targets:
 - flo.params:000
 - flo.params:001
 - flo.params:002
+- flo.params:003
 - flo.optimal.path:000
 - flo.recommendation:000
 - flo.recommendation:001
+- flo.recommendation:002
 - flo.previous.run:000
 - flo.params.house0:000
 - flo.params.house0:001
@@ -388,6 +390,8 @@ worklist:
         path: definitions/types/flo.params/001.yaml
       '002':
         path: definitions/types/flo.params/002.yaml
+      '003':
+        path: definitions/types/flo.params/003.yaml
     flo.params.house0:
       '000':
         path: definitions/types/flo.params.house0/000.yaml
@@ -408,6 +412,8 @@ worklist:
     flo.path.penalties.bruce:
       '000':
         path: definitions/types/flo.path.penalties.bruce/000.yaml
+      '001':
+        path: definitions/types/flo.path.penalties.bruce/001.yaml
     flo.previous.run:
       '000':
         path: definitions/types/flo.previous.run/000.yaml
@@ -416,6 +422,8 @@ worklist:
         path: definitions/types/flo.recommendation/000.yaml
       '001':
         path: definitions/types/flo.recommendation/001.yaml
+      '002':
+        path: definitions/types/flo.recommendation/002.yaml
     flo.tank.store.path:
       '000':
         path: definitions/types/flo.tank.store.path/000.yaml
@@ -427,6 +435,8 @@ worklist:
         path: definitions/types/flo.tuning.bruce/000.yaml
       '001':
         path: definitions/types/flo.tuning.bruce/001.yaml
+      '002':
+        path: definitions/types/flo.tuning.bruce/002.yaml
     fsm.atomic.report:
       '000':
         path: definitions/types/fsm.atomic.report/000.yaml
