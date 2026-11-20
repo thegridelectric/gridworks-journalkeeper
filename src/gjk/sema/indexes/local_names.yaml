@@ -42,6 +42,7 @@ enums:
   market.quantity.unit: market.quantity.unit
   pico.cycler.state: pico.cycler.state
   price.component.name: price.component.name
+  price.stage: price.stage
   primary.pump.control: primary.pump.control
   relay.closed.or.open: relay.closed.or.open
   relay.energization.state: relay.energization.state

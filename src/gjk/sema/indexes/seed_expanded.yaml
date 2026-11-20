@@ -1,6 +1,6 @@
 metadata:
   generated_from: indexes/public_registry.yaml
-  generated_at: '2026-11-18T16:13:34Z'
+  generated_at: '2026-11-19T22:33:33Z'
   note: Transitive closure of initial_targets
 initial_targets:
 - report.event:000
@@ -26,10 +26,12 @@ initial_targets:
 - flo.params:001
 - flo.params:002
 - flo.params:003
+- flo.params:004
 - flo.optimal.path:000
 - flo.recommendation:000
 - flo.recommendation:001
 - flo.recommendation:002
+- flo.recommendation:003
 - flo.previous.run:000
 - flo.params.house0:000
 - flo.params.house0:001
@@ -73,6 +75,7 @@ initial_targets:
 - bid:000
 - latest.price:000
 - latest.price:001
+- latest.price:002
 - gw.price.forecast:000
 - gw.weather.observation:001
 - gw.weather.forecast:001
@@ -294,6 +297,9 @@ worklist:
     price.component.name:
       '000':
         path: definitions/enums/price.component.name/000.yaml
+    price.stage:
+      '000':
+        path: definitions/enums/price.stage/000.yaml
     primary.pump.control:
       '000':
         path: definitions/enums/primary.pump.control/000.yaml
@@ -392,6 +398,8 @@ worklist:
         path: definitions/types/flo.params/002.yaml
       '003':
         path: definitions/types/flo.params/003.yaml
+      '004':
+        path: definitions/types/flo.params/004.yaml
     flo.params.house0:
       '000':
         path: definitions/types/flo.params.house0/000.yaml
@@ -414,6 +422,8 @@ worklist:
         path: definitions/types/flo.path.penalties.bruce/000.yaml
       '001':
         path: definitions/types/flo.path.penalties.bruce/001.yaml
+      '002':
+        path: definitions/types/flo.path.penalties.bruce/002.yaml
     flo.previous.run:
       '000':
         path: definitions/types/flo.previous.run/000.yaml
@@ -424,6 +434,8 @@ worklist:
         path: definitions/types/flo.recommendation/001.yaml
       '002':
         path: definitions/types/flo.recommendation/002.yaml
+      '003':
+        path: definitions/types/flo.recommendation/003.yaml
     flo.tank.store.path:
       '000':
         path: definitions/types/flo.tank.store.path/000.yaml
@@ -437,6 +449,8 @@ worklist:
         path: definitions/types/flo.tuning.bruce/001.yaml
       '002':
         path: definitions/types/flo.tuning.bruce/002.yaml
+      '003':
+        path: definitions/types/flo.tuning.bruce/003.yaml
     fsm.atomic.report:
       '000':
         path: definitions/types/fsm.atomic.report/000.yaml
@@ -580,6 +594,8 @@ worklist:
         path: definitions/types/latest.price/000.yaml
       '001':
         path: definitions/types/latest.price/001.yaml
+      '002':
+        path: definitions/types/latest.price/002.yaml
     layout.lite:
       '001':
         path: definitions/types/layout.lite/001.yaml
