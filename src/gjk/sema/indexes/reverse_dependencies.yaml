@@ -68,6 +68,7 @@ types:
       - flo.params:002
       - flo.params:003
       - flo.params:004
+      - flo.params:005
       - flo.previous.run:000
       - flo.recommendation:000
       - flo.recommendation:001
@@ -97,6 +98,7 @@ types:
       - flo.params:002
       - flo.params:003
       - flo.params:004
+      - flo.params:005
   flo.tuning.bruce:
     '000':
       used_by:
@@ -111,6 +113,7 @@ types:
     '003':
       used_by:
       - flo.params:004
+      - flo.params:005
   fsm.atomic.report:
     '000':
       used_by:
@@ -542,6 +545,7 @@ enums:
       - flo.params:002
       - flo.params:003
       - flo.params:004
+      - flo.params:005
       - gw.house.operating.status:000
       - layout.lite:008
       - layout.lite:009
@@ -721,6 +725,7 @@ formats:
     - flo.params:002
     - flo.params:003
     - flo.params:004
+    - flo.params:005
     - flo.recommendation:000
     - flo.recommendation:001
     - flo.recommendation:002
@@ -851,6 +856,7 @@ formats:
     - flo.params:002
     - flo.params:003
     - flo.params:004
+    - flo.params:005
     - flo.tank.store.path:000
     - flo.tuning.bruce:001
     - flo.tuning.bruce:002
@@ -946,6 +952,7 @@ formats:
     - flo.params:002
     - flo.params:003
     - flo.params:004
+    - flo.params:005
     - flo.previous.run:000
     - flo.recommendation:000
     - flo.recommendation:001
@@ -1025,6 +1032,7 @@ formats:
     - flo.params:002
     - flo.params:003
     - flo.params:004
+    - flo.params:005
     - gw.price.forecast:000
     - heating.forecast:000
     - report:001
@@ -1055,6 +1063,7 @@ formats:
     - flo.params:002
     - flo.params:003
     - flo.params:004
+    - flo.params:005
     - fsm.atomic.report:000
     - fsm.atomic.report:001
     - fsm.full.report:000
