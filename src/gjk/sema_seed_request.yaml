@@ -1,8 +1,14 @@
 # Regenerate the snapshot after editing this seed:
 #   scripts/regen_sema_snapshot.sh
-# (runs `sema snapshot prepare <this file>` + `build --package-name gjk` in the
-# sema repo, then mirrors output/sema -> src/gjk/sema). src/gjk/sema is
-# generated — edit this seed, not the vendored output.
+# (one call to `sema snapshot regen` on this file in the sema repo;
+# `package_name` and `vendor_dir` say where the snapshot goes). src/gjk/sema
+# is generated: edit this seed, not the vendored output.
+#
+# No `staging` block: JournalKeeper is deployed from main and its snapshot
+# holds published words only. A staging version a word stages is passed
+# over by `include_all_versions` and reported at the build; a staging word
+# the closure reaches fails the build. The snapshot's check_staging.py
+# (run by ci.sh) fails on any staging word the snapshot holds.
 #
 # initial_targets may contain only types and enums. Formats are never listed
 # directly; they are pulled in through type dependencies.
@@ -13,6 +19,9 @@
 #   versions: ["001", "003"]   Include explicit versions. For types, seed
 #                              expansion also fills in intermediate versions.
 
+package_name: gjk
+vendor_dir: sema
+
 initial_targets:
   types:
     report.event:
@@ -20,8 +29,7 @@ initial_targets:
     layout.lite:
       # Every version a scada has sent or sends: the walk-back extends this
       # backward; 002/003 are historical back-fill versions the S3 archive
-      # still carries and JK must decode. 014 is staging and runs on dev
-      # until promoted.
+      # still carries and JK must decode.
       versions: ["001", "002", "003", "004", "005", "006", "007", "008", "009", "010", "011", "012", "013", "014"]
     glitch:
       include_all_versions: true
