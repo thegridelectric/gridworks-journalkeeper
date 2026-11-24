@@ -18,7 +18,8 @@ step "ruff check" uv run ruff check --no-fix .
 step "ruff format --check" uv run ruff format --check .
 step "pyright" uv run pyright
 step "sema snapshot staging check" uv run python -P \
-  src/gjk/sema/check_staging.py src/gjk/sema_seed_request.yaml
+  src/gjk/sema/check_staging.py src/gjk/sema_seed_request.yaml \
+  --deploy-branch main
 step "tests" uv run pytest -q tests/
 
 printf '\nAll checks passed.\n'
