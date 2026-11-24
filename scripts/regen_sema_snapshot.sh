@@ -1,32 +1,26 @@
 #!/usr/bin/env bash
 #
-# Regenerate the vendored Sema snapshot under src/gjk/sema from the canonical
-# sema repo.
+# regen_sema_snapshot.sh — regenerate JournalKeeper's vendored Sema snapshot
+# (src/gjk/sema) from the canonical sema repo, with `sema snapshot regen` on
+# the seed src/gjk/sema_seed_request.yaml. The seed states the staging
+# policy (none: published-only), the package name and the vendor dir; there
+# is no flag to pass.
 #
-# src/gjk/sema is GENERATED — never hand-edit it. To change what the snapshot
-# contains, edit the seed (src/gjk/sema_seed_request.yaml) or the sema
-# definitions, then re-run this script.
+# The vendored tree is GENERATED: never hand-edit it; edit the seed (or the
+# sema definitions) and re-run.
 #
-# This script owns only the gjk-specific wiring; the build mechanics are the
-# sema CLI's (`sema snapshot --help` is the source of truth). The three glue
-# facts a generic CLI can't know:
-#   1. the seed lives at src/gjk/sema_seed_request.yaml
-#   2. --package-name is `gjk`   (build derives import_root = <name>.sema =
-#      gjk.sema; do NOT pass "gjk.sema")
-#   3. the built tree is mirrored from <sema>/output/sema into src/gjk/sema
-#
-# The snapshot reflects the sema repo's CURRENT checkout — check out the sema
-# ref you intend to ship from before running.
+# The CLI refuses to run from a dirty sema checkout, so the snapshot is
+# reproducible from the sema commit the checkout sits on; the snapshot's
+# README records it.
 #
 # Usage:
 #   scripts/regen_sema_snapshot.sh                 # sibling ../sema checkout
 #   SEMA_REPO=/path/to/sema scripts/regen_sema_snapshot.sh
-#   ALLOW_STAGED=1 scripts/regen_sema_snapshot.sh  # a dev-only snapshot that
-#                                                  # vendors staging words
 set -euo pipefail
 
 GJK_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SEMA_REPO="${SEMA_REPO:-$(cd "${GJK_ROOT}/../sema" 2>/dev/null && pwd || true)}"
+SEED="${GJK_ROOT}/src/gjk/sema_seed_request.yaml"
 
 if [[ -z "${SEMA_REPO}" || ! -d "${SEMA_REPO}" ]]; then
   echo "error: sema repo not found." >&2
@@ -35,26 +29,7 @@ if [[ -z "${SEMA_REPO}" || ! -d "${SEMA_REPO}" ]]; then
   exit 1
 fi
 
-SEED="${GJK_ROOT}/src/gjk/sema_seed_request.yaml"
-PACKAGE_NAME="gjk"
-
-echo "==> sema repo: ${SEMA_REPO}"
-echo "==> seed:      ${SEED}"
-echo "==> package:   ${PACKAGE_NAME}"
-
+echo "==> sema repo: ${SEMA_REPO} @ $(git -C "${SEMA_REPO}" rev-parse --short HEAD)"
 cd "${SEMA_REPO}"
-PREPARE_ARGS=()
-if [[ "${ALLOW_STAGED:-}" == "1" ]]; then
-  PREPARE_ARGS+=(--allow-staged)
-fi
-
-echo "==> sema snapshot prepare ${PREPARE_ARGS[*]:-}"
-uv run sema snapshot prepare ${PREPARE_ARGS[@]+"${PREPARE_ARGS[@]}"} "${SEED}"
-echo "==> sema snapshot build --package-name ${PACKAGE_NAME}"
-uv run sema snapshot build --package-name "${PACKAGE_NAME}"
-
-echo "==> mirror ${SEMA_REPO}/output/sema -> ${GJK_ROOT}/src/gjk/sema"
-rsync -a --delete --exclude='__pycache__' \
-  "${SEMA_REPO}/output/sema/" "${GJK_ROOT}/src/gjk/sema/"
-
-echo "==> done. review the diff (git status) and run: uv run pytest -q"
+uv run sema snapshot regen "${SEED}"
+echo "==> done. review the diff (git status) and run ./ci.sh."

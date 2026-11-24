@@ -17,6 +17,8 @@ step "uv sync (locked)" uv sync --all-extras --all-groups --locked
 step "ruff check" uv run ruff check --no-fix .
 step "ruff format --check" uv run ruff format --check .
 step "pyright" uv run pyright
+step "sema snapshot staging check" uv run python -P \
+  src/gjk/sema/check_staging.py src/gjk/sema_seed_request.yaml
 step "tests" uv run pytest -q tests/
 
 printf '\nAll checks passed.\n'
